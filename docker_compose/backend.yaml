@@ -1,0 +1,18 @@
+services:
+  backend:
+    container_name: fastapi-yt-backend-dev
+    build:
+      context: ..
+      dockerfile: Dockerfile
+    image: fastapi-yt-backend-dev
+    pull_policy: build
+    ports:
+      - "${FASTAPI_PORT}:8000"
+    volumes:
+      - ..:/src/
+    env_file:
+      - ../.env
+    command: "uvicorn --factory app.presentation.api.main:create_app --host 0.0.0.0 --port 8000 --reload"
+    depends_on:
+      postgres:
+        condition: service_healthy

@@ -1,0 +1,17 @@
+services:
+  postgres:
+    container_name: fastapi-yt-postgres-dev
+    image: postgres:18-alpine
+    volumes:
+      - postgres_data:/var/lib/postgresql/18/docker
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER} -d ${POSTGRES_DB}"]
+      interval: 5s
+      timeout: 60s
+      retries: 5
+    env_file:
+      - ../.env
+
+volumes:
+  postgres_data:
+    name: fastapi_yt_postgres_data

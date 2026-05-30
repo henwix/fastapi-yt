@@ -1,6 +1,6 @@
 from datetime import datetime
 
-from pydantic import BaseModel, EmailStr, Field
+from pydantic import BaseModel, EmailStr, Field, field_validator
 
 from app.domain.channels.entities import Channel
 
@@ -15,6 +15,11 @@ class CreateChannelSchema(BaseChannelSchema):
     description: str = Field(default='')
     country: str = Field(default='')
     password: str
+
+    @field_validator('name', 'slug', 'description', 'country', mode='before')
+    @classmethod
+    def strip_whitespace(cls, v: str) -> str:
+        return v.strip()
 
 
 class GetChannelSchema(BaseChannelSchema):

@@ -1,0 +1,31 @@
+from dishka import FromDishka
+from dishka.integrations.fastapi import DishkaRoute
+from fastapi import APIRouter, status
+
+from app.application.commands.auth import LoginCommand
+from app.application.use_cases.auth.login import LoginUseCase
+from app.domain.auth.exceptions import IncorrectEmailOrPasswordError
+from app.presentation.api.openapi.common import error_response
+from app.presentation.api.v1.schemas.auth import JWTSchema, LoginSchema
+
+router = APIRouter(
+    prefix='/auth',
+    tags=['Auth'],
+    route_class=DishkaRoute,
+)
+
+
+@router.post(
+    path='/login',
+    status_code=status.HTTP_201_CREATED,
+    responses={
+        status.HTTP_401_UNAUTHORIZED: error_response(IncorrectEmailOrPasswordError),
+    },
+)
+async def login(
+    schema: LoginSchema,
+    use_case: FromDishka[LoginUseCase],
+) -> JWTSchema:
+    command = LoginCommand(**schema.model_dump())
+    tokens = await use_case.execute(command=command)
+    return JWTSchema(**tokens)

@@ -4,22 +4,20 @@ from app.application.commands.channels import CreateChannelCommand
 from app.application.common.password_hasher import IPasswordHasher
 from app.application.common.transaction_manager import ITransactionManager
 from app.domain.channels.entities import Channel
-from app.domain.channels.exceptions import ChannelWithEmailAlreadyExists, ChannelWithSlugAlreadyExists
 from app.domain.channels.repository import IChannelRepository
+from app.domain.channels.services import IChannelValidatorService
 
 
 @dataclass
 class CreateChannelUseCase:
     password_hasher: IPasswordHasher
+    channels_validator_service: IChannelValidatorService
     channels_repository: IChannelRepository
     transaction_manager: ITransactionManager
 
     async def execute(self, command: CreateChannelCommand) -> Channel:
         async with self.transaction_manager:
-            if await self.channels_repository.check_channel_exists_by_email(email=command.email):
-                raise ChannelWithEmailAlreadyExists(email=command.email)
-            if await self.channels_repository.check_channel_exists_by_slug(slug=command.slug):
-                raise ChannelWithSlugAlreadyExists(slug=command.slug)
+            await self.channels_validator_service.validate(email=command.email, slug=command.slug)
 
             channel_entity = Channel.create(
                 email=command.email,

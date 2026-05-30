@@ -3,6 +3,8 @@ from fastapi import APIRouter, status
 
 from app.application.commands.channels import CreateChannelCommand
 from app.application.use_cases.channels.create_channel import CreateChannelUseCase
+from app.domain.channels.exceptions import ChannelWithEmailAlreadyExists, ChannelWithSlugAlreadyExists
+from app.presentation.api.openapi.common import error_response
 from app.presentation.api.v1.schemas.channels import CreateChannelSchema, GetChannelSchema
 
 router = APIRouter(
@@ -12,7 +14,16 @@ router = APIRouter(
 )
 
 
-@router.post('/', status_code=status.HTTP_201_CREATED)
+@router.post(
+    '/',
+    status_code=status.HTTP_201_CREATED,
+    responses={
+        status.HTTP_400_BAD_REQUEST: error_response(
+            ChannelWithEmailAlreadyExists,
+            ChannelWithSlugAlreadyExists,
+        )
+    },
+)
 async def create_channel(
     schema: CreateChannelSchema,
     use_case: FromDishka[CreateChannelUseCase],

@@ -8,13 +8,13 @@ from app.application.common.transaction_manager import ITransactionManager
 
 @dataclass
 class SATransactionManager(ITransactionManager):
-    __session: AsyncSession
+    _session: AsyncSession
 
     async def commit(self) -> None:
-        await self.__session.commit()
+        await self._session.commit()
 
     async def rollback(self) -> None:
-        await self.__session.rollback()
+        await self._session.rollback()
 
     async def __aenter__(self) -> Self:
         return self

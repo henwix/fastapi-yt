@@ -5,7 +5,7 @@ from dishka import AsyncContainer, Provider, Scope, make_async_container, provid
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.application.common.password_hasher import IPasswordHasher
-from app.application.common.transcation_manager import ITransactionManager
+from app.application.common.transaction_manager import ITransactionManager
 from app.application.use_cases.channels.create_channel import CreateChannelUseCase
 from app.domain.channels.repository import IChannelRepository
 from app.infrastructure.security.password_hasher import PwdlibPasswordHasher

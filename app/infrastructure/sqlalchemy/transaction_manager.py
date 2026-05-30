@@ -3,7 +3,7 @@ from typing import Self
 
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from app.application.common.transcation_manager import ITransactionManager
+from app.application.common.transaction_manager import ITransactionManager
 
 
 @dataclass

@@ -4,6 +4,7 @@ from fastapi import FastAPI
 from app.core.configs import settings
 from app.domain.common.exceptions import AppException
 from app.infrastructure.di.container import get_container
+from app.infrastructure.logging.config import configure_logging
 from app.presentation.api.exception_handler import exception_handler
 from app.presentation.api.v1.router import v1_router
 
@@ -18,6 +19,8 @@ def init_routers(app: FastAPI) -> None:
 
 
 def create_app() -> FastAPI:
+    configure_logging()
+
     app = FastAPI(title=settings.app_name)
     app.add_exception_handler(AppException, exception_handler)
 

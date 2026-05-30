@@ -2,7 +2,7 @@ from dataclasses import dataclass
 
 from app.application.commands.channels import CreateChannelCommand
 from app.application.common.password_hasher import IPasswordHasher
-from app.application.common.transcation_manager import ITransactionManager
+from app.application.common.transaction_manager import ITransactionManager
 from app.domain.channels.entities import Channel
 from app.domain.channels.exceptions import ChannelWithEmailAlreadyExists, ChannelWithSlugAlreadyExists
 from app.domain.channels.repository import IChannelRepository

@@ -3,8 +3,8 @@ from .general import GeneralSettings
 
 
 class Settings(
-    DatabaseSettings,
     GeneralSettings,
+    DatabaseSettings,
 ): ...
 
 

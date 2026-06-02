@@ -1,11 +1,22 @@
 from dishka.integrations.fastapi import DishkaRoute, FromDishka
 from fastapi import APIRouter, status
 
-from app.application.commands.channels import CreateChannelCommand
+from app.application.commands.channels import CreateChannelCommand, DeleteChannelCommand, UpdateChannelCommand
+from app.application.queries.channels import GetChannelQuery
 from app.application.use_cases.channels.create_channel import CreateChannelUseCase
-from app.domain.channels.exceptions import ChannelWithEmailAlreadyExists, ChannelWithSlugAlreadyExists
+from app.application.use_cases.channels.delete_channel import DeleteChannelUseCase
+from app.application.use_cases.channels.get_channel import GetChannelUseCase
+from app.application.use_cases.channels.update_channel import UpdateChannelUseCase
+from app.domain.auth.exceptions import JWTExpiredTokenError, JWTInvalidTokenError, NotAuthenticatedError
+from app.domain.channels.exceptions import (
+    ChannelNotActiveError,
+    ChannelNotFoundError,
+    ChannelWithEmailAlreadyExists,
+    ChannelWithSlugAlreadyExists,
+)
 from app.presentation.api.openapi.common import error_response
-from app.presentation.api.v1.schemas.channels import CreateChannelSchema, GetChannelSchema
+from app.presentation.api.v1.di.current_channel_id import CurrentChannelID
+from app.presentation.api.v1.schemas.channels import CreateChannelSchema, GetChannelSchema, UpdateChannelSchema
 
 router = APIRouter(
     prefix='/channels',
@@ -31,3 +42,68 @@ async def create_channel(
     command = CreateChannelCommand(**schema.model_dump())
     channel = await use_case.execute(command=command)
     return GetChannelSchema.from_entity(entity=channel)
+
+
+@router.get(
+    '/',
+    responses={
+        status.HTTP_401_UNAUTHORIZED: error_response(
+            NotAuthenticatedError,
+            JWTExpiredTokenError,
+            JWTInvalidTokenError,
+        ),
+        status.HTTP_403_FORBIDDEN: error_response(ChannelNotActiveError),
+        status.HTTP_404_NOT_FOUND: error_response(ChannelNotFoundError),
+    },
+)
+async def get_channel(
+    current_channel_id: CurrentChannelID,
+    use_case: FromDishka[GetChannelUseCase],
+) -> GetChannelSchema:
+    query = GetChannelQuery(channel_id=current_channel_id)
+    channel = await use_case.execute(query=query)
+    return GetChannelSchema.from_entity(entity=channel)
+
+
+@router.patch(
+    '/',
+    responses={
+        status.HTTP_400_BAD_REQUEST: error_response(ChannelWithSlugAlreadyExists),
+        status.HTTP_401_UNAUTHORIZED: error_response(
+            NotAuthenticatedError,
+            JWTExpiredTokenError,
+            JWTInvalidTokenError,
+        ),
+        status.HTTP_403_FORBIDDEN: error_response(ChannelNotActiveError),
+        status.HTTP_404_NOT_FOUND: error_response(ChannelNotFoundError),
+    },
+)
+async def update_channel(
+    schema: UpdateChannelSchema,
+    current_channel_id: CurrentChannelID,
+    use_case: FromDishka[UpdateChannelUseCase],
+) -> GetChannelSchema:
+    command = UpdateChannelCommand(channel_id=current_channel_id, **schema.model_dump(exclude_unset=True))
+    channel = await use_case.execute(command=command)
+    return GetChannelSchema.from_entity(entity=channel)
+
+
+@router.delete(
+    '/',
+    status_code=status.HTTP_204_NO_CONTENT,
+    responses={
+        status.HTTP_401_UNAUTHORIZED: error_response(
+            NotAuthenticatedError,
+            JWTExpiredTokenError,
+            JWTInvalidTokenError,
+        ),
+        status.HTTP_403_FORBIDDEN: error_response(ChannelNotActiveError),
+        status.HTTP_404_NOT_FOUND: error_response(ChannelNotFoundError),
+    },
+)
+async def delete_channel(
+    current_channel_id: CurrentChannelID,
+    use_case: FromDishka[DeleteChannelUseCase],
+):
+    command = DeleteChannelCommand(channel_id=current_channel_id)
+    await use_case.execute(command=command)

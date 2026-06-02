@@ -1,6 +1,7 @@
 from dataclasses import dataclass, field
 from datetime import datetime
 
+from app.domain.common.constants import Empty
 from app.domain.common.entities import BaseEntity
 from app.utils.get_datetime_utc_now import get_datetime_utc_now
 
@@ -35,3 +36,19 @@ class Channel(BaseEntity):
             description=description,
             country=country,
         )
+
+    def update(
+        self,
+        name: str | Empty,
+        slug: str | Empty,
+        description: str | Empty,
+        country: str | Empty,
+    ) -> None:
+        if name is not Empty.UNSET:
+            self.name = name
+        if slug is not Empty.UNSET:
+            self.slug = slug
+        if description is not Empty.UNSET:
+            self.description = description
+        if country is not Empty.UNSET:
+            self.country = country

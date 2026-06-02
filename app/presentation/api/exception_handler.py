@@ -3,8 +3,18 @@ from logging import getLogger
 
 from fastapi import Request, status
 
-from app.domain.auth.exceptions import IncorrectEmailOrPasswordError, JWTExpiredTokenError, JWTInvalidTokenError
-from app.domain.channels.exceptions import ChannelWithEmailAlreadyExists, ChannelWithSlugAlreadyExists
+from app.domain.auth.exceptions import (
+    IncorrectEmailOrPasswordError,
+    JWTExpiredTokenError,
+    JWTInvalidTokenError,
+    NotAuthenticatedError,
+)
+from app.domain.channels.exceptions import (
+    ChannelNotActiveError,
+    ChannelNotFoundError,
+    ChannelWithEmailAlreadyExists,
+    ChannelWithSlugAlreadyExists,
+)
 from app.domain.common.exceptions import AppException
 from app.presentation.api.responses.msgspec import MsgSpecJSONResponse
 
@@ -16,10 +26,13 @@ def get_http_status_code(exc: AppException):
         # Channels
         ChannelWithEmailAlreadyExists: status.HTTP_400_BAD_REQUEST,
         ChannelWithSlugAlreadyExists: status.HTTP_400_BAD_REQUEST,
+        ChannelNotFoundError: status.HTTP_404_NOT_FOUND,
+        ChannelNotActiveError: status.HTTP_403_FORBIDDEN,
         # Auth
         IncorrectEmailOrPasswordError: status.HTTP_401_UNAUTHORIZED,
         JWTInvalidTokenError: status.HTTP_401_UNAUTHORIZED,
         JWTExpiredTokenError: status.HTTP_401_UNAUTHORIZED,
+        NotAuthenticatedError: status.HTTP_401_UNAUTHORIZED,
     }
     return exception_codes.get(type(exc), status.HTTP_500_INTERNAL_SERVER_ERROR)
 

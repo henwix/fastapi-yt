@@ -3,7 +3,7 @@ from datetime import datetime
 import sqlalchemy as sa
 from sqlalchemy.orm import Mapped, mapped_column
 
-from app.utils import get_datetime_utc_now
+from app.utils.get_datetime_utc_now import get_datetime_utc_now
 
 
 class IntIDMixin:

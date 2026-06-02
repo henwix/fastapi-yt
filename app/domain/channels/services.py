@@ -12,19 +12,19 @@ class IChannelValidatorService(ABC):
 
 @dataclass
 class ChannelUniqueEmailValidatorService(IChannelValidatorService):
-    channels_repository: IChannelRepository
+    channel_repository: IChannelRepository
 
     async def validate(self, email: str, *args, **kwargs) -> None:
-        if await self.channels_repository.check_channel_exists_by_email(email=email):
+        if await self.channel_repository.check_channel_exists_by_email(email=email):
             raise ChannelWithEmailAlreadyExists(email=email)
 
 
 @dataclass
 class ChannelUniqueSlugValidatorService(IChannelValidatorService):
-    channels_repository: IChannelRepository
+    channel_repository: IChannelRepository
 
     async def validate(self, slug: str, *args, **kwargs) -> None:
-        if await self.channels_repository.check_channel_exists_by_slug(slug=slug):
+        if await self.channel_repository.check_channel_exists_by_slug(slug=slug):
             raise ChannelWithSlugAlreadyExists(slug=slug)
 
 

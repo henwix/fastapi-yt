@@ -17,3 +17,8 @@ class JWTInvalidTokenError(AppException):
 @dataclass
 class JWTExpiredTokenError(AppException):
     message = 'JWT token is expired'
+
+
+@dataclass
+class NotAuthenticatedError(AppException):
+    message = 'Not authenticated'

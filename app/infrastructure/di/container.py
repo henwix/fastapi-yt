@@ -9,6 +9,9 @@ from app.application.common.password_hasher import IPasswordHasher
 from app.application.common.transaction_manager import ITransactionManager
 from app.application.use_cases.auth.login import LoginUseCase
 from app.application.use_cases.channels.create_channel import CreateChannelUseCase
+from app.application.use_cases.channels.delete_channel import DeleteChannelUseCase
+from app.application.use_cases.channels.get_channel import GetChannelUseCase
+from app.application.use_cases.channels.update_channel import UpdateChannelUseCase
 from app.domain.channels.repository import IChannelRepository
 from app.domain.channels.services import (
     ChannelUniqueEmailValidatorService,
@@ -63,6 +66,9 @@ class UseCasesProvider(Provider):
 
     # Channels
     create_channel = provide(CreateChannelUseCase)
+    get_channel = provide(GetChannelUseCase)
+    update_channel = provide(UpdateChannelUseCase)
+    delete_channel = provide(DeleteChannelUseCase)
 
     # Auth
     login = provide(LoginUseCase)

@@ -13,3 +13,13 @@ class ChannelWithSlugAlreadyExists(AppException):
 class ChannelWithEmailAlreadyExists(AppException):
     message = 'Channel with this email already exists'
     email: str
+
+
+@dataclass
+class ChannelNotFoundError(AppException):
+    message = 'Channel not found'
+
+
+@dataclass
+class ChannelNotActiveError(AppException):
+    message = 'Channel not active'

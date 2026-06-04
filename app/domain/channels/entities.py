@@ -19,6 +19,9 @@ class Channel(BaseEntity):
     created_at: datetime = field(default_factory=get_datetime_utc_now)
     updated_at: datetime = field(default_factory=get_datetime_utc_now)
 
+    def set_password(self, password_hash: str) -> None:
+        self.password_hash = password_hash
+
     @staticmethod
     def create(
         email: str,

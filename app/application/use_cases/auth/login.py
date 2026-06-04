@@ -4,17 +4,17 @@ from app.application.commands.auth import LoginCommand
 from app.application.common.jwt import IJWTService
 from app.application.common.password_hasher import IPasswordHasher
 from app.domain.auth.exceptions import IncorrectEmailOrPasswordError
-from app.domain.channels.repository import IChannelRepository
+from app.domain.channels.services import IChannelService
 
 
 @dataclass
 class LoginUseCase:
-    channel_repository: IChannelRepository
+    channel_service: IChannelService
     password_hasher: IPasswordHasher
     jwt_service: IJWTService
 
     async def execute(self, command: LoginCommand) -> dict[str, str]:
-        channel = await self.channel_repository.get_by_email(email=command.email)
+        channel = await self.channel_service.get_by_email(email=command.email)
         if not channel or not channel.is_active:
             self.password_hasher.verify_password_hash(password=command.password)
             raise IncorrectEmailOrPasswordError

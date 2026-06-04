@@ -25,3 +25,9 @@ class UpdateChannelCommand:
 @dataclass
 class DeleteChannelCommand:
     channel_id: int
+
+
+@dataclass
+class SetChannelPasswordCommand:
+    channel_id: int
+    new_password: str

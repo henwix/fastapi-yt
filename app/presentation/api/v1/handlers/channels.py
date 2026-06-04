@@ -1,11 +1,17 @@
 from dishka.integrations.fastapi import DishkaRoute, FromDishka
 from fastapi import APIRouter, status
 
-from app.application.commands.channels import CreateChannelCommand, DeleteChannelCommand, UpdateChannelCommand
+from app.application.commands.channels import (
+    CreateChannelCommand,
+    DeleteChannelCommand,
+    SetChannelPasswordCommand,
+    UpdateChannelCommand,
+)
 from app.application.queries.channels import GetChannelQuery
 from app.application.use_cases.channels.create_channel import CreateChannelUseCase
 from app.application.use_cases.channels.delete_channel import DeleteChannelUseCase
 from app.application.use_cases.channels.get_channel import GetChannelUseCase
+from app.application.use_cases.channels.set_password import SetChannelPasswordUseCase
 from app.application.use_cases.channels.update_channel import UpdateChannelUseCase
 from app.domain.auth.exceptions import JWTExpiredTokenError, JWTInvalidTokenError, NotAuthenticatedError
 from app.domain.channels.exceptions import (
@@ -16,7 +22,12 @@ from app.domain.channels.exceptions import (
 )
 from app.presentation.api.openapi.common import error_response
 from app.presentation.api.v1.di.current_channel_id import CurrentChannelID
-from app.presentation.api.v1.schemas.channels import CreateChannelSchema, GetChannelSchema, UpdateChannelSchema
+from app.presentation.api.v1.schemas.channels import (
+    CreateChannelSchema,
+    GetChannelSchema,
+    SetChannelPasswordSchema,
+    UpdateChannelSchema,
+)
 
 router = APIRouter(
     prefix='/channels',
@@ -104,6 +115,28 @@ async def update_channel(
 async def delete_channel(
     current_channel_id: CurrentChannelID,
     use_case: FromDishka[DeleteChannelUseCase],
-):
+) -> None:
     command = DeleteChannelCommand(channel_id=current_channel_id)
+    await use_case.execute(command=command)
+
+
+@router.post(
+    '/set_password',
+    status_code=status.HTTP_204_NO_CONTENT,
+    responses={
+        status.HTTP_401_UNAUTHORIZED: error_response(
+            NotAuthenticatedError,
+            JWTExpiredTokenError,
+            JWTInvalidTokenError,
+        ),
+        status.HTTP_403_FORBIDDEN: error_response(ChannelNotActiveError),
+        status.HTTP_404_NOT_FOUND: error_response(ChannelNotFoundError),
+    },
+)
+async def set_password(
+    schema: SetChannelPasswordSchema,
+    current_channel_id: CurrentChannelID,
+    use_case: FromDishka[SetChannelPasswordUseCase],
+) -> None:
+    command = SetChannelPasswordCommand(channel_id=current_channel_id, **schema.model_dump())
     await use_case.execute(command=command)

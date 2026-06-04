@@ -11,14 +11,10 @@ from app.application.use_cases.auth.login import LoginUseCase
 from app.application.use_cases.channels.create_channel import CreateChannelUseCase
 from app.application.use_cases.channels.delete_channel import DeleteChannelUseCase
 from app.application.use_cases.channels.get_channel import GetChannelUseCase
+from app.application.use_cases.channels.set_password import SetChannelPasswordUseCase
 from app.application.use_cases.channels.update_channel import UpdateChannelUseCase
 from app.domain.channels.repository import IChannelRepository
-from app.domain.channels.services import (
-    ChannelUniqueEmailValidatorService,
-    ChannelUniqueSlugValidatorService,
-    ComposedChannelValidatorService,
-    IChannelValidatorService,
-)
+from app.domain.channels.services import ChannelService, IChannelService
 from app.infrastructure.security.jwt import JWTService
 from app.infrastructure.security.password_hasher import PwdlibPasswordHasher
 from app.infrastructure.sqlalchemy.database import async_session
@@ -49,16 +45,7 @@ class ServicesProvider(Provider):
     scope = Scope.REQUEST
 
     # Channels
-    channel_unique_email_validator = provide(ChannelUniqueEmailValidatorService)
-    channel_unique_slug_validator = provide(ChannelUniqueSlugValidatorService)
-
-    @provide(provides=IChannelValidatorService)
-    async def provide_composed_channel_validator(
-        self,
-        email_validator: ChannelUniqueEmailValidatorService,
-        slug_validator: ChannelUniqueSlugValidatorService,
-    ):
-        return ComposedChannelValidatorService(validators=[email_validator, slug_validator])
+    channel_service = provide(ChannelService, provides=IChannelService)
 
 
 class UseCasesProvider(Provider):
@@ -69,6 +56,7 @@ class UseCasesProvider(Provider):
     get_channel = provide(GetChannelUseCase)
     update_channel = provide(UpdateChannelUseCase)
     delete_channel = provide(DeleteChannelUseCase)
+    set_channel_password = provide(SetChannelPasswordUseCase)
 
     # Auth
     login = provide(LoginUseCase)

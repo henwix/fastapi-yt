@@ -53,6 +53,10 @@ class UpdateChannelSchema(BaseSchema):
         return self
 
 
+class SetChannelPasswordSchema(BaseModel):
+    new_password: str
+
+
 class GetChannelSchema(BaseSchema):
     email: EmailStr
     name: str

@@ -4,6 +4,7 @@ from app.application.commands.channels import UpdateChannelCommand
 from app.application.common.transaction_manager import ITransactionManager
 from app.domain.channels.entities import Channel
 from app.domain.channels.services import IChannelService
+from app.domain.common.constants import Empty
 
 
 @dataclass
@@ -14,7 +15,8 @@ class UpdateChannelUseCase:
     async def execute(self, command: UpdateChannelCommand) -> Channel:
         async with self.transaction_manager:
             channel = await self.channel_service.try_get_active_by_id(id=command.channel_id)
-            await self.channel_service.check_slug_exists(slug=command.slug)
+            if command.slug is not Empty.UNSET:
+                await self.channel_service.check_slug_exists(slug=command.slug)
             channel.update(
                 name=command.name,
                 slug=command.slug,

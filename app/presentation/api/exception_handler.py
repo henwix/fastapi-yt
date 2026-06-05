@@ -16,6 +16,7 @@ from app.domain.channels.exceptions import (
     ChannelWithSlugAlreadyExists,
 )
 from app.domain.common.exceptions import AppException
+from app.domain.posts.exceptions import PostAccessForbiddenError, PostNotFoundError
 from app.presentation.api.responses.msgspec import MsgSpecJSONResponse
 
 logger = getLogger(__name__)
@@ -33,6 +34,9 @@ def get_http_status_code(exc: AppException):
         JWTInvalidTokenError: status.HTTP_401_UNAUTHORIZED,
         JWTExpiredTokenError: status.HTTP_401_UNAUTHORIZED,
         NotAuthenticatedError: status.HTTP_401_UNAUTHORIZED,
+        # Posts
+        PostAccessForbiddenError: status.HTTP_403_FORBIDDEN,
+        PostNotFoundError: status.HTTP_404_NOT_FOUND,
     }
     return exception_codes.get(type(exc), status.HTTP_500_INTERNAL_SERVER_ERROR)
 

@@ -8,7 +8,6 @@ from app.utils.get_datetime_utc_now import get_datetime_utc_now
 
 @dataclass(kw_only=True)
 class Channel(BaseEntity):
-    id: int | None = None
     email: str
     name: str
     slug: str

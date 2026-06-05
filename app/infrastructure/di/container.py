@@ -13,12 +13,19 @@ from app.application.use_cases.channels.delete_channel import DeleteChannelUseCa
 from app.application.use_cases.channels.get_channel import GetChannelUseCase
 from app.application.use_cases.channels.set_password import SetChannelPasswordUseCase
 from app.application.use_cases.channels.update_channel import UpdateChannelUseCase
+from app.application.use_cases.posts.create_post import CreatePostUseCase
+from app.application.use_cases.posts.delete_post import DeletePostUseCase
+from app.application.use_cases.posts.get_post import GetPostUseCase
+from app.application.use_cases.posts.update_post import UpdatePostUseCase
 from app.domain.channels.repository import IChannelRepository
 from app.domain.channels.services import ChannelService, IChannelService
+from app.domain.posts.repository import IPostRepository
+from app.domain.posts.services import IPostService, PostService
 from app.infrastructure.security.jwt import JWTService
 from app.infrastructure.security.password_hasher import PwdlibPasswordHasher
 from app.infrastructure.sqlalchemy.database import async_session
 from app.infrastructure.sqlalchemy.repositories.channels import SAChannelRepository
+from app.infrastructure.sqlalchemy.repositories.posts import SAPostRepository
 from app.infrastructure.sqlalchemy.transaction_manager import SATransactionManager
 
 
@@ -40,12 +47,18 @@ class RepositoriesProvider(Provider):
     # Channels
     channel_repository = provide(SAChannelRepository, provides=IChannelRepository)
 
+    # Posts
+    post_repository = provide(SAPostRepository, provides=IPostRepository)
+
 
 class ServicesProvider(Provider):
     scope = Scope.REQUEST
 
     # Channels
     channel_service = provide(ChannelService, provides=IChannelService)
+
+    # Posts
+    post_service = provide(PostService, provides=IPostService)
 
 
 class UseCasesProvider(Provider):
@@ -60,6 +73,12 @@ class UseCasesProvider(Provider):
 
     # Auth
     login = provide(LoginUseCase)
+
+    # Posts
+    create_post = provide(CreatePostUseCase)
+    get_post = provide(GetPostUseCase)
+    update_post = provide(UpdatePostUseCase)
+    delete_post = provide(DeletePostUseCase)
 
 
 @lru_cache(1)

@@ -1,5 +1,6 @@
 from datetime import timedelta
 from typing import Any
+from uuid import UUID
 
 import jwt
 
@@ -19,7 +20,7 @@ class JWTService(IJWTService):
     _REFRESH_TOKEN_TYPE: str = 'refresh'
     _REQUIRED_CLAIMS: list[str] = ['sub', 'token_type', 'exp']
 
-    def _create_token(self, sub: int, key: str, token_type: str, exp_days: int) -> str:
+    def _create_token(self, sub: str, key: str, token_type: str, exp_days: int) -> str:
         payload = {
             'sub': sub,
             'token_type': token_type,
@@ -57,7 +58,7 @@ class JWTService(IJWTService):
             raise JWTInvalidTokenError(error_detail='invalid_token') from e
 
         try:
-            payload['sub'] = int(payload['sub'])
+            payload['sub'] = UUID(payload['sub'])
             return payload
         except (ValueError, TypeError) as e:
             raise JWTInvalidTokenError(error_detail='invalid_sub_type') from e
@@ -78,7 +79,7 @@ class JWTService(IJWTService):
             exp_days=self._REFRESH_EXP_DAYS,
         )
 
-    def create_tokens(self, sub: int) -> dict[str, str]:
+    def create_tokens(self, sub: UUID) -> dict[str, str]:
         return {
             'access': self.create_access_token(sub=str(sub)),
             'refresh': self.create_refresh_token(sub=str(sub)),

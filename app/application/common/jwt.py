@@ -1,4 +1,5 @@
 from abc import ABC, abstractmethod
+from uuid import UUID
 
 
 class IJWTService(ABC):
@@ -9,7 +10,7 @@ class IJWTService(ABC):
     def create_refresh_token(self, sub: str) -> str: ...
 
     @abstractmethod
-    def create_tokens(self, sub: int) -> dict[str, str]: ...
+    def create_tokens(self, sub: UUID) -> dict[str, str]: ...
 
     @abstractmethod
     def decode_access_token(self, token: str) -> dict: ...

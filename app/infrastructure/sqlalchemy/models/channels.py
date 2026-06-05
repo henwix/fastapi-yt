@@ -3,11 +3,11 @@ from sqlalchemy.orm import Mapped, mapped_column
 
 from app.domain.channels.entities import Channel
 from app.infrastructure.sqlalchemy.models.base import BaseORM
-from app.infrastructure.sqlalchemy.models.mixins import CreatedAtMixin, IntIDMixin, UpdatedAtMixin
+from app.infrastructure.sqlalchemy.models.mixins import CreatedAtMixin, UpdatedAtMixin, UUIDIdMixin
 
 
 class ChannelORM(
-    IntIDMixin,
+    UUIDIdMixin,
     CreatedAtMixin,
     UpdatedAtMixin,
     BaseORM,

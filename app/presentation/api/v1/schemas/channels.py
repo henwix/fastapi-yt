@@ -1,11 +1,10 @@
 import re
 from datetime import datetime
-from typing import Self
 
-from pydantic import BaseModel, ConfigDict, EmailStr, Field, field_validator, model_validator
+from pydantic import BaseModel, ConfigDict, EmailStr, Field, field_validator
 
 from app.domain.channels.entities import Channel
-from app.presentation.api.v1.schemas.base import BaseSchema
+from app.presentation.api.v1.schemas.base import BaseSchema, BaseUpdateSchema
 
 slug_pattern = r'^[a-z0-9]+(?:-[a-z0-9]+)*$'
 
@@ -33,7 +32,7 @@ class CreateChannelSchema(BaseModel):
         return v
 
 
-class UpdateChannelSchema(BaseSchema):
+class UpdateChannelSchema(BaseUpdateSchema):
     name: str = Field(default='', min_length=1, max_length=100)
     slug: str = Field(default='', min_length=1, max_length=40)
     description: str = Field(default='')
@@ -45,12 +44,6 @@ class UpdateChannelSchema(BaseSchema):
         if v and not re.fullmatch(pattern=slug_pattern, string=v):
             raise ValueError(f"String should match pattern '{slug_pattern}'")
         return v
-
-    @model_validator(mode='after')
-    def empty_schema_validator(self) -> Self:
-        if not self.model_fields_set:
-            raise ValueError('At least one field must be provided')
-        return self
 
 
 class SetChannelPasswordSchema(BaseModel):

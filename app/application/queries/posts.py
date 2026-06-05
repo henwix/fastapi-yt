@@ -1,7 +1,7 @@
 from dataclasses import dataclass
+from uuid import UUID
 
 
 @dataclass(kw_only=True, frozen=True)
-class LoginCommand:
-    email: str
-    password: str
+class GetPostQuery:
+    post_id: UUID

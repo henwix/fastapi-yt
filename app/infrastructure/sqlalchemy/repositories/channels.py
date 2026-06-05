@@ -1,5 +1,6 @@
 from dataclasses import dataclass
 from typing import Any, NoReturn
+from uuid import UUID
 
 from sqlalchemy import delete, exists, select, update
 from sqlalchemy.exc import DBAPIError, IntegrityError
@@ -51,7 +52,7 @@ class SAChannelRepository(IChannelRepository):
         stmt = select(ChannelORM).where(ChannelORM.email == email)
         return await self._get_one_by_query(query=stmt)
 
-    async def get_by_id(self, id: int) -> Channel | None:
+    async def get_by_id(self, id: UUID) -> Channel | None:
         stmt = select(ChannelORM).where(ChannelORM.id == id)
         return await self._get_one_by_query(query=stmt)
 
@@ -75,12 +76,12 @@ class SAChannelRepository(IChannelRepository):
         orm_channel = result.scalar_one_or_none()
         return orm_channel.to_entity() if orm_channel else None
 
-    async def set_password(self, id: int, password_hash: str) -> bool:
+    async def set_password(self, id: UUID, password_hash: str) -> bool:
         stmt = update(ChannelORM).where(ChannelORM.id == id).values(password_hash=password_hash)
         result = await self._session.execute(statement=stmt)
         return result.rowcount > 0
 
-    async def delete_by_id(self, id: int) -> bool:
+    async def delete_by_id(self, id: UUID) -> bool:
         stmt = delete(ChannelORM).where(ChannelORM.id == id)
         result = await self._session.execute(statement=stmt)
         return result.rowcount > 0

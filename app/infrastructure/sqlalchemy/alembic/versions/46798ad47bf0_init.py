@@ -1,8 +1,8 @@
-"""created_channels_table
+"""init
 
-Revision ID: ecf46ade9313
+Revision ID: 46798ad47bf0
 Revises:
-Create Date: 2026-05-27 11:53:32.113339
+Create Date: 2026-06-05 13:40:12.931354
 
 """
 
@@ -12,7 +12,7 @@ import sqlalchemy as sa
 from alembic import op
 
 # revision identifiers, used by Alembic.
-revision: str = 'ecf46ade9313'
+revision: str = '46798ad47bf0'
 down_revision: str | Sequence[str] | None = None
 branch_labels: str | Sequence[str] | None = None
 depends_on: str | Sequence[str] | None = None
@@ -30,7 +30,7 @@ def upgrade() -> None:
         sa.Column('country', sa.String(length=40), nullable=False),
         sa.Column('password_hash', sa.String(), nullable=False),
         sa.Column('is_active', sa.Boolean(), server_default=sa.text('true'), nullable=False),
-        sa.Column('id', sa.Integer(), nullable=False),
+        sa.Column('id', sa.Uuid(), nullable=False),
         sa.Column('created_at', sa.DateTime(timezone=True), server_default=sa.text('now()'), nullable=False),
         sa.Column('updated_at', sa.DateTime(timezone=True), server_default=sa.text('now()'), nullable=False),
         sa.PrimaryKeyConstraint('id'),

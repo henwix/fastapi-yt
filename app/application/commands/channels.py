@@ -1,9 +1,10 @@
 from dataclasses import dataclass
+from uuid import UUID
 
 from app.domain.common.constants import Empty
 
 
-@dataclass
+@dataclass(kw_only=True, frozen=True)
 class CreateChannelCommand:
     email: str
     name: str
@@ -13,21 +14,21 @@ class CreateChannelCommand:
     password: str
 
 
-@dataclass
+@dataclass(kw_only=True, frozen=True)
 class UpdateChannelCommand:
-    channel_id: int
+    channel_id: UUID
     name: str | Empty = Empty.UNSET
     slug: str | Empty = Empty.UNSET
     description: str | Empty = Empty.UNSET
     country: str | Empty = Empty.UNSET
 
 
-@dataclass
+@dataclass(kw_only=True, frozen=True)
 class DeleteChannelCommand:
-    channel_id: int
+    channel_id: UUID
 
 
-@dataclass
+@dataclass(kw_only=True, frozen=True)
 class SetChannelPasswordCommand:
-    channel_id: int
+    channel_id: UUID
     new_password: str

@@ -61,6 +61,7 @@
 
 
 #### Posts
+- [ ] Posts CRUD
 
 
 #### Post comments

@@ -42,7 +42,7 @@ async def create_post(
     current_channel_id: CurrentChannelID,
     use_case: FromDishka[CreatePostUseCase],
 ) -> GetPostSchema:
-    command = CreatePostCommand(channel_id=current_channel_id, **schema.model_dump())
+    command = CreatePostCommand(current_channel_id=current_channel_id, **schema.model_dump())
     post = await use_case.execute(command=command)
     return GetPostSchema.from_entity(entity=post)
 
@@ -79,7 +79,7 @@ async def update_post(
     use_case: FromDishka[UpdatePostUseCase],
 ) -> GetPostSchema:
     command = UpdatePostCommand(
-        channel_id=current_channel_id,
+        current_channel_id=current_channel_id,
         post_id=post_id,
         **schema.model_dump(exclude_unset=True),
     )
@@ -104,6 +104,6 @@ async def delete_post(
     post_id: UUID,
     current_channel_id: CurrentChannelID,
     use_case: FromDishka[DeletePostUseCase],
-):
-    command = DeletePostCommand(channel_id=current_channel_id, post_id=post_id)
+) -> None:
+    command = DeletePostCommand(current_channel_id=current_channel_id, post_id=post_id)
     await use_case.execute(command=command)

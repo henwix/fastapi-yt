@@ -16,6 +16,7 @@ from app.domain.channels.exceptions import (
     ChannelWithSlugAlreadyExists,
 )
 from app.domain.common.exceptions import AppException
+from app.domain.post_reactions.exceptions import PostReactionAlreadyExists, PostReactionNotFound
 from app.domain.posts.exceptions import PostAccessForbiddenError, PostNotFoundError
 from app.presentation.api.responses.msgspec import MsgSpecJSONResponse
 
@@ -37,6 +38,9 @@ def get_http_status_code(exc: AppException):
         # Posts
         PostAccessForbiddenError: status.HTTP_403_FORBIDDEN,
         PostNotFoundError: status.HTTP_404_NOT_FOUND,
+        # Post reactions
+        PostReactionAlreadyExists: status.HTTP_400_BAD_REQUEST,
+        PostReactionNotFound: status.HTTP_404_NOT_FOUND,
     }
     return exception_codes.get(type(exc), status.HTTP_500_INTERNAL_SERVER_ERROR)
 

@@ -13,18 +13,23 @@ from app.application.use_cases.channels.delete_channel import DeleteChannelUseCa
 from app.application.use_cases.channels.get_channel import GetChannelUseCase
 from app.application.use_cases.channels.set_password import SetChannelPasswordUseCase
 from app.application.use_cases.channels.update_channel import UpdateChannelUseCase
+from app.application.use_cases.post_reactions.create_post_reaction import CreatePostReactionUseCase
+from app.application.use_cases.post_reactions.delete_post_reaction import DeletePostReactionUseCase
 from app.application.use_cases.posts.create_post import CreatePostUseCase
 from app.application.use_cases.posts.delete_post import DeletePostUseCase
 from app.application.use_cases.posts.get_post import GetPostUseCase
 from app.application.use_cases.posts.update_post import UpdatePostUseCase
 from app.domain.channels.repository import IChannelRepository
 from app.domain.channels.services import ChannelService, IChannelService
+from app.domain.post_reactions.repository import IPostReactionRepository
+from app.domain.post_reactions.service import IPostReactionService, PostReactionService
 from app.domain.posts.repository import IPostRepository
 from app.domain.posts.services import IPostService, PostService
 from app.infrastructure.security.jwt import JWTService
 from app.infrastructure.security.password_hasher import PwdlibPasswordHasher
 from app.infrastructure.sqlalchemy.database import async_session
 from app.infrastructure.sqlalchemy.repositories.channels import SAChannelRepository
+from app.infrastructure.sqlalchemy.repositories.post_reactions import SAPostReactionRepository
 from app.infrastructure.sqlalchemy.repositories.posts import SAPostRepository
 from app.infrastructure.sqlalchemy.transaction_manager import SATransactionManager
 
@@ -50,6 +55,9 @@ class RepositoriesProvider(Provider):
     # Posts
     post_repository = provide(SAPostRepository, provides=IPostRepository)
 
+    # Post reactions
+    post_reaction_repository = provide(SAPostReactionRepository, provides=IPostReactionRepository)
+
 
 class ServicesProvider(Provider):
     scope = Scope.REQUEST
@@ -59,6 +67,9 @@ class ServicesProvider(Provider):
 
     # Posts
     post_service = provide(PostService, provides=IPostService)
+
+    # Post reactions
+    post_reactions_service = provide(PostReactionService, provides=IPostReactionService)
 
 
 class UseCasesProvider(Provider):
@@ -79,6 +90,10 @@ class UseCasesProvider(Provider):
     get_post = provide(GetPostUseCase)
     update_post = provide(UpdatePostUseCase)
     delete_post = provide(DeletePostUseCase)
+
+    # Post reactions
+    create_post_reaction = provide(CreatePostReactionUseCase)
+    delete_post_reaction = provide(DeletePostReactionUseCase)
 
 
 @lru_cache(1)

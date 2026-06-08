@@ -10,4 +10,4 @@ class GetChannelUseCase:
     channel_service: IChannelService
 
     async def execute(self, query: GetChannelQuery) -> Channel:
-        return await self.channel_service.try_get_active_by_id(id=query.channel_id)
+        return await self.channel_service.try_get_active_by_id(id=query.current_channel_id)

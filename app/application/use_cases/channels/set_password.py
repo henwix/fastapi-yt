@@ -14,7 +14,7 @@ class SetChannelPasswordUseCase:
 
     async def execute(self, command: SetChannelPasswordCommand) -> None:
         async with self.transaction_manager:
-            channel = await self.channel_service.try_get_active_by_id(id=command.channel_id)
+            channel = await self.channel_service.try_get_active_by_id(id=command.current_channel_id)
             new_password_hash = self.password_hasher.get_password_hash(password=command.new_password)
             channel.set_password(password_hash=new_password_hash)
             await self.channel_service.try_set_password(

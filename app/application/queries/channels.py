@@ -4,4 +4,4 @@ from uuid import UUID
 
 @dataclass
 class GetChannelQuery:
-    channel_id: UUID
+    current_channel_id: UUID

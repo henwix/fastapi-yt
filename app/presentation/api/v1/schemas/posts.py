@@ -1,8 +1,6 @@
 from datetime import datetime
 from uuid import UUID
 
-from msgspec import field
-
 from app.domain.posts.entities import Post
 from app.presentation.api.v1.schemas.base import BaseSchema, BaseUpdateSchema
 
@@ -12,7 +10,7 @@ class CreatePostSchema(BaseSchema):
 
 
 class UpdatePostSchema(BaseUpdateSchema):
-    text: str = field(default='')
+    text: str = ''
 
 
 class GetPostSchema(BaseSchema):

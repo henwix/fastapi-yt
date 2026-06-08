@@ -12,5 +12,5 @@ class DeleteChannelUseCase:
 
     async def execute(self, command: DeleteChannelCommand) -> None:
         async with self.transaction_manager:
-            channel = await self.channel_service.try_get_active_by_id(id=command.channel_id)
+            channel = await self.channel_service.try_get_active_by_id(id=command.current_channel_id)
             await self.channel_service.try_delete_by_id(id=channel.id)

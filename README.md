@@ -61,7 +61,11 @@
 
 
 #### Posts
-- [ ] Posts CRUD
+- [x] Posts CRUD
+
+
+#### Post reactions
+- [x] Post reactions CRUD
 
 
 #### Post comments

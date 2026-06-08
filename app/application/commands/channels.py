@@ -16,7 +16,7 @@ class CreateChannelCommand:
 
 @dataclass(kw_only=True, frozen=True)
 class UpdateChannelCommand:
-    channel_id: UUID
+    current_channel_id: UUID
     name: str | Empty = Empty.UNSET
     slug: str | Empty = Empty.UNSET
     description: str | Empty = Empty.UNSET
@@ -25,10 +25,10 @@ class UpdateChannelCommand:
 
 @dataclass(kw_only=True, frozen=True)
 class DeleteChannelCommand:
-    channel_id: UUID
+    current_channel_id: UUID
 
 
 @dataclass(kw_only=True, frozen=True)
 class SetChannelPasswordCommand:
-    channel_id: UUID
+    current_channel_id: UUID
     new_password: str

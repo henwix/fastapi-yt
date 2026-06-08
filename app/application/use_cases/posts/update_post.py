@@ -15,7 +15,7 @@ class UpdatePostUseCase:
 
     async def execute(self, command: UpdatePostCommand) -> Post:
         async with self.transaction_manager:
-            channel = await self.channel_service.try_get_active_by_id(id=command.channel_id)
+            channel = await self.channel_service.try_get_active_by_id(id=command.current_channel_id)
             post = await self.post_service.try_get_by_id(id=command.post_id)
             self.post_service.ensure_post_access(post=post, channel=channel)
             post.update(text=command.text)

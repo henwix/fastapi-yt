@@ -71,7 +71,7 @@ async def get_channel(
     current_channel_id: CurrentChannelID,
     use_case: FromDishka[GetChannelUseCase],
 ) -> GetChannelSchema:
-    query = GetChannelQuery(channel_id=current_channel_id)
+    query = GetChannelQuery(current_channel_id=current_channel_id)
     channel = await use_case.execute(query=query)
     return GetChannelSchema.from_entity(entity=channel)
 
@@ -94,7 +94,7 @@ async def update_channel(
     current_channel_id: CurrentChannelID,
     use_case: FromDishka[UpdateChannelUseCase],
 ) -> GetChannelSchema:
-    command = UpdateChannelCommand(channel_id=current_channel_id, **schema.model_dump(exclude_unset=True))
+    command = UpdateChannelCommand(current_channel_id=current_channel_id, **schema.model_dump(exclude_unset=True))
     channel = await use_case.execute(command=command)
     return GetChannelSchema.from_entity(entity=channel)
 
@@ -116,7 +116,7 @@ async def delete_channel(
     current_channel_id: CurrentChannelID,
     use_case: FromDishka[DeleteChannelUseCase],
 ) -> None:
-    command = DeleteChannelCommand(channel_id=current_channel_id)
+    command = DeleteChannelCommand(current_channel_id=current_channel_id)
     await use_case.execute(command=command)
 
 
@@ -138,5 +138,5 @@ async def set_password(
     current_channel_id: CurrentChannelID,
     use_case: FromDishka[SetChannelPasswordUseCase],
 ) -> None:
-    command = SetChannelPasswordCommand(channel_id=current_channel_id, **schema.model_dump())
+    command = SetChannelPasswordCommand(current_channel_id=current_channel_id, **schema.model_dump())
     await use_case.execute(command=command)

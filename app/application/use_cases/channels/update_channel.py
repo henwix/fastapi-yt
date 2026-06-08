@@ -14,7 +14,7 @@ class UpdateChannelUseCase:
 
     async def execute(self, command: UpdateChannelCommand) -> Channel:
         async with self.transaction_manager:
-            channel = await self.channel_service.try_get_active_by_id(id=command.channel_id)
+            channel = await self.channel_service.try_get_active_by_id(id=command.current_channel_id)
             if command.slug is not Empty.UNSET:
                 await self.channel_service.check_slug_exists(slug=command.slug)
             channel.update(

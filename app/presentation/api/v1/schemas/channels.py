@@ -15,8 +15,8 @@ class CreateChannelSchema(BaseModel):
     email: EmailStr = Field(max_length=255)
     name: str = Field(min_length=1, max_length=100)
     slug: str = Field(min_length=1, max_length=40)
-    description: str = Field(default='')
-    country: str = Field(default='')
+    description: str = ''
+    country: str = ''
     password: str
 
     @field_validator('name', 'slug', 'description', 'country', mode='before')
@@ -35,8 +35,8 @@ class CreateChannelSchema(BaseModel):
 class UpdateChannelSchema(BaseUpdateSchema):
     name: str = Field(default='', min_length=1, max_length=100)
     slug: str = Field(default='', min_length=1, max_length=40)
-    description: str = Field(default='')
-    country: str = Field(default='')
+    description: str = ''
+    country: str = ''
 
     @field_validator('slug', mode='after')
     @classmethod

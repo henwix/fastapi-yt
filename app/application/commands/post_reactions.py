@@ -1,21 +1,17 @@
 from dataclasses import dataclass
 from uuid import UUID
 
-
-@dataclass(kw_only=True, frozen=True)
-class CreatePostCommand:
-    current_channel_id: UUID
-    text: str
+from app.domain.common.enums import ReactionTypeEnum
 
 
 @dataclass(kw_only=True, frozen=True)
-class UpdatePostCommand:
+class CreatePostReactionCommand:
     current_channel_id: UUID
     post_id: UUID
-    text: str
+    reaction_type: ReactionTypeEnum
 
 
 @dataclass(kw_only=True, frozen=True)
-class DeletePostCommand:
+class DeletePostReactionCommand:
     current_channel_id: UUID
     post_id: UUID

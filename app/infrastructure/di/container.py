@@ -19,18 +19,24 @@ from app.application.use_cases.posts.create_post import CreatePostUseCase
 from app.application.use_cases.posts.delete_post import DeletePostUseCase
 from app.application.use_cases.posts.get_post import GetPostUseCase
 from app.application.use_cases.posts.update_post import UpdatePostUseCase
-from app.domain.channels.repository import IChannelRepository
+from app.application.use_cases.subscriptions.get_subscribers import GetSubscribersUseCase
+from app.application.use_cases.subscriptions.subscribe import SubscribeUseCase
+from app.application.use_cases.subscriptions.unsubscribe import UnsubscribeUseCase
+from app.domain.channels.repositories import IChannelRepository
 from app.domain.channels.services import ChannelService, IChannelService
-from app.domain.post_reactions.repository import IPostReactionRepository
-from app.domain.post_reactions.service import IPostReactionService, PostReactionService
-from app.domain.posts.repository import IPostRepository
+from app.domain.post_reactions.repositories import IPostReactionRepository
+from app.domain.post_reactions.services import IPostReactionService, PostReactionService
+from app.domain.posts.repositories import IPostRepository
 from app.domain.posts.services import IPostService, PostService
+from app.domain.subscriptions.repositories import ISubscriptionRepository
+from app.domain.subscriptions.services import ISubscriptionService, SubscriptionService
 from app.infrastructure.security.jwt import JWTService
 from app.infrastructure.security.password_hasher import PwdlibPasswordHasher
 from app.infrastructure.sqlalchemy.database import async_session
 from app.infrastructure.sqlalchemy.repositories.channels import SAChannelRepository
 from app.infrastructure.sqlalchemy.repositories.post_reactions import SAPostReactionRepository
 from app.infrastructure.sqlalchemy.repositories.posts import SAPostRepository
+from app.infrastructure.sqlalchemy.repositories.subscriptions import SASubscriptionRepository
 from app.infrastructure.sqlalchemy.transaction_manager import SATransactionManager
 
 
@@ -58,6 +64,9 @@ class RepositoriesProvider(Provider):
     # Post reactions
     post_reaction_repository = provide(SAPostReactionRepository, provides=IPostReactionRepository)
 
+    # Subscriptions
+    subscription_repository = provide(SASubscriptionRepository, provides=ISubscriptionRepository)
+
 
 class ServicesProvider(Provider):
     scope = Scope.REQUEST
@@ -70,6 +79,9 @@ class ServicesProvider(Provider):
 
     # Post reactions
     post_reactions_service = provide(PostReactionService, provides=IPostReactionService)
+
+    # Subscriptions
+    subscription_service = provide(SubscriptionService, provides=ISubscriptionService)
 
 
 class UseCasesProvider(Provider):
@@ -94,6 +106,11 @@ class UseCasesProvider(Provider):
     # Post reactions
     create_post_reaction = provide(CreatePostReactionUseCase)
     delete_post_reaction = provide(DeletePostReactionUseCase)
+
+    # Subscriptions
+    subscribe = provide(SubscribeUseCase)
+    unsubscribe = provide(UnsubscribeUseCase)
+    get_subscribers = provide(GetSubscribersUseCase)
 
 
 @lru_cache(1)

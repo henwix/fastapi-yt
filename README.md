@@ -41,8 +41,10 @@
 
 
 #### Subscribers
-- [ ] Subscribe endpoint
-- [ ] Unsubscribe endpoint
+- [x] Subscribe endpoint
+- [x] Unsubscribe endpoint
+- [ ] Get subs by channel slug endpoint
+- [ ] Get subsribed to list endpoint
 
 
 #### Videos

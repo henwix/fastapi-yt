@@ -37,7 +37,7 @@ router = APIRouter(
 
 
 @router.post(
-    '/',
+    path='',
     status_code=status.HTTP_201_CREATED,
     responses={
         status.HTTP_400_BAD_REQUEST: error_response(
@@ -56,7 +56,7 @@ async def create_channel(
 
 
 @router.get(
-    '/',
+    path='',
     responses={
         status.HTTP_401_UNAUTHORIZED: error_response(
             NotAuthenticatedError,
@@ -77,7 +77,7 @@ async def get_channel(
 
 
 @router.patch(
-    '/',
+    path='',
     responses={
         status.HTTP_400_BAD_REQUEST: error_response(ChannelWithSlugAlreadyExists),
         status.HTTP_401_UNAUTHORIZED: error_response(
@@ -100,7 +100,7 @@ async def update_channel(
 
 
 @router.delete(
-    '/',
+    path='',
     status_code=status.HTTP_204_NO_CONTENT,
     responses={
         status.HTTP_401_UNAUTHORIZED: error_response(
@@ -121,7 +121,7 @@ async def delete_channel(
 
 
 @router.post(
-    '/set_password',
+    path='/set_password',
     status_code=status.HTTP_204_NO_CONTENT,
     responses={
         status.HTTP_401_UNAUTHORIZED: error_response(

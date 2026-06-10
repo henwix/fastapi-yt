@@ -8,7 +8,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.domain.post_reactions.entities import PostReaction
 from app.domain.post_reactions.exceptions import PostReactionAlreadyExists
-from app.domain.post_reactions.repository import IPostReactionRepository
+from app.domain.post_reactions.repositories import IPostReactionRepository
 from app.infrastructure.sqlalchemy.models.posts import PostReactionORM
 
 
@@ -26,7 +26,7 @@ class SAPostReactionRepository(IPostReactionRepository):
                 raise PostReactionAlreadyExists(
                     post_id=post_reaction.post_id,
                     channel_id=post_reaction.channel_id,
-                )
+                ) from error
             case _:
                 raise
 

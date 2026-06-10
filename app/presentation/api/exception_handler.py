@@ -11,6 +11,7 @@ from app.domain.auth.exceptions import (
 )
 from app.domain.channels.exceptions import (
     ChannelNotActiveError,
+    ChannelNotFoundBySlugError,
     ChannelNotFoundError,
     ChannelWithEmailAlreadyExists,
     ChannelWithSlugAlreadyExists,
@@ -18,6 +19,11 @@ from app.domain.channels.exceptions import (
 from app.domain.common.exceptions import AppException
 from app.domain.post_reactions.exceptions import PostReactionAlreadyExists, PostReactionNotFound
 from app.domain.posts.exceptions import PostAccessForbiddenError, PostNotFoundError
+from app.domain.subscriptions.exceptions import (
+    SelfSubscriptionError,
+    SubscriptionAlreadyExistsError,
+    SubscriptionNotFoundError,
+)
 from app.presentation.api.responses.msgspec import MsgSpecJSONResponse
 
 logger = getLogger(__name__)
@@ -29,6 +35,7 @@ def get_http_status_code(exc: AppException):
         ChannelWithEmailAlreadyExists: status.HTTP_400_BAD_REQUEST,
         ChannelWithSlugAlreadyExists: status.HTTP_400_BAD_REQUEST,
         ChannelNotFoundError: status.HTTP_404_NOT_FOUND,
+        ChannelNotFoundBySlugError: status.HTTP_404_NOT_FOUND,
         ChannelNotActiveError: status.HTTP_403_FORBIDDEN,
         # Auth
         IncorrectEmailOrPasswordError: status.HTTP_401_UNAUTHORIZED,
@@ -41,6 +48,10 @@ def get_http_status_code(exc: AppException):
         # Post reactions
         PostReactionAlreadyExists: status.HTTP_400_BAD_REQUEST,
         PostReactionNotFound: status.HTTP_404_NOT_FOUND,
+        # Subscriptions
+        SubscriptionAlreadyExistsError: status.HTTP_400_BAD_REQUEST,
+        SelfSubscriptionError: status.HTTP_400_BAD_REQUEST,
+        SubscriptionNotFoundError: status.HTTP_404_NOT_FOUND,
     }
     return exception_codes.get(type(exc), status.HTTP_500_INTERNAL_SERVER_ERROR)
 

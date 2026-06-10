@@ -1,7 +1,10 @@
+from uuid import UUID
+
 import sqlalchemy as sa
 from sqlalchemy.orm import Mapped, mapped_column
 
 from app.domain.channels.entities import Channel
+from app.domain.subscriptions.entities import Subscription
 from app.infrastructure.sqlalchemy.models.base import BaseORM
 from app.infrastructure.sqlalchemy.models.mixins import CreatedAtMixin, UpdatedAtMixin, UUIDIdMixin
 
@@ -48,4 +51,38 @@ class ChannelORM(
             is_active=entity.is_active,
             created_at=entity.created_at,
             updated_at=entity.updated_at,
+        )
+
+
+class SubscriptionORM(
+    UUIDIdMixin,
+    CreatedAtMixin,
+    BaseORM,
+):
+    __tablename__ = 'subscriptions'
+
+    subscriber_id: Mapped[UUID] = mapped_column(
+        sa.ForeignKey('channels.id', ondelete='CASCADE'),
+    )
+    subscribed_to_id: Mapped[UUID] = mapped_column(
+        sa.ForeignKey('channels.id', ondelete='CASCADE'),
+    )
+
+    __table_args__ = (sa.UniqueConstraint('subscriber_id', 'subscribed_to_id', name='unique_channel_subscription'),)
+
+    def to_entity(self) -> Subscription:
+        return Subscription(
+            id=self.id,
+            subscriber_id=self.subscriber_id,
+            subscribed_to_id=self.subscribed_to_id,
+            created_at=self.created_at,
+        )
+
+    @staticmethod
+    def from_entity(entity: Subscription) -> SubscriptionORM:
+        return SubscriptionORM(
+            id=entity.id,
+            subscriber_id=entity.subscriber_id,
+            subscribed_to_id=entity.subscribed_to_id,
+            created_at=entity.created_at,
         )

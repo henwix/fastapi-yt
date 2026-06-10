@@ -4,7 +4,7 @@ from uuid import UUID
 
 from app.domain.post_reactions.entities import PostReaction
 from app.domain.post_reactions.exceptions import PostReactionNotFound
-from app.domain.post_reactions.repository import IPostReactionRepository
+from app.domain.post_reactions.repositories import IPostReactionRepository
 
 
 class IPostReactionService(ABC):

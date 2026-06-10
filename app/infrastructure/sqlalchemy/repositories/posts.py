@@ -5,7 +5,7 @@ from sqlalchemy import delete, select, update
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.domain.posts.entities import Post
-from app.domain.posts.repository import IPostRepository
+from app.domain.posts.repositories import IPostRepository
 from app.infrastructure.sqlalchemy.models.posts import PostORM
 
 

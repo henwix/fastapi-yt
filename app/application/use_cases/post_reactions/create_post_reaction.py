@@ -4,7 +4,7 @@ from app.application.commands.post_reactions import CreatePostReactionCommand
 from app.application.common.transaction_manager import ITransactionManager
 from app.domain.channels.services import IChannelService
 from app.domain.post_reactions.entities import PostReaction
-from app.domain.post_reactions.service import IPostReactionService
+from app.domain.post_reactions.services import IPostReactionService
 from app.domain.posts.services import IPostService
 
 

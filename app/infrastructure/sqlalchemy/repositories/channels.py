@@ -8,7 +8,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.domain.channels.entities import Channel
 from app.domain.channels.exceptions import ChannelWithEmailAlreadyExists, ChannelWithSlugAlreadyExists
-from app.domain.channels.repository import IChannelRepository
+from app.domain.channels.repositories import IChannelRepository
 from app.infrastructure.sqlalchemy.models.channels import ChannelORM
 
 
@@ -50,6 +50,10 @@ class SAChannelRepository(IChannelRepository):
 
     async def get_by_email(self, email: str) -> Channel | None:
         stmt = select(ChannelORM).where(ChannelORM.email == email)
+        return await self._get_one_by_query(query=stmt)
+
+    async def get_by_slug(self, slug: str) -> Channel | None:
+        stmt = select(ChannelORM).where(ChannelORM.slug == slug)
         return await self._get_one_by_query(query=stmt)
 
     async def get_by_id(self, id: UUID) -> Channel | None:

@@ -12,6 +12,9 @@ class IChannelRepository(ABC):
     async def get_by_email(self, email: str) -> Channel | None: ...
 
     @abstractmethod
+    async def get_by_slug(self, slug: str) -> Channel | None: ...
+
+    @abstractmethod
     async def get_by_id(self, id: UUID) -> Channel | None: ...
 
     @abstractmethod

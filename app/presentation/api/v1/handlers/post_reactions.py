@@ -23,7 +23,7 @@ router = APIRouter(
 
 
 @router.post(
-    path='/',
+    path='',
     status_code=status.HTTP_200_OK,
     responses={
         status.HTTP_200_OK: {
@@ -67,7 +67,7 @@ async def create_post_reaction(
 
 
 @router.delete(
-    path='/',
+    path='',
     status_code=status.HTTP_204_NO_CONTENT,
     responses={
         status.HTTP_401_UNAUTHORIZED: error_response(

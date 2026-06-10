@@ -25,7 +25,7 @@ router = APIRouter(
 
 
 @router.post(
-    path='/',
+    path='',
     status_code=status.HTTP_201_CREATED,
     responses={
         status.HTTP_401_UNAUTHORIZED: error_response(

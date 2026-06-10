@@ -4,9 +4,8 @@ from datetime import datetime
 from pydantic import BaseModel, ConfigDict, EmailStr, Field, field_validator
 
 from app.domain.channels.entities import Channel
+from app.domain.common.constants import SLUG_PATTERN
 from app.presentation.api.v1.schemas.base import BaseSchema, BaseUpdateSchema
-
-slug_pattern = r'^[a-z0-9]+(?:-[a-z0-9]+)*$'
 
 
 class CreateChannelSchema(BaseModel):
@@ -27,8 +26,8 @@ class CreateChannelSchema(BaseModel):
     @field_validator('slug', mode='after')
     @classmethod
     def slug_regex_validator(cls, v: str) -> str:
-        if not re.fullmatch(pattern=slug_pattern, string=v):
-            raise ValueError(f"String should match pattern '{slug_pattern}'")
+        if not re.fullmatch(pattern=SLUG_PATTERN, string=v):
+            raise ValueError(f"String should match pattern '{SLUG_PATTERN}'")
         return v
 
 
@@ -41,8 +40,8 @@ class UpdateChannelSchema(BaseUpdateSchema):
     @field_validator('slug', mode='after')
     @classmethod
     def slug_regex_validator(cls, v: str) -> str:
-        if v and not re.fullmatch(pattern=slug_pattern, string=v):
-            raise ValueError(f"String should match pattern '{slug_pattern}'")
+        if v and not re.fullmatch(pattern=SLUG_PATTERN, string=v):
+            raise ValueError(f"String should match pattern '{SLUG_PATTERN}'")
         return v
 
 

@@ -5,11 +5,12 @@ from uuid import UUID
 from app.domain.channels.entities import Channel
 from app.domain.channels.exceptions import (
     ChannelNotActiveError,
+    ChannelNotFoundBySlugError,
     ChannelNotFoundError,
     ChannelWithEmailAlreadyExists,
     ChannelWithSlugAlreadyExists,
 )
-from app.domain.channels.repository import IChannelRepository
+from app.domain.channels.repositories import IChannelRepository
 
 
 class IChannelService(ABC):
@@ -24,6 +25,9 @@ class IChannelService(ABC):
 
     @abstractmethod
     async def get_by_email(self, email: str) -> Channel | None: ...
+
+    @abstractmethod
+    async def try_get_by_slug(self, slug: str) -> Channel: ...
 
     @abstractmethod
     async def try_get_active_by_id(self, id: UUID) -> Channel: ...
@@ -55,6 +59,12 @@ class ChannelService(IChannelService):
 
     async def get_by_email(self, email: str) -> Channel | None:
         return await self._channel_repo.get_by_email(email=email)
+
+    async def try_get_by_slug(self, slug: str) -> Channel:
+        channel = await self._channel_repo.get_by_slug(slug=slug)
+        if not channel:
+            raise ChannelNotFoundBySlugError(slug=slug)
+        return channel
 
     async def try_get_active_by_id(self, id: UUID) -> Channel:
         channel = await self._channel_repo.get_by_id(id=id)

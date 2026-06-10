@@ -20,6 +20,13 @@ class ChannelNotFoundError(AppException):
     message = 'Channel not found'
 
 
+@dataclass(kw_only=True)
+class ChannelNotFoundBySlugError(AppException):
+    message = 'Channel not found by slug'
+
+    slug: str
+
+
 @dataclass
 class ChannelNotActiveError(AppException):
     message = 'Channel not active'

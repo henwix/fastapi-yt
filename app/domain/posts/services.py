@@ -5,7 +5,7 @@ from uuid import UUID
 from app.domain.channels.entities import Channel
 from app.domain.posts.entities import Post
 from app.domain.posts.exceptions import PostAccessForbiddenError, PostNotFoundError
-from app.domain.posts.repository import IPostRepository
+from app.domain.posts.repositories import IPostRepository
 
 
 class IPostService(ABC):

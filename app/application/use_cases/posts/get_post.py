@@ -1,6 +1,6 @@
 from dataclasses import dataclass
 
-from app.application.common.transaction_manager import ITransactionManager
+from app.application.common.interfaces.transaction_manager import ITransactionManager
 from app.application.queries.posts import GetPostQuery
 from app.domain.posts.entities import Post
 from app.domain.posts.services import IPostService

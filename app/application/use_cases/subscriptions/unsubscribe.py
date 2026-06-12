@@ -1,7 +1,7 @@
 from dataclasses import dataclass
 
 from app.application.commands.subscriptions import UnsubscribeCommand
-from app.application.common.transaction_manager import ITransactionManager
+from app.application.common.interfaces.transaction_manager import ITransactionManager
 from app.domain.channels.services import IChannelService
 from app.domain.subscriptions.exceptions import SubscriptionNotFoundError
 from app.domain.subscriptions.services import ISubscriptionService

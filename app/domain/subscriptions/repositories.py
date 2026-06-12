@@ -1,6 +1,7 @@
 from abc import ABC, abstractmethod
 from uuid import UUID
 
+from app.domain.common.constants import Empty
 from app.domain.subscriptions.entities import Subscription
 
 
@@ -15,4 +16,10 @@ class ISubscriptionRepository(ABC):
     async def delete_by_ids(self, subscriber_id: UUID, subscribed_to_id: UUID) -> bool: ...
 
     @abstractmethod
-    async def get_many_by_subscribed_to_id(self, subscribed_to_id: UUID): ...
+    async def get_many_by_subscribed_to_id(
+        self,
+        subscribed_to_id: UUID,
+        order: str,
+        cursor: str | Empty,
+        per_page: int,
+    ) -> list[Subscription]: ...

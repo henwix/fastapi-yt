@@ -4,9 +4,9 @@ from functools import lru_cache
 from dishka import AsyncContainer, Provider, Scope, make_async_container, provide
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from app.application.common.jwt import IJWTService
-from app.application.common.password_hasher import IPasswordHasher
-from app.application.common.transaction_manager import ITransactionManager
+from app.application.common.interfaces.jwt import IJWTService
+from app.application.common.interfaces.password_hasher import IPasswordHasher
+from app.application.common.interfaces.transaction_manager import ITransactionManager
 from app.application.use_cases.auth.login import LoginUseCase
 from app.application.use_cases.channels.create_channel import CreateChannelUseCase
 from app.application.use_cases.channels.delete_channel import DeleteChannelUseCase

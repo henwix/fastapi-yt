@@ -4,7 +4,7 @@ from uuid import UUID
 
 import jwt
 
-from app.application.common.jwt import IJWTService
+from app.application.common.interfaces.jwt import IJWTService
 from app.core.configs import settings
 from app.domain.auth.exceptions import JWTExpiredTokenError, JWTInvalidTokenError
 from app.utils.get_datetime_utc_now import get_datetime_utc_now

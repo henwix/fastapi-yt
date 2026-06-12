@@ -6,6 +6,7 @@ from sqlalchemy import delete, exists, select
 from sqlalchemy.exc import DBAPIError, IntegrityError
 from sqlalchemy.ext.asyncio import AsyncSession
 
+from app.domain.common.constants import Empty
 from app.domain.subscriptions.entities import Subscription
 from app.domain.subscriptions.exceptions import SubscriptionAlreadyExistsError
 from app.domain.subscriptions.repositories import ISubscriptionRepository
@@ -56,5 +57,20 @@ class SASubscriptionRepository(ISubscriptionRepository):
         result = await self._session.execute(statement=stmt)
         return result.rowcount > 0
 
-    async def get_many_by_subscribed_to_id(self, subscribed_to_id: UUID):
-        return await super().get_many_by_subscribed_to_id(subscribed_to_id)
+    async def get_many_by_subscribed_to_id(
+        self,
+        subscribed_to_id: UUID,
+        order: str,
+        cursor: str | Empty,
+        per_page: int,
+    ) -> list[Subscription]:
+        stmt = select(SubscriptionORM).where(SubscriptionORM.subscribed_to_id == subscribed_to_id)
+
+        if cursor is not Empty.UNSET:
+            stmt = stmt.where(SubscriptionORM.id < cursor if order == 'desc' else SubscriptionORM.id > cursor)
+
+        stmt = stmt.order_by(SubscriptionORM.id.desc() if order == 'desc' else SubscriptionORM.id)
+        stmt = stmt.limit(limit=per_page)
+
+        result = await self._session.execute(statement=stmt)
+        return [sub.to_entity() for sub in result.scalars()]

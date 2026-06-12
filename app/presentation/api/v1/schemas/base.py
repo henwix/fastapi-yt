@@ -1,6 +1,6 @@
 from typing import Self
 
-from pydantic import BaseModel, ConfigDict, model_validator
+from pydantic import BaseModel, ConfigDict, Field, model_validator
 
 
 class BaseSchema(BaseModel):
@@ -16,3 +16,8 @@ class BaseUpdateSchema(BaseSchema):
         if not self.model_fields_set:
             raise ValueError('At least one field must be provided')
         return self
+
+
+class CursorPaginationParams(BaseSchema):
+    cursor: str | None = None
+    per_page: int = Field(default=25, ge=1, le=100)

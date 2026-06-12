@@ -1,8 +1,8 @@
 from dataclasses import dataclass
 
 from app.application.commands.auth import LoginCommand
-from app.application.common.jwt import IJWTService
-from app.application.common.password_hasher import IPasswordHasher
+from app.application.common.interfaces.jwt import IJWTService
+from app.application.common.interfaces.password_hasher import IPasswordHasher
 from app.domain.auth.exceptions import IncorrectEmailOrPasswordError
 from app.domain.channels.services import IChannelService
 

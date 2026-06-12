@@ -1,7 +1,7 @@
 from dataclasses import dataclass
 
 from app.application.commands.posts import DeletePostCommand
-from app.application.common.transaction_manager import ITransactionManager
+from app.application.common.interfaces.transaction_manager import ITransactionManager
 from app.domain.channels.services import IChannelService
 from app.domain.posts.services import IPostService
 

@@ -68,7 +68,11 @@ class SubscriptionORM(
         sa.ForeignKey('channels.id', ondelete='CASCADE'),
     )
 
-    __table_args__ = (sa.UniqueConstraint('subscriber_id', 'subscribed_to_id', name='unique_channel_subscription'),)
+    __table_args__ = (
+        sa.UniqueConstraint('subscriber_id', 'subscribed_to_id', name='unique_channel_subscription'),
+        sa.Index('ix_composite_subscriber_id_created_at_id', 'subscriber_id', 'created_at', 'id'),
+        sa.Index('ix_composite_subscribed_to_id_created_at_id', 'subscribed_to_id', 'created_at', 'id'),
+    )
 
     def to_entity(self) -> Subscription:
         return Subscription(

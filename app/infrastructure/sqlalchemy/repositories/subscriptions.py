@@ -3,7 +3,7 @@ from datetime import datetime
 from typing import NoReturn
 from uuid import UUID
 
-from sqlalchemy import and_, delete, exists, select
+from sqlalchemy import delete, exists, select
 from sqlalchemy.exc import DBAPIError, IntegrityError
 from sqlalchemy.ext.asyncio import AsyncSession
 
@@ -74,19 +74,19 @@ class SASubscriptionRepository(ISubscriptionRepository):
             if order == SortOrderEnum.DESC.value:
                 stmt = stmt.where(
                     (sort_by_field < cursor_sort_value)
-                    | and_(sort_by_field == cursor_sort_value, SubscriptionORM.id < cursor_sort_id)
+                    | ((sort_by_field == cursor_sort_value) & (SubscriptionORM.id < cursor_sort_id))
                 )
             else:
                 stmt = stmt.where(
                     (sort_by_field > cursor_sort_value)
-                    | and_(sort_by_field == cursor_sort_value, SubscriptionORM.id > cursor_sort_id)
+                    | ((sort_by_field == cursor_sort_value) & (SubscriptionORM.id > cursor_sort_id))
                 )
 
         stmt = stmt.order_by(
             sort_by_field.desc() if order == SortOrderEnum.DESC.value else sort_by_field,
             SubscriptionORM.id.desc() if order == SortOrderEnum.DESC.value else SubscriptionORM.id,
         )
-        stmt = stmt.limit(limit=per_page)
+        stmt = stmt.limit(limit=per_page + 1)
 
         result = await self._session.execute(statement=stmt)
         return [sub.to_entity() for sub in result.scalars()]

@@ -13,6 +13,7 @@ from app.application.use_cases.subscriptions.unsubscribe import UnsubscribeUseCa
 from app.domain.auth.exceptions import JWTExpiredTokenError, JWTInvalidTokenError, NotAuthenticatedError
 from app.domain.channels.exceptions import ChannelNotActiveError, ChannelNotFoundBySlugError, ChannelNotFoundError
 from app.domain.common.constants import SLUG_PATTERN
+from app.domain.common.exceptions import InvalidCursorError
 from app.domain.subscriptions.exceptions import SubscriptionAlreadyExistsError, SubscriptionNotFoundError
 from app.presentation.api.openapi.common import error_response
 from app.presentation.api.v1.di.current_channel_id import CurrentChannelID
@@ -84,6 +85,7 @@ async def unsubscribe(
 @router.get(
     path='/subscribers',
     responses={
+        status.HTTP_400_BAD_REQUEST: error_response(InvalidCursorError),
         status.HTTP_401_UNAUTHORIZED: error_response(
             NotAuthenticatedError,
             JWTExpiredTokenError,

@@ -9,7 +9,7 @@ from app.domain.common.constants import Empty
 from app.domain.common.exceptions import InvalidCursorError
 from app.domain.subscriptions.entities import Subscription
 from app.domain.subscriptions.repositories import ISubscriptionRepository
-from app.utils.base64url import base64url_decode_cursor
+from app.utils.base64url import base64url_decode
 
 
 @dataclass
@@ -22,19 +22,19 @@ class GetSubscribersUseCase:
         async with self.transaction_manager:
             channel = await self.channel_service.try_get_active_by_id(id=query.current_channel_id)
 
+            cursor_sort_value = None
+            cursor_sort_id = None
+
             if query.pagination.cursor is not Empty.UNSET:
                 try:
-                    decoded_cursor = base64url_decode_cursor(value=query.pagination.cursor)
-
+                    decoded_cursor = base64url_decode(value=query.pagination.cursor)
                     match query.sorting.sort_by:
                         case GetSubscribersSortFieldsEnum.created_at:
                             cursor_sort_value = datetime.fromisoformat(decoded_cursor['created_at'])
                             cursor_sort_id = UUID(decoded_cursor['id'])
+
                 except Exception as e:
                     raise InvalidCursorError(cursor=query.pagination.cursor) from e
-            else:
-                cursor_sort_value = None
-                cursor_sort_id = None
 
             subscribers = await self.subscription_repo.get_many_by_subscribed_to_id(
                 subscribed_to_id=channel.id,
@@ -45,13 +45,14 @@ class GetSubscribersUseCase:
                 per_page=query.pagination.per_page,
             )
 
-        if subscribers:
+        next_cursor = None
+        if subscribers and len(subscribers) > query.pagination.per_page:
+            subscribers = subscribers[: query.pagination.per_page]
             last_item = subscribers[-1]
             match query.sorting.sort_by:
                 case GetSubscribersSortFieldsEnum.created_at:
-                    cursor = {
+                    next_cursor = {
                         'created_at': last_item.created_at.isoformat(),
                         'id': str(last_item.id),
                     }
-            return subscribers, cursor
-        return subscribers, None
+        return subscribers, next_cursor

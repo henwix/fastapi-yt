@@ -4,7 +4,7 @@ from fastapi import Request
 
 from app.domain.common.entities import BaseEntity
 from app.presentation.api.v1.schemas.base import BaseCursorResponse
-from app.utils.base64url import base64url_encode_cursor
+from app.utils.base64url import base64url_encode
 
 
 @dataclass
@@ -19,7 +19,7 @@ class CursorPaginator:
     ) -> BaseCursorResponse:
         next_page = None
         if cursor:
-            encoded_cursor = base64url_encode_cursor(cursor)
+            encoded_cursor = base64url_encode(cursor)
             next_page = str(self.request.url.include_query_params(cursor=encoded_cursor))
 
         return response_schema(next_page=next_page, results=results)

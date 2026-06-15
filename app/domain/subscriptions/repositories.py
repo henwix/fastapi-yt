@@ -1,7 +1,7 @@
 from abc import ABC, abstractmethod
+from datetime import datetime
 from uuid import UUID
 
-from app.domain.common.constants import Empty
 from app.domain.subscriptions.entities import Subscription
 
 
@@ -19,7 +19,9 @@ class ISubscriptionRepository(ABC):
     async def get_many_by_subscribed_to_id(
         self,
         subscribed_to_id: UUID,
+        cursor_sort_value: str | datetime | None,
+        cursor_sort_id: UUID | None,
+        sort_by: str,
         order: str,
-        cursor: str | Empty,
         per_page: int,
     ) -> list[Subscription]: ...

@@ -1,12 +1,13 @@
 from dataclasses import dataclass
+from datetime import datetime
 from typing import NoReturn
 from uuid import UUID
 
-from sqlalchemy import delete, exists, select
+from sqlalchemy import and_, delete, exists, select
 from sqlalchemy.exc import DBAPIError, IntegrityError
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from app.domain.common.constants import Empty
+from app.application.common.sorting import SortOrderEnum
 from app.domain.subscriptions.entities import Subscription
 from app.domain.subscriptions.exceptions import SubscriptionAlreadyExistsError
 from app.domain.subscriptions.repositories import ISubscriptionRepository
@@ -60,16 +61,31 @@ class SASubscriptionRepository(ISubscriptionRepository):
     async def get_many_by_subscribed_to_id(
         self,
         subscribed_to_id: UUID,
+        cursor_sort_value: str | datetime | None,
+        cursor_sort_id: UUID | None,
+        sort_by: str,
         order: str,
-        cursor: str | Empty,
         per_page: int,
     ) -> list[Subscription]:
         stmt = select(SubscriptionORM).where(SubscriptionORM.subscribed_to_id == subscribed_to_id)
+        sort_by_field = getattr(SubscriptionORM, sort_by)
 
-        if cursor is not Empty.UNSET:
-            stmt = stmt.where(SubscriptionORM.id < cursor if order == 'desc' else SubscriptionORM.id > cursor)
+        if cursor_sort_value and cursor_sort_id:
+            if order == SortOrderEnum.DESC.value:
+                stmt = stmt.where(
+                    (sort_by_field < cursor_sort_value)
+                    | and_(sort_by_field == cursor_sort_value, SubscriptionORM.id < cursor_sort_id)
+                )
+            else:
+                stmt = stmt.where(
+                    (sort_by_field > cursor_sort_value)
+                    | and_(sort_by_field == cursor_sort_value, SubscriptionORM.id > cursor_sort_id)
+                )
 
-        stmt = stmt.order_by(SubscriptionORM.id.desc() if order == 'desc' else SubscriptionORM.id)
+        stmt = stmt.order_by(
+            sort_by_field.desc() if order == SortOrderEnum.DESC.value else sort_by_field,
+            SubscriptionORM.id.desc() if order == SortOrderEnum.DESC.value else SubscriptionORM.id,
+        )
         stmt = stmt.limit(limit=per_page)
 
         result = await self._session.execute(statement=stmt)

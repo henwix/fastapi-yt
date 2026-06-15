@@ -2,7 +2,7 @@ from typing import Annotated
 
 from dishka import FromDishka
 from dishka.integrations.fastapi import DishkaRoute
-from fastapi import APIRouter, Depends, Path, Request, status
+from fastapi import APIRouter, Depends, Path, status
 
 from app.application.commands.subscriptions import SubscribeCommand, UnsubscribeCommand
 from app.application.common.pagination import CursorPagination
@@ -16,6 +16,7 @@ from app.domain.common.constants import SLUG_PATTERN
 from app.domain.subscriptions.exceptions import SubscriptionAlreadyExistsError, SubscriptionNotFoundError
 from app.presentation.api.openapi.common import error_response
 from app.presentation.api.v1.di.current_channel_id import CurrentChannelID
+from app.presentation.api.v1.di.pagination import CursorPaginator
 from app.presentation.api.v1.schemas.base import CursorPaginationParams
 from app.presentation.api.v1.schemas.subscriptions import (
     SubscriptionCursorResponse,
@@ -99,19 +100,16 @@ async def get_subscribers(
     use_case: FromDishka[GetSubscribersUseCase],
     sort: Annotated[SubscriptionSortParams, Depends()],
     pagination: Annotated[CursorPaginationParams, Depends()],
-    request: Request,
+    paginator: CursorPaginator,
 ) -> SubscriptionCursorResponse:
     query = GetSubscribersQuery(
         current_channel_id=current_channel_id,
         sorting=GetSubscribersSortOrder(**sort.model_dump()),
         pagination=CursorPagination(**pagination.model_dump(exclude_none=True)),
     )
-    subscribers = await use_case.execute(query=query)
-    return SubscriptionCursorResponse(
-        next_page=str(request.url.include_query_params(cursor=str(subscribers[-1].id))) if subscribers else None,
+    subscribers, cursor = await use_case.execute(query=query)
+    return paginator.get_response(
         results=[SubscriptionSchema.from_entity(entity=sub) for sub in subscribers],
+        cursor=cursor,
+        response_schema=SubscriptionCursorResponse,
     )
-
-
-# @router.get(path='/subscriptions')
-# async def get_subscriptions(): ...

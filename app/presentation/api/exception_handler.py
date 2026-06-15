@@ -16,7 +16,7 @@ from app.domain.channels.exceptions import (
     ChannelWithEmailAlreadyExists,
     ChannelWithSlugAlreadyExists,
 )
-from app.domain.common.exceptions import AppException
+from app.domain.common.exceptions import AppException, InvalidCursorError
 from app.domain.post_reactions.exceptions import PostReactionAlreadyExists, PostReactionNotFound
 from app.domain.posts.exceptions import PostAccessForbiddenError, PostNotFoundError
 from app.domain.subscriptions.exceptions import (
@@ -31,6 +31,8 @@ logger = getLogger(__name__)
 
 def get_http_status_code(exc: AppException):
     exception_codes: dict[type[AppException], int] = {
+        # Common
+        InvalidCursorError: status.HTTP_400_BAD_REQUEST,
         # Channels
         ChannelWithEmailAlreadyExists: status.HTTP_400_BAD_REQUEST,
         ChannelWithSlugAlreadyExists: status.HTTP_400_BAD_REQUEST,

@@ -1,11 +1,10 @@
 from datetime import datetime
 from uuid import UUID
 
-from pydantic import HttpUrl
-
 from app.application.common.sorting import SortOrderEnum
+from app.application.queries.subscriptions import GetSubscribersSortFieldsEnum
 from app.domain.subscriptions.entities import Subscription
-from app.presentation.api.v1.schemas.base import BaseSchema
+from app.presentation.api.v1.schemas.base import BaseCursorResponse, BaseSchema
 
 
 class SubscriptionSchema(BaseSchema):
@@ -25,9 +24,9 @@ class SubscriptionSchema(BaseSchema):
 
 
 class SubscriptionSortParams(BaseSchema):
+    sort_by: GetSubscribersSortFieldsEnum = GetSubscribersSortFieldsEnum.created_at
     order: SortOrderEnum = SortOrderEnum.DESC
 
 
-class SubscriptionCursorResponse(BaseSchema):
-    next_page: HttpUrl | None
+class SubscriptionCursorResponse(BaseCursorResponse):
     results: list[SubscriptionSchema]

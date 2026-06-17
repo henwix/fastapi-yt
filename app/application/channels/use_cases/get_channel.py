@@ -1,6 +1,6 @@
 from dataclasses import dataclass
 
-from app.application.queries.channels import GetChannelQuery
+from app.application.channels.queries import GetChannelQuery
 from app.domain.channels.entities import Channel
 from app.domain.channels.services import IChannelService
 

@@ -2,7 +2,7 @@ from dataclasses import dataclass
 
 from fastapi import Request
 
-from app.domain.common.entities import BaseEntity
+from app.application.common.dto import DTO
 from app.presentation.api.v1.schemas.base import BaseCursorResponse
 from app.utils.base64url import base64url_encode
 
@@ -13,8 +13,8 @@ class CursorPaginator:
 
     def get_response(
         self,
-        results: list[BaseEntity],
-        cursor: dict,
+        results: list[DTO],
+        cursor: dict | None,
         response_schema: type[BaseCursorResponse],
     ) -> BaseCursorResponse:
         next_page = None

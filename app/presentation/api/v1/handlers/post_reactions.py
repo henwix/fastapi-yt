@@ -4,9 +4,9 @@ from dishka import FromDishka
 from dishka.integrations.fastapi import DishkaRoute
 from fastapi import APIRouter, Response, status
 
-from app.application.commands.post_reactions import CreatePostReactionCommand, DeletePostReactionCommand
-from app.application.use_cases.post_reactions.create_post_reaction import CreatePostReactionUseCase
-from app.application.use_cases.post_reactions.delete_post_reaction import DeletePostReactionUseCase
+from app.application.post_reactions.commands import CreatePostReactionCommand, DeletePostReactionCommand
+from app.application.post_reactions.use_cases.create_post_reaction import CreatePostReactionUseCase
+from app.application.post_reactions.use_cases.delete_post_reaction import DeletePostReactionUseCase
 from app.domain.auth.exceptions import JWTExpiredTokenError, JWTInvalidTokenError, NotAuthenticatedError
 from app.domain.channels.exceptions import ChannelNotActiveError, ChannelNotFoundError
 from app.domain.post_reactions.exceptions import PostReactionAlreadyExists, PostReactionNotFound

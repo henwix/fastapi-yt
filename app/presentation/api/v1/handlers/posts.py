@@ -4,12 +4,12 @@ from dishka import FromDishka
 from dishka.integrations.fastapi import DishkaRoute
 from fastapi import APIRouter, status
 
-from app.application.commands.posts import CreatePostCommand, DeletePostCommand, UpdatePostCommand
-from app.application.queries.posts import GetPostQuery
-from app.application.use_cases.posts.create_post import CreatePostUseCase
-from app.application.use_cases.posts.delete_post import DeletePostUseCase
-from app.application.use_cases.posts.get_post import GetPostUseCase
-from app.application.use_cases.posts.update_post import UpdatePostUseCase
+from app.application.posts.commands import CreatePostCommand, DeletePostCommand, UpdatePostCommand
+from app.application.posts.queries import GetPostQuery
+from app.application.posts.use_cases.create_post import CreatePostUseCase
+from app.application.posts.use_cases.delete_post import DeletePostUseCase
+from app.application.posts.use_cases.get_post import GetPostUseCase
+from app.application.posts.use_cases.update_post import UpdatePostUseCase
 from app.domain.auth.exceptions import JWTExpiredTokenError, JWTInvalidTokenError, NotAuthenticatedError
 from app.domain.channels.exceptions import ChannelNotActiveError, ChannelNotFoundError
 from app.domain.posts.exceptions import PostAccessForbiddenError, PostNotFoundError

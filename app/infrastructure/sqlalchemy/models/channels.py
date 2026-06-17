@@ -1,7 +1,7 @@
 from uuid import UUID
 
 import sqlalchemy as sa
-from sqlalchemy.orm import Mapped, mapped_column
+from sqlalchemy.orm import Mapped, mapped_column, relationship
 
 from app.domain.channels.entities import Channel
 from app.domain.subscriptions.entities import Subscription
@@ -24,6 +24,17 @@ class ChannelORM(
     country: Mapped[str] = mapped_column(sa.String(40))
     password_hash: Mapped[str]
     is_active: Mapped[bool] = mapped_column(default=True, server_default=sa.sql.true())
+
+    subscriptions = relationship(
+        'SubscriptionORM',
+        back_populates='subscriber',
+        foreign_keys='SubscriptionORM.subscriber_id',
+    )
+    subscribers = relationship(
+        'SubscriptionORM',
+        back_populates='subscribed_to',
+        foreign_keys='SubscriptionORM.subscribed_to_id',
+    )
 
     def to_entity(self) -> Channel:
         return Channel(
@@ -64,14 +75,23 @@ class SubscriptionORM(
     subscriber_id: Mapped[UUID] = mapped_column(
         sa.ForeignKey('channels.id', ondelete='CASCADE'),
     )
+    subscriber = relationship(
+        'ChannelORM',
+        back_populates='subscriptions',
+        foreign_keys=[subscriber_id],
+    )
     subscribed_to_id: Mapped[UUID] = mapped_column(
         sa.ForeignKey('channels.id', ondelete='CASCADE'),
+    )
+    subscribed_to = relationship(
+        'ChannelORM',
+        back_populates='subscribers',
+        foreign_keys=[subscribed_to_id],
     )
 
     __table_args__ = (
         sa.UniqueConstraint('subscriber_id', 'subscribed_to_id', name='unique_channel_subscription'),
         sa.Index('ix_composite_subscriber_id_created_at_id', 'subscriber_id', 'created_at', 'id'),
-        sa.Index('ix_composite_subscribed_to_id_created_at_id', 'subscribed_to_id', 'created_at', 'id'),
     )
 
     def to_entity(self) -> Subscription:

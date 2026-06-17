@@ -4,12 +4,18 @@ from dishka import FromDishka
 from dishka.integrations.fastapi import DishkaRoute
 from fastapi import APIRouter, Depends, Path, status
 
-from app.application.commands.subscriptions import SubscribeCommand, UnsubscribeCommand
 from app.application.common.pagination import CursorPagination
-from app.application.queries.subscriptions import GetSubscribersQuery, GetSubscribersSortOrder
-from app.application.use_cases.subscriptions.get_subscribers import GetSubscribersUseCase
-from app.application.use_cases.subscriptions.subscribe import SubscribeUseCase
-from app.application.use_cases.subscriptions.unsubscribe import UnsubscribeUseCase
+from app.application.subscriptions.commands import SubscribeCommand, UnsubscribeCommand
+from app.application.subscriptions.queries import (
+    GetSubscribersQuery,
+    GetSubscribersSortOrder,
+    GetSubscriptionsQuery,
+    GetSubscriptionsSortOrder,
+)
+from app.application.subscriptions.use_cases.get_subscribers import GetSubscribersUseCase
+from app.application.subscriptions.use_cases.get_subscriptions import GetSubscriptionsUseCase
+from app.application.subscriptions.use_cases.subscribe import SubscribeUseCase
+from app.application.subscriptions.use_cases.unsubscribe import UnsubscribeUseCase
 from app.domain.auth.exceptions import JWTExpiredTokenError, JWTInvalidTokenError, NotAuthenticatedError
 from app.domain.channels.exceptions import ChannelNotActiveError, ChannelNotFoundBySlugError, ChannelNotFoundError
 from app.domain.common.constants import SLUG_PATTERN
@@ -20,9 +26,13 @@ from app.presentation.api.v1.di.current_channel_id import CurrentChannelID
 from app.presentation.api.v1.di.pagination import CursorPaginator
 from app.presentation.api.v1.schemas.base import CursorPaginationParams
 from app.presentation.api.v1.schemas.subscriptions import (
-    SubscriptionCursorResponse,
+    DetailedSubscriberSchema,
+    DetailedSubscriptionSchema,
+    GetSubscribersCursorResponse,
+    GetSubscribersSortParams,
+    GetSubscriptionsCursorResponse,
+    GetSubscriptionsSortParams,
     SubscriptionSchema,
-    SubscriptionSortParams,
 )
 
 router = APIRouter(
@@ -100,10 +110,10 @@ async def unsubscribe(
 async def get_subscribers(
     current_channel_id: CurrentChannelID,
     use_case: FromDishka[GetSubscribersUseCase],
-    sort: Annotated[SubscriptionSortParams, Depends()],
+    sort: Annotated[GetSubscribersSortParams, Depends()],
     pagination: Annotated[CursorPaginationParams, Depends()],
     paginator: CursorPaginator,
-) -> SubscriptionCursorResponse:
+) -> GetSubscribersCursorResponse:
     query = GetSubscribersQuery(
         current_channel_id=current_channel_id,
         sorting=GetSubscribersSortOrder(**sort.model_dump()),
@@ -111,7 +121,42 @@ async def get_subscribers(
     )
     subscribers, cursor = await use_case.execute(query=query)
     return paginator.get_response(
-        results=[SubscriptionSchema.from_entity(entity=sub) for sub in subscribers],
+        results=[DetailedSubscriberSchema.from_dto(dto=sub) for sub in subscribers],
         cursor=cursor,
-        response_schema=SubscriptionCursorResponse,
+        response_schema=GetSubscribersCursorResponse,
+    )
+
+
+@router.get(
+    '/subscriptions',
+    responses={
+        status.HTTP_400_BAD_REQUEST: error_response(InvalidCursorError),
+        status.HTTP_401_UNAUTHORIZED: error_response(
+            NotAuthenticatedError,
+            JWTExpiredTokenError,
+            JWTInvalidTokenError,
+        ),
+        status.HTTP_403_FORBIDDEN: error_response(ChannelNotActiveError),
+        status.HTTP_404_NOT_FOUND: error_response(
+            ChannelNotFoundError,
+        ),
+    },
+)
+async def get_subscriptions(
+    current_channel_id: CurrentChannelID,
+    sort: Annotated[GetSubscriptionsSortParams, Depends()],
+    pagination: Annotated[CursorPaginationParams, Depends()],
+    use_case: FromDishka[GetSubscriptionsUseCase],
+    paginator: CursorPaginator,
+) -> GetSubscriptionsCursorResponse:
+    query = GetSubscriptionsQuery(
+        current_channel_id=current_channel_id,
+        sorting=GetSubscriptionsSortOrder(**sort.model_dump()),
+        pagination=CursorPagination(**pagination.model_dump(exclude_none=True)),
+    )
+    subscriptions, cursor = await use_case.execute(query=query)
+    return paginator.get_response(
+        results=[DetailedSubscriptionSchema.from_dto(dto=sub) for sub in subscriptions],
+        cursor=cursor,
+        response_schema=GetSubscriptionsCursorResponse,
     )

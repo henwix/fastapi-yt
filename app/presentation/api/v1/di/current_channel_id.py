@@ -1,4 +1,5 @@
 from typing import Annotated
+from uuid import UUID
 
 from dishka import FromDishka
 from dishka.integrations.fastapi import inject
@@ -20,4 +21,4 @@ async def get_current_channel_id(
     return token_payload['sub']
 
 
-CurrentChannelID = Annotated[int, Depends(get_current_channel_id)]
+CurrentChannelID = Annotated[UUID, Depends(get_current_channel_id)]

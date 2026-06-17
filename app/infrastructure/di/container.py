@@ -4,24 +4,26 @@ from functools import lru_cache
 from dishka import AsyncContainer, Provider, Scope, make_async_container, provide
 from sqlalchemy.ext.asyncio import AsyncSession
 
+from app.application.auth.use_cases.login import LoginUseCase
+from app.application.channels.use_cases.create_channel import CreateChannelUseCase
+from app.application.channels.use_cases.delete_channel import DeleteChannelUseCase
+from app.application.channels.use_cases.get_channel import GetChannelUseCase
+from app.application.channels.use_cases.set_password import SetChannelPasswordUseCase
+from app.application.channels.use_cases.update_channel import UpdateChannelUseCase
 from app.application.common.interfaces.jwt import IJWTService
 from app.application.common.interfaces.password_hasher import IPasswordHasher
 from app.application.common.interfaces.transaction_manager import ITransactionManager
-from app.application.use_cases.auth.login import LoginUseCase
-from app.application.use_cases.channels.create_channel import CreateChannelUseCase
-from app.application.use_cases.channels.delete_channel import DeleteChannelUseCase
-from app.application.use_cases.channels.get_channel import GetChannelUseCase
-from app.application.use_cases.channels.set_password import SetChannelPasswordUseCase
-from app.application.use_cases.channels.update_channel import UpdateChannelUseCase
-from app.application.use_cases.post_reactions.create_post_reaction import CreatePostReactionUseCase
-from app.application.use_cases.post_reactions.delete_post_reaction import DeletePostReactionUseCase
-from app.application.use_cases.posts.create_post import CreatePostUseCase
-from app.application.use_cases.posts.delete_post import DeletePostUseCase
-from app.application.use_cases.posts.get_post import GetPostUseCase
-from app.application.use_cases.posts.update_post import UpdatePostUseCase
-from app.application.use_cases.subscriptions.get_subscribers import GetSubscribersUseCase
-from app.application.use_cases.subscriptions.subscribe import SubscribeUseCase
-from app.application.use_cases.subscriptions.unsubscribe import UnsubscribeUseCase
+from app.application.post_reactions.use_cases.create_post_reaction import CreatePostReactionUseCase
+from app.application.post_reactions.use_cases.delete_post_reaction import DeletePostReactionUseCase
+from app.application.posts.use_cases.create_post import CreatePostUseCase
+from app.application.posts.use_cases.delete_post import DeletePostUseCase
+from app.application.posts.use_cases.get_post import GetPostUseCase
+from app.application.posts.use_cases.update_post import UpdatePostUseCase
+from app.application.subscriptions.interfaces.reader import ISubscriptionReader
+from app.application.subscriptions.use_cases.get_subscribers import GetSubscribersUseCase
+from app.application.subscriptions.use_cases.get_subscriptions import GetSubscriptionsUseCase
+from app.application.subscriptions.use_cases.subscribe import SubscribeUseCase
+from app.application.subscriptions.use_cases.unsubscribe import UnsubscribeUseCase
 from app.domain.channels.repositories import IChannelRepository
 from app.domain.channels.services import ChannelService, IChannelService
 from app.domain.post_reactions.repositories import IPostReactionRepository
@@ -33,6 +35,7 @@ from app.domain.subscriptions.services import ISubscriptionService, Subscription
 from app.infrastructure.security.jwt import JWTService
 from app.infrastructure.security.password_hasher import PwdlibPasswordHasher
 from app.infrastructure.sqlalchemy.database import async_session
+from app.infrastructure.sqlalchemy.readers.subscriptions import SASubscriptionReader
 from app.infrastructure.sqlalchemy.repositories.channels import SAChannelRepository
 from app.infrastructure.sqlalchemy.repositories.post_reactions import SAPostReactionRepository
 from app.infrastructure.sqlalchemy.repositories.posts import SAPostRepository
@@ -66,6 +69,13 @@ class RepositoriesProvider(Provider):
 
     # Subscriptions
     subscription_repository = provide(SASubscriptionRepository, provides=ISubscriptionRepository)
+
+
+class ReadersProvider(Provider):
+    scope = Scope.REQUEST
+
+    # Subscriptions
+    subscriptions_reader = provide(SASubscriptionReader, provides=ISubscriptionReader)
 
 
 class ServicesProvider(Provider):
@@ -111,6 +121,7 @@ class UseCasesProvider(Provider):
     subscribe = provide(SubscribeUseCase)
     unsubscribe = provide(UnsubscribeUseCase)
     get_subscribers = provide(GetSubscribersUseCase)
+    get_subscriptions = provide(GetSubscriptionsUseCase)
 
 
 @lru_cache(1)
@@ -118,6 +129,7 @@ def get_container() -> AsyncContainer:
     return make_async_container(
         AppProvider(),
         RepositoriesProvider(),
+        ReadersProvider(),
         ServicesProvider(),
         UseCasesProvider(),
     )

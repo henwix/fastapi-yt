@@ -1,6 +1,6 @@
 from dataclasses import dataclass
 
-from app.application.commands.channels import CreateChannelCommand
+from app.application.channels.commands import CreateChannelCommand
 from app.application.common.interfaces.password_hasher import IPasswordHasher
 from app.application.common.interfaces.transaction_manager import ITransactionManager
 from app.domain.channels.entities import Channel

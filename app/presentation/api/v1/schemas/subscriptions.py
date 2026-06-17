@@ -2,7 +2,8 @@ from datetime import datetime
 from uuid import UUID
 
 from app.application.common.sorting import SortOrderEnum
-from app.application.queries.subscriptions import GetSubscribersSortFieldsEnum
+from app.application.subscriptions.dto import DetailedSubscriberDTO, DetailedSubscriptionDTO
+from app.application.subscriptions.queries import GetSubscribersSortFieldsEnum, GetSubscriptionsSortFieldsEnum
 from app.domain.subscriptions.entities import Subscription
 from app.presentation.api.v1.schemas.base import BaseCursorResponse, BaseSchema
 
@@ -23,10 +24,47 @@ class SubscriptionSchema(BaseSchema):
         )
 
 
-class SubscriptionSortParams(BaseSchema):
+class DetailedSubscriberSchema(BaseSchema):
+    subscription_id: UUID
+    channel_slug: str
+    created_at: datetime
+
+    @staticmethod
+    def from_dto(dto: DetailedSubscriberDTO) -> DetailedSubscriberSchema:
+        return DetailedSubscriberSchema(
+            subscription_id=dto.subscription_id,
+            channel_slug=dto.channel_slug,
+            created_at=dto.created_at,
+        )
+
+
+class GetSubscribersSortParams(BaseSchema):
     sort_by: GetSubscribersSortFieldsEnum = GetSubscribersSortFieldsEnum.created_at
     order: SortOrderEnum = SortOrderEnum.DESC
 
 
-class SubscriptionCursorResponse(BaseCursorResponse):
-    results: list[SubscriptionSchema]
+class GetSubscribersCursorResponse(BaseCursorResponse):
+    results: list[DetailedSubscriberSchema]
+
+
+class DetailedSubscriptionSchema(BaseSchema):
+    subscription_id: UUID
+    channel_slug: str
+    created_at: datetime
+
+    @staticmethod
+    def from_dto(dto: DetailedSubscriptionDTO) -> DetailedSubscriptionSchema:
+        return DetailedSubscriptionSchema(
+            subscription_id=dto.subscription_id,
+            channel_slug=dto.channel_slug,
+            created_at=dto.created_at,
+        )
+
+
+class GetSubscriptionsSortParams(BaseSchema):
+    sort_by: GetSubscriptionsSortFieldsEnum = GetSubscriptionsSortFieldsEnum.created_at
+    order: SortOrderEnum = SortOrderEnum.DESC
+
+
+class GetSubscriptionsCursorResponse(BaseCursorResponse):
+    results: list[DetailedSubscriptionSchema]

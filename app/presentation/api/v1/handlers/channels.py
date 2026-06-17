@@ -1,18 +1,18 @@
 from dishka.integrations.fastapi import DishkaRoute, FromDishka
 from fastapi import APIRouter, status
 
-from app.application.commands.channels import (
+from app.application.channels.commands import (
     CreateChannelCommand,
     DeleteChannelCommand,
     SetChannelPasswordCommand,
     UpdateChannelCommand,
 )
-from app.application.queries.channels import GetChannelQuery
-from app.application.use_cases.channels.create_channel import CreateChannelUseCase
-from app.application.use_cases.channels.delete_channel import DeleteChannelUseCase
-from app.application.use_cases.channels.get_channel import GetChannelUseCase
-from app.application.use_cases.channels.set_password import SetChannelPasswordUseCase
-from app.application.use_cases.channels.update_channel import UpdateChannelUseCase
+from app.application.channels.queries import GetChannelQuery
+from app.application.channels.use_cases.create_channel import CreateChannelUseCase
+from app.application.channels.use_cases.delete_channel import DeleteChannelUseCase
+from app.application.channels.use_cases.get_channel import GetChannelUseCase
+from app.application.channels.use_cases.set_password import SetChannelPasswordUseCase
+from app.application.channels.use_cases.update_channel import UpdateChannelUseCase
 from app.domain.auth.exceptions import JWTExpiredTokenError, JWTInvalidTokenError, NotAuthenticatedError
 from app.domain.channels.exceptions import (
     ChannelNotActiveError,

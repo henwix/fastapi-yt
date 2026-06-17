@@ -2,8 +2,8 @@ from dishka import FromDishka
 from dishka.integrations.fastapi import DishkaRoute
 from fastapi import APIRouter, status
 
-from app.application.commands.auth import LoginCommand
-from app.application.use_cases.auth.login import LoginUseCase
+from app.application.auth.commands import LoginCommand
+from app.application.auth.use_cases.login import LoginUseCase
 from app.domain.auth.exceptions import IncorrectEmailOrPasswordError
 from app.presentation.api.openapi.common import error_response
 from app.presentation.api.v1.schemas.auth import JWTSchema, LoginSchema

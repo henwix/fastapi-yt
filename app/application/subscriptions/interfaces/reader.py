@@ -3,8 +3,8 @@ from datetime import datetime
 from uuid import UUID
 
 from app.application.common.pagination import CursorPagination
-from app.application.subscriptions.dto import DetailedSubscriberDTO, DetailedSubscriptionDTO
-from app.application.subscriptions.queries import GetSubscribersSortOrder, GetSubscriptionsSortOrder
+from app.application.subscriptions.dto import DetailedSubscriptionDTO
+from app.application.subscriptions.queries import SubscriptionsSorting
 
 
 class ISubscriptionReader(ABC):
@@ -14,9 +14,9 @@ class ISubscriptionReader(ABC):
         subscribed_to_id: UUID,
         cursor_sort_value: str | datetime | None,
         cursor_sort_id: UUID | None,
-        sorting: GetSubscribersSortOrder,
+        sorting: SubscriptionsSorting,
         pagination: CursorPagination,
-    ) -> list[DetailedSubscriberDTO]: ...
+    ) -> list[DetailedSubscriptionDTO]: ...
 
     @abstractmethod
     async def get_subscriptions_by_id(
@@ -24,6 +24,6 @@ class ISubscriptionReader(ABC):
         subscriber_id: UUID,
         cursor_sort_value: str | datetime | None,
         cursor_sort_id: UUID | None,
-        sorting: GetSubscriptionsSortOrder,
+        sorting: SubscriptionsSorting,
         pagination: CursorPagination,
     ) -> list[DetailedSubscriptionDTO]: ...

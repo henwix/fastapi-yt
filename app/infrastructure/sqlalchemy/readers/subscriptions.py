@@ -7,9 +7,9 @@ from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.application.common.pagination import CursorPagination
 from app.application.common.sorting import SortOrderEnum
-from app.application.subscriptions.dto import DetailedSubscriberDTO, DetailedSubscriptionDTO
+from app.application.subscriptions.dto import DetailedSubscriptionDTO
 from app.application.subscriptions.interfaces.reader import ISubscriptionReader
-from app.application.subscriptions.queries import GetSubscribersSortOrder, GetSubscriptionsSortOrder
+from app.application.subscriptions.queries import SubscriptionsSorting
 from app.infrastructure.sqlalchemy.models.channels import ChannelORM, SubscriptionORM
 
 
@@ -22,9 +22,9 @@ class SASubscriptionReader(ISubscriptionReader):
         subscribed_to_id: UUID,
         cursor_sort_value: str | datetime | None,
         cursor_sort_id: UUID | None,
-        sorting: GetSubscribersSortOrder,
+        sorting: SubscriptionsSorting,
         pagination: CursorPagination,
-    ) -> list[DetailedSubscriberDTO]:
+    ) -> list[DetailedSubscriptionDTO]:
         stmt = (
             select(SubscriptionORM.id, SubscriptionORM.created_at, ChannelORM.slug)
             .where(SubscriptionORM.subscribed_to_id == subscribed_to_id)
@@ -47,7 +47,7 @@ class SASubscriptionReader(ISubscriptionReader):
 
         result = await self._session.execute(statement=stmt)
         return [
-            DetailedSubscriberDTO(subscription_id=id, created_at=created_at, channel_slug=slug)
+            DetailedSubscriptionDTO(subscription_id=id, created_at=created_at, channel_slug=slug)
             for id, created_at, slug in result.all()
         ]
 
@@ -55,8 +55,8 @@ class SASubscriptionReader(ISubscriptionReader):
         self,
         subscriber_id: UUID,
         cursor_sort_value: str | datetime | None,
-        cursor_sort_id: UUID,
-        sorting: GetSubscriptionsSortOrder,
+        cursor_sort_id: UUID | None,
+        sorting: SubscriptionsSorting,
         pagination: CursorPagination,
     ) -> list[DetailedSubscriptionDTO]:
         stmt = (

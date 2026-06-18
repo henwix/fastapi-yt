@@ -40,11 +40,11 @@
 - [ ] Save public channel avatar to DB
 
 
-#### Subscribers
+#### Subscriptions
 - [x] Subscribe endpoint
 - [x] Unsubscribe endpoint
-- [ ] Get subs by channel slug endpoint
-- [ ] Get subsribed to list endpoint
+- [x] Get subscribers endpoint
+- [x] Get subscriptions endpoint
 
 
 #### Videos

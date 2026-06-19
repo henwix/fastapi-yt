@@ -16,9 +16,9 @@ from app.application.channels.use_cases.update_channel import UpdateChannelUseCa
 from app.domain.auth.exceptions import JWTExpiredTokenError, JWTInvalidTokenError, NotAuthenticatedError
 from app.domain.channels.exceptions import (
     ChannelNotActiveError,
-    ChannelNotFoundError,
-    ChannelWithEmailAlreadyExists,
-    ChannelWithSlugAlreadyExists,
+    ChannelNotFoundByIdError,
+    ChannelWithEmailAlreadyExistsError,
+    ChannelWithSlugAlreadyExistsError,
 )
 from app.presentation.api.openapi.common import error_response
 from app.presentation.api.v1.di.current_channel_id import CurrentChannelID
@@ -41,8 +41,8 @@ router = APIRouter(
     status_code=status.HTTP_201_CREATED,
     responses={
         status.HTTP_400_BAD_REQUEST: error_response(
-            ChannelWithEmailAlreadyExists,
-            ChannelWithSlugAlreadyExists,
+            ChannelWithEmailAlreadyExistsError,
+            ChannelWithSlugAlreadyExistsError,
         )
     },
 )
@@ -64,7 +64,7 @@ async def create_channel(
             JWTInvalidTokenError,
         ),
         status.HTTP_403_FORBIDDEN: error_response(ChannelNotActiveError),
-        status.HTTP_404_NOT_FOUND: error_response(ChannelNotFoundError),
+        status.HTTP_404_NOT_FOUND: error_response(ChannelNotFoundByIdError),
     },
 )
 async def get_channel(
@@ -79,14 +79,14 @@ async def get_channel(
 @router.patch(
     path='',
     responses={
-        status.HTTP_400_BAD_REQUEST: error_response(ChannelWithSlugAlreadyExists),
+        status.HTTP_400_BAD_REQUEST: error_response(ChannelWithSlugAlreadyExistsError),
         status.HTTP_401_UNAUTHORIZED: error_response(
             NotAuthenticatedError,
             JWTExpiredTokenError,
             JWTInvalidTokenError,
         ),
         status.HTTP_403_FORBIDDEN: error_response(ChannelNotActiveError),
-        status.HTTP_404_NOT_FOUND: error_response(ChannelNotFoundError),
+        status.HTTP_404_NOT_FOUND: error_response(ChannelNotFoundByIdError),
     },
 )
 async def update_channel(
@@ -109,7 +109,7 @@ async def update_channel(
             JWTInvalidTokenError,
         ),
         status.HTTP_403_FORBIDDEN: error_response(ChannelNotActiveError),
-        status.HTTP_404_NOT_FOUND: error_response(ChannelNotFoundError),
+        status.HTTP_404_NOT_FOUND: error_response(ChannelNotFoundByIdError),
     },
 )
 async def delete_channel(
@@ -130,7 +130,7 @@ async def delete_channel(
             JWTInvalidTokenError,
         ),
         status.HTTP_403_FORBIDDEN: error_response(ChannelNotActiveError),
-        status.HTTP_404_NOT_FOUND: error_response(ChannelNotFoundError),
+        status.HTTP_404_NOT_FOUND: error_response(ChannelNotFoundByIdError),
     },
 )
 async def set_password(

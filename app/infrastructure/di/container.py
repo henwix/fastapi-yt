@@ -13,6 +13,7 @@ from app.application.channels.use_cases.update_channel import UpdateChannelUseCa
 from app.application.common.interfaces.jwt import IJWTService
 from app.application.common.interfaces.password_hasher import IPasswordHasher
 from app.application.common.interfaces.transaction_manager import ITransactionManager
+from app.application.post_comments.use_cases.create_post_comment import CreatePostCommentUseCase
 from app.application.post_reactions.use_cases.create_post_reaction import CreatePostReactionUseCase
 from app.application.post_reactions.use_cases.delete_post_reaction import DeletePostReactionUseCase
 from app.application.posts.use_cases.create_post import CreatePostUseCase
@@ -26,6 +27,8 @@ from app.application.subscriptions.use_cases.subscribe import SubscribeUseCase
 from app.application.subscriptions.use_cases.unsubscribe import UnsubscribeUseCase
 from app.domain.channels.repositories import IChannelRepository
 from app.domain.channels.services import ChannelService, IChannelService
+from app.domain.post_comments.repositories import IPostCommentRepository
+from app.domain.post_comments.services import IPostCommentService, PostCommentService
 from app.domain.post_reactions.repositories import IPostReactionRepository
 from app.domain.post_reactions.services import IPostReactionService, PostReactionService
 from app.domain.posts.repositories import IPostRepository
@@ -37,6 +40,7 @@ from app.infrastructure.security.password_hasher import PwdlibPasswordHasher
 from app.infrastructure.sqlalchemy.database import async_session
 from app.infrastructure.sqlalchemy.readers.subscriptions import SASubscriptionReader
 from app.infrastructure.sqlalchemy.repositories.channels import SAChannelRepository
+from app.infrastructure.sqlalchemy.repositories.post_comments import SAPostCommentRepository
 from app.infrastructure.sqlalchemy.repositories.post_reactions import SAPostReactionRepository
 from app.infrastructure.sqlalchemy.repositories.posts import SAPostRepository
 from app.infrastructure.sqlalchemy.repositories.subscriptions import SASubscriptionRepository
@@ -67,6 +71,9 @@ class RepositoriesProvider(Provider):
     # Post reactions
     post_reaction_repository = provide(SAPostReactionRepository, provides=IPostReactionRepository)
 
+    # Post comments
+    post_comment_repository = provide(SAPostCommentRepository, provides=IPostCommentRepository)
+
     # Subscriptions
     subscription_repository = provide(SASubscriptionRepository, provides=ISubscriptionRepository)
 
@@ -88,7 +95,10 @@ class ServicesProvider(Provider):
     post_service = provide(PostService, provides=IPostService)
 
     # Post reactions
-    post_reactions_service = provide(PostReactionService, provides=IPostReactionService)
+    post_reaction_service = provide(PostReactionService, provides=IPostReactionService)
+
+    # Post comments
+    post_comment_service = provide(PostCommentService, provides=IPostCommentService)
 
     # Subscriptions
     subscription_service = provide(SubscriptionService, provides=ISubscriptionService)
@@ -116,6 +126,9 @@ class UseCasesProvider(Provider):
     # Post reactions
     create_post_reaction = provide(CreatePostReactionUseCase)
     delete_post_reaction = provide(DeletePostReactionUseCase)
+
+    # Post comments
+    create_post_comment = provide(CreatePostCommentUseCase)
 
     # Subscriptions
     subscribe = provide(SubscribeUseCase)

@@ -16,7 +16,7 @@ from app.application.subscriptions.use_cases.get_subscriptions import GetSubscri
 from app.application.subscriptions.use_cases.subscribe import SubscribeUseCase
 from app.application.subscriptions.use_cases.unsubscribe import UnsubscribeUseCase
 from app.domain.auth.exceptions import JWTExpiredTokenError, JWTInvalidTokenError, NotAuthenticatedError
-from app.domain.channels.exceptions import ChannelNotActiveError, ChannelNotFoundBySlugError, ChannelNotFoundError
+from app.domain.channels.exceptions import ChannelNotActiveError, ChannelNotFoundByIdError, ChannelNotFoundBySlugError
 from app.domain.common.constants import SLUG_PATTERN
 from app.domain.common.exceptions import InvalidCursorError
 from app.domain.subscriptions.exceptions import SubscriptionAlreadyExistsError, SubscriptionNotFoundError
@@ -49,7 +49,10 @@ router = APIRouter(
             JWTInvalidTokenError,
         ),
         status.HTTP_403_FORBIDDEN: error_response(ChannelNotActiveError),
-        status.HTTP_404_NOT_FOUND: error_response(ChannelNotFoundError, ChannelNotFoundBySlugError),
+        status.HTTP_404_NOT_FOUND: error_response(
+            ChannelNotFoundByIdError,
+            ChannelNotFoundBySlugError,
+        ),
     },
 )
 async def subscribe(
@@ -73,7 +76,7 @@ async def subscribe(
         ),
         status.HTTP_403_FORBIDDEN: error_response(ChannelNotActiveError),
         status.HTTP_404_NOT_FOUND: error_response(
-            ChannelNotFoundError,
+            ChannelNotFoundByIdError,
             ChannelNotFoundBySlugError,
             SubscriptionNotFoundError,
         ),
@@ -99,7 +102,7 @@ async def unsubscribe(
         ),
         status.HTTP_403_FORBIDDEN: error_response(ChannelNotActiveError),
         status.HTTP_404_NOT_FOUND: error_response(
-            ChannelNotFoundError,
+            ChannelNotFoundByIdError,
         ),
     },
 )
@@ -134,7 +137,7 @@ async def get_subscribers(
         ),
         status.HTTP_403_FORBIDDEN: error_response(ChannelNotActiveError),
         status.HTTP_404_NOT_FOUND: error_response(
-            ChannelNotFoundError,
+            ChannelNotFoundByIdError,
         ),
     },
 )

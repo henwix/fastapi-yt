@@ -8,9 +8,9 @@ from app.application.post_reactions.commands import CreatePostReactionCommand, D
 from app.application.post_reactions.use_cases.create_post_reaction import CreatePostReactionUseCase
 from app.application.post_reactions.use_cases.delete_post_reaction import DeletePostReactionUseCase
 from app.domain.auth.exceptions import JWTExpiredTokenError, JWTInvalidTokenError, NotAuthenticatedError
-from app.domain.channels.exceptions import ChannelNotActiveError, ChannelNotFoundError
+from app.domain.channels.exceptions import ChannelNotActiveError, ChannelNotFoundByIdError
 from app.domain.post_reactions.exceptions import PostReactionAlreadyExists, PostReactionNotFound
-from app.domain.posts.exceptions import PostNotFoundError
+from app.domain.posts.exceptions import PostNotFoundByIdError
 from app.presentation.api.openapi.common import error_response
 from app.presentation.api.v1.di.current_channel_id import CurrentChannelID
 from app.presentation.api.v1.schemas.post_reactions import CreatePostReactionSchema, PostReactionSchema
@@ -42,8 +42,8 @@ router = APIRouter(
         ),
         status.HTTP_403_FORBIDDEN: error_response(ChannelNotActiveError),
         status.HTTP_404_NOT_FOUND: error_response(
-            ChannelNotFoundError,
-            PostNotFoundError,
+            ChannelNotFoundByIdError,
+            PostNotFoundByIdError,
             PostReactionNotFound,
         ),
     },
@@ -77,8 +77,8 @@ async def create_post_reaction(
         ),
         status.HTTP_403_FORBIDDEN: error_response(ChannelNotActiveError),
         status.HTTP_404_NOT_FOUND: error_response(
-            ChannelNotFoundError,
-            PostNotFoundError,
+            ChannelNotFoundByIdError,
+            PostNotFoundByIdError,
             PostReactionNotFound,
         ),
     },

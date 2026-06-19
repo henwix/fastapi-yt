@@ -5,10 +5,10 @@ from uuid import UUID
 from app.domain.channels.entities import Channel
 from app.domain.channels.exceptions import (
     ChannelNotActiveError,
+    ChannelNotFoundByIdError,
     ChannelNotFoundBySlugError,
-    ChannelNotFoundError,
-    ChannelWithEmailAlreadyExists,
-    ChannelWithSlugAlreadyExists,
+    ChannelWithEmailAlreadyExistsError,
+    ChannelWithSlugAlreadyExistsError,
 )
 from app.domain.channels.repositories import IChannelRepository
 
@@ -48,11 +48,11 @@ class ChannelService(IChannelService):
 
     async def check_email_exists(self, email: str) -> None:
         if await self._channel_repo.check_channel_exists_by_email(email=email):
-            raise ChannelWithEmailAlreadyExists(email=email)
+            raise ChannelWithEmailAlreadyExistsError(email=email)
 
     async def check_slug_exists(self, slug: str) -> None:
         if await self._channel_repo.check_channel_exists_by_slug(slug=slug):
-            raise ChannelWithSlugAlreadyExists(slug=slug)
+            raise ChannelWithSlugAlreadyExistsError(slug=slug)
 
     async def create(self, channel: Channel) -> Channel:
         return await self._channel_repo.create(channel=channel)
@@ -69,23 +69,23 @@ class ChannelService(IChannelService):
     async def try_get_active_by_id(self, id: UUID) -> Channel:
         channel = await self._channel_repo.get_by_id(id=id)
         if not channel:
-            raise ChannelNotFoundError
+            raise ChannelNotFoundByIdError(id=id)
         if not channel.is_active:
-            raise ChannelNotActiveError
+            raise ChannelNotActiveError(id=channel.id)
         return channel
 
     async def try_update(self, channel: Channel) -> Channel:
         updated_channel = await self._channel_repo.update(channel=channel)
         if not updated_channel:
-            raise ChannelNotFoundError
+            raise ChannelNotFoundByIdError(id=channel.id)
         return updated_channel
 
     async def try_set_password(self, id: UUID, password_hash: str) -> None:
         is_password_set = await self._channel_repo.set_password(id=id, password_hash=password_hash)
         if not is_password_set:
-            raise ChannelNotFoundError
+            raise ChannelNotFoundByIdError(id=id)
 
     async def try_delete_by_id(self, id: UUID) -> None:
         is_deleted = await self._channel_repo.delete_by_id(id=id)
         if not is_deleted:
-            raise ChannelNotFoundError
+            raise ChannelNotFoundByIdError(id=id)

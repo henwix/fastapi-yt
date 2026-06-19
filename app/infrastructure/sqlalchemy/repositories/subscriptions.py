@@ -8,6 +8,7 @@ from sqlalchemy.exc import DBAPIError, IntegrityError
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.application.common.sorting import SortOrderEnum
+from app.domain.channels.exceptions import ChannelNotFoundByIdError
 from app.domain.subscriptions.entities import Subscription
 from app.domain.subscriptions.exceptions import SubscriptionAlreadyExistsError
 from app.domain.subscriptions.repositories import ISubscriptionRepository
@@ -29,6 +30,10 @@ class SASubscriptionRepository(ISubscriptionRepository):
                     subscriber_id=subscription.subscriber_id,
                     subscribed_to_id=subscription.subscribed_to_id,
                 ) from error
+            case 'subscriptions_subscribed_to_id_fkey':
+                raise ChannelNotFoundByIdError(id=subscription.subscribed_to_id) from error
+            case 'subscriptions_subscriber_id_fkey':
+                raise ChannelNotFoundByIdError(id=subscription.subscriber_id) from error
             case _:
                 raise
 

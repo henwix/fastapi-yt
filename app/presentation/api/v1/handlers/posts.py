@@ -11,8 +11,8 @@ from app.application.posts.use_cases.delete_post import DeletePostUseCase
 from app.application.posts.use_cases.get_post import GetPostUseCase
 from app.application.posts.use_cases.update_post import UpdatePostUseCase
 from app.domain.auth.exceptions import JWTExpiredTokenError, JWTInvalidTokenError, NotAuthenticatedError
-from app.domain.channels.exceptions import ChannelNotActiveError, ChannelNotFoundError
-from app.domain.posts.exceptions import PostAccessForbiddenError, PostNotFoundError
+from app.domain.channels.exceptions import ChannelNotActiveError, ChannelNotFoundByIdError
+from app.domain.posts.exceptions import PostAccessForbiddenError, PostNotFoundByIdError
 from app.presentation.api.openapi.common import error_response
 from app.presentation.api.v1.di.current_channel_id import CurrentChannelID
 from app.presentation.api.v1.schemas.posts import CreatePostSchema, GetPostSchema, UpdatePostSchema
@@ -34,7 +34,7 @@ router = APIRouter(
             JWTInvalidTokenError,
         ),
         status.HTTP_403_FORBIDDEN: error_response(ChannelNotActiveError),
-        status.HTTP_404_NOT_FOUND: error_response(ChannelNotFoundError),
+        status.HTTP_404_NOT_FOUND: error_response(ChannelNotFoundByIdError),
     },
 )
 async def create_post(
@@ -49,7 +49,7 @@ async def create_post(
 
 @router.get(
     path='/{post_id}',
-    responses={status.HTTP_404_NOT_FOUND: error_response(PostNotFoundError)},
+    responses={status.HTTP_404_NOT_FOUND: error_response(PostNotFoundByIdError)},
 )
 async def get_post(
     post_id: UUID,
@@ -69,7 +69,7 @@ async def get_post(
             JWTInvalidTokenError,
         ),
         status.HTTP_403_FORBIDDEN: error_response(ChannelNotActiveError, PostAccessForbiddenError),
-        status.HTTP_404_NOT_FOUND: error_response(ChannelNotFoundError, PostNotFoundError),
+        status.HTTP_404_NOT_FOUND: error_response(ChannelNotFoundByIdError, PostNotFoundByIdError),
     },
 )
 async def update_post(
@@ -97,7 +97,7 @@ async def update_post(
             JWTInvalidTokenError,
         ),
         status.HTTP_403_FORBIDDEN: error_response(ChannelNotActiveError, PostAccessForbiddenError),
-        status.HTTP_404_NOT_FOUND: error_response(ChannelNotFoundError, PostNotFoundError),
+        status.HTTP_404_NOT_FOUND: error_response(ChannelNotFoundByIdError, PostNotFoundByIdError),
     },
 )
 async def delete_post(

@@ -7,7 +7,7 @@ from sqlalchemy.exc import DBAPIError, IntegrityError
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.domain.channels.entities import Channel
-from app.domain.channels.exceptions import ChannelWithEmailAlreadyExists, ChannelWithSlugAlreadyExists
+from app.domain.channels.exceptions import ChannelWithEmailAlreadyExistsError, ChannelWithSlugAlreadyExistsError
 from app.domain.channels.repositories import IChannelRepository
 from app.infrastructure.sqlalchemy.models.channels import ChannelORM
 
@@ -23,9 +23,9 @@ class SAChannelRepository(IChannelRepository):
 
         match cause.constraint_name:
             case 'channels_email_key':
-                raise ChannelWithEmailAlreadyExists(email=channel.email) from error
+                raise ChannelWithEmailAlreadyExistsError(email=channel.email) from error
             case 'channels_slug_key':
-                raise ChannelWithSlugAlreadyExists(slug=channel.slug) from error
+                raise ChannelWithSlugAlreadyExistsError(slug=channel.slug) from error
             case _:
                 raise error
 

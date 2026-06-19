@@ -4,9 +4,10 @@ from uuid import UUID
 from app.domain.common.exceptions import AppException
 
 
-@dataclass
-class PostNotFoundError(AppException):
-    message = 'Post not found'
+@dataclass(kw_only=True)
+class PostNotFoundByIdError(AppException):
+    message = 'Post not found by id'
+    id: UUID
 
 
 @dataclass(kw_only=True)

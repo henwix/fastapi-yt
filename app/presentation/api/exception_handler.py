@@ -11,14 +11,15 @@ from app.domain.auth.exceptions import (
 )
 from app.domain.channels.exceptions import (
     ChannelNotActiveError,
+    ChannelNotFoundByIdError,
     ChannelNotFoundBySlugError,
-    ChannelNotFoundError,
-    ChannelWithEmailAlreadyExists,
-    ChannelWithSlugAlreadyExists,
+    ChannelWithEmailAlreadyExistsError,
+    ChannelWithSlugAlreadyExistsError,
 )
 from app.domain.common.exceptions import AppException, InvalidCursorError
+from app.domain.post_comments.exceptions import PostCommentInvalidReplyLevel, PostCommentNotFoundByIdError
 from app.domain.post_reactions.exceptions import PostReactionAlreadyExists, PostReactionNotFound
-from app.domain.posts.exceptions import PostAccessForbiddenError, PostNotFoundError
+from app.domain.posts.exceptions import PostAccessForbiddenError, PostNotFoundByIdError
 from app.domain.subscriptions.exceptions import (
     SelfSubscriptionError,
     SubscriptionAlreadyExistsError,
@@ -34,9 +35,9 @@ def get_http_status_code(exc: AppException):
         # Common
         InvalidCursorError: status.HTTP_400_BAD_REQUEST,
         # Channels
-        ChannelWithEmailAlreadyExists: status.HTTP_400_BAD_REQUEST,
-        ChannelWithSlugAlreadyExists: status.HTTP_400_BAD_REQUEST,
-        ChannelNotFoundError: status.HTTP_404_NOT_FOUND,
+        ChannelWithEmailAlreadyExistsError: status.HTTP_400_BAD_REQUEST,
+        ChannelWithSlugAlreadyExistsError: status.HTTP_400_BAD_REQUEST,
+        ChannelNotFoundByIdError: status.HTTP_404_NOT_FOUND,
         ChannelNotFoundBySlugError: status.HTTP_404_NOT_FOUND,
         ChannelNotActiveError: status.HTTP_403_FORBIDDEN,
         # Auth
@@ -46,10 +47,13 @@ def get_http_status_code(exc: AppException):
         NotAuthenticatedError: status.HTTP_401_UNAUTHORIZED,
         # Posts
         PostAccessForbiddenError: status.HTTP_403_FORBIDDEN,
-        PostNotFoundError: status.HTTP_404_NOT_FOUND,
+        PostNotFoundByIdError: status.HTTP_404_NOT_FOUND,
         # Post reactions
         PostReactionAlreadyExists: status.HTTP_400_BAD_REQUEST,
         PostReactionNotFound: status.HTTP_404_NOT_FOUND,
+        # Post comment
+        PostCommentNotFoundByIdError: status.HTTP_404_NOT_FOUND,
+        PostCommentInvalidReplyLevel: status.HTTP_500_INTERNAL_SERVER_ERROR,
         # Subscriptions
         SubscriptionAlreadyExistsError: status.HTTP_400_BAD_REQUEST,
         SelfSubscriptionError: status.HTTP_400_BAD_REQUEST,

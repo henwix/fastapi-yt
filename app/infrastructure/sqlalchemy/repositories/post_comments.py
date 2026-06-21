@@ -2,13 +2,13 @@ from dataclasses import dataclass
 from typing import NoReturn
 from uuid import UUID
 
-from sqlalchemy import select
+from sqlalchemy import delete, select, update
 from sqlalchemy.exc import DBAPIError, IntegrityError
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.domain.channels.exceptions import ChannelNotFoundByIdError
 from app.domain.post_comments.entities import PostComment
-from app.domain.post_comments.exceptions import PostCommentInvalidReplyLevel, PostCommentNotFoundByIdError
+from app.domain.post_comments.exceptions import PostCommentInvalidReplyLevelError, PostCommentNotFoundByIdError
 from app.domain.post_comments.repositories import IPostCommentRepository
 from app.domain.posts.exceptions import PostNotFoundByIdError
 from app.infrastructure.sqlalchemy.models.posts import PostCommentORM
@@ -31,7 +31,7 @@ class SAPostCommentRepository(IPostCommentRepository):
             case 'post_comments_reply_comment_id_fkey':
                 raise PostCommentNotFoundByIdError(id=post_comment.reply_comment_id) from error
             case 'ck_reply_level':
-                raise PostCommentInvalidReplyLevel(reply_level=post_comment.reply_level) from error
+                raise PostCommentInvalidReplyLevelError(reply_level=post_comment.reply_level) from error
             case _:
                 raise
 
@@ -44,8 +44,30 @@ class SAPostCommentRepository(IPostCommentRepository):
             self._parse_db_error(error=e, post_comment=post_comment)
         return model.to_entity()
 
+    async def get_by_id(self, id: UUID) -> PostComment | None:
+        stmt = select(PostCommentORM).where(PostCommentORM.id == id)
+        result = await self._session.execute(statement=stmt)
+        post_comment = result.scalar_one_or_none()
+        return post_comment.to_entity() if post_comment else None
+
     async def get_by_id_and_post_id(self, id: UUID, post_id: UUID) -> PostComment | None:
         stmt = select(PostCommentORM).where(PostCommentORM.id == id, PostCommentORM.post_id == post_id)
         result = await self._session.execute(statement=stmt)
         post_comment = result.scalar_one_or_none()
         return post_comment.to_entity() if post_comment else None
+
+    async def delete_by_id(self, id: UUID) -> bool:
+        stmt = delete(PostCommentORM).where(PostCommentORM.id == id)
+        result = await self._session.execute(statement=stmt)
+        return result.rowcount > 0
+
+    async def update(self, post_comment: PostComment) -> PostComment | None:
+        stmt = (
+            update(PostCommentORM)
+            .where(PostCommentORM.id == post_comment.id)
+            .values(text=post_comment.text, is_edited=post_comment.is_edited)
+            .returning(PostCommentORM)
+        )
+        result = await self._session.execute(statement=stmt)
+        updated_post_comment = result.scalar_one_or_none()
+        return updated_post_comment.to_entity() if updated_post_comment else None

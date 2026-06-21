@@ -116,7 +116,10 @@ class PostCommentORM(
     text: Mapped[str] = mapped_column(sa.Text)
     reply_level: Mapped[int] = mapped_column(default=0, server_default=sa.text('0'))
 
-    __table_args__ = (sa.CheckConstraint('reply_level IN (0, 1)', name='ck_reply_level'),)
+    __table_args__ = (
+        sa.CheckConstraint('reply_level IN (0, 1)', name='ck_reply_level'),
+        sa.Index('ix_composite_post_id_reply_level_created_at_id', 'post_id', 'reply_level', 'created_at', 'id'),
+    )
 
     @staticmethod
     def from_entity(entity: PostComment) -> PostCommentORM:

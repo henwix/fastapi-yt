@@ -13,7 +13,11 @@ from app.application.channels.use_cases.update_channel import UpdateChannelUseCa
 from app.application.common.interfaces.jwt import IJWTService
 from app.application.common.interfaces.password_hasher import IPasswordHasher
 from app.application.common.interfaces.transaction_manager import ITransactionManager
+from app.application.post_comments.interfaces.reader import IPostCommentReader
 from app.application.post_comments.use_cases.create_post_comment import CreatePostCommentUseCase
+from app.application.post_comments.use_cases.delete_post_comment import DeletePostCommentUseCase
+from app.application.post_comments.use_cases.get_post_comments import GetPostCommentsUseCase
+from app.application.post_comments.use_cases.update_post_comment import UpdatePostCommentUseCase
 from app.application.post_reactions.use_cases.create_post_reaction import CreatePostReactionUseCase
 from app.application.post_reactions.use_cases.delete_post_reaction import DeletePostReactionUseCase
 from app.application.posts.use_cases.create_post import CreatePostUseCase
@@ -38,6 +42,7 @@ from app.domain.subscriptions.services import ISubscriptionService, Subscription
 from app.infrastructure.security.jwt import JWTService
 from app.infrastructure.security.password_hasher import PwdlibPasswordHasher
 from app.infrastructure.sqlalchemy.database import async_session
+from app.infrastructure.sqlalchemy.readers.post_comments import SAPostCommentReader
 from app.infrastructure.sqlalchemy.readers.subscriptions import SASubscriptionReader
 from app.infrastructure.sqlalchemy.repositories.channels import SAChannelRepository
 from app.infrastructure.sqlalchemy.repositories.post_comments import SAPostCommentRepository
@@ -80,6 +85,9 @@ class RepositoriesProvider(Provider):
 
 class ReadersProvider(Provider):
     scope = Scope.REQUEST
+
+    # Post comments
+    post_comment_reader = provide(SAPostCommentReader, provides=IPostCommentReader)
 
     # Subscriptions
     subscriptions_reader = provide(SASubscriptionReader, provides=ISubscriptionReader)
@@ -129,6 +137,9 @@ class UseCasesProvider(Provider):
 
     # Post comments
     create_post_comment = provide(CreatePostCommentUseCase)
+    delete_post_comment = provide(DeletePostCommentUseCase)
+    update_post_comment = provide(UpdatePostCommentUseCase)
+    get_post_comments = provide(GetPostCommentsUseCase)
 
     # Subscriptions
     subscribe = provide(SubscribeUseCase)

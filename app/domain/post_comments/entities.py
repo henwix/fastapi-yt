@@ -2,6 +2,7 @@ from dataclasses import dataclass, field
 from datetime import datetime
 from uuid import UUID
 
+from app.domain.common.constants import Empty
 from app.domain.common.entities import BaseEntity
 from app.domain.post_comments.enums import PostCommentReplyLevelEnum
 from app.utils.get_datetime_utc_now import get_datetime_utc_now
@@ -32,3 +33,10 @@ class PostComment(BaseEntity):
             text=text,
             reply_level=reply_level,
         )
+
+    def update(self, text: str | Empty) -> None:
+        if text is not Empty.UNSET:
+            self.text = text
+
+        if not self.is_edited:
+            self.is_edited = True

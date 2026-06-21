@@ -39,7 +39,7 @@ class DetailedSubscriptionSchema(BaseSchema):
 
 
 class SubscriptionsSortParams(BaseSchema):
-    sort_by: SubscriptionsSortFieldsEnum = SubscriptionsSortFieldsEnum.created_at
+    sort_by: SubscriptionsSortFieldsEnum = SubscriptionsSortFieldsEnum.CREATED_AT
     order: SortOrderEnum = SortOrderEnum.DESC
 
 

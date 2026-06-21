@@ -15,7 +15,7 @@ class PostReaction(BaseEntity):
     created_at: datetime = field(default_factory=get_datetime_utc_now)
 
     @staticmethod
-    def create(post_id: UUID, channel_id: UUID, reaction_type: bool) -> PostReaction:
+    def create(post_id: UUID, channel_id: UUID, reaction_type: ReactionTypeEnum) -> PostReaction:
         return PostReaction(
             post_id=post_id,
             channel_id=channel_id,

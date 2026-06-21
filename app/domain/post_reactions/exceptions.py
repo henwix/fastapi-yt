@@ -5,14 +5,14 @@ from app.domain.common.exceptions import AppException
 
 
 @dataclass(kw_only=True)
-class PostReactionNotFound(AppException):
+class PostReactionNotFoundError(AppException):
     message = 'Post reaction not found'
     post_id: UUID
     channel_id: UUID
 
 
 @dataclass(kw_only=True)
-class PostReactionAlreadyExists(AppException):
+class PostReactionAlreadyExistsError(AppException):
     message = 'Post reaction already exists'
     post_id: UUID
     channel_id: UUID

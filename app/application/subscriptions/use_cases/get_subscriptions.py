@@ -18,7 +18,7 @@ class GetSubscriptionsUseCase:
     subscription_reader: ISubscriptionReader
     transaction_manager: ITransactionManager
 
-    async def execute(self, query: GetSubscriptionsQuery) -> tuple[list[DetailedSubscriptionDTO], dict | None]:
+    async def execute(self, query: GetSubscriptionsQuery) -> tuple[list[DetailedSubscriptionDTO], str | None]:
         cursor_sort_value = None
         cursor_sort_id = None
 
@@ -26,12 +26,12 @@ class GetSubscriptionsUseCase:
             try:
                 decoded_cursor = base64url_decode(value=query.pagination.cursor)
                 match query.sorting.sort_by:
-                    case SubscriptionsSortFieldsEnum.created_at:
+                    case SubscriptionsSortFieldsEnum.CREATED_AT:
                         cursor_sort_value = datetime.fromisoformat(decoded_cursor['created_at'])
                         cursor_sort_id = UUID(decoded_cursor['id'])
 
             except Exception as e:
-                raise InvalidCursorError(cursor=query.pagination.cursor) from e
+                raise InvalidCursorError(cursor=query.pagination.cursor, exc_details=str(e)) from e
 
         async with self.transaction_manager:
             channel = await self.channel_service.try_get_active_by_id(id=query.current_channel_id)
@@ -50,10 +50,10 @@ class GetSubscriptionsUseCase:
             last_item = subscriptions[-1]
 
             match query.sorting.sort_by:
-                case SubscriptionsSortFieldsEnum.created_at:
+                case SubscriptionsSortFieldsEnum.CREATED_AT:
                     next_cursor = {
                         'created_at': last_item.created_at.isoformat(),
                         'id': str(last_item.subscription_id),
                     }
 
-        return subscriptions, base64url_encode(value=next_cursor)
+        return subscriptions, base64url_encode(value=next_cursor) if next_cursor else None

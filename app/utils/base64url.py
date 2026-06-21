@@ -8,7 +8,7 @@ def base64url_encode(value: dict) -> str:
     return urlsafe_b64encode(bt).rstrip(b'=').decode()
 
 
-def base64url_decode(value: str) -> bytes:
+def base64url_decode(value: str) -> dict:
     padding = '=' * (-len(value) % 4)
     bt = urlsafe_b64decode(value + padding)
     return msgspec.json.decode(bt)

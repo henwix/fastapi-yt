@@ -17,8 +17,12 @@ from app.domain.channels.exceptions import (
     ChannelWithSlugAlreadyExistsError,
 )
 from app.domain.common.exceptions import AppException, InvalidCursorError
-from app.domain.post_comments.exceptions import PostCommentInvalidReplyLevel, PostCommentNotFoundByIdError
-from app.domain.post_reactions.exceptions import PostReactionAlreadyExists, PostReactionNotFound
+from app.domain.post_comments.exceptions import (
+    PostCommentAccessForbiddenError,
+    PostCommentInvalidReplyLevelError,
+    PostCommentNotFoundByIdError,
+)
+from app.domain.post_reactions.exceptions import PostReactionAlreadyExistsError, PostReactionNotFoundError
 from app.domain.posts.exceptions import PostAccessForbiddenError, PostNotFoundByIdError
 from app.domain.subscriptions.exceptions import (
     SelfSubscriptionError,
@@ -49,11 +53,12 @@ def get_http_status_code(exc: AppException):
         PostAccessForbiddenError: status.HTTP_403_FORBIDDEN,
         PostNotFoundByIdError: status.HTTP_404_NOT_FOUND,
         # Post reactions
-        PostReactionAlreadyExists: status.HTTP_400_BAD_REQUEST,
-        PostReactionNotFound: status.HTTP_404_NOT_FOUND,
+        PostReactionAlreadyExistsError: status.HTTP_400_BAD_REQUEST,
+        PostReactionNotFoundError: status.HTTP_404_NOT_FOUND,
         # Post comment
+        PostCommentAccessForbiddenError: status.HTTP_403_FORBIDDEN,
         PostCommentNotFoundByIdError: status.HTTP_404_NOT_FOUND,
-        PostCommentInvalidReplyLevel: status.HTTP_500_INTERNAL_SERVER_ERROR,
+        PostCommentInvalidReplyLevelError: status.HTTP_500_INTERNAL_SERVER_ERROR,
         # Subscriptions
         SubscriptionAlreadyExistsError: status.HTTP_400_BAD_REQUEST,
         SelfSubscriptionError: status.HTTP_400_BAD_REQUEST,

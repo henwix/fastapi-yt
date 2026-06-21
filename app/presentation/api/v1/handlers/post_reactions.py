@@ -9,7 +9,7 @@ from app.application.post_reactions.use_cases.create_post_reaction import Create
 from app.application.post_reactions.use_cases.delete_post_reaction import DeletePostReactionUseCase
 from app.domain.auth.exceptions import JWTExpiredTokenError, JWTInvalidTokenError, NotAuthenticatedError
 from app.domain.channels.exceptions import ChannelNotActiveError, ChannelNotFoundByIdError
-from app.domain.post_reactions.exceptions import PostReactionAlreadyExists, PostReactionNotFound
+from app.domain.post_reactions.exceptions import PostReactionAlreadyExistsError, PostReactionNotFoundError
 from app.domain.posts.exceptions import PostNotFoundByIdError
 from app.presentation.api.openapi.common import error_response
 from app.presentation.api.v1.di.current_channel_id import CurrentChannelID
@@ -34,7 +34,7 @@ router = APIRouter(
             'model': PostReactionSchema,
             'description': 'Creates a new reaction',
         },
-        status.HTTP_400_BAD_REQUEST: error_response(PostReactionAlreadyExists),
+        status.HTTP_400_BAD_REQUEST: error_response(PostReactionAlreadyExistsError),
         status.HTTP_401_UNAUTHORIZED: error_response(
             NotAuthenticatedError,
             JWTExpiredTokenError,
@@ -44,7 +44,7 @@ router = APIRouter(
         status.HTTP_404_NOT_FOUND: error_response(
             ChannelNotFoundByIdError,
             PostNotFoundByIdError,
-            PostReactionNotFound,
+            PostReactionNotFoundError,
         ),
     },
 )
@@ -79,7 +79,7 @@ async def create_post_reaction(
         status.HTTP_404_NOT_FOUND: error_response(
             ChannelNotFoundByIdError,
             PostNotFoundByIdError,
-            PostReactionNotFound,
+            PostReactionNotFoundError,
         ),
     },
 )

@@ -17,6 +17,6 @@ class Post(BaseEntity):
     def create(text: str, channel_id: UUID) -> Post:
         return Post(text=text, channel_id=channel_id)
 
-    def update(self, text: str) -> None:
+    def update(self, text: str | Empty) -> None:
         if text is not Empty.UNSET:
             self.text = text

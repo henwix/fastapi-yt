@@ -2,7 +2,7 @@ from typing import Annotated
 
 from dishka import FromDishka
 from dishka.integrations.fastapi import DishkaRoute
-from fastapi import APIRouter, Depends, Path, status
+from fastapi import APIRouter, Depends, Path, Request, status
 
 from app.application.common.pagination import CursorPagination
 from app.application.subscriptions.commands import SubscribeCommand, UnsubscribeCommand
@@ -22,7 +22,6 @@ from app.domain.common.exceptions import InvalidCursorError
 from app.domain.subscriptions.exceptions import SubscriptionAlreadyExistsError, SubscriptionNotFoundError
 from app.presentation.api.openapi.common import error_response
 from app.presentation.api.v1.di.current_channel_id import CurrentChannelID
-from app.presentation.api.v1.di.pagination import CursorPaginator
 from app.presentation.api.v1.schemas.base import CursorPaginationParams
 from app.presentation.api.v1.schemas.subscriptions import (
     DetailedSubscriptionSchema,
@@ -111,7 +110,7 @@ async def get_subscribers(
     use_case: FromDishka[GetSubscribersUseCase],
     sort: Annotated[SubscriptionsSortParams, Depends()],
     pagination: Annotated[CursorPaginationParams, Depends()],
-    paginator: CursorPaginator,
+    request: Request,
 ) -> SubscriptionsCursorResponse:
     query = GetSubscribersQuery(
         current_channel_id=current_channel_id,
@@ -119,10 +118,9 @@ async def get_subscribers(
         pagination=CursorPagination(**pagination.model_dump(exclude_none=True)),
     )
     subscribers, cursor = await use_case.execute(query=query)
-    return paginator.get_response(
+    return SubscriptionsCursorResponse(
+        next_page=str(request.url.include_query_params(cursor=cursor)) if cursor else None,
         results=[DetailedSubscriptionSchema.from_dto(dto=sub) for sub in subscribers],
-        cursor=cursor,
-        response_schema=SubscriptionsCursorResponse,
     )
 
 
@@ -146,7 +144,7 @@ async def get_subscriptions(
     sort: Annotated[SubscriptionsSortParams, Depends()],
     pagination: Annotated[CursorPaginationParams, Depends()],
     use_case: FromDishka[GetSubscriptionsUseCase],
-    paginator: CursorPaginator,
+    request: Request,
 ) -> SubscriptionsCursorResponse:
     query = GetSubscriptionsQuery(
         current_channel_id=current_channel_id,
@@ -154,8 +152,7 @@ async def get_subscriptions(
         pagination=CursorPagination(**pagination.model_dump(exclude_none=True)),
     )
     subscriptions, cursor = await use_case.execute(query=query)
-    return paginator.get_response(
+    return SubscriptionsCursorResponse(
+        next_page=str(request.url.include_query_params(cursor=cursor)) if cursor else None,
         results=[DetailedSubscriptionSchema.from_dto(dto=sub) for sub in subscriptions],
-        cursor=cursor,
-        response_schema=SubscriptionsCursorResponse,
     )

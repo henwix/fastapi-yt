@@ -6,25 +6,18 @@ from app.application.common.pagination import CursorPagination
 from app.application.common.sorting import SortOrderEnum
 
 
-class SubscriptionsSortFieldsEnum(StrEnum):
+class PostCommentsSortFieldsEnum(StrEnum):
     CREATED_AT = 'created_at'
 
 
 @dataclass(kw_only=True, frozen=True)
-class SubscriptionsSorting:
-    sort_by: SubscriptionsSortFieldsEnum
+class PostCommentsSorting:
+    sort_by: PostCommentsSortFieldsEnum
     order: SortOrderEnum
 
 
 @dataclass(kw_only=True, frozen=True)
-class GetSubscribersQuery:
-    current_channel_id: UUID
-    sorting: SubscriptionsSorting
-    pagination: CursorPagination
-
-
-@dataclass(kw_only=True, frozen=True)
-class GetSubscriptionsQuery:
-    current_channel_id: UUID
-    sorting: SubscriptionsSorting
+class GetPostCommentsQuery:
+    post_id: UUID
+    sorting: PostCommentsSorting
     pagination: CursorPagination

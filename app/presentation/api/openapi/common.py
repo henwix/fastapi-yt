@@ -7,7 +7,7 @@ class DetailSchema(BaseModel):
     detail: str
 
 
-def error_response(*errors: tuple[type[AppException]]) -> dict:
+def error_response(*errors: type[AppException]) -> dict:
     examples = {
         error.__name__: {'summary': f'{error.__name__}', 'value': {'detail': error.message}} for error in errors
     }

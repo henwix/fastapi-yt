@@ -10,3 +10,4 @@ class AppException(Exception):
 class InvalidCursorError(AppException):
     message = 'Invalid cursor value'
     cursor: str
+    exc_details: str

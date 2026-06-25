@@ -1,9 +1,9 @@
 from datetime import datetime
 from uuid import UUID
 
-from app.application.common.sorting import SortOrderEnum
+from app.application.common.sorting import SortingOrderEnum
 from app.application.subscriptions.dto import DetailedSubscriptionDTO
-from app.application.subscriptions.queries import SubscriptionsSortFieldsEnum
+from app.application.subscriptions.queries import SubscriptionsSortingFieldsEnum
 from app.domain.subscriptions.entities import Subscription
 from app.presentation.api.v1.schemas.base import BaseCursorResponse, BaseSchema
 
@@ -38,9 +38,9 @@ class DetailedSubscriptionSchema(BaseSchema):
         )
 
 
-class SubscriptionsSortParams(BaseSchema):
-    sort_by: SubscriptionsSortFieldsEnum = SubscriptionsSortFieldsEnum.CREATED_AT
-    order: SortOrderEnum = SortOrderEnum.DESC
+class SubscriptionsSortingParams(BaseSchema):
+    sort_by: SubscriptionsSortingFieldsEnum = SubscriptionsSortingFieldsEnum.CREATED_AT
+    order: SortingOrderEnum = SortingOrderEnum.DESC
 
 
 class SubscriptionsCursorResponse(BaseCursorResponse):

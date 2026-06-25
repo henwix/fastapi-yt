@@ -9,9 +9,19 @@ from app.application.post_comments.queries import PostCommentsSorting
 
 class IPostCommentReader(ABC):
     @abstractmethod
-    async def get_many(
+    async def get_comments(
         self,
         post_id: UUID,
+        cursor_sort_value: datetime | None,
+        cursor_id_value: UUID | None,
+        sorting: PostCommentsSorting,
+        pagination: CursorPagination,
+    ) -> list[DetailedPostCommentDTO]: ...
+
+    @abstractmethod
+    async def get_replies(
+        self,
+        post_comment_id: UUID,
         cursor_sort_value: datetime | None,
         cursor_id_value: UUID | None,
         sorting: PostCommentsSorting,

@@ -13,7 +13,7 @@ class ISubscriptionReader(ABC):
         self,
         subscribed_to_id: UUID,
         cursor_sort_value: str | datetime | None,
-        cursor_sort_id: UUID | None,
+        cursor_id_value: UUID | None,
         sorting: SubscriptionsSorting,
         pagination: CursorPagination,
     ) -> list[DetailedSubscriptionDTO]: ...
@@ -23,7 +23,7 @@ class ISubscriptionReader(ABC):
         self,
         subscriber_id: UUID,
         cursor_sort_value: str | datetime | None,
-        cursor_sort_id: UUID | None,
+        cursor_id_value: UUID | None,
         sorting: SubscriptionsSorting,
         pagination: CursorPagination,
     ) -> list[DetailedSubscriptionDTO]: ...

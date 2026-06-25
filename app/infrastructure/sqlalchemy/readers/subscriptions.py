@@ -6,7 +6,7 @@ from sqlalchemy import select, tuple_
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.application.common.pagination import CursorPagination
-from app.application.common.sorting import SortOrderEnum
+from app.application.common.sorting import SortingOrderEnum
 from app.application.subscriptions.dto import DetailedSubscriptionDTO
 from app.application.subscriptions.interfaces.reader import ISubscriptionReader
 from app.application.subscriptions.queries import SubscriptionsSorting
@@ -21,7 +21,7 @@ class SASubscriptionReader(ISubscriptionReader):
         self,
         subscribed_to_id: UUID,
         cursor_sort_value: str | datetime | None,
-        cursor_sort_id: UUID | None,
+        cursor_id_value: UUID | None,
         sorting: SubscriptionsSorting,
         pagination: CursorPagination,
     ) -> list[DetailedSubscriptionDTO]:
@@ -30,18 +30,18 @@ class SASubscriptionReader(ISubscriptionReader):
             .where(SubscriptionORM.subscribed_to_id == subscribed_to_id)
             .join(ChannelORM, SubscriptionORM.subscriber_id == ChannelORM.id)
         )
-        sort_by_field = getattr(SubscriptionORM, sorting.sort_by.value)
+        sort_field = getattr(SubscriptionORM, sorting.sort_by.value)
 
-        if cursor_sort_value and cursor_sort_id:
-            cursor_tuple = tuple_(sort_by_field, SubscriptionORM.id)
+        if cursor_sort_value and cursor_id_value:
+            cursor_tuple = tuple_(sort_field, SubscriptionORM.id)
 
-            if sorting.order is SortOrderEnum.DESC:
-                stmt = stmt.where(cursor_tuple < (cursor_sort_value, cursor_sort_id))
+            if sorting.order is SortingOrderEnum.DESC:
+                stmt = stmt.where(cursor_tuple < (cursor_sort_value, cursor_id_value))
             else:
-                stmt = stmt.where(cursor_tuple > (cursor_sort_value, cursor_sort_id))
+                stmt = stmt.where(cursor_tuple > (cursor_sort_value, cursor_id_value))
         stmt = stmt.order_by(
-            sort_by_field.desc() if sorting.order is SortOrderEnum.DESC else sort_by_field,
-            SubscriptionORM.id.desc() if sorting.order == SortOrderEnum.DESC else SubscriptionORM.id,
+            sort_field.desc() if sorting.order is SortingOrderEnum.DESC else sort_field,
+            SubscriptionORM.id.desc() if sorting.order == SortingOrderEnum.DESC else SubscriptionORM.id,
         )
         stmt = stmt.limit(limit=pagination.per_page + 1)
 
@@ -55,7 +55,7 @@ class SASubscriptionReader(ISubscriptionReader):
         self,
         subscriber_id: UUID,
         cursor_sort_value: str | datetime | None,
-        cursor_sort_id: UUID | None,
+        cursor_id_value: UUID | None,
         sorting: SubscriptionsSorting,
         pagination: CursorPagination,
     ) -> list[DetailedSubscriptionDTO]:
@@ -65,18 +65,18 @@ class SASubscriptionReader(ISubscriptionReader):
             .join(ChannelORM, SubscriptionORM.subscribed_to_id == ChannelORM.id)
         )
 
-        sort_by_field = getattr(SubscriptionORM, sorting.sort_by.value)
-        if cursor_sort_value and cursor_sort_id:
-            cursor_tuple = tuple_(sort_by_field, SubscriptionORM.id)
+        sort_field = getattr(SubscriptionORM, sorting.sort_by.value)
+        if cursor_sort_value and cursor_id_value:
+            cursor_tuple = tuple_(sort_field, SubscriptionORM.id)
 
-            if sorting.order is SortOrderEnum.DESC:
-                stmt = stmt.where(cursor_tuple < (cursor_sort_value, cursor_sort_id))
+            if sorting.order is SortingOrderEnum.DESC:
+                stmt = stmt.where(cursor_tuple < (cursor_sort_value, cursor_id_value))
             else:
-                stmt = stmt.where(cursor_tuple > (cursor_sort_value, cursor_sort_id))
+                stmt = stmt.where(cursor_tuple > (cursor_sort_value, cursor_id_value))
 
         stmt = stmt.order_by(
-            sort_by_field.desc() if sorting.order is SortOrderEnum.DESC else sort_by_field,
-            SubscriptionORM.id.desc() if sorting.order is SortOrderEnum.DESC else SubscriptionORM.id,
+            sort_field.desc() if sorting.order is SortingOrderEnum.DESC else sort_field,
+            SubscriptionORM.id.desc() if sorting.order is SortingOrderEnum.DESC else SubscriptionORM.id,
         )
         stmt = stmt.limit(limit=pagination.per_page + 1)
 

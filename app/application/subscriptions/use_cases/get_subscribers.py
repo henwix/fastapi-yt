@@ -5,7 +5,7 @@ from uuid import UUID
 from app.application.common.interfaces.transaction_manager import ITransactionManager
 from app.application.subscriptions.dto import DetailedSubscriptionDTO
 from app.application.subscriptions.interfaces.reader import ISubscriptionReader
-from app.application.subscriptions.queries import GetSubscribersQuery, SubscriptionsSortFieldsEnum
+from app.application.subscriptions.queries import GetSubscribersQuery, SubscriptionsSortingFieldsEnum
 from app.domain.channels.services import IChannelService
 from app.domain.common.constants import Empty
 from app.domain.common.exceptions import InvalidCursorError
@@ -20,15 +20,17 @@ class GetSubscribersUseCase:
 
     async def execute(self, query: GetSubscribersQuery) -> tuple[list[DetailedSubscriptionDTO], str | None]:
         cursor_sort_value = None
-        cursor_sort_id = None
+        cursor_id_value = None
 
         if query.pagination.cursor is not Empty.UNSET:
             try:
                 decoded_cursor = base64url_decode(value=query.pagination.cursor)
+
+                cursor_id_value = UUID(decoded_cursor['id'])
+
                 match query.sorting.sort_by:
-                    case SubscriptionsSortFieldsEnum.CREATED_AT:
+                    case SubscriptionsSortingFieldsEnum.CREATED_AT:
                         cursor_sort_value = datetime.fromisoformat(decoded_cursor['created_at'])
-                        cursor_sort_id = UUID(decoded_cursor['id'])
 
             except Exception as e:
                 raise InvalidCursorError(cursor=query.pagination.cursor, exc_details=str(e)) from e
@@ -38,7 +40,7 @@ class GetSubscribersUseCase:
             subscribers = await self.subscription_reader.get_subscribers_by_id(
                 subscribed_to_id=channel.id,
                 cursor_sort_value=cursor_sort_value,
-                cursor_sort_id=cursor_sort_id,
+                cursor_id_value=cursor_id_value,
                 sorting=query.sorting,
                 pagination=query.pagination,
             )
@@ -48,11 +50,10 @@ class GetSubscribersUseCase:
         if len(subscribers) > query.pagination.per_page:
             subscribers = subscribers[: query.pagination.per_page]
             last_item = subscribers[-1]
+            next_cursor = {'id': str(last_item.subscription_id)}
 
             match query.sorting.sort_by:
-                case SubscriptionsSortFieldsEnum.CREATED_AT:
-                    next_cursor = {
-                        'created_at': last_item.created_at.isoformat(),
-                        'id': str(last_item.subscription_id),
-                    }
+                case SubscriptionsSortingFieldsEnum.CREATED_AT:
+                    next_cursor['created_at'] = last_item.created_at.isoformat()
+
         return subscribers, base64url_encode(value=next_cursor) if next_cursor else None

@@ -3,9 +3,9 @@ from datetime import datetime
 from uuid import UUID
 
 from app.application.common.interfaces.transaction_manager import ITransactionManager
-from app.application.subscriptions.dto import DetailedSubscriptionDTO
-from app.application.subscriptions.interfaces.reader import ISubscriptionReader
-from app.application.subscriptions.queries import GetSubscriptionsQuery, SubscriptionsSortingFieldsEnum
+from app.application.posts.dto import DetailedPostDTO
+from app.application.posts.interfaces.reader import IPostReader
+from app.application.posts.queries import GetPostsQuery, PostsSortingFieldsEnum
 from app.domain.channels.services import IChannelService
 from app.domain.common.constants import Empty
 from app.domain.common.exceptions import InvalidCursorError
@@ -13,12 +13,12 @@ from app.utils.base64url import base64url_decode, base64url_encode
 
 
 @dataclass
-class GetSubscriptionsUseCase:
+class GetPostsUseCase:
     channel_service: IChannelService
-    subscription_reader: ISubscriptionReader
+    post_reader: IPostReader
     transaction_manager: ITransactionManager
 
-    async def execute(self, query: GetSubscriptionsQuery) -> tuple[list[DetailedSubscriptionDTO], str | None]:
+    async def execute(self, query: GetPostsQuery) -> tuple[list[DetailedPostDTO], str | None]:
         cursor_sort_value = None
         cursor_id_value = None
 
@@ -29,16 +29,16 @@ class GetSubscriptionsUseCase:
                 cursor_id_value = UUID(decoded_cursor['id'])
 
                 match query.sorting.sort_by:
-                    case SubscriptionsSortingFieldsEnum.CREATED_AT:
+                    case PostsSortingFieldsEnum.CREATED_AT:
                         cursor_sort_value = datetime.fromisoformat(decoded_cursor['created_at'])
 
             except Exception as e:
                 raise InvalidCursorError(cursor=query.pagination.cursor, exc_details=str(e)) from e
 
         async with self.transaction_manager:
-            channel = await self.channel_service.try_get_active_by_id(id=query.current_channel_id)
-            subscriptions = await self.subscription_reader.get_subscriptions_by_id(
-                subscriber_id=channel.id,
+            channel = await self.channel_service.try_get_by_slug(slug=query.channel_slug)
+            posts = await self.post_reader.get_many(
+                channel_id=channel.id,
                 cursor_sort_value=cursor_sort_value,
                 cursor_id_value=cursor_id_value,
                 sorting=query.sorting,
@@ -47,13 +47,13 @@ class GetSubscriptionsUseCase:
 
         next_cursor = None
 
-        if len(subscriptions) > query.pagination.per_page:
-            subscriptions = subscriptions[: query.pagination.per_page]
-            last_item = subscriptions[-1]
-            next_cursor = {'id': str(last_item.subscription_id)}
+        if len(posts) > query.pagination.per_page:
+            posts = posts[: query.pagination.per_page]
+            last_item = posts[-1]
+            next_cursor = {'id': str(last_item.id)}
 
             match query.sorting.sort_by:
-                case SubscriptionsSortingFieldsEnum.CREATED_AT:
+                case PostsSortingFieldsEnum.CREATED_AT:
                     next_cursor['created_at'] = last_item.created_at.isoformat()
 
-        return subscriptions, base64url_encode(value=next_cursor) if next_cursor else None
+        return posts, base64url_encode(value=next_cursor) if next_cursor else None

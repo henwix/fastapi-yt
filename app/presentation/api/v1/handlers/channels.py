@@ -23,8 +23,8 @@ from app.domain.channels.exceptions import (
 from app.presentation.api.openapi.common import error_response
 from app.presentation.api.v1.di.current_channel_id import CurrentChannelID
 from app.presentation.api.v1.schemas.channels import (
+    ChannelSchema,
     CreateChannelSchema,
-    GetChannelSchema,
     SetChannelPasswordSchema,
     UpdateChannelSchema,
 )
@@ -49,10 +49,10 @@ router = APIRouter(
 async def create_channel(
     schema: CreateChannelSchema,
     use_case: FromDishka[CreateChannelUseCase],
-) -> GetChannelSchema:
+) -> ChannelSchema:
     command = CreateChannelCommand(**schema.model_dump())
     channel = await use_case.execute(command=command)
-    return GetChannelSchema.from_entity(entity=channel)
+    return ChannelSchema.from_entity(entity=channel)
 
 
 @router.get(
@@ -70,10 +70,10 @@ async def create_channel(
 async def get_channel(
     current_channel_id: CurrentChannelID,
     use_case: FromDishka[GetChannelUseCase],
-) -> GetChannelSchema:
+) -> ChannelSchema:
     query = GetChannelQuery(current_channel_id=current_channel_id)
     channel = await use_case.execute(query=query)
-    return GetChannelSchema.from_entity(entity=channel)
+    return ChannelSchema.from_entity(entity=channel)
 
 
 @router.patch(
@@ -93,10 +93,10 @@ async def update_channel(
     schema: UpdateChannelSchema,
     current_channel_id: CurrentChannelID,
     use_case: FromDishka[UpdateChannelUseCase],
-) -> GetChannelSchema:
+) -> ChannelSchema:
     command = UpdateChannelCommand(current_channel_id=current_channel_id, **schema.model_dump(exclude_unset=True))
     channel = await use_case.execute(command=command)
-    return GetChannelSchema.from_entity(entity=channel)
+    return ChannelSchema.from_entity(entity=channel)
 
 
 @router.delete(

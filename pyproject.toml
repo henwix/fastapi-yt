@@ -55,3 +55,8 @@ quote-style = "single"
 indent-style = "space"
 skip-magic-trailing-comma = false
 docstring-code-format = true
+
+[dependency-groups]
+dev = [
+    "pytest-asyncio (>=1.4.0,<2.0.0)"
+]

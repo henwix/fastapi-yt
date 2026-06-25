@@ -11,9 +11,10 @@ from app.application.post_comments.commands import (
     DeletePostCommentCommand,
     UpdatePostCommentCommand,
 )
-from app.application.post_comments.queries import GetPostCommentsQuery, PostCommentsSorting
+from app.application.post_comments.queries import GetPostCommentRepliesQuery, GetPostCommentsQuery, PostCommentsSorting
 from app.application.post_comments.use_cases.create_post_comment import CreatePostCommentUseCase
 from app.application.post_comments.use_cases.delete_post_comment import DeletePostCommentUseCase
+from app.application.post_comments.use_cases.get_post_comment_replies import GetPostCommentRepliesUseCase
 from app.application.post_comments.use_cases.get_post_comments import GetPostCommentsUseCase
 from app.application.post_comments.use_cases.update_post_comment import UpdatePostCommentUseCase
 from app.domain.auth.exceptions import JWTExpiredTokenError, JWTInvalidTokenError, NotAuthenticatedError
@@ -28,7 +29,7 @@ from app.presentation.api.v1.schemas.post_comments import (
     DetailedPostCommentSchema,
     PostCommentSchema,
     PostCommentsCursorResponse,
-    PostCommentsSortParams,
+    PostCommentsSortingParams,
     UpdatePostCommentSchema,
 )
 
@@ -79,7 +80,7 @@ async def create_post_comment(
 )
 async def get_post_comments(
     post_id: UUID,
-    sorting: Annotated[PostCommentsSortParams, Depends()],
+    sorting: Annotated[PostCommentsSortingParams, Depends()],
     pagination: Annotated[CursorPaginationParams, Depends()],
     use_case: FromDishka[GetPostCommentsUseCase],
     request: Request,
@@ -93,6 +94,31 @@ async def get_post_comments(
     return PostCommentsCursorResponse(
         next_page=str(request.url.include_query_params(cursor=cursor)) if cursor else None,
         results=[DetailedPostCommentSchema.from_dto(dto=comment) for comment in comments],
+    )
+
+
+@router.get(
+    path='/post_comments/{post_comment_id}/replies',
+    responses={
+        status.HTTP_404_NOT_FOUND: error_response(PostCommentNotFoundByIdError),
+    },
+)
+async def get_post_comment_replies(
+    post_comment_id: UUID,
+    sorting: Annotated[PostCommentsSortingParams, Depends()],
+    pagination: Annotated[CursorPaginationParams, Depends()],
+    use_case: FromDishka[GetPostCommentRepliesUseCase],
+    request: Request,
+) -> PostCommentsCursorResponse:
+    query = GetPostCommentRepliesQuery(
+        post_comment_id=post_comment_id,
+        sorting=PostCommentsSorting(**sorting.model_dump()),
+        pagination=CursorPagination(**pagination.model_dump(exclude_none=True)),
+    )
+    replies, cursor = await use_case.execute(query=query)
+    return PostCommentsCursorResponse(
+        next_page=str(request.url.include_query_params(cursor=cursor)) if cursor else None,
+        results=[DetailedPostCommentSchema.from_dto(dto=reply) for reply in replies],
     )
 
 

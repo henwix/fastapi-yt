@@ -49,7 +49,7 @@ class SetChannelPasswordSchema(BaseModel):
     new_password: str
 
 
-class GetChannelSchema(BaseSchema):
+class ChannelSchema(BaseSchema):
     email: EmailStr
     name: str
     slug: str
@@ -59,8 +59,8 @@ class GetChannelSchema(BaseSchema):
     updated_at: datetime
 
     @staticmethod
-    def from_entity(entity: Channel) -> GetChannelSchema:
-        return GetChannelSchema(
+    def from_entity(entity: Channel) -> ChannelSchema:
+        return ChannelSchema(
             email=entity.email,
             name=entity.name,
             slug=entity.slug,

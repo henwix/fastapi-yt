@@ -3,9 +3,9 @@ from uuid import UUID
 
 from pydantic import Field, HttpUrl
 
-from app.application.common.sorting import SortOrderEnum
+from app.application.common.sorting import SortingOrderEnum
 from app.application.post_comments.dto import DetailedPostCommentDTO
-from app.application.post_comments.queries import PostCommentsSortFieldsEnum
+from app.application.post_comments.queries import PostCommentsSortingFieldsEnum
 from app.domain.post_comments.entities import PostComment
 from app.domain.post_comments.enums import PostCommentReplyLevelEnum
 from app.presentation.api.v1.schemas.base import BaseSchema, BaseUpdateSchema
@@ -56,9 +56,9 @@ class UpdatePostCommentSchema(BaseUpdateSchema):
     text: str = Field(default='', min_length=1)
 
 
-class PostCommentsSortParams(BaseSchema):
-    sort_by: PostCommentsSortFieldsEnum = PostCommentsSortFieldsEnum.CREATED_AT
-    order: SortOrderEnum = SortOrderEnum.DESC
+class PostCommentsSortingParams(BaseSchema):
+    sort_by: PostCommentsSortingFieldsEnum = PostCommentsSortingFieldsEnum.CREATED_AT
+    order: SortingOrderEnum = SortingOrderEnum.DESC
 
 
 class PostCommentsCursorResponse(BaseSchema):

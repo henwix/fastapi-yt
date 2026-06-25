@@ -3,17 +3,17 @@ from enum import StrEnum
 from uuid import UUID
 
 from app.application.common.pagination import CursorPagination
-from app.application.common.sorting import SortOrderEnum
+from app.application.common.sorting import SortingOrderEnum
 
 
-class SubscriptionsSortFieldsEnum(StrEnum):
+class SubscriptionsSortingFieldsEnum(StrEnum):
     CREATED_AT = 'created_at'
 
 
 @dataclass(kw_only=True, frozen=True)
 class SubscriptionsSorting:
-    sort_by: SubscriptionsSortFieldsEnum
-    order: SortOrderEnum
+    sort_by: SubscriptionsSortingFieldsEnum
+    order: SortingOrderEnum
 
 
 @dataclass(kw_only=True, frozen=True)

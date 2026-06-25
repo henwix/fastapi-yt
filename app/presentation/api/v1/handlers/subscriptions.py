@@ -27,7 +27,7 @@ from app.presentation.api.v1.schemas.subscriptions import (
     DetailedSubscriptionSchema,
     SubscriptionSchema,
     SubscriptionsCursorResponse,
-    SubscriptionsSortParams,
+    SubscriptionsSortingParams,
 )
 
 router = APIRouter(
@@ -108,7 +108,7 @@ async def unsubscribe(
 async def get_subscribers(
     current_channel_id: CurrentChannelID,
     use_case: FromDishka[GetSubscribersUseCase],
-    sort: Annotated[SubscriptionsSortParams, Depends()],
+    sort: Annotated[SubscriptionsSortingParams, Depends()],
     pagination: Annotated[CursorPaginationParams, Depends()],
     request: Request,
 ) -> SubscriptionsCursorResponse:
@@ -141,7 +141,7 @@ async def get_subscribers(
 )
 async def get_subscriptions(
     current_channel_id: CurrentChannelID,
-    sort: Annotated[SubscriptionsSortParams, Depends()],
+    sort: Annotated[SubscriptionsSortingParams, Depends()],
     pagination: Annotated[CursorPaginationParams, Depends()],
     use_case: FromDishka[GetSubscriptionsUseCase],
     request: Request,

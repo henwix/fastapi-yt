@@ -5,6 +5,7 @@ from sqlalchemy.orm import Mapped, mapped_column
 
 from app.domain.common.enums import ReactionTypeEnum
 from app.domain.post_comments.entities import PostComment
+from app.domain.post_comments.enums import PostCommentReplyLevelEnum
 from app.domain.post_reactions.entities import PostReaction
 from app.domain.posts.entities import Post
 from app.infrastructure.sqlalchemy.models.base import BaseORM
@@ -23,6 +24,8 @@ class PostORM(
         index=True,
     )
     text: Mapped[str] = mapped_column(sa.Text)
+
+    __table_args__ = (sa.Index('ix_composite_channel_id_created_at_id', 'channel_id', 'created_at', 'id'),)
 
     @staticmethod
     def from_entity(entity: Post) -> PostORM:
@@ -119,6 +122,13 @@ class PostCommentORM(
     __table_args__ = (
         sa.CheckConstraint('reply_level IN (0, 1)', name='ck_reply_level'),
         sa.Index('ix_composite_post_id_reply_level_created_at_id', 'post_id', 'reply_level', 'created_at', 'id'),
+        sa.Index(
+            'ix_composite_reply_comment_id_reply_level_created_at_id',
+            'reply_comment_id',
+            'reply_level',
+            'created_at',
+            'id',
+        ),
     )
 
     @staticmethod
@@ -130,7 +140,7 @@ class PostCommentORM(
             reply_comment_id=entity.reply_comment_id,
             is_edited=entity.is_edited,
             text=entity.text,
-            reply_level=entity.reply_level,
+            reply_level=0 if entity.reply_level is PostCommentReplyLevelEnum.ZERO else 1,
             created_at=entity.created_at,
         )
 
@@ -142,6 +152,6 @@ class PostCommentORM(
             reply_comment_id=self.reply_comment_id,
             is_edited=self.is_edited,
             text=self.text,
-            reply_level=self.reply_level,
+            reply_level=PostCommentReplyLevelEnum.ZERO if self.reply_level == 0 else PostCommentReplyLevelEnum.ONE,
             created_at=self.created_at,
         )

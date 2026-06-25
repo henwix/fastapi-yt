@@ -6,7 +6,7 @@ from sqlalchemy import select, tuple_
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.application.common.pagination import CursorPagination
-from app.application.common.sorting import SortOrderEnum
+from app.application.common.sorting import SortingOrderEnum
 from app.application.post_comments.dto import DetailedPostCommentDTO
 from app.application.post_comments.interfaces.reader import IPostCommentReader
 from app.application.post_comments.queries import PostCommentsSorting
@@ -19,9 +19,9 @@ from app.infrastructure.sqlalchemy.models.posts import PostCommentORM
 class SAPostCommentReader(IPostCommentReader):
     _session: AsyncSession
 
-    async def get_many(
+    async def _get_many_by_filters(
         self,
-        post_id: UUID,
+        *filters,
         cursor_sort_value: datetime | None,
         cursor_id_value: UUID | None,
         sorting: PostCommentsSorting,
@@ -37,10 +37,7 @@ class SAPostCommentReader(IPostCommentReader):
                 PostCommentORM.created_at,
                 ChannelORM.slug,
             )
-            .where(
-                PostCommentORM.post_id == post_id,
-                PostCommentORM.reply_level == PostCommentReplyLevelEnum.ZERO.value,
-            )
+            .where(*filters)
             .join(ChannelORM, PostCommentORM.channel_id == ChannelORM.id)
         )
 
@@ -49,14 +46,14 @@ class SAPostCommentReader(IPostCommentReader):
         if cursor_sort_value and cursor_id_value:
             cursor_tuple = tuple_(sort_field, PostCommentORM.id)
 
-            if sorting.order is SortOrderEnum.DESC:
+            if sorting.order is SortingOrderEnum.DESC:
                 stmt = stmt.where(cursor_tuple < (cursor_sort_value, cursor_id_value))
             else:
                 stmt = stmt.where(cursor_tuple > (cursor_sort_value, cursor_id_value))
 
         stmt = stmt.order_by(
-            sort_field.desc() if sorting.order is SortOrderEnum.DESC else sort_field,
-            PostCommentORM.id.desc() if sorting.order is SortOrderEnum.DESC else PostCommentORM.id,
+            sort_field.desc() if sorting.order is SortingOrderEnum.DESC else sort_field,
+            PostCommentORM.id.desc() if sorting.order is SortingOrderEnum.DESC else PostCommentORM.id,
         )
         stmt = stmt.limit(limit=pagination.per_page + 1)
 
@@ -74,3 +71,37 @@ class SAPostCommentReader(IPostCommentReader):
             )
             for id, text, reply_level, is_edited, reply_comment_id, created_at, author_slug in result.all()
         ]
+
+    async def get_comments(
+        self,
+        post_id: UUID,
+        cursor_sort_value: datetime | None,
+        cursor_id_value: UUID | None,
+        sorting: PostCommentsSorting,
+        pagination: CursorPagination,
+    ) -> list[DetailedPostCommentDTO]:
+        return await self._get_many_by_filters(
+            PostCommentORM.post_id == post_id,
+            PostCommentORM.reply_level == PostCommentReplyLevelEnum.ZERO.value,
+            cursor_sort_value=cursor_sort_value,
+            cursor_id_value=cursor_id_value,
+            sorting=sorting,
+            pagination=pagination,
+        )
+
+    async def get_replies(
+        self,
+        post_comment_id: UUID,
+        cursor_sort_value: datetime | None,
+        cursor_id_value: UUID | None,
+        sorting: PostCommentsSorting,
+        pagination: CursorPagination,
+    ) -> list[DetailedPostCommentDTO]:
+        return await self._get_many_by_filters(
+            PostCommentORM.reply_comment_id == post_comment_id,
+            PostCommentORM.reply_level == PostCommentReplyLevelEnum.ONE.value,
+            cursor_sort_value=cursor_sort_value,
+            cursor_id_value=cursor_id_value,
+            sorting=sorting,
+            pagination=pagination,
+        )

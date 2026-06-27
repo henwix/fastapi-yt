@@ -55,7 +55,7 @@ class SAPostReactionRepository(IPostReactionRepository):
         stmt = (
             update(PostReactionORM)
             .where(PostReactionORM.id == post_reaction.id)
-            .values(reaction_type=post_reaction.reaction_type)
+            .values(reaction_type=post_reaction.reaction_type.value)
             .returning(PostReactionORM)
         )
         result = await self._session.execute(statement=stmt)

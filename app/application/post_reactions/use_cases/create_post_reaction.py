@@ -24,13 +24,11 @@ class CreatePostReactionUseCase:
                 channel_id=channel.id,
             )
 
-            if post_reaction:
+            if post_reaction is not None:
                 if post_reaction.reaction_type != command.reaction_type:
                     post_reaction.set_reaction_type(reaction_type=command.reaction_type)
-                    updated_post_reaction = await self.post_reaction_service.try_update(post_reaction=post_reaction)
-                    return updated_post_reaction, False
-                else:
-                    return post_reaction, False
+                    post_reaction = await self.post_reaction_service.try_update(post_reaction=post_reaction)
+                return post_reaction, False
 
             post_reaction_entity = PostReaction.create(
                 post_id=command.post_id,

@@ -4,6 +4,7 @@ import sqlalchemy as sa
 from sqlalchemy.orm import Mapped, mapped_column
 
 from app.domain.common.enums import ReactionTypeEnum
+from app.domain.post_comment_reactions.entities import PostCommentReaction
 from app.domain.post_comments.entities import PostComment
 from app.domain.post_comments.enums import PostCommentReplyLevelEnum
 from app.domain.post_reactions.entities import PostReaction
@@ -58,20 +59,11 @@ class PostReactionORM(
     channel_id: Mapped[UUID] = mapped_column(
         sa.ForeignKey('channels.id', ondelete='CASCADE'),
     )
-    reaction_type: Mapped[str] = mapped_column(
-        sa.Enum(
-            ReactionTypeEnum,
-            values_callable=lambda x: [e.value for e in x],
-            name='reaction_type',
-        ),
-    )
+    reaction_type: Mapped[str] = mapped_column(sa.String(length=8))
 
     __table_args__ = (
-        sa.UniqueConstraint(
-            'post_id',
-            'channel_id',
-            name='unique_channel_post_reaction',
-        ),
+        sa.UniqueConstraint('post_id', 'channel_id', name='unique_channel_post_reaction'),
+        sa.CheckConstraint("reaction_type IN ('positive', 'negative')"),
     )
 
     def to_entity(self) -> PostReaction:
@@ -79,7 +71,7 @@ class PostReactionORM(
             id=self.id,
             post_id=self.post_id,
             channel_id=self.channel_id,
-            reaction_type=self.reaction_type,
+            reaction_type=ReactionTypeEnum(self.reaction_type),
             created_at=self.created_at,
         )
 
@@ -89,7 +81,7 @@ class PostReactionORM(
             id=entity.id,
             post_id=entity.post_id,
             channel_id=entity.channel_id,
-            reaction_type=entity.reaction_type,
+            reaction_type=entity.reaction_type.value,
             created_at=entity.created_at,
         )
 
@@ -121,6 +113,7 @@ class PostCommentORM(
 
     __table_args__ = (
         sa.CheckConstraint('reply_level IN (0, 1)', name='ck_reply_level'),
+        sa.Index('ix_composite_id_post_id', 'id', 'post_id'),
         sa.Index('ix_composite_post_id_reply_level_created_at_id', 'post_id', 'reply_level', 'created_at', 'id'),
         sa.Index(
             'ix_composite_reply_comment_id_reply_level_created_at_id',
@@ -140,7 +133,7 @@ class PostCommentORM(
             reply_comment_id=entity.reply_comment_id,
             is_edited=entity.is_edited,
             text=entity.text,
-            reply_level=0 if entity.reply_level is PostCommentReplyLevelEnum.ZERO else 1,
+            reply_level=entity.reply_level.value,
             created_at=entity.created_at,
         )
 
@@ -152,6 +145,46 @@ class PostCommentORM(
             reply_comment_id=self.reply_comment_id,
             is_edited=self.is_edited,
             text=self.text,
-            reply_level=PostCommentReplyLevelEnum.ZERO if self.reply_level == 0 else PostCommentReplyLevelEnum.ONE,
+            reply_level=PostCommentReplyLevelEnum(self.reply_level),
+            created_at=self.created_at,
+        )
+
+
+class PostCommentReactionORM(
+    UUIDIdMixin,
+    CreatedAtMixin,
+    BaseORM,
+):
+    __tablename__ = 'post_comment_reactions'
+
+    post_comment_id: Mapped[UUID] = mapped_column(
+        sa.ForeignKey('post_comments.id', ondelete='CASCADE'),
+    )
+    channel_id: Mapped[UUID] = mapped_column(
+        sa.ForeignKey('channels.id', ondelete='CASCADE'),
+    )
+    reaction_type: Mapped[str] = mapped_column(sa.String(length=8))
+
+    __table_args__ = (
+        sa.UniqueConstraint('post_comment_id', 'channel_id', name='unique_channel_post_comment_reaction'),
+        sa.CheckConstraint("reaction_type IN ('positive', 'negative')"),
+    )
+
+    @staticmethod
+    def from_entity(entity: PostCommentReaction) -> PostCommentReactionORM:
+        return PostCommentReactionORM(
+            id=entity.id,
+            post_comment_id=entity.post_comment_id,
+            channel_id=entity.channel_id,
+            reaction_type=entity.reaction_type.value,
+            created_at=entity.created_at,
+        )
+
+    def to_entity(self) -> PostCommentReaction:
+        return PostCommentReaction(
+            id=self.id,
+            post_comment_id=self.post_comment_id,
+            channel_id=self.channel_id,
+            reaction_type=ReactionTypeEnum(self.reaction_type),
             created_at=self.created_at,
         )

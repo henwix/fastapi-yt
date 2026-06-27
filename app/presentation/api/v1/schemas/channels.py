@@ -1,5 +1,6 @@
 import re
 from datetime import datetime
+from uuid import UUID
 
 from pydantic import BaseModel, ConfigDict, EmailStr, Field, field_validator
 
@@ -50,6 +51,7 @@ class SetChannelPasswordSchema(BaseModel):
 
 
 class ChannelSchema(BaseSchema):
+    id: UUID
     email: EmailStr
     name: str
     slug: str
@@ -61,6 +63,7 @@ class ChannelSchema(BaseSchema):
     @staticmethod
     def from_entity(entity: Channel) -> ChannelSchema:
         return ChannelSchema(
+            id=entity.id,
             email=entity.email,
             name=entity.name,
             slug=entity.slug,

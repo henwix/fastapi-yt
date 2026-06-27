@@ -17,6 +17,10 @@ from app.domain.channels.exceptions import (
     ChannelWithSlugAlreadyExistsError,
 )
 from app.domain.common.exceptions import AppException, InvalidCursorError
+from app.domain.post_comment_reactions.exceptions import (
+    PostCommentReactionAlreadyExistsError,
+    PostCommentReactionNotFoundError,
+)
 from app.domain.post_comments.exceptions import (
     PostCommentAccessForbiddenError,
     PostCommentInvalidReplyLevelError,
@@ -59,6 +63,9 @@ def get_http_status_code(exc: AppException):
         PostCommentAccessForbiddenError: status.HTTP_403_FORBIDDEN,
         PostCommentNotFoundByIdError: status.HTTP_404_NOT_FOUND,
         PostCommentInvalidReplyLevelError: status.HTTP_500_INTERNAL_SERVER_ERROR,
+        # Post comment reactions
+        PostCommentReactionAlreadyExistsError: status.HTTP_400_BAD_REQUEST,
+        PostCommentReactionNotFoundError: status.HTTP_404_NOT_FOUND,
         # Subscriptions
         SubscriptionAlreadyExistsError: status.HTTP_400_BAD_REQUEST,
         SelfSubscriptionError: status.HTTP_400_BAD_REQUEST,

@@ -63,7 +63,7 @@ class SAPostCommentReader(IPostCommentReader):
             DetailedPostCommentDTO(
                 id=id,
                 text=text,
-                reply_level=PostCommentReplyLevelEnum.ZERO if reply_level == 0 else PostCommentReplyLevelEnum.ONE,
+                reply_level=PostCommentReplyLevelEnum(reply_level),
                 is_edited=is_edited,
                 reply_comment_id=reply_comment_id,
                 created_at=created_at,

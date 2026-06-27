@@ -64,13 +64,14 @@
 
 #### Posts
 - [x] Posts CRUD
+- [x] Get Posts by Channel slug endpoint
 
+- [x] Post Reactions CRUD
 
-#### Post reactions
-- [x] Post reactions CRUD
+- [x] Post Comments CRUD
+- [x] Get Post Comment Replies endpoint
 
-
-#### Post comments
+- [x] Post Comment Reactions CRUD
 
 
 #### Payments

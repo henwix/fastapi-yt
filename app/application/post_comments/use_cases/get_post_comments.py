@@ -30,7 +30,9 @@ class GetPostCommentsUseCase:
 
                 match query.sorting.sort_by:
                     case PostCommentsSortingFieldsEnum.CREATED_AT:
-                        cursor_sort_value = datetime.fromisoformat(decoded_cursor['created_at'])
+                        cursor_sort_value = datetime.fromisoformat(
+                            decoded_cursor[PostCommentsSortingFieldsEnum.CREATED_AT.value]
+                        )
 
             except Exception as e:
                 raise InvalidCursorError(cursor=query.pagination.cursor, exc_details=str(e)) from e
@@ -54,6 +56,6 @@ class GetPostCommentsUseCase:
 
             match query.sorting.sort_by:
                 case PostCommentsSortingFieldsEnum.CREATED_AT:
-                    next_cursor['created_at'] = last_item.created_at.isoformat()
+                    next_cursor[PostCommentsSortingFieldsEnum.CREATED_AT.value] = last_item.created_at.isoformat()
 
         return comments, base64url_encode(value=next_cursor) if next_cursor else None

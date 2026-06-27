@@ -13,6 +13,12 @@ from app.application.channels.use_cases.update_channel import UpdateChannelUseCa
 from app.application.common.interfaces.jwt import IJWTService
 from app.application.common.interfaces.password_hasher import IPasswordHasher
 from app.application.common.interfaces.transaction_manager import ITransactionManager
+from app.application.post_comment_reactions.use_cases.create_post_comment_reaction import (
+    CreatePostCommentReactionUseCase,
+)
+from app.application.post_comment_reactions.use_cases.delete_post_comment_reaction import (
+    DeletePostCommentReactionUseCase,
+)
 from app.application.post_comments.interfaces.reader import IPostCommentReader
 from app.application.post_comments.use_cases.create_post_comment import CreatePostCommentUseCase
 from app.application.post_comments.use_cases.delete_post_comment import DeletePostCommentUseCase
@@ -34,6 +40,8 @@ from app.application.subscriptions.use_cases.subscribe import SubscribeUseCase
 from app.application.subscriptions.use_cases.unsubscribe import UnsubscribeUseCase
 from app.domain.channels.repositories import IChannelRepository
 from app.domain.channels.services import ChannelService, IChannelService
+from app.domain.post_comment_reactions.repositories import IPostCommentReactionRepository
+from app.domain.post_comment_reactions.services import IPostCommentReactionService, PostCommentReactionService
 from app.domain.post_comments.repositories import IPostCommentRepository
 from app.domain.post_comments.services import IPostCommentService, PostCommentService
 from app.domain.post_reactions.repositories import IPostReactionRepository
@@ -49,6 +57,7 @@ from app.infrastructure.sqlalchemy.readers.post_comments import SAPostCommentRea
 from app.infrastructure.sqlalchemy.readers.posts import SAPostReader
 from app.infrastructure.sqlalchemy.readers.subscriptions import SASubscriptionReader
 from app.infrastructure.sqlalchemy.repositories.channels import SAChannelRepository
+from app.infrastructure.sqlalchemy.repositories.post_comment_reactions import SAPostCommentReactionRepository
 from app.infrastructure.sqlalchemy.repositories.post_comments import SAPostCommentRepository
 from app.infrastructure.sqlalchemy.repositories.post_reactions import SAPostReactionRepository
 from app.infrastructure.sqlalchemy.repositories.posts import SAPostRepository
@@ -83,6 +92,9 @@ class RepositoriesProvider(Provider):
     # Post comments
     post_comment_repository = provide(SAPostCommentRepository, provides=IPostCommentRepository)
 
+    # Post comment reactions
+    post_comment_reaction_repository = provide(SAPostCommentReactionRepository, provides=IPostCommentReactionRepository)
+
     # Subscriptions
     subscription_repository = provide(SASubscriptionRepository, provides=ISubscriptionRepository)
 
@@ -97,7 +109,7 @@ class ReadersProvider(Provider):
     post_comment_reader = provide(SAPostCommentReader, provides=IPostCommentReader)
 
     # Subscriptions
-    subscriptions_reader = provide(SASubscriptionReader, provides=ISubscriptionReader)
+    subscription_reader = provide(SASubscriptionReader, provides=ISubscriptionReader)
 
 
 class ServicesProvider(Provider):
@@ -114,6 +126,9 @@ class ServicesProvider(Provider):
 
     # Post comments
     post_comment_service = provide(PostCommentService, provides=IPostCommentService)
+
+    # Post comment reactions
+    post_comment_reaction_service = provide(PostCommentReactionService, provides=IPostCommentReactionService)
 
     # Subscriptions
     subscription_service = provide(SubscriptionService, provides=ISubscriptionService)
@@ -149,6 +164,10 @@ class UseCasesProvider(Provider):
     update_post_comment = provide(UpdatePostCommentUseCase)
     get_post_comments = provide(GetPostCommentsUseCase)
     get_post_comment_replies = provide(GetPostCommentRepliesUseCase)
+
+    # Post comment reactions
+    create_post_comment_reaction = provide(CreatePostCommentReactionUseCase)
+    delete_post_comment_reaction = provide(DeletePostCommentReactionUseCase)
 
     # Subscriptions
     subscribe = provide(SubscribeUseCase)

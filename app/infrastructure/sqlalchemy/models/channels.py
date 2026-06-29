@@ -53,6 +53,7 @@ class ChannelORM(
     @staticmethod
     def from_entity(entity: Channel) -> ChannelORM:
         return ChannelORM(
+            id=entity.id,
             email=entity.email,
             name=entity.name,
             slug=entity.slug,

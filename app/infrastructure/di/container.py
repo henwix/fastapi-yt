@@ -2,7 +2,7 @@ from collections.abc import AsyncGenerator
 from functools import lru_cache
 
 from dishka import AsyncContainer, Provider, Scope, make_async_container, provide
-from sqlalchemy.ext.asyncio import AsyncSession
+from sqlalchemy.ext.asyncio import AsyncEngine, AsyncSession, async_sessionmaker
 
 from app.application.auth.use_cases.login import LoginUseCase
 from app.application.channels.use_cases.create_channel import CreateChannelUseCase
@@ -52,7 +52,7 @@ from app.domain.subscriptions.repositories import ISubscriptionRepository
 from app.domain.subscriptions.services import ISubscriptionService, SubscriptionService
 from app.infrastructure.security.jwt import JWTService
 from app.infrastructure.security.password_hasher import PwdlibPasswordHasher
-from app.infrastructure.sqlalchemy.database import async_session
+from app.infrastructure.sqlalchemy.database import create_engine, create_session_factory
 from app.infrastructure.sqlalchemy.readers.post_comments import SAPostCommentReader
 from app.infrastructure.sqlalchemy.readers.posts import SAPostReader
 from app.infrastructure.sqlalchemy.readers.subscriptions import SASubscriptionReader
@@ -66,15 +66,25 @@ from app.infrastructure.sqlalchemy.transaction_manager import SATransactionManag
 
 
 class AppProvider(Provider):
-    @provide(scope=Scope.REQUEST, provides=AsyncSession)
-    async def provide_async_session(self) -> AsyncGenerator[AsyncSession]:
-        session = async_session()
-        yield session
-        await session.close()
-
     transaction_manager = provide(SATransactionManager, scope=Scope.REQUEST, provides=ITransactionManager)
     password_hasher = provide(PwdlibPasswordHasher, scope=Scope.APP, provides=IPasswordHasher)
     jwt_service = provide(JWTService, scope=Scope.APP, provides=IJWTService)
+
+
+class DatabaseProvider(Provider):
+    @provide(scope=Scope.APP, provides=AsyncEngine)
+    def engine(self) -> AsyncEngine:
+        return create_engine()
+
+    @provide(scope=Scope.APP, provides=async_sessionmaker)
+    def session_factory(self, engine: AsyncEngine) -> async_sessionmaker:
+        return create_session_factory(engine=engine)
+
+    @provide(scope=Scope.REQUEST, provides=AsyncSession)
+    async def provide_async_session(self, session_factory: async_sessionmaker) -> AsyncGenerator[AsyncSession]:
+        session = session_factory()
+        yield session
+        await session.close()
 
 
 class RepositoriesProvider(Provider):
@@ -180,6 +190,7 @@ class UseCasesProvider(Provider):
 def get_container() -> AsyncContainer:
     return make_async_container(
         AppProvider(),
+        DatabaseProvider(),
         RepositoriesProvider(),
         ReadersProvider(),
         ServicesProvider(),

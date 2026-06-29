@@ -35,4 +35,4 @@ shell:
 	${EXEC} ${APP_CONTAINER} python -m asyncio
 
 test:
-	${EXEC} ${APP_CONTAINER} pytest
+	 poetry run pytest -s

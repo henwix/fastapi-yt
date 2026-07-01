@@ -22,6 +22,12 @@ dependencies = [
     "msgspec (>=0.21.1,<0.22.0)"
 ]
 
+[dependency-groups]
+dev = [
+    "pytest-asyncio (>=1.4.0,<2.0.0)",
+    "testcontainers (>=4.14.2,<5.0.0)",
+    "polyfactory (>=3.3.0,<4.0.0)",
+]
 
 [build-system]
 requires = ["poetry-core>=2.0.0,<3.0.0"]
@@ -55,9 +61,3 @@ quote-style = "single"
 indent-style = "space"
 skip-magic-trailing-comma = false
 docstring-code-format = true
-
-[dependency-groups]
-dev = [
-    "pytest-asyncio (>=1.4.0,<2.0.0)",
-    "testcontainers (>=4.14.2,<5.0.0)"
-]

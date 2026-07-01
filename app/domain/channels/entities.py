@@ -41,10 +41,10 @@ class Channel(BaseEntity):
 
     def update(
         self,
-        name: str | Empty,
-        slug: str | Empty,
-        description: str | Empty,
-        country: str | Empty,
+        name: str | Empty = Empty.UNSET,
+        slug: str | Empty = Empty.UNSET,
+        description: str | Empty = Empty.UNSET,
+        country: str | Empty = Empty.UNSET,
     ) -> None:
         if name is not Empty.UNSET:
             self.name = name

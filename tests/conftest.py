@@ -1,7 +1,4 @@
-import asyncio
-from collections.abc import AsyncGenerator
-from functools import lru_cache
-from logging import getLogger
+from collections.abc import AsyncGenerator, Generator
 
 import pytest
 import pytest_asyncio
@@ -20,18 +17,9 @@ from app.infrastructure.sqlalchemy.database import create_engine, create_session
 from app.infrastructure.sqlalchemy.models import *  # noqa F403
 from app.infrastructure.sqlalchemy.models.base import BaseORM
 
-logger = getLogger(__name__)
-
 
 @pytest.fixture(scope='session')
-def event_loop():
-    loop = asyncio.new_event_loop()
-    yield loop
-    loop.close()
-
-
-@pytest_asyncio.fixture(scope='session')
-async def postgres_url() -> AsyncGenerator[str]:
+def postgres_url() -> Generator[str]:
     postgres = PostgresContainer(
         image='postgres:18-alpine',
         username='test',
@@ -43,7 +31,6 @@ async def postgres_url() -> AsyncGenerator[str]:
     try:
         postgres.start()
         postgres_url_ = postgres.get_connection_url()
-        logger.info(f'postgres url: {postgres_url_}')
         yield postgres_url_
     finally:
         postgres.stop()
@@ -51,7 +38,7 @@ async def postgres_url() -> AsyncGenerator[str]:
 
 @pytest_asyncio.fixture(scope='session', autouse=True)
 async def setup_db(postgres_url: str):
-    engine = create_async_engine(url=postgres_url, echo=True)
+    engine = create_async_engine(url=postgres_url, echo=False)
     async with engine.begin() as conn:
         await conn.run_sync(BaseORM.metadata.drop_all)
         await conn.run_sync(BaseORM.metadata.create_all)
@@ -64,7 +51,7 @@ async def container(postgres_url: str) -> AsyncGenerator[AsyncContainer]:
     class DatabaseProvider(Provider):
         @provide(scope=Scope.APP, provides=AsyncEngine)
         def engine(self) -> AsyncEngine:
-            return create_engine(db_url=postgres_url, echo=True)
+            return create_engine(db_url=postgres_url, echo=False)
 
         @provide(scope=Scope.APP, provides=async_sessionmaker)
         def session_factory(self, engine: AsyncEngine) -> async_sessionmaker:
@@ -76,17 +63,14 @@ async def container(postgres_url: str) -> AsyncGenerator[AsyncContainer]:
             yield session
             await session.close()
 
-    @lru_cache(1)
-    def get_container() -> AsyncContainer:
-        return make_async_container(
-            AppProvider(),
-            DatabaseProvider(),
-            RepositoriesProvider(),
-            ReadersProvider(),
-            ServicesProvider(),
-            UseCasesProvider(),
-        )
+    container = make_async_container(
+        AppProvider(),
+        DatabaseProvider(),
+        RepositoriesProvider(),
+        ReadersProvider(),
+        ServicesProvider(),
+        UseCasesProvider(),
+    )
 
-    container = get_container()
     yield container
     await container.close()

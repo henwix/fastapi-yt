@@ -5,7 +5,7 @@ from polyfactory.factories.sqlalchemy_factory import SQLAlchemyFactory
 from pwdlib import PasswordHash
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from app.infrastructure.sqlalchemy.models.channels import ChannelORM
+from app.infrastructure.sqlalchemy.models.channels import ChannelORM, SubscriptionORM
 
 _password_hasher = PasswordHash.recommended()
 
@@ -41,3 +41,27 @@ class ChannelORMFactory(SQLAlchemyFactory[ChannelORM]):
         session.add(instance=object)
         await session.commit()
         return object
+
+    @classmethod
+    async def create_batch(cls, session: AsyncSession, size: int, **kwargs) -> list[ChannelORM]:
+        objects = cls.batch(size=size, **kwargs)
+        session.add_all(objects)
+        await session.commit()
+        return objects
+
+
+class SubscriptionORMFactory(SQLAlchemyFactory[SubscriptionORM]):
+    __model__ = SubscriptionORM
+    __set_relationships__ = False
+    __faker__ = Faker()
+
+    @classmethod
+    def created_at(cls) -> datetime:
+        return cls.__faker__.date_time(UTC)
+
+    @classmethod
+    async def create(cls, session: AsyncSession, **kwargs) -> SubscriptionORM:
+        obj = cls.build(**kwargs)
+        session.add(obj)
+        await session.commit()
+        return obj

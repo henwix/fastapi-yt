@@ -1,17 +1,22 @@
 from collections.abc import AsyncGenerator
 from functools import lru_cache
 
+from aioboto3 import Session
 from dishka import AsyncContainer, Provider, Scope, make_async_container, provide
 from sqlalchemy.ext.asyncio import AsyncEngine, AsyncSession, async_sessionmaker
 
 from app.application.auth.use_cases.login import LoginUseCase
+from app.application.channels.use_cases.channel_avatar_upload_confirm_use_case import ChannelAvatarUploadConfirmUseCase
 from app.application.channels.use_cases.create_channel import CreateChannelUseCase
 from app.application.channels.use_cases.delete_channel import DeleteChannelUseCase
+from app.application.channels.use_cases.generate_channel_avatar_upload_url import GenerateChannelAvatarUploadURLUseCase
 from app.application.channels.use_cases.get_channel import GetChannelUseCase
 from app.application.channels.use_cases.set_password import SetChannelPasswordUseCase
 from app.application.channels.use_cases.update_channel import UpdateChannelUseCase
 from app.application.common.interfaces.jwt import IJWTService
 from app.application.common.interfaces.password_hasher import IPasswordHasher
+from app.application.common.interfaces.s3_client import IS3Client
+from app.application.common.interfaces.s3_provider import IS3Provider
 from app.application.common.interfaces.transaction_manager import ITransactionManager
 from app.application.post_comment_reactions.use_cases.create_post_comment_reaction import (
     CreatePostCommentReactionUseCase,
@@ -50,6 +55,8 @@ from app.domain.posts.repositories import IPostRepository
 from app.domain.posts.services import IPostService, PostService
 from app.domain.subscriptions.repositories import ISubscriptionRepository
 from app.domain.subscriptions.services import ISubscriptionService, SubscriptionService
+from app.infrastructure.s3.client import BotoS3Client
+from app.infrastructure.s3.provider import BotoS3Provider
 from app.infrastructure.security.jwt import JWTService
 from app.infrastructure.security.password_hasher import PwdlibPasswordHasher
 from app.infrastructure.sqlalchemy.database import create_engine, create_session_factory
@@ -66,9 +73,15 @@ from app.infrastructure.sqlalchemy.transaction_manager import SATransactionManag
 
 
 class AppProvider(Provider):
+    @provide(scope=Scope.APP, provides=Session)
+    def provide_boto_session(self) -> Session:
+        return Session()
+
     transaction_manager = provide(SATransactionManager, scope=Scope.REQUEST, provides=ITransactionManager)
     password_hasher = provide(PwdlibPasswordHasher, scope=Scope.APP, provides=IPasswordHasher)
     jwt_service = provide(JWTService, scope=Scope.APP, provides=IJWTService)
+    s3_client = provide(BotoS3Client, scope=Scope.APP, provides=IS3Client)
+    s3_provider = provide(BotoS3Provider, scope=Scope.APP, provides=IS3Provider)
 
 
 class DatabaseProvider(Provider):
@@ -153,6 +166,8 @@ class UseCasesProvider(Provider):
     update_channel = provide(UpdateChannelUseCase)
     delete_channel = provide(DeleteChannelUseCase)
     set_channel_password = provide(SetChannelPasswordUseCase)
+    generate_channel_avatar_upload_url = provide(GenerateChannelAvatarUploadURLUseCase)
+    channel_avatar_upload_confirm = provide(ChannelAvatarUploadConfirmUseCase)
 
     # Auth
     login = provide(LoginUseCase)

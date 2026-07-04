@@ -32,3 +32,9 @@ class ChannelNotFoundBySlugError(AppException):
 class ChannelNotActiveError(AppException):
     message = 'Channel not active'
     id: UUID
+
+
+@dataclass(kw_only=True)
+class ChannelAvatarInvalidFormatError(AppException):
+    message = 'This file format is not allowed for Channel avatars'
+    filename: str

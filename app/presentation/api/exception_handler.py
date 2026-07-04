@@ -10,13 +10,21 @@ from app.domain.auth.exceptions import (
     NotAuthenticatedError,
 )
 from app.domain.channels.exceptions import (
+    ChannelAvatarInvalidFormatError,
     ChannelNotActiveError,
     ChannelNotFoundByIdError,
     ChannelNotFoundBySlugError,
     ChannelWithEmailAlreadyExistsError,
     ChannelWithSlugAlreadyExistsError,
 )
-from app.domain.common.exceptions import AppException, InvalidCursorError
+from app.domain.common.exceptions import (
+    AppException,
+    InvalidCursorError,
+    S3FileAccessForbiddenError,
+    S3FileNotFoundError,
+    S3RequestError,
+    S3UnavailableError,
+)
 from app.domain.post_comment_reactions.exceptions import (
     PostCommentReactionAlreadyExistsError,
     PostCommentReactionNotFoundError,
@@ -42,9 +50,14 @@ def get_http_status_code(exc: AppException):
     exception_codes: dict[type[AppException], int] = {
         # Common
         InvalidCursorError: status.HTTP_400_BAD_REQUEST,
+        S3FileAccessForbiddenError: status.HTTP_403_FORBIDDEN,
+        S3FileNotFoundError: status.HTTP_404_NOT_FOUND,
+        S3RequestError: status.HTTP_500_INTERNAL_SERVER_ERROR,
+        S3UnavailableError: status.HTTP_500_INTERNAL_SERVER_ERROR,
         # Channels
         ChannelWithEmailAlreadyExistsError: status.HTTP_400_BAD_REQUEST,
         ChannelWithSlugAlreadyExistsError: status.HTTP_400_BAD_REQUEST,
+        ChannelAvatarInvalidFormatError: status.HTTP_400_BAD_REQUEST,
         ChannelNotFoundByIdError: status.HTTP_404_NOT_FOUND,
         ChannelNotFoundBySlugError: status.HTTP_404_NOT_FOUND,
         ChannelNotActiveError: status.HTTP_403_FORBIDDEN,

@@ -15,11 +15,15 @@ class Channel(BaseEntity):
     country: str = ''
     password_hash: str
     is_active: bool = True
+    avatar_s3_key: str | None = None
     created_at: datetime = field(default_factory=get_datetime_utc_now)
     updated_at: datetime = field(default_factory=get_datetime_utc_now)
 
     def set_password(self, password_hash: str) -> None:
         self.password_hash = password_hash
+
+    def set_avatar_s3_key(self, key: str | None) -> None:
+        self.avatar_s3_key = key
 
     @staticmethod
     def create(

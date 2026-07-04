@@ -32,3 +32,15 @@ class DeleteChannelCommand:
 class SetChannelPasswordCommand:
     current_channel_id: UUID
     new_password: str
+
+
+@dataclass(kw_only=True, frozen=True)
+class GenerateChannelAvatarUploadURLCommand:
+    current_channel_id: UUID
+    filename: str
+
+
+@dataclass(kw_only=True, frozen=True)
+class ChannelAvatarUploadConfirmCommand:
+    current_channel_id: UUID
+    key: str

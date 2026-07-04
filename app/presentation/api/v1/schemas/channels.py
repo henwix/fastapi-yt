@@ -2,7 +2,7 @@ import re
 from datetime import datetime
 from uuid import UUID
 
-from pydantic import BaseModel, ConfigDict, EmailStr, Field, field_validator
+from pydantic import BaseModel, ConfigDict, EmailStr, Field, HttpUrl, field_validator
 
 from app.domain.channels.entities import Channel
 from app.domain.common.constants import SLUG_PATTERN
@@ -57,6 +57,7 @@ class ChannelSchema(BaseSchema):
     slug: str
     description: str
     country: str
+    avatar_s3_key: str | None
     created_at: datetime
     updated_at: datetime
 
@@ -69,6 +70,21 @@ class ChannelSchema(BaseSchema):
             slug=entity.slug,
             description=entity.description,
             country=entity.country,
+            avatar_s3_key=entity.avatar_s3_key,
             created_at=entity.created_at,
             updated_at=entity.updated_at,
         )
+
+
+class GenerateChannelAvatarUploadURLInSchema(BaseSchema):
+    filename: str = Field(max_length=100)
+
+
+class GenerateChannelAvatarUploadURLOutSchema(BaseSchema):
+    upload_url: HttpUrl
+    key: str
+    channel_id: UUID
+
+
+class ChannelAvatarUploadConfirmSchema(BaseSchema):
+    key: str

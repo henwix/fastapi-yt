@@ -19,7 +19,8 @@ dependencies = [
     "sqlalchemy (>=2.0.50,<3.0.0)",
     "pydantic[email] (>=2.13.4,<3.0.0)",
     "dishka (>=1.10.1,<2.0.0)",
-    "msgspec (>=0.21.1,<0.22.0)"
+    "msgspec (>=0.21.1,<0.22.0)",
+    "aioboto3 (>=15.5.0,<16.0.0)"
 ]
 
 [dependency-groups]

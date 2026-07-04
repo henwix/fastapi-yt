@@ -69,6 +69,7 @@ class SAChannelRepository(IChannelRepository):
                 slug=channel.slug,
                 description=channel.description,
                 country=channel.country,
+                avatar_s3_key=channel.avatar_s3_key,
             )
             .returning(ChannelORM)
         )

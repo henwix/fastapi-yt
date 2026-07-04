@@ -24,6 +24,9 @@ class ChannelORM(
     country: Mapped[str] = mapped_column(sa.String(40))
     password_hash: Mapped[str]
     is_active: Mapped[bool] = mapped_column(default=True, server_default=sa.sql.true())
+    avatar_s3_key: Mapped[str] = mapped_column(
+        sa.String(length=255), nullable=True, default=None, server_default=sa.sql.null()
+    )
 
     subscriptions = relationship(
         'SubscriptionORM',
@@ -46,6 +49,7 @@ class ChannelORM(
             country=self.country,
             password_hash=self.password_hash,
             is_active=self.is_active,
+            avatar_s3_key=self.avatar_s3_key,
             created_at=self.created_at,
             updated_at=self.updated_at,
         )
@@ -61,6 +65,7 @@ class ChannelORM(
             country=entity.country,
             password_hash=entity.password_hash,
             is_active=entity.is_active,
+            avatar_s3_key=entity.avatar_s3_key,
             created_at=entity.created_at,
             updated_at=entity.updated_at,
         )

@@ -5,6 +5,7 @@ from app.application.channels.commands import GenerateChannelAvatarUploadURLComm
 from app.application.common.interfaces.s3_provider import IS3Provider
 from app.application.common.interfaces.transaction_manager import ITransactionManager
 from app.core.configs import settings
+from app.domain.channels.constants import CHANNEL_AVATAR_ALLOWED_FILE_FORMATS
 from app.domain.channels.exceptions import ChannelAvatarInvalidFormatError
 from app.domain.channels.services import IChannelService
 
@@ -16,7 +17,7 @@ class GenerateChannelAvatarUploadURLUseCase:
     s3_provider: IS3Provider
 
     async def execute(self, command: GenerateChannelAvatarUploadURLCommand) -> tuple[str, str, UUID]:
-        if not command.filename.endswith(('.png', '.jpg', '.jpeg')):
+        if not command.filename.endswith(CHANNEL_AVATAR_ALLOWED_FILE_FORMATS):
             raise ChannelAvatarInvalidFormatError(filename=command.filename)
 
         async with self.transaction_manager:

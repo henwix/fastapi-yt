@@ -11,7 +11,19 @@ services:
       retries: 5
     env_file:
       - ../.env
+  redis:
+    container_name: fastapi-yt-redis-dev
+    image: redis:8.8-alpine
+    volumes:
+      - redis_data:/data/
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
 
 volumes:
   postgres_data:
     name: fastapi_yt_postgres_data
+  redis_data:
+    name: fastapi_yt_redis_data

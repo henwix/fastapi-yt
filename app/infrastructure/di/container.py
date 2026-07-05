@@ -6,7 +6,7 @@ from dishka import AsyncContainer, Provider, Scope, make_async_container, provid
 from sqlalchemy.ext.asyncio import AsyncEngine, AsyncSession, async_sessionmaker
 
 from app.application.auth.use_cases.login import LoginUseCase
-from app.application.channels.use_cases.channel_avatar_upload_confirm_use_case import ChannelAvatarUploadConfirmUseCase
+from app.application.channels.use_cases.confirm_channel_avatar_upload import ChannelAvatarUploadConfirmUseCase
 from app.application.channels.use_cases.create_channel import CreateChannelUseCase
 from app.application.channels.use_cases.delete_channel import DeleteChannelUseCase
 from app.application.channels.use_cases.generate_channel_avatar_upload_url import GenerateChannelAvatarUploadURLUseCase
@@ -81,7 +81,7 @@ class AppProvider(Provider):
     password_hasher = provide(PwdlibPasswordHasher, scope=Scope.APP, provides=IPasswordHasher)
     jwt_service = provide(JWTService, scope=Scope.APP, provides=IJWTService)
     s3_client = provide(BotoS3Client, scope=Scope.APP, provides=IS3Client)
-    s3_provider = provide(BotoS3Provider, scope=Scope.APP, provides=IS3Provider)
+    s3_provider = provide(BotoS3Provider, scope=Scope.REQUEST, provides=IS3Provider)
 
 
 class DatabaseProvider(Provider):

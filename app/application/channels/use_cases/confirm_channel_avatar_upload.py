@@ -1,6 +1,6 @@
 from dataclasses import dataclass
 
-from app.application.channels.commands import ChannelAvatarUploadConfirmCommand
+from app.application.channels.commands import ConfirmChannelAvatarUploadCommand
 from app.application.common.interfaces.s3_provider import IS3Provider
 from app.application.common.interfaces.transaction_manager import ITransactionManager
 from app.core.configs import settings
@@ -14,7 +14,7 @@ class ChannelAvatarUploadConfirmUseCase:
     transaction_manager: ITransactionManager
     s3_provider: IS3Provider
 
-    async def execute(self, command: ChannelAvatarUploadConfirmCommand) -> None:
+    async def execute(self, command: ConfirmChannelAvatarUploadCommand) -> None:
         async with self.transaction_manager:
             channel = await self.channel_service.try_get_active_by_id(id=command.current_channel_id)
 

@@ -11,6 +11,7 @@ from app.domain.auth.exceptions import (
 )
 from app.domain.channels.exceptions import (
     ChannelAvatarInvalidFormatError,
+    ChannelAvatarNotFoundError,
     ChannelNotActiveError,
     ChannelNotFoundByIdError,
     ChannelNotFoundBySlugError,
@@ -60,6 +61,7 @@ def get_http_status_code(exc: AppException):
         ChannelAvatarInvalidFormatError: status.HTTP_400_BAD_REQUEST,
         ChannelNotFoundByIdError: status.HTTP_404_NOT_FOUND,
         ChannelNotFoundBySlugError: status.HTTP_404_NOT_FOUND,
+        ChannelAvatarNotFoundError: status.HTTP_404_NOT_FOUND,
         ChannelNotActiveError: status.HTTP_403_FORBIDDEN,
         # Auth
         IncorrectEmailOrPasswordError: status.HTTP_401_UNAUTHORIZED,

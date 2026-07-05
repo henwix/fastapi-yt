@@ -41,6 +41,11 @@ class GenerateChannelAvatarUploadURLCommand:
 
 
 @dataclass(kw_only=True, frozen=True)
-class ChannelAvatarUploadConfirmCommand:
+class ConfirmChannelAvatarUploadCommand:
     current_channel_id: UUID
     key: str
+
+
+@dataclass(kw_only=True, frozen=True)
+class DeleteChannelAvatarCommand:
+    current_channel_id: UUID

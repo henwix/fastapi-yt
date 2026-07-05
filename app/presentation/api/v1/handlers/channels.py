@@ -2,7 +2,7 @@ from dishka.integrations.fastapi import DishkaRoute, FromDishka
 from fastapi import APIRouter, status
 
 from app.application.channels.commands import (
-    ChannelAvatarUploadConfirmCommand,
+    ConfirmChannelAvatarUploadCommand,
     CreateChannelCommand,
     DeleteChannelCommand,
     GenerateChannelAvatarUploadURLCommand,
@@ -10,7 +10,7 @@ from app.application.channels.commands import (
     UpdateChannelCommand,
 )
 from app.application.channels.queries import GetChannelQuery
-from app.application.channels.use_cases.channel_avatar_upload_confirm_use_case import ChannelAvatarUploadConfirmUseCase
+from app.application.channels.use_cases.confirm_channel_avatar_upload import ChannelAvatarUploadConfirmUseCase
 from app.application.channels.use_cases.create_channel import CreateChannelUseCase
 from app.application.channels.use_cases.delete_channel import DeleteChannelUseCase
 from app.application.channels.use_cases.generate_channel_avatar_upload_url import GenerateChannelAvatarUploadURLUseCase
@@ -197,5 +197,5 @@ async def avatar_upload_confirm(
     schema: ChannelAvatarUploadConfirmSchema,
     use_case: FromDishka[ChannelAvatarUploadConfirmUseCase],
 ) -> None:
-    command = ChannelAvatarUploadConfirmCommand(current_channel_id=current_channel_id, **schema.model_dump())
+    command = ConfirmChannelAvatarUploadCommand(current_channel_id=current_channel_id, **schema.model_dump())
     await use_case.execute(command=command)

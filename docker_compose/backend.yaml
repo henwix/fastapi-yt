@@ -14,5 +14,22 @@ services:
       - ../.env
     command: "uvicorn --factory app.presentation.api.main:create_app --host 0.0.0.0 --port 8000 --reload"
     depends_on:
+      redis:
+        condition: service_healthy
+      postgres:
+        condition: service_healthy
+
+  taskiq:
+    container_name: fastapi-yt-taskiq-dev
+    image: fastapi-yt-backend-dev
+    pull_policy: build
+    command: taskiq worker app.infrastructure.taskiq.config:broker app.infrastructure.taskiq.tasks
+    volumes:
+      - ..:/src/
+    env_file:
+      - ../.env
+    depends_on:
+      redis:
+        condition: service_healthy
       postgres:
         condition: service_healthy

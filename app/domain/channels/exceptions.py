@@ -38,3 +38,9 @@ class ChannelNotActiveError(AppException):
 class ChannelAvatarInvalidFormatError(AppException):
     message = 'This file format is not allowed for Channel avatars'
     filename: str
+
+
+@dataclass(kw_only=True)
+class ChannelAvatarNotFoundError(AppException):
+    message = 'Channel avatar not found'
+    channel_id: UUID

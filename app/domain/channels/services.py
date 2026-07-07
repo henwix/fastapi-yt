@@ -1,9 +1,12 @@
 from abc import ABC, abstractmethod
 from dataclasses import dataclass
+from mimetypes import guess_type
 from uuid import UUID
 
 from app.domain.channels.entities import Channel
+from app.domain.channels.enums import ChannelAvatarFileContentTypesEnum
 from app.domain.channels.exceptions import (
+    ChannelAvatarInvalidFileFormatError,
     ChannelNotActiveError,
     ChannelNotFoundByIdError,
     ChannelNotFoundBySlugError,
@@ -40,6 +43,9 @@ class IChannelService(ABC):
 
     @abstractmethod
     async def try_delete_by_id(self, id: UUID) -> None: ...
+
+    @abstractmethod
+    def validate_channel_avatar_file_format_and_get_content_type(self, value: str) -> str: ...
 
 
 @dataclass
@@ -89,3 +95,9 @@ class ChannelService(IChannelService):
         is_deleted = await self._channel_repo.delete_by_id(id=id)
         if not is_deleted:
             raise ChannelNotFoundByIdError(id=id)
+
+    def validate_channel_avatar_file_format_and_get_content_type(self, value: str) -> str:
+        content_type, _ = guess_type(value)
+        if content_type is None or content_type not in ChannelAvatarFileContentTypesEnum:
+            raise ChannelAvatarInvalidFileFormatError(file=value)
+        return content_type

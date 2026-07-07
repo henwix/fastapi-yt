@@ -23,7 +23,7 @@ dependencies = [
     "aioboto3 (>=15.5.0,<16.0.0)",
     "redis (>=8.0.1,<9.0.0)",
     "taskiq (>=0.12.4,<0.13.0)",
-    "taskiq-redis (>=1.2.3,<2.0.0)"
+    "taskiq-redis (>=1.2.3,<2.0.0)",
 ]
 
 [dependency-groups]

@@ -6,9 +6,10 @@ from dishka import AsyncContainer, Provider, Scope, make_async_container, provid
 from sqlalchemy.ext.asyncio import AsyncEngine, AsyncSession, async_sessionmaker
 
 from app.application.auth.use_cases.login import LoginUseCase
-from app.application.channels.use_cases.confirm_channel_avatar_upload import ChannelAvatarUploadConfirmUseCase
+from app.application.channels.use_cases.confirm_channel_avatar_upload import ConfirmChannelAvatarUploadUseCase
 from app.application.channels.use_cases.create_channel import CreateChannelUseCase
 from app.application.channels.use_cases.delete_channel import DeleteChannelUseCase
+from app.application.channels.use_cases.delete_channel_avatar import DeleteChannelAvatarUseCase
 from app.application.channels.use_cases.generate_channel_avatar_upload_url import GenerateChannelAvatarUploadURLUseCase
 from app.application.channels.use_cases.get_channel import GetChannelUseCase
 from app.application.channels.use_cases.set_password import SetChannelPasswordUseCase
@@ -17,6 +18,7 @@ from app.application.common.interfaces.jwt import IJWTService
 from app.application.common.interfaces.password_hasher import IPasswordHasher
 from app.application.common.interfaces.s3_client import IS3Client
 from app.application.common.interfaces.s3_provider import IS3Provider
+from app.application.common.interfaces.task_queue import ITaskQueue
 from app.application.common.interfaces.transaction_manager import ITransactionManager
 from app.application.post_comment_reactions.use_cases.create_post_comment_reaction import (
     CreatePostCommentReactionUseCase,
@@ -70,6 +72,7 @@ from app.infrastructure.sqlalchemy.repositories.post_reactions import SAPostReac
 from app.infrastructure.sqlalchemy.repositories.posts import SAPostRepository
 from app.infrastructure.sqlalchemy.repositories.subscriptions import SASubscriptionRepository
 from app.infrastructure.sqlalchemy.transaction_manager import SATransactionManager
+from app.infrastructure.taskiq.task_queue import TaskiqTaskQueue
 
 
 class AppProvider(Provider):
@@ -82,12 +85,15 @@ class AppProvider(Provider):
     jwt_service = provide(JWTService, scope=Scope.APP, provides=IJWTService)
     s3_client = provide(BotoS3Client, scope=Scope.APP, provides=IS3Client)
     s3_provider = provide(BotoS3Provider, scope=Scope.REQUEST, provides=IS3Provider)
+    task_queue = provide(TaskiqTaskQueue, scope=Scope.REQUEST, provides=ITaskQueue)
 
 
 class DatabaseProvider(Provider):
     @provide(scope=Scope.APP, provides=AsyncEngine)
-    def engine(self) -> AsyncEngine:
-        return create_engine()
+    async def engine(self) -> AsyncGenerator[AsyncEngine]:
+        engine = create_engine()
+        yield engine
+        await engine.dispose()
 
     @provide(scope=Scope.APP, provides=async_sessionmaker)
     def session_factory(self, engine: AsyncEngine) -> async_sessionmaker:
@@ -167,7 +173,8 @@ class UseCasesProvider(Provider):
     delete_channel = provide(DeleteChannelUseCase)
     set_channel_password = provide(SetChannelPasswordUseCase)
     generate_channel_avatar_upload_url = provide(GenerateChannelAvatarUploadURLUseCase)
-    channel_avatar_upload_confirm = provide(ChannelAvatarUploadConfirmUseCase)
+    confirm_channel_avatar_upload = provide(ConfirmChannelAvatarUploadUseCase)
+    delete_channel_avatar = provide(DeleteChannelAvatarUseCase)
 
     # Auth
     login = provide(LoginUseCase)

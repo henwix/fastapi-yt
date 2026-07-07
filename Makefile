@@ -6,6 +6,7 @@ EXEC = docker exec -it
 APP_DEV_FILE = docker_compose/backend.yaml
 STORAGES_FILE = docker_compose/storages.yaml
 APP_CONTAINER = fastapi-yt-backend-dev
+TASKIQ_CONTAINER = fastapi-yt-taskiq-dev
 DATABASE_CONTAINER = fastapi-yt-postgres-dev
 ENV = --env-file .env
 
@@ -15,6 +16,9 @@ up:
 
 logs:
 	${LOGS} ${APP_CONTAINER} -f
+
+taskiq-logs:
+	${LOGS} ${TASKIQ_CONTAINER} -f
 
 down:
 	${DC} -f ${APP_DEV_FILE} ${ENV} -f ${STORAGES_FILE} ${ENV} down

@@ -4,22 +4,28 @@ from fastapi import APIRouter, status
 from app.application.channels.commands import (
     ConfirmChannelAvatarUploadCommand,
     CreateChannelCommand,
+    DeleteChannelAvatarCommand,
     DeleteChannelCommand,
     GenerateChannelAvatarUploadURLCommand,
     SetChannelPasswordCommand,
     UpdateChannelCommand,
 )
 from app.application.channels.queries import GetChannelQuery
-from app.application.channels.use_cases.confirm_channel_avatar_upload import ChannelAvatarUploadConfirmUseCase
+from app.application.channels.use_cases.confirm_channel_avatar_upload import ConfirmChannelAvatarUploadUseCase
 from app.application.channels.use_cases.create_channel import CreateChannelUseCase
 from app.application.channels.use_cases.delete_channel import DeleteChannelUseCase
+from app.application.channels.use_cases.delete_channel_avatar import DeleteChannelAvatarUseCase
 from app.application.channels.use_cases.generate_channel_avatar_upload_url import GenerateChannelAvatarUploadURLUseCase
 from app.application.channels.use_cases.get_channel import GetChannelUseCase
 from app.application.channels.use_cases.set_password import SetChannelPasswordUseCase
 from app.application.channels.use_cases.update_channel import UpdateChannelUseCase
 from app.domain.auth.exceptions import JWTExpiredTokenError, JWTInvalidTokenError, NotAuthenticatedError
 from app.domain.channels.exceptions import (
-    ChannelAvatarInvalidFormatError,
+    ChannelAvatarAlreadySetError,
+    ChannelAvatarInvalidFileContentTypeError,
+    ChannelAvatarInvalidFileFormatError,
+    ChannelAvatarInvalidKeyError,
+    ChannelAvatarNotFoundError,
     ChannelNotActiveError,
     ChannelNotFoundByIdError,
     ChannelWithEmailAlreadyExistsError,
@@ -159,9 +165,9 @@ async def set_password(
 @router.post(
     path='/avatar_upload_url',
     status_code=status.HTTP_201_CREATED,
-    description='Pass the channel_id in the "x-amz-meta-user_id" Header to upload the file using upload_url',
+    description='Pass the channel_id in the "x-amz-meta-channel_id" Header to upload the file using upload_url',
     responses={
-        status.HTTP_400_BAD_REQUEST: error_response(ChannelAvatarInvalidFormatError),
+        status.HTTP_400_BAD_REQUEST: error_response(ChannelAvatarInvalidFileFormatError),
         status.HTTP_403_FORBIDDEN: error_response(ChannelNotActiveError),
         status.HTTP_404_NOT_FOUND: error_response(ChannelNotFoundByIdError),
     },
@@ -187,6 +193,12 @@ async def generate_avatar_upload_url(
     '/avatar_upload_confirm',
     status_code=status.HTTP_204_NO_CONTENT,
     responses={
+        status.HTTP_400_BAD_REQUEST: error_response(
+            ChannelAvatarInvalidFileFormatError,
+            ChannelAvatarInvalidKeyError,
+            ChannelAvatarAlreadySetError,
+            ChannelAvatarInvalidFileContentTypeError,
+        ),
         status.HTTP_403_FORBIDDEN: error_response(ChannelNotActiveError, S3FileAccessForbiddenError),
         status.HTTP_404_NOT_FOUND: error_response(ChannelNotFoundByIdError, S3FileNotFoundError),
         status.HTTP_500_INTERNAL_SERVER_ERROR: error_response(S3RequestError, S3UnavailableError),
@@ -195,7 +207,23 @@ async def generate_avatar_upload_url(
 async def avatar_upload_confirm(
     current_channel_id: CurrentChannelID,
     schema: ChannelAvatarUploadConfirmSchema,
-    use_case: FromDishka[ChannelAvatarUploadConfirmUseCase],
+    use_case: FromDishka[ConfirmChannelAvatarUploadUseCase],
 ) -> None:
     command = ConfirmChannelAvatarUploadCommand(current_channel_id=current_channel_id, **schema.model_dump())
+    await use_case.execute(command=command)
+
+
+@router.delete(
+    '/avatar_delete',
+    status_code=status.HTTP_204_NO_CONTENT,
+    responses={
+        status.HTTP_403_FORBIDDEN: error_response(ChannelNotActiveError),
+        status.HTTP_404_NOT_FOUND: error_response(ChannelNotFoundByIdError, ChannelAvatarNotFoundError),
+    },
+)
+async def delete_avatar(
+    current_channel_id: CurrentChannelID,
+    use_case: FromDishka[DeleteChannelAvatarUseCase],
+) -> None:
+    command = DeleteChannelAvatarCommand(current_channel_id=current_channel_id)
     await use_case.execute(command=command)

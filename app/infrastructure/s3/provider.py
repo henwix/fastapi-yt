@@ -19,6 +19,7 @@ class BotoS3Provider(IS3Provider):
         self,
         bucket: str,
         filename: str,
+        content_type: str,
         key_prefix: str,
         expires_in: int,
         metadata: dict[str, str] | None = None,
@@ -29,6 +30,7 @@ class BotoS3Provider(IS3Provider):
             params: dict = {
                 'Bucket': bucket,
                 'Key': key,
+                'ContentType': content_type,
             }
             if metadata is not None:
                 params['Metadata'] = metadata
@@ -39,6 +41,25 @@ class BotoS3Provider(IS3Provider):
                 ExpiresIn=expires_in,
             )
         return url, key
+
+    async def get_object(self, bucket: str, key: str) -> dict:
+        async with self._client.client() as s3:
+            try:
+                return await s3.get_object(Bucket=bucket, Key=key)
+            except ClientError as e:
+                response = e.response
+                status = response['ResponseMetadata']['HTTPStatusCode']
+
+                match status:
+                    case 404:
+                        raise S3FileNotFoundError(key=key) from e
+                    case _:
+                        raise S3RequestError(
+                            error_code=response['Error']['Code'],
+                            error_message=response['Error']['Message'],
+                        ) from e
+            except BotoCoreError as e:
+                raise S3UnavailableError(exc_details=repr(e)) from e
 
     async def head_object(self, bucket: str, key: str) -> dict:
         async with self._client.client() as s3:
@@ -58,3 +79,7 @@ class BotoS3Provider(IS3Provider):
                         ) from e
             except BotoCoreError as e:
                 raise S3UnavailableError(exc_details=repr(e)) from e
+
+    async def delete_object(self, bucket: str, key: str) -> dict:
+        async with self._client.client() as s3:
+            return await s3.delete_object(Bucket=bucket, Key=key)

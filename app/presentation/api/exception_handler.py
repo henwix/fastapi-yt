@@ -10,7 +10,10 @@ from app.domain.auth.exceptions import (
     NotAuthenticatedError,
 )
 from app.domain.channels.exceptions import (
-    ChannelAvatarInvalidFormatError,
+    ChannelAvatarAlreadySetError,
+    ChannelAvatarInvalidFileContentTypeError,
+    ChannelAvatarInvalidFileFormatError,
+    ChannelAvatarInvalidKeyError,
     ChannelAvatarNotFoundError,
     ChannelNotActiveError,
     ChannelNotFoundByIdError,
@@ -58,7 +61,10 @@ def get_http_status_code(exc: AppException):
         # Channels
         ChannelWithEmailAlreadyExistsError: status.HTTP_400_BAD_REQUEST,
         ChannelWithSlugAlreadyExistsError: status.HTTP_400_BAD_REQUEST,
-        ChannelAvatarInvalidFormatError: status.HTTP_400_BAD_REQUEST,
+        ChannelAvatarInvalidFileFormatError: status.HTTP_400_BAD_REQUEST,
+        ChannelAvatarInvalidKeyError: status.HTTP_400_BAD_REQUEST,
+        ChannelAvatarInvalidFileContentTypeError: status.HTTP_400_BAD_REQUEST,
+        ChannelAvatarAlreadySetError: status.HTTP_400_BAD_REQUEST,
         ChannelNotFoundByIdError: status.HTTP_404_NOT_FOUND,
         ChannelNotFoundBySlugError: status.HTTP_404_NOT_FOUND,
         ChannelAvatarNotFoundError: status.HTTP_404_NOT_FOUND,

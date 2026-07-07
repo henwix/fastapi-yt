@@ -50,8 +50,10 @@ async def setup_db(postgres_url: str):
 async def container(postgres_url: str) -> AsyncGenerator[AsyncContainer]:
     class DatabaseProvider(Provider):
         @provide(scope=Scope.APP, provides=AsyncEngine)
-        def engine(self) -> AsyncEngine:
-            return create_engine(db_url=postgres_url, echo=False)
+        async def engine(self) -> AsyncGenerator[AsyncEngine]:
+            engine = create_engine(db_url=postgres_url, echo=False)
+            yield engine
+            await engine.dispose()
 
         @provide(scope=Scope.APP, provides=async_sessionmaker)
         def session_factory(self, engine: AsyncEngine) -> async_sessionmaker:

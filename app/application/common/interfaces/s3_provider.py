@@ -14,9 +14,6 @@ class IS3Provider(ABC):
     ) -> tuple[str, str]: ...
 
     @abstractmethod
-    async def get_object(self, bucket: str, key: str) -> dict: ...
-
-    @abstractmethod
     async def head_object(self, bucket: str, key: str) -> dict: ...
 
     @abstractmethod

@@ -23,7 +23,7 @@ services:
     container_name: fastapi-yt-taskiq-dev
     image: fastapi-yt-backend-dev
     pull_policy: build
-    command: taskiq worker app.infrastructure.taskiq.setup:broker app.infrastructure.taskiq.tasks
+    command: taskiq worker app.infrastructure.taskiq.setup:broker app.infrastructure.taskiq.tasks --reload --no-configure-logging
     volumes:
       - ..:/src/
     env_file:
@@ -31,5 +31,3 @@ services:
     depends_on:
       redis:
         condition: service_healthy
-      backend:
-        condition: service_started

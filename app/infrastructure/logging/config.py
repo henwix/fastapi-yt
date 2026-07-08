@@ -11,6 +11,7 @@ class JSONFormatter(logging.Formatter):
     def format(self, record: logging.LogRecord) -> str:
         log_record = {
             'timestamp': get_datetime_utc_now().isoformat(),
+            'process': record.processName,
             'level': record.levelname,
             'module': record.name,
             'line': record.lineno,
@@ -30,6 +31,7 @@ class StringFormatter(logging.Formatter):
     def format(self, record: logging.LogRecord) -> str:
         log_record = [
             f'{get_datetime_utc_now().isoformat()} | ',
+            f'{record.processName} | ',
             f'{record.levelname:<8} | ',
             f'{record.name}:{record.lineno} - ',
             record.getMessage(),

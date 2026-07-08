@@ -1,6 +1,6 @@
 from contextlib import asynccontextmanager
 
-from dishka.integrations.fastapi import setup_dishka as fastapi_setup_dishka
+from dishka.integrations.fastapi import setup_dishka
 from fastapi import FastAPI
 
 from app.core.configs import settings
@@ -14,7 +14,7 @@ from app.presentation.api.v1.router import v1_router
 
 def init_di(app: FastAPI) -> None:
     container = get_container()
-    fastapi_setup_dishka(container=container, app=app)
+    setup_dishka(container=container, app=app)
 
 
 def init_routers(app: FastAPI) -> None:

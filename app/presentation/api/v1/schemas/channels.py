@@ -5,7 +5,7 @@ from uuid import UUID
 from pydantic import BaseModel, ConfigDict, EmailStr, Field, HttpUrl, field_validator
 
 from app.domain.channels.entities import Channel
-from app.domain.common.constants import SLUG_PATTERN
+from app.domain.common.constants import FILENAME_PATTERN, SLUG_PATTERN
 from app.presentation.api.v1.schemas.base import BaseSchema, BaseUpdateSchema
 
 
@@ -77,7 +77,7 @@ class ChannelSchema(BaseSchema):
 
 
 class GenerateChannelAvatarUploadURLInSchema(BaseSchema):
-    filename: str = Field(max_length=100)
+    filename: str = Field(max_length=100, pattern=FILENAME_PATTERN, examples=['avatar_image.png'])
 
 
 class GenerateChannelAvatarUploadURLOutSchema(BaseSchema):

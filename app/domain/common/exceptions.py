@@ -17,19 +17,20 @@ class InvalidCursorError(AppException):
 @dataclass(kw_only=True)
 class S3RequestError(AppException):
     message = 'Error occured during S3 request'
-    error_code: str
-    error_message: str
+    error_code: str | None
+    error_message: str | None
+    error_status: int | None
 
 
 @dataclass(kw_only=True)
-class S3FileNotFoundError(AppException):
-    message = 'File not found in S3 storage'
+class S3ObjectNotFoundError(AppException):
+    message = 'Object not found in S3 storage'
     key: str
 
 
 @dataclass(kw_only=True)
-class S3FileAccessForbiddenError(AppException):
-    message = 'File access forbidden'
+class S3ObjectAccessForbiddenError(AppException):
+    message = 'S3 object access forbidden'
     channel_id: UUID
     key: str
 

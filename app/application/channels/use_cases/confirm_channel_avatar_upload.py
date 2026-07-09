@@ -12,7 +12,7 @@ from app.domain.channels.exceptions import (
     ChannelAvatarInvalidKeyError,
 )
 from app.domain.channels.services import IChannelService
-from app.domain.common.exceptions import S3FileAccessForbiddenError
+from app.domain.common.exceptions import S3ObjectAccessForbiddenError
 
 
 @dataclass
@@ -38,7 +38,7 @@ class ConfirmChannelAvatarUploadUseCase:
             avatar_metadata_content_type = avatar_info['ContentType']
 
             if avatar_metadata_channel_id != str(channel.id):
-                raise S3FileAccessForbiddenError(channel_id=channel.id, key=command.key)
+                raise S3ObjectAccessForbiddenError(channel_id=channel.id, key=command.key)
 
             if avatar_metadata_content_type not in ChannelAvatarFileContentTypesEnum:
                 await self.task_queue.delete_s3_object(bucket=settings.s3_public_bucket_name, key=command.key)

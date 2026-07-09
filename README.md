@@ -27,17 +27,17 @@
 - [ ] Set email endpoint
 - [ ] Set email confirm endpoint
 
-- [ ] Channel subscribers endpoint
+- [x] Channel subscribers endpoint
 
 - [ ] Get channel main page by slug endpoint
 - [ ] Get channel about info endpoint
 
 
 #### Channel avatars
-- [ ] Avatar upload url endpoint
-- [ ] Avatar upload complete url endpoint
-- [ ] Avatar delete endpoint
-- [ ] Save public channel avatar to DB
+- [x] Avatar upload url endpoint
+- [x] Avatar upload complete url endpoint
+- [x] Avatar delete endpoint
+- [x] Save public channel avatar to DB
 
 
 #### Subscriptions

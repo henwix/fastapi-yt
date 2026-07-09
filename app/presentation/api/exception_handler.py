@@ -24,8 +24,8 @@ from app.domain.channels.exceptions import (
 from app.domain.common.exceptions import (
     AppException,
     InvalidCursorError,
-    S3FileAccessForbiddenError,
-    S3FileNotFoundError,
+    S3ObjectAccessForbiddenError,
+    S3ObjectNotFoundError,
     S3RequestError,
     S3UnavailableError,
 )
@@ -54,8 +54,8 @@ def get_http_status_code(exc: AppException):
     exception_codes: dict[type[AppException], int] = {
         # Common
         InvalidCursorError: status.HTTP_400_BAD_REQUEST,
-        S3FileAccessForbiddenError: status.HTTP_403_FORBIDDEN,
-        S3FileNotFoundError: status.HTTP_404_NOT_FOUND,
+        S3ObjectAccessForbiddenError: status.HTTP_403_FORBIDDEN,
+        S3ObjectNotFoundError: status.HTTP_404_NOT_FOUND,
         S3RequestError: status.HTTP_500_INTERNAL_SERVER_ERROR,
         S3UnavailableError: status.HTTP_500_INTERNAL_SERVER_ERROR,
         # Channels

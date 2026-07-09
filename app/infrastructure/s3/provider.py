@@ -1,16 +1,14 @@
 from dataclasses import dataclass
 from uuid import uuid4
 
-from botocore.exceptions import BotoCoreError, ClientError
-
-from app.application.common.interfaces.s3_client import IS3Client
 from app.application.common.interfaces.s3_provider import IS3Provider
-from app.domain.common.exceptions import S3FileNotFoundError, S3RequestError, S3UnavailableError
+from app.domain.common.exceptions import S3ObjectNotFoundError, S3RequestError
+from app.infrastructure.s3.client import BotoS3Client
 
 
 @dataclass
 class BotoS3Provider(IS3Provider):
-    _client: IS3Client
+    _client: BotoS3Client
 
     def _generate_unique_bucket_key(self, filename: str, key_prefix: str) -> str:
         return f'{key_prefix}/{uuid4().hex[:10]}_{filename}'
@@ -43,23 +41,16 @@ class BotoS3Provider(IS3Provider):
         return url, key
 
     async def head_object(self, bucket: str, key: str) -> dict:
-        async with self._client.client() as s3:
-            try:
+        try:
+            async with self._client.client() as s3:
                 return await s3.head_object(Bucket=bucket, Key=key)
-            except ClientError as e:
-                response = e.response
-                status = response['ResponseMetadata']['HTTPStatusCode']
-
-                match status:
-                    case 404:
-                        raise S3FileNotFoundError(key=key) from e
-                    case _:
-                        raise S3RequestError(
-                            error_code=response['Error']['Code'],
-                            error_message=response['Error']['Message'],
-                        ) from e
-            except BotoCoreError as e:
-                raise S3UnavailableError(exc_details=repr(e)) from e
+        except S3RequestError as e:
+            status = e.error_status
+            match status:
+                case 404:
+                    raise S3ObjectNotFoundError(key=key) from e
+                case _:
+                    raise
 
     async def delete_object(self, bucket: str, key: str) -> dict:
         async with self._client.client() as s3:

@@ -1,7 +1,6 @@
 from collections.abc import AsyncGenerator
 from functools import lru_cache
 
-from aioboto3 import Session
 from dishka import AsyncContainer, Provider, Scope, make_async_container, provide
 from sqlalchemy.ext.asyncio import AsyncEngine, AsyncSession, async_sessionmaker
 
@@ -16,7 +15,6 @@ from app.application.channels.use_cases.set_password import SetChannelPasswordUs
 from app.application.channels.use_cases.update_channel import UpdateChannelUseCase
 from app.application.common.interfaces.jwt import IJWTService
 from app.application.common.interfaces.password_hasher import IPasswordHasher
-from app.application.common.interfaces.s3_client import IS3Client
 from app.application.common.interfaces.s3_provider import IS3Provider
 from app.application.common.interfaces.task_queue import ITaskQueue
 from app.application.common.interfaces.transaction_manager import ITransactionManager
@@ -76,14 +74,10 @@ from app.infrastructure.taskiq.task_queue import TaskiqTaskQueue
 
 
 class AppProvider(Provider):
-    @provide(scope=Scope.APP, provides=Session)
-    def provide_boto_session(self) -> Session:
-        return Session()
-
     transaction_manager = provide(SATransactionManager, scope=Scope.REQUEST, provides=ITransactionManager)
     password_hasher = provide(PwdlibPasswordHasher, scope=Scope.APP, provides=IPasswordHasher)
     jwt_service = provide(JWTService, scope=Scope.APP, provides=IJWTService)
-    s3_client = provide(BotoS3Client, scope=Scope.APP, provides=IS3Client)
+    s3_client = provide(BotoS3Client, scope=Scope.APP)
     s3_provider = provide(BotoS3Provider, scope=Scope.REQUEST, provides=IS3Provider)
     task_queue = provide(TaskiqTaskQueue, scope=Scope.REQUEST, provides=ITaskQueue)
 

@@ -32,8 +32,8 @@ from app.domain.channels.exceptions import (
     ChannelWithSlugAlreadyExistsError,
 )
 from app.domain.common.exceptions import (
-    S3FileAccessForbiddenError,
-    S3FileNotFoundError,
+    S3ObjectAccessForbiddenError,
+    S3ObjectNotFoundError,
     S3RequestError,
     S3UnavailableError,
 )
@@ -168,6 +168,11 @@ async def set_password(
     description='Pass the channel_id in the "x-amz-meta-channel_id" Header to upload the file using upload_url',
     responses={
         status.HTTP_400_BAD_REQUEST: error_response(ChannelAvatarInvalidFileFormatError),
+        status.HTTP_401_UNAUTHORIZED: error_response(
+            NotAuthenticatedError,
+            JWTExpiredTokenError,
+            JWTInvalidTokenError,
+        ),
         status.HTTP_403_FORBIDDEN: error_response(ChannelNotActiveError),
         status.HTTP_404_NOT_FOUND: error_response(ChannelNotFoundByIdError),
     },
@@ -199,8 +204,13 @@ async def generate_avatar_upload_url(
             ChannelAvatarAlreadySetError,
             ChannelAvatarInvalidFileContentTypeError,
         ),
-        status.HTTP_403_FORBIDDEN: error_response(ChannelNotActiveError, S3FileAccessForbiddenError),
-        status.HTTP_404_NOT_FOUND: error_response(ChannelNotFoundByIdError, S3FileNotFoundError),
+        status.HTTP_401_UNAUTHORIZED: error_response(
+            NotAuthenticatedError,
+            JWTExpiredTokenError,
+            JWTInvalidTokenError,
+        ),
+        status.HTTP_403_FORBIDDEN: error_response(ChannelNotActiveError, S3ObjectAccessForbiddenError),
+        status.HTTP_404_NOT_FOUND: error_response(ChannelNotFoundByIdError, S3ObjectNotFoundError),
         status.HTTP_500_INTERNAL_SERVER_ERROR: error_response(S3RequestError, S3UnavailableError),
     },
 )
@@ -217,6 +227,11 @@ async def avatar_upload_confirm(
     '/avatar_delete',
     status_code=status.HTTP_204_NO_CONTENT,
     responses={
+        status.HTTP_401_UNAUTHORIZED: error_response(
+            NotAuthenticatedError,
+            JWTExpiredTokenError,
+            JWTInvalidTokenError,
+        ),
         status.HTTP_403_FORBIDDEN: error_response(ChannelNotActiveError),
         status.HTTP_404_NOT_FOUND: error_response(ChannelNotFoundByIdError, ChannelAvatarNotFoundError),
     },

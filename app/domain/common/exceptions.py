@@ -24,8 +24,24 @@ class S3RequestError(AppException):
 
 @dataclass(kw_only=True)
 class S3ObjectNotFoundError(AppException):
-    message = 'Object not found in S3 storage'
+    message = 'Object not found in S3'
     key: str
+
+
+@dataclass(kw_only=True)
+class S3MultipartUploadNotFoundError(AppException):
+    message = 'Multipart upload not found in S3'
+    bucket: str
+    key: str
+    upload_id: str
+
+
+@dataclass(kw_only=True)
+class S3MultipartUploadInvalidPartsError(AppException):
+    message = 'Multipart upload invalid parts'
+    bucket: str
+    key: str
+    upload_id: str
 
 
 @dataclass(kw_only=True)
@@ -37,5 +53,5 @@ class S3ObjectAccessForbiddenError(AppException):
 
 @dataclass(kw_only=True)
 class S3UnavailableError(AppException):
-    message = 'S3 storage unavailable'
+    message = 'S3 unavailable'
     exc_details: str

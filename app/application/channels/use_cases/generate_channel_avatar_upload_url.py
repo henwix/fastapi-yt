@@ -10,19 +10,19 @@ from app.domain.channels.services import IChannelService
 
 @dataclass
 class GenerateChannelAvatarUploadURLUseCase:
-    channel_service: IChannelService
-    transaction_manager: ITransactionManager
-    s3_provider: IS3Provider
+    _channel_service: IChannelService
+    _transaction_manager: ITransactionManager
+    _s3_provider: IS3Provider
 
     async def execute(self, command: GenerateChannelAvatarUploadURLCommand) -> tuple[str, str, UUID]:
-        content_type = self.channel_service.validate_channel_avatar_file_format_and_get_content_type(
+        content_type = self._channel_service.validate_channel_avatar_file_format_and_get_content_type(
             value=command.filename
         )
 
-        async with self.transaction_manager:
-            channel = await self.channel_service.try_get_active_by_id(id=command.current_channel_id)
+        async with self._transaction_manager:
+            channel = await self._channel_service.try_get_active_by_id(id=command.current_channel_id)
 
-        url, key = await self.s3_provider.generate_upload_url(
+        url, key = await self._s3_provider.generate_upload_url(
             bucket=settings.s3_public_bucket_name,
             filename=command.filename,
             content_type=content_type,

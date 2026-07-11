@@ -22,7 +22,7 @@ from app.domain.common.exceptions import InvalidCursorError
 from app.domain.subscriptions.exceptions import SubscriptionAlreadyExistsError, SubscriptionNotFoundError
 from app.presentation.api.openapi.common import error_response
 from app.presentation.api.v1.di.current_channel_id import CurrentChannelID
-from app.presentation.api.v1.schemas.base import CursorPaginationParams
+from app.presentation.api.v1.schemas.common import CursorPaginationParams
 from app.presentation.api.v1.schemas.subscriptions import (
     DetailedSubscriptionSchema,
     SubscriptionSchema,

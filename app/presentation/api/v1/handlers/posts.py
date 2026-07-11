@@ -19,7 +19,7 @@ from app.domain.common.constants import SLUG_PATTERN
 from app.domain.posts.exceptions import PostAccessForbiddenError, PostNotFoundByIdError
 from app.presentation.api.openapi.common import error_response
 from app.presentation.api.v1.di.current_channel_id import CurrentChannelID
-from app.presentation.api.v1.schemas.base import CursorPaginationParams
+from app.presentation.api.v1.schemas.common import CursorPaginationParams
 from app.presentation.api.v1.schemas.posts import (
     CreatePostSchema,
     DetailedPostSchema,

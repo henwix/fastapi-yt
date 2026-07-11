@@ -1,6 +1,6 @@
 from typing import Self
 
-from pydantic import BaseModel, ConfigDict, Field, HttpUrl, model_validator
+from pydantic import BaseModel, ConfigDict, HttpUrl, model_validator
 
 
 class BaseSchema(BaseModel):
@@ -21,8 +21,3 @@ class BaseUpdateSchema(BaseSchema):
 class BaseCursorResponse(BaseSchema):
     next_page: HttpUrl | None
     results: list[BaseModel]
-
-
-class CursorPaginationParams(BaseSchema):
-    cursor: str | None = None
-    per_page: int = Field(default=25, ge=1, le=100)

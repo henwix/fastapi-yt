@@ -23,7 +23,7 @@ from app.domain.post_comments.exceptions import PostCommentAccessForbiddenError,
 from app.domain.posts.exceptions import PostNotFoundByIdError
 from app.presentation.api.openapi.common import error_response
 from app.presentation.api.v1.di.current_channel_id import CurrentChannelID
-from app.presentation.api.v1.schemas.base import CursorPaginationParams
+from app.presentation.api.v1.schemas.common import CursorPaginationParams
 from app.presentation.api.v1.schemas.post_comments import (
     CreatePostCommentSchema,
     DetailedPostCommentSchema,

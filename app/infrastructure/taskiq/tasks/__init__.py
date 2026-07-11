@@ -1,1 +1,1 @@
-from .delete_s3_file import delete_s3_object_task  # noqa
+from .s3 import s3_delete_object_task, s3_abort_multipart_upload  # noqa

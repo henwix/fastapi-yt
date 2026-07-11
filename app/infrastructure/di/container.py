@@ -43,6 +43,10 @@ from app.application.subscriptions.use_cases.get_subscribers import GetSubscribe
 from app.application.subscriptions.use_cases.get_subscriptions import GetSubscriptionsUseCase
 from app.application.subscriptions.use_cases.subscribe import SubscribeUseCase
 from app.application.subscriptions.use_cases.unsubscribe import UnsubscribeUseCase
+from app.application.videos.use_cases.abort_video_multipart_upload import AbortVideoMultipartUploadUseCase
+from app.application.videos.use_cases.complete_video_multipart_upload import CompleteVideoMultipartUploadUseCase
+from app.application.videos.use_cases.create_video_multipart_upload import CreateVideoMultipartUploadUseCase
+from app.application.videos.use_cases.generate_video_part_upload_url import GenerateVideoPartUploadUrlUseCase
 from app.domain.channels.repositories import IChannelRepository
 from app.domain.channels.services import ChannelService, IChannelService
 from app.domain.post_comment_reactions.repositories import IPostCommentReactionRepository
@@ -55,6 +59,8 @@ from app.domain.posts.repositories import IPostRepository
 from app.domain.posts.services import IPostService, PostService
 from app.domain.subscriptions.repositories import ISubscriptionRepository
 from app.domain.subscriptions.services import ISubscriptionService, SubscriptionService
+from app.domain.videos.repositories import IVideoRepository
+from app.domain.videos.services import IVideoService, VideoService
 from app.infrastructure.s3.client import BotoS3Client
 from app.infrastructure.s3.provider import BotoS3Provider
 from app.infrastructure.security.jwt import JWTService
@@ -69,6 +75,7 @@ from app.infrastructure.sqlalchemy.repositories.post_comments import SAPostComme
 from app.infrastructure.sqlalchemy.repositories.post_reactions import SAPostReactionRepository
 from app.infrastructure.sqlalchemy.repositories.posts import SAPostRepository
 from app.infrastructure.sqlalchemy.repositories.subscriptions import SASubscriptionRepository
+from app.infrastructure.sqlalchemy.repositories.videos import SAVideoRepository
 from app.infrastructure.sqlalchemy.transaction_manager import SATransactionManager
 from app.infrastructure.taskiq.task_queue import TaskiqTaskQueue
 
@@ -103,57 +110,32 @@ class DatabaseProvider(Provider):
 class RepositoriesProvider(Provider):
     scope = Scope.REQUEST
 
-    # Channels
     channel_repository = provide(SAChannelRepository, provides=IChannelRepository)
-
-    # Posts
+    video_repository = provide(SAVideoRepository, provides=IVideoRepository)
     post_repository = provide(SAPostRepository, provides=IPostRepository)
-
-    # Post reactions
     post_reaction_repository = provide(SAPostReactionRepository, provides=IPostReactionRepository)
-
-    # Post comments
     post_comment_repository = provide(SAPostCommentRepository, provides=IPostCommentRepository)
-
-    # Post comment reactions
     post_comment_reaction_repository = provide(SAPostCommentReactionRepository, provides=IPostCommentReactionRepository)
-
-    # Subscriptions
     subscription_repository = provide(SASubscriptionRepository, provides=ISubscriptionRepository)
 
 
 class ReadersProvider(Provider):
     scope = Scope.REQUEST
 
-    # Posts
     post_reader = provide(SAPostReader, provides=IPostReader)
-
-    # Post comments
     post_comment_reader = provide(SAPostCommentReader, provides=IPostCommentReader)
-
-    # Subscriptions
     subscription_reader = provide(SASubscriptionReader, provides=ISubscriptionReader)
 
 
 class ServicesProvider(Provider):
     scope = Scope.REQUEST
 
-    # Channels
     channel_service = provide(ChannelService, provides=IChannelService)
-
-    # Posts
+    video_service = provide(VideoService, provides=IVideoService)
     post_service = provide(PostService, provides=IPostService)
-
-    # Post reactions
     post_reaction_service = provide(PostReactionService, provides=IPostReactionService)
-
-    # Post comments
     post_comment_service = provide(PostCommentService, provides=IPostCommentService)
-
-    # Post comment reactions
     post_comment_reaction_service = provide(PostCommentReactionService, provides=IPostCommentReactionService)
-
-    # Subscriptions
     subscription_service = provide(SubscriptionService, provides=ISubscriptionService)
 
 
@@ -172,6 +154,12 @@ class UseCasesProvider(Provider):
 
     # Auth
     login = provide(LoginUseCase)
+
+    # Videos
+    create_video_multipart_upload = provide(CreateVideoMultipartUploadUseCase)
+    abort_video_multipart_upload = provide(AbortVideoMultipartUploadUseCase)
+    generate_video_part_upload_url = provide(GenerateVideoPartUploadUrlUseCase)
+    complete_video_multipart_upload = provide(CompleteVideoMultipartUploadUseCase)
 
     # Posts
     create_post = provide(CreatePostUseCase)

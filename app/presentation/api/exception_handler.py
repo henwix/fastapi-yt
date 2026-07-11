@@ -24,6 +24,8 @@ from app.domain.channels.exceptions import (
 from app.domain.common.exceptions import (
     AppException,
     InvalidCursorError,
+    S3MultipartUploadInvalidPartsError,
+    S3MultipartUploadNotFoundError,
     S3ObjectAccessForbiddenError,
     S3ObjectNotFoundError,
     S3RequestError,
@@ -45,6 +47,14 @@ from app.domain.subscriptions.exceptions import (
     SubscriptionAlreadyExistsError,
     SubscriptionNotFoundError,
 )
+from app.domain.videos.exceptions import (
+    VideoAccessForbiddenError,
+    VideoInvalidFileFormatError,
+    VideoInvalidKeyError,
+    VideoNotFoundByIdError,
+    VideoNotFoundByUploadIdAndS3KeyError,
+    VideoUploadAlreadyCompletedError,
+)
 from app.presentation.api.responses.msgspec import MsgSpecJSONResponse
 
 logger = getLogger(__name__)
@@ -56,6 +66,8 @@ def get_http_status_code(exc: AppException):
         InvalidCursorError: status.HTTP_400_BAD_REQUEST,
         S3ObjectAccessForbiddenError: status.HTTP_403_FORBIDDEN,
         S3ObjectNotFoundError: status.HTTP_404_NOT_FOUND,
+        S3MultipartUploadNotFoundError: status.HTTP_404_NOT_FOUND,
+        S3MultipartUploadInvalidPartsError: status.HTTP_400_BAD_REQUEST,
         S3RequestError: status.HTTP_500_INTERNAL_SERVER_ERROR,
         S3UnavailableError: status.HTTP_500_INTERNAL_SERVER_ERROR,
         # Channels
@@ -74,6 +86,13 @@ def get_http_status_code(exc: AppException):
         JWTInvalidTokenError: status.HTTP_401_UNAUTHORIZED,
         JWTExpiredTokenError: status.HTTP_401_UNAUTHORIZED,
         NotAuthenticatedError: status.HTTP_401_UNAUTHORIZED,
+        # Videos
+        VideoInvalidFileFormatError: status.HTTP_400_BAD_REQUEST,
+        VideoInvalidKeyError: status.HTTP_400_BAD_REQUEST,
+        VideoUploadAlreadyCompletedError: status.HTTP_400_BAD_REQUEST,
+        VideoAccessForbiddenError: status.HTTP_403_FORBIDDEN,
+        VideoNotFoundByUploadIdAndS3KeyError: status.HTTP_404_NOT_FOUND,
+        VideoNotFoundByIdError: status.HTTP_404_NOT_FOUND,
         # Posts
         PostAccessForbiddenError: status.HTTP_403_FORBIDDEN,
         PostNotFoundByIdError: status.HTTP_404_NOT_FOUND,

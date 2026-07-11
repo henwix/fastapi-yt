@@ -14,9 +14,9 @@ from app.utils.base64url import base64url_decode, base64url_encode
 
 @dataclass
 class GetSubscriptionsUseCase:
-    channel_service: IChannelService
-    subscription_reader: ISubscriptionReader
-    transaction_manager: ITransactionManager
+    _channel_service: IChannelService
+    _subscription_reader: ISubscriptionReader
+    _transaction_manager: ITransactionManager
 
     async def execute(self, query: GetSubscriptionsQuery) -> tuple[list[DetailedSubscriptionDTO], str | None]:
         cursor_sort_value = None
@@ -37,9 +37,9 @@ class GetSubscriptionsUseCase:
             except Exception as e:
                 raise InvalidCursorError(cursor=query.pagination.cursor, exc_details=str(e)) from e
 
-        async with self.transaction_manager:
-            channel = await self.channel_service.try_get_active_by_id(id=query.current_channel_id)
-            subscriptions = await self.subscription_reader.get_subscriptions_by_id(
+        async with self._transaction_manager:
+            channel = await self._channel_service.try_get_active_by_id(id=query.current_channel_id)
+            subscriptions = await self._subscription_reader.get_subscriptions_by_id(
                 subscriber_id=channel.id,
                 cursor_sort_value=cursor_sort_value,
                 cursor_id_value=cursor_id_value,

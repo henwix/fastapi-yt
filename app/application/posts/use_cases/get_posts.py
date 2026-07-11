@@ -14,9 +14,9 @@ from app.utils.base64url import base64url_decode, base64url_encode
 
 @dataclass
 class GetPostsUseCase:
-    channel_service: IChannelService
-    post_reader: IPostReader
-    transaction_manager: ITransactionManager
+    _channel_service: IChannelService
+    _post_reader: IPostReader
+    _transaction_manager: ITransactionManager
 
     async def execute(self, query: GetPostsQuery) -> tuple[list[DetailedPostDTO], str | None]:
         cursor_sort_value = None
@@ -37,9 +37,9 @@ class GetPostsUseCase:
             except Exception as e:
                 raise InvalidCursorError(cursor=query.pagination.cursor, exc_details=str(e)) from e
 
-        async with self.transaction_manager:
-            channel = await self.channel_service.try_get_by_slug(slug=query.channel_slug)
-            posts = await self.post_reader.get_many(
+        async with self._transaction_manager:
+            channel = await self._channel_service.try_get_by_slug(slug=query.channel_slug)
+            posts = await self._post_reader.get_many(
                 channel_id=channel.id,
                 cursor_sort_value=cursor_sort_value,
                 cursor_id_value=cursor_id_value,

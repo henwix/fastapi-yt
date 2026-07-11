@@ -8,9 +8,9 @@ from app.domain.posts.services import IPostService
 
 @dataclass
 class GetPostUseCase:
-    post_service: IPostService
-    transaction_manager: ITransactionManager
+    _post_service: IPostService
+    _transaction_manager: ITransactionManager
 
     async def execute(self, query: GetPostQuery) -> Post:
-        async with self.transaction_manager:
-            return await self.post_service.try_get_by_id(id=query.post_id)
+        async with self._transaction_manager:
+            return await self._post_service.try_get_by_id(id=query.post_id)

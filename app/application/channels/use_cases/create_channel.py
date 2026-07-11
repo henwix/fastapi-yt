@@ -9,22 +9,22 @@ from app.domain.channels.services import IChannelService
 
 @dataclass
 class CreateChannelUseCase:
-    password_hasher: IPasswordHasher
-    channel_service: IChannelService
-    transaction_manager: ITransactionManager
+    _password_hasher: IPasswordHasher
+    _channel_service: IChannelService
+    _transaction_manager: ITransactionManager
 
     async def execute(self, command: CreateChannelCommand) -> Channel:
-        async with self.transaction_manager:
-            await self.channel_service.check_email_exists(email=command.email)
-            await self.channel_service.check_slug_exists(slug=command.slug)
+        async with self._transaction_manager:
+            await self._channel_service.check_email_exists(email=command.email)
+            await self._channel_service.check_slug_exists(slug=command.slug)
 
             channel_entity = Channel.create(
                 email=command.email,
                 name=command.name,
                 slug=command.slug,
-                password_hash=self.password_hasher.get_password_hash(password=command.password),
+                password_hash=self._password_hasher.get_password_hash(password=command.password),
                 description=command.description,
                 country=command.country,
             )
-            created_channel = await self.channel_service.create(channel=channel_entity)
+            created_channel = await self._channel_service.create(channel=channel_entity)
         return created_channel

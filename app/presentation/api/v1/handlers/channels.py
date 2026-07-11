@@ -175,6 +175,7 @@ async def set_password(
         ),
         status.HTTP_403_FORBIDDEN: error_response(ChannelNotActiveError),
         status.HTTP_404_NOT_FOUND: error_response(ChannelNotFoundByIdError),
+        status.HTTP_500_INTERNAL_SERVER_ERROR: error_response(S3RequestError, S3UnavailableError),
     },
 )
 async def generate_avatar_upload_url(
@@ -234,6 +235,7 @@ async def avatar_upload_confirm(
         ),
         status.HTTP_403_FORBIDDEN: error_response(ChannelNotActiveError),
         status.HTTP_404_NOT_FOUND: error_response(ChannelNotFoundByIdError, ChannelAvatarNotFoundError),
+        status.HTTP_500_INTERNAL_SERVER_ERROR: error_response(S3RequestError, S3UnavailableError),
     },
 )
 async def delete_avatar(

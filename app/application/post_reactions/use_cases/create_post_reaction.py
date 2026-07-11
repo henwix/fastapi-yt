@@ -10,16 +10,16 @@ from app.domain.posts.services import IPostService
 
 @dataclass
 class CreatePostReactionUseCase:
-    channel_service: IChannelService
-    post_service: IPostService
-    post_reaction_service: IPostReactionService
-    transaction_manager: ITransactionManager
+    _channel_service: IChannelService
+    _post_service: IPostService
+    _post_reaction_service: IPostReactionService
+    _transaction_manager: ITransactionManager
 
     async def execute(self, command: CreatePostReactionCommand) -> tuple[PostReaction, bool]:
-        async with self.transaction_manager:
-            channel = await self.channel_service.try_get_active_by_id(id=command.current_channel_id)
-            post = await self.post_service.try_get_by_id(id=command.post_id)
-            post_reaction = await self.post_reaction_service.get_by_post_id_and_channel_id(
+        async with self._transaction_manager:
+            channel = await self._channel_service.try_get_active_by_id(id=command.current_channel_id)
+            post = await self._post_service.try_get_by_id(id=command.post_id)
+            post_reaction = await self._post_reaction_service.get_by_post_id_and_channel_id(
                 post_id=post.id,
                 channel_id=channel.id,
             )
@@ -27,7 +27,7 @@ class CreatePostReactionUseCase:
             if post_reaction is not None:
                 if post_reaction.reaction_type != command.reaction_type:
                     post_reaction.set_reaction_type(reaction_type=command.reaction_type)
-                    post_reaction = await self.post_reaction_service.try_update(post_reaction=post_reaction)
+                    post_reaction = await self._post_reaction_service.try_update(post_reaction=post_reaction)
                 return post_reaction, False
 
             post_reaction_entity = PostReaction.create(
@@ -35,5 +35,5 @@ class CreatePostReactionUseCase:
                 channel_id=command.current_channel_id,
                 reaction_type=command.reaction_type,
             )
-            new_post_reaction = await self.post_reaction_service.create(post_reaction=post_reaction_entity)
+            new_post_reaction = await self._post_reaction_service.create(post_reaction=post_reaction_entity)
             return new_post_reaction, True

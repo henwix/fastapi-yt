@@ -14,9 +14,9 @@ from app.utils.base64url import base64url_decode, base64url_encode
 
 @dataclass
 class GetPostCommentRepliesUseCase:
-    post_comment_service: IPostCommentService
-    post_comment_reader: IPostCommentReader
-    transaction_manager: ITransactionManager
+    _post_comment_service: IPostCommentService
+    _post_comment_reader: IPostCommentReader
+    _transaction_manager: ITransactionManager
 
     async def execute(self, query: GetPostCommentRepliesQuery) -> tuple[list[DetailedPostCommentDTO], str | None]:
         cursor_sort_value = None
@@ -37,9 +37,9 @@ class GetPostCommentRepliesUseCase:
             except Exception as e:
                 raise InvalidCursorError(cursor=query.pagination.cursor, exc_details=str(e)) from e
 
-        async with self.transaction_manager:
-            post_comment = await self.post_comment_service.try_get_by_id(id=query.post_comment_id)
-            replies = await self.post_comment_reader.get_replies(
+        async with self._transaction_manager:
+            post_comment = await self._post_comment_service.try_get_by_id(id=query.post_comment_id)
+            replies = await self._post_comment_reader.get_replies(
                 post_comment_id=post_comment.id,
                 cursor_sort_value=cursor_sort_value,
                 cursor_id_value=cursor_id_value,

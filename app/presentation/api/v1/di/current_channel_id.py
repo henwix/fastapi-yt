@@ -15,7 +15,7 @@ bearer_schema = HTTPBearer()
 async def get_current_channel_id(
     credentials: Annotated[HTTPAuthorizationCredentials, Depends(bearer_schema)],
     jwt_service: FromDishka[IJWTService],
-) -> int:
+) -> UUID:
     token = credentials.credentials
     token_payload = jwt_service.decode_access_token(token=token)
     return token_payload['sub']

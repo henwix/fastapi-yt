@@ -9,16 +9,16 @@ from app.domain.posts.services import IPostService
 
 @dataclass
 class DeletePostReactionUseCase:
-    channel_service: IChannelService
-    post_service: IPostService
-    post_reaction_service: IPostReactionService
-    transaction_manager: ITransactionManager
+    _channel_service: IChannelService
+    _post_service: IPostService
+    _post_reaction_service: IPostReactionService
+    _transaction_manager: ITransactionManager
 
     async def execute(self, command: DeletePostReactionCommand) -> None:
-        async with self.transaction_manager:
-            channel = await self.channel_service.try_get_active_by_id(id=command.current_channel_id)
-            post = await self.post_service.try_get_by_id(id=command.post_id)
-            await self.post_reaction_service.try_delete_by_post_id_and_channel_id(
+        async with self._transaction_manager:
+            channel = await self._channel_service.try_get_active_by_id(id=command.current_channel_id)
+            post = await self._post_service.try_get_by_id(id=command.post_id)
+            await self._post_reaction_service.try_delete_by_post_id_and_channel_id(
                 post_id=post.id,
                 channel_id=channel.id,
             )

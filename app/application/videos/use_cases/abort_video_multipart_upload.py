@@ -28,9 +28,9 @@ class AbortVideoMultipartUploadUseCase:
             )
             self._video_service.ensure_video_access(video=video, channel=channel)
             self._video_service.ensure_video_upload_not_completed(video=video)
+            await self._video_service.try_delete_by_id(id=video.id)
             await self._task_queue.abort_multipart_upload(
                 bucket=settings.s3_private_bucket_name,
                 key=command.key,
                 upload_id=command.upload_id,
             )
-            await self._video_service.try_delete_by_id(id=video.id)

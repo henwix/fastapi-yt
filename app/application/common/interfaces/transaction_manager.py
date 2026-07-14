@@ -10,6 +10,9 @@ class ITransactionManager(ABC):
     async def rollback(self) -> None: ...
 
     @abstractmethod
+    async def close(self) -> None: ...
+
+    @abstractmethod
     async def __aenter__(self) -> Self: ...
 
     @abstractmethod

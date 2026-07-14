@@ -16,6 +16,9 @@ class SATransactionManager(ITransactionManager):
     async def rollback(self) -> None:
         await self._session.rollback()
 
+    async def close(self) -> None:
+        await self._session.close()
+
     async def __aenter__(self) -> Self:
         return self
 

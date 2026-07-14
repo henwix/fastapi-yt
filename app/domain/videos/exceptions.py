@@ -39,4 +39,4 @@ class VideoInvalidKeyError(AppException):
 class VideoAccessForbiddenError(AppException):
     message = 'Video access forbidden'
     video_id: str
-    channel_id: UUID
+    channel_id: UUID | None = None

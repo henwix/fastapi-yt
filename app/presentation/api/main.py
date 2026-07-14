@@ -2,6 +2,7 @@ from contextlib import asynccontextmanager
 
 from dishka.integrations.fastapi import setup_dishka
 from fastapi import FastAPI
+from fastapi.middleware.cors import CORSMiddleware
 
 from app.core.configs import settings
 from app.domain.common.exceptions import AppException
@@ -19,6 +20,16 @@ def init_di(app: FastAPI) -> None:
 
 def init_routers(app: FastAPI) -> None:
     app.include_router(router=v1_router, prefix='/v1')
+
+
+def init_middlewares(app: FastAPI) -> None:
+    app.add_middleware(
+        CORSMiddleware,
+        allow_origins=settings.cors_allowed_origins,
+        allow_credentials=True,
+        allow_methods=['*'],
+        allow_headers=['*'],
+    )
 
 
 @asynccontextmanager
@@ -42,5 +53,6 @@ def create_app() -> FastAPI:
 
     init_di(app=app)
     init_routers(app=app)
+    init_middlewares(app=app)
 
     return app

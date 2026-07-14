@@ -1,17 +1,25 @@
+from typing import Annotated
+
 from dishka import FromDishka
 from dishka.integrations.fastapi import DishkaRoute
-from fastapi import APIRouter, status
+from fastapi import APIRouter, Path, status
 
 from app.application.videos.commands import (
     AbortVideoMultipartUploadCommand,
     CompleteVideoMultipartUploadCommand,
     CreateVideoMultipartUploadCommand,
+    DeleteVideoCommand,
+    GenerateVideoDownloadUrlCommand,
     GenerateVideoPartUploadUrlCommand,
+    GetVideoCommand,
 )
 from app.application.videos.use_cases.abort_video_multipart_upload import AbortVideoMultipartUploadUseCase
 from app.application.videos.use_cases.complete_video_multipart_upload import CompleteVideoMultipartUploadUseCase
 from app.application.videos.use_cases.create_video_multipart_upload import CreateVideoMultipartUploadUseCase
+from app.application.videos.use_cases.delete_video import DeleteVideoUseCase
+from app.application.videos.use_cases.generate_video_download_url import GenerateVideoDownloadUrlUseCase
 from app.application.videos.use_cases.generate_video_part_upload_url import GenerateVideoPartUploadUrlUseCase
+from app.application.videos.use_cases.get_video import GetVideoUseCase
 from app.domain.auth.exceptions import JWTExpiredTokenError, JWTInvalidTokenError, NotAuthenticatedError
 from app.domain.channels.exceptions import ChannelNotActiveError, ChannelNotFoundByIdError
 from app.domain.common.exceptions import (
@@ -20,6 +28,7 @@ from app.domain.common.exceptions import (
     S3RequestError,
     S3UnavailableError,
 )
+from app.domain.videos.constants import VIDEO_ID_PATTERN
 from app.domain.videos.exceptions import (
     VideoAccessForbiddenError,
     VideoInvalidFileFormatError,
@@ -29,12 +38,14 @@ from app.domain.videos.exceptions import (
     VideoUploadAlreadyCompletedError,
 )
 from app.presentation.api.openapi.common import error_response
-from app.presentation.api.v1.di.current_channel_id import CurrentChannelID
+from app.presentation.api.v1.di.current_channel_id import CurrentChannelID, OptionalCurrentChannelID
 from app.presentation.api.v1.schemas.common import CompleteMultipartUploadSchema
 from app.presentation.api.v1.schemas.videos import (
-    AbortVideoMultipartUploadSchema,
+    AbortVideoMultipartUploadInSchema,
     CreateVideoMultipartUploadInSchema,
     CreateVideoMultipartUploadOutSchema,
+    DetailedVideoSchema,
+    GenerateVideoDownloadUrlOutSchema,
     GenerateVideoPartUploadUrlInSchema,
     GenerateVideoPartUploadUrlOutSchema,
 )
@@ -44,6 +55,8 @@ router = APIRouter(
     tags=['Videos'],
     route_class=DishkaRoute,
 )
+
+PathVideoId = Annotated[str, Path(pattern=VIDEO_ID_PATTERN)]
 
 
 @router.post(
@@ -181,7 +194,7 @@ async def complete_multipart_upload(
 )
 async def abort_multipart_upload(
     current_channel_id: CurrentChannelID,
-    schema: AbortVideoMultipartUploadSchema,
+    schema: AbortVideoMultipartUploadInSchema,
     use_case: FromDishka[AbortVideoMultipartUploadUseCase],
 ) -> None:
     command = AbortVideoMultipartUploadCommand(
@@ -189,3 +202,87 @@ async def abort_multipart_upload(
         **schema.model_dump(),
     )
     await use_case.execute(command=command)
+
+
+@router.get(
+    path='/{video_id}/download_url',
+    responses={
+        status.HTTP_401_UNAUTHORIZED: error_response(
+            NotAuthenticatedError,
+            JWTExpiredTokenError,
+            JWTInvalidTokenError,
+        ),
+        status.HTTP_403_FORBIDDEN: error_response(
+            ChannelNotActiveError,
+            VideoAccessForbiddenError,
+        ),
+        status.HTTP_404_NOT_FOUND: error_response(
+            ChannelNotFoundByIdError,
+            VideoNotFoundByIdError,
+        ),
+    },
+)
+async def generate_download_url(
+    current_channel_id: OptionalCurrentChannelID,
+    video_id: PathVideoId,
+    use_case: FromDishka[GenerateVideoDownloadUrlUseCase],
+) -> GenerateVideoDownloadUrlOutSchema:
+    command = GenerateVideoDownloadUrlCommand(current_channel_id=current_channel_id, video_id=video_id)
+    download_url = await use_case.execute(command=command)
+    return GenerateVideoDownloadUrlOutSchema(download_url=download_url)
+
+
+@router.delete(
+    path='/{video_id}',
+    status_code=status.HTTP_204_NO_CONTENT,
+    responses={
+        status.HTTP_401_UNAUTHORIZED: error_response(
+            NotAuthenticatedError,
+            JWTExpiredTokenError,
+            JWTInvalidTokenError,
+        ),
+        status.HTTP_403_FORBIDDEN: error_response(
+            ChannelNotActiveError,
+            VideoAccessForbiddenError,
+        ),
+        status.HTTP_404_NOT_FOUND: error_response(
+            ChannelNotFoundByIdError,
+            VideoNotFoundByIdError,
+        ),
+    },
+)
+async def delete_video(
+    current_channel_id: CurrentChannelID,
+    video_id: PathVideoId,
+    use_case: FromDishka[DeleteVideoUseCase],
+) -> None:
+    command = DeleteVideoCommand(current_channel_id=current_channel_id, video_id=video_id)
+    await use_case.execute(command=command)
+
+
+@router.get(
+    path='/{video_id}',
+    responses={
+        status.HTTP_401_UNAUTHORIZED: error_response(
+            NotAuthenticatedError,
+            JWTExpiredTokenError,
+            JWTInvalidTokenError,
+        ),
+        status.HTTP_403_FORBIDDEN: error_response(
+            ChannelNotActiveError,
+            VideoAccessForbiddenError,
+        ),
+        status.HTTP_404_NOT_FOUND: error_response(
+            ChannelNotFoundByIdError,
+            VideoNotFoundByIdError,
+        ),
+    },
+)
+async def get_video(
+    current_channel_id: OptionalCurrentChannelID,
+    video_id: PathVideoId,
+    use_case: FromDishka[GetVideoUseCase],
+) -> DetailedVideoSchema:
+    command = GetVideoCommand(current_channel_id=current_channel_id, video_id=video_id)
+    video = await use_case.execute(command=command)
+    return DetailedVideoSchema.from_dto(dto=video)

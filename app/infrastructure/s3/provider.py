@@ -123,6 +123,14 @@ class BotoS3Provider(IS3Provider):
                 ExpiresIn=expires_in,
             )
 
+    async def generate_download_url(self, bucket: str, key: str, expires_in: int) -> str:
+        async with self._client.client() as s3:
+            return await s3.generate_presigned_url(
+                ClientMethod='get_object',
+                Params={'Bucket': bucket, 'Key': key},
+                ExpiresIn=expires_in,
+            )
+
     async def head_object(self, bucket: str, key: str) -> dict:
         try:
             async with self._client.client() as s3:

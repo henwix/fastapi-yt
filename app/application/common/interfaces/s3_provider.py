@@ -46,6 +46,9 @@ class IS3Provider(ABC):
     ) -> str: ...
 
     @abstractmethod
+    async def generate_download_url(self, bucket: str, key: str, expires_in: int) -> str: ...
+
+    @abstractmethod
     async def head_object(self, bucket: str, key: str) -> dict: ...
 
     @abstractmethod

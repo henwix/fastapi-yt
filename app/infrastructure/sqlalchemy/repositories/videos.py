@@ -4,6 +4,7 @@ from sqlalchemy import delete, select, update
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.domain.videos.entities import Video
+from app.domain.videos.enums import VideoUploadStatusEnum
 from app.domain.videos.repositories import IVideoRepository
 from app.infrastructure.sqlalchemy.models.videos import VideoORM
 
@@ -31,6 +32,15 @@ class SAVideoRepository(IVideoRepository):
 
     async def get_by_upload_id_and_s3_key(self, upload_id: str, s3_key: str) -> Video | None:
         stmt = select(VideoORM).where(VideoORM.upload_id == upload_id, VideoORM.s3_key == s3_key)
+        result = await self._session.execute(statement=stmt)
+        video = result.scalar_one_or_none()
+        return video.to_entity() if video is not None else None
+
+    async def get_completed_by_id(self, id: str) -> Video | None:
+        stmt = select(VideoORM).where(
+            VideoORM.id == id,
+            VideoORM.upload_status == VideoUploadStatusEnum.COMPLETED.value,
+        )
         result = await self._session.execute(statement=stmt)
         video = result.scalar_one_or_none()
         return video.to_entity() if video is not None else None

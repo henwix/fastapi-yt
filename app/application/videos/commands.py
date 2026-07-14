@@ -34,3 +34,21 @@ class AbortVideoMultipartUploadCommand:
     current_channel_id: UUID
     key: str
     upload_id: str
+
+
+@dataclass(kw_only=True, frozen=True)
+class GenerateVideoDownloadUrlCommand:
+    current_channel_id: UUID | None
+    video_id: str
+
+
+@dataclass(kw_only=True, frozen=True)
+class DeleteVideoCommand:
+    current_channel_id: UUID
+    video_id: str
+
+
+@dataclass(kw_only=True, frozen=True)
+class GetVideoCommand:
+    current_channel_id: UUID | None
+    video_id: str

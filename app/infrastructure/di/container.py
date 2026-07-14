@@ -43,10 +43,14 @@ from app.application.subscriptions.use_cases.get_subscribers import GetSubscribe
 from app.application.subscriptions.use_cases.get_subscriptions import GetSubscriptionsUseCase
 from app.application.subscriptions.use_cases.subscribe import SubscribeUseCase
 from app.application.subscriptions.use_cases.unsubscribe import UnsubscribeUseCase
+from app.application.videos.interfaces.reader import IVideoReader
 from app.application.videos.use_cases.abort_video_multipart_upload import AbortVideoMultipartUploadUseCase
 from app.application.videos.use_cases.complete_video_multipart_upload import CompleteVideoMultipartUploadUseCase
 from app.application.videos.use_cases.create_video_multipart_upload import CreateVideoMultipartUploadUseCase
+from app.application.videos.use_cases.delete_video import DeleteVideoUseCase
+from app.application.videos.use_cases.generate_video_download_url import GenerateVideoDownloadUrlUseCase
 from app.application.videos.use_cases.generate_video_part_upload_url import GenerateVideoPartUploadUrlUseCase
+from app.application.videos.use_cases.get_video import GetVideoUseCase
 from app.domain.channels.repositories import IChannelRepository
 from app.domain.channels.services import ChannelService, IChannelService
 from app.domain.post_comment_reactions.repositories import IPostCommentReactionRepository
@@ -69,6 +73,7 @@ from app.infrastructure.sqlalchemy.database import create_engine, create_session
 from app.infrastructure.sqlalchemy.readers.post_comments import SAPostCommentReader
 from app.infrastructure.sqlalchemy.readers.posts import SAPostReader
 from app.infrastructure.sqlalchemy.readers.subscriptions import SASubscriptionReader
+from app.infrastructure.sqlalchemy.readers.videos import SAVideoReader
 from app.infrastructure.sqlalchemy.repositories.channels import SAChannelRepository
 from app.infrastructure.sqlalchemy.repositories.post_comment_reactions import SAPostCommentReactionRepository
 from app.infrastructure.sqlalchemy.repositories.post_comments import SAPostCommentRepository
@@ -125,6 +130,7 @@ class ReadersProvider(Provider):
     post_reader = provide(SAPostReader, provides=IPostReader)
     post_comment_reader = provide(SAPostCommentReader, provides=IPostCommentReader)
     subscription_reader = provide(SASubscriptionReader, provides=ISubscriptionReader)
+    video_reader = provide(SAVideoReader, provides=IVideoReader)
 
 
 class ServicesProvider(Provider):
@@ -160,6 +166,9 @@ class UseCasesProvider(Provider):
     abort_video_multipart_upload = provide(AbortVideoMultipartUploadUseCase)
     generate_video_part_upload_url = provide(GenerateVideoPartUploadUrlUseCase)
     complete_video_multipart_upload = provide(CompleteVideoMultipartUploadUseCase)
+    generate_video_download_url = provide(GenerateVideoDownloadUrlUseCase)
+    delete_video = provide(DeleteVideoUseCase)
+    get_video = provide(GetVideoUseCase)
 
     # Posts
     create_post = provide(CreatePostUseCase)

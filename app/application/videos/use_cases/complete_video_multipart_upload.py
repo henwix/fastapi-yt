@@ -21,20 +21,21 @@ class CompleteVideoMultipartUploadUseCase:
         if not command.key.startswith(settings.s3_videos_key_prefix):
             raise VideoInvalidKeyError(key=command.key)
 
-        async with self._transaction_manager:
-            channel = await self._channel_service.try_get_active_by_id(id=command.current_channel_id)
-            video = await self._video_service.try_get_by_upload_id_and_s3_key(
-                upload_id=command.upload_id,
-                s3_key=command.key,
-            )
-            self._video_service.ensure_video_access(video=video, channel=channel)
-            self._video_service.ensure_video_upload_not_completed(video=video)
+        channel = await self._channel_service.try_get_active_by_id(id=command.current_channel_id)
+        video = await self._video_service.try_get_by_upload_id_and_s3_key(
+            upload_id=command.upload_id,
+            s3_key=command.key,
+        )
+        self._video_service.ensure_video_access(video=video, channel=channel)
+        self._video_service.ensure_video_upload_not_completed(video=video)
 
-            await self._s3_provider.complete_multipart_upload(
-                bucket=settings.s3_private_bucket_name,
-                key=command.key,
-                upload_id=command.upload_id,
-                parts=command.parts,
-            )
-            video.update_after_completed_upload()
+        await self._s3_provider.complete_multipart_upload(
+            bucket=settings.s3_private_bucket_name,
+            key=command.key,
+            upload_id=command.upload_id,
+            parts=command.parts,
+        )
+        video.update_after_completed_upload()
+
+        async with self._transaction_manager:
             await self._video_service.try_update(video=video)

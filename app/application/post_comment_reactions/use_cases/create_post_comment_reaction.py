@@ -16,13 +16,13 @@ class CreatePostCommentReactionUseCase:
     _transaction_manager: ITransactionManager
 
     async def execute(self, command: CreatePostCommentReactionCommand) -> tuple[PostCommentReaction, bool]:
-        async with self._transaction_manager:
-            channel = await self._channel_service.try_get_active_by_id(id=command.current_channel_id)
-            post_comment = await self._post_comment_service.try_get_by_id(id=command.post_comment_id)
-            post_comment_reaction = await self._post_comment_reaction_service.get_by_post_comment_id_and_channel_id(
-                post_comment_id=post_comment.id, channel_id=channel.id
-            )
+        channel = await self._channel_service.try_get_active_by_id(id=command.current_channel_id)
+        post_comment = await self._post_comment_service.try_get_by_id(id=command.post_comment_id)
+        post_comment_reaction = await self._post_comment_reaction_service.get_by_post_comment_id_and_channel_id(
+            post_comment_id=post_comment.id, channel_id=channel.id
+        )
 
+        async with self._transaction_manager:
             if post_comment_reaction is not None:
                 if post_comment_reaction.reaction_type != command.reaction_type:
                     post_comment_reaction.set_reaction_type(reaction_type=command.reaction_type)

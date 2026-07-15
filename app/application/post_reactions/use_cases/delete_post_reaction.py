@@ -15,9 +15,10 @@ class DeletePostReactionUseCase:
     _transaction_manager: ITransactionManager
 
     async def execute(self, command: DeletePostReactionCommand) -> None:
+        channel = await self._channel_service.try_get_active_by_id(id=command.current_channel_id)
+        post = await self._post_service.try_get_by_id(id=command.post_id)
+
         async with self._transaction_manager:
-            channel = await self._channel_service.try_get_active_by_id(id=command.current_channel_id)
-            post = await self._post_service.try_get_by_id(id=command.post_id)
             await self._post_reaction_service.try_delete_by_post_id_and_channel_id(
                 post_id=post.id,
                 channel_id=channel.id,

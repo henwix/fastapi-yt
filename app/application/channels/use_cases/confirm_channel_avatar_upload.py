@@ -27,29 +27,26 @@ class ConfirmChannelAvatarUploadUseCase:
         if not command.key.startswith(settings.s3_avatars_key_prefix):
             raise ChannelAvatarInvalidKeyError(key=command.key)
 
+        channel = await self._channel_service.try_get_active_by_id(id=command.current_channel_id)
+
+        if channel.avatar_s3_key is not None and channel.avatar_s3_key == command.key:
+            raise ChannelAvatarAlreadySetError(channel_id=channel.id, avatar_s3_key=channel.avatar_s3_key)
+
+        avatar_info = await self._s3_provider.head_object(bucket=settings.s3_public_bucket_name, key=command.key)
+        avatar_metadata_channel_id = avatar_info['Metadata'].get('channel_id')
+        avatar_metadata_content_type = avatar_info['ContentType']
+
+        if avatar_metadata_channel_id != str(channel.id):
+            raise S3ObjectAccessForbiddenError(channel_id=channel.id, key=command.key)
+
+        if avatar_metadata_content_type not in ChannelAvatarFileContentTypesEnum:
+            await self._task_queue.delete_s3_object(bucket=settings.s3_public_bucket_name, key=command.key)
+            raise ChannelAvatarInvalidFileContentTypeError(key=command.key, content_type=avatar_metadata_content_type)
+
+        if channel.avatar_s3_key is not None:
+            await self._task_queue.delete_s3_object(bucket=settings.s3_public_bucket_name, key=channel.avatar_s3_key)
+
+        channel.set_avatar_s3_key(key=command.key)
+
         async with self._transaction_manager:
-            channel = await self._channel_service.try_get_active_by_id(id=command.current_channel_id)
-
-            if channel.avatar_s3_key is not None and channel.avatar_s3_key == command.key:
-                raise ChannelAvatarAlreadySetError(channel_id=channel.id, avatar_s3_key=channel.avatar_s3_key)
-
-            avatar_info = await self._s3_provider.head_object(bucket=settings.s3_public_bucket_name, key=command.key)
-            avatar_metadata_channel_id = avatar_info['Metadata'].get('channel_id')
-            avatar_metadata_content_type = avatar_info['ContentType']
-
-            if avatar_metadata_channel_id != str(channel.id):
-                raise S3ObjectAccessForbiddenError(channel_id=channel.id, key=command.key)
-
-            if avatar_metadata_content_type not in ChannelAvatarFileContentTypesEnum:
-                await self._task_queue.delete_s3_object(bucket=settings.s3_public_bucket_name, key=command.key)
-                raise ChannelAvatarInvalidFileContentTypeError(
-                    key=command.key, content_type=avatar_metadata_content_type
-                )
-
-            if channel.avatar_s3_key is not None:
-                await self._task_queue.delete_s3_object(
-                    bucket=settings.s3_public_bucket_name, key=channel.avatar_s3_key
-                )
-
-            channel.set_avatar_s3_key(key=command.key)
             await self._channel_service.try_update(channel=channel)

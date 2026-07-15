@@ -14,7 +14,8 @@ class CreatePostUseCase:
     _transaction_manager: ITransactionManager
 
     async def execute(self, command: CreatePostCommand) -> Post:
+        channel = await self._channel_service.try_get_active_by_id(id=command.current_channel_id)
+        post_entity = Post.create(text=command.text, channel_id=channel.id)
+
         async with self._transaction_manager:
-            channel = await self._channel_service.try_get_active_by_id(id=command.current_channel_id)
-            post_entity = Post.create(text=command.text, channel_id=channel.id)
             return await self._post_service.create(post=post_entity)

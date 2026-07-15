@@ -27,8 +27,8 @@ class SAVideoReader(IVideoReader):
                 VideoORM.is_reported,
                 VideoORM.created_at,
                 VideoORM.channel_id,
-                ChannelORM.name,
-                ChannelORM.slug,
+                ChannelORM.name.label('channel_name'),
+                ChannelORM.slug.label('channel_slug'),
             )
             .join(ChannelORM, VideoORM.channel_id == ChannelORM.id)
             .where(VideoORM.id == id, VideoORM.upload_status == VideoUploadStatusEnum.COMPLETED.value)

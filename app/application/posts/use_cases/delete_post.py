@@ -13,8 +13,9 @@ class DeletePostUseCase:
     _transaction_manager: ITransactionManager
 
     async def execute(self, command: DeletePostCommand) -> None:
+        channel = await self._channel_service.try_get_active_by_id(id=command.current_channel_id)
+        post = await self._post_service.try_get_by_id(id=command.post_id)
+        self._post_service.ensure_post_access(post=post, channel=channel)
+
         async with self._transaction_manager:
-            channel = await self._channel_service.try_get_active_by_id(id=command.current_channel_id)
-            post = await self._post_service.try_get_by_id(id=command.post_id)
-            self._post_service.ensure_post_access(post=post, channel=channel)
             await self._post_service.try_delete_by_id(id=post.id)

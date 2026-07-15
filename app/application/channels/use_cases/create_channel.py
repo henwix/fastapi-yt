@@ -14,17 +14,17 @@ class CreateChannelUseCase:
     _transaction_manager: ITransactionManager
 
     async def execute(self, command: CreateChannelCommand) -> Channel:
-        async with self._transaction_manager:
-            await self._channel_service.check_email_exists(email=command.email)
-            await self._channel_service.check_slug_exists(slug=command.slug)
+        await self._channel_service.check_email_exists(email=command.email)
+        await self._channel_service.check_slug_exists(slug=command.slug)
 
-            channel_entity = Channel.create(
-                email=command.email,
-                name=command.name,
-                slug=command.slug,
-                password_hash=self._password_hasher.get_password_hash(password=command.password),
-                description=command.description,
-                country=command.country,
-            )
-            created_channel = await self._channel_service.create(channel=channel_entity)
-        return created_channel
+        channel_entity = Channel.create(
+            email=command.email,
+            name=command.name,
+            slug=command.slug,
+            password_hash=self._password_hasher.get_password_hash(password=command.password),
+            description=command.description,
+            country=command.country,
+        )
+
+        async with self._transaction_manager:
+            return await self._channel_service.create(channel=channel_entity)

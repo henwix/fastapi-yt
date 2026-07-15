@@ -13,14 +13,15 @@ class UpdateChannelUseCase:
     _transaction_manager: ITransactionManager
 
     async def execute(self, command: UpdateChannelCommand) -> Channel:
+        channel = await self._channel_service.try_get_active_by_id(id=command.current_channel_id)
+        if command.slug is not Empty.UNSET:
+            await self._channel_service.check_slug_exists(slug=command.slug)
+        channel.update(
+            name=command.name,
+            slug=command.slug,
+            description=command.description,
+            country=command.country,
+        )
+
         async with self._transaction_manager:
-            channel = await self._channel_service.try_get_active_by_id(id=command.current_channel_id)
-            if command.slug is not Empty.UNSET:
-                await self._channel_service.check_slug_exists(slug=command.slug)
-            channel.update(
-                name=command.name,
-                slug=command.slug,
-                description=command.description,
-                country=command.country,
-            )
             return await self._channel_service.try_update(channel=channel)

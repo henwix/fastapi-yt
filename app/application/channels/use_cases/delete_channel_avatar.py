@@ -15,10 +15,11 @@ class DeleteChannelAvatarUseCase:
     _task_queue: ITaskQueue
 
     async def execute(self, command: DeleteChannelAvatarCommand) -> None:
+        channel = await self._channel_service.try_get_active_by_id(id=command.current_channel_id)
+        if channel.avatar_s3_key is None:
+            raise ChannelAvatarNotFoundError(channel_id=channel.id)
+        await self._task_queue.delete_s3_object(bucket=settings.s3_public_bucket_name, key=channel.avatar_s3_key)
+        channel.set_avatar_s3_key(key=None)
+
         async with self._transaction_manager:
-            channel = await self._channel_service.try_get_active_by_id(id=command.current_channel_id)
-            if channel.avatar_s3_key is None:
-                raise ChannelAvatarNotFoundError(channel_id=channel.id)
-            await self._task_queue.delete_s3_object(bucket=settings.s3_public_bucket_name, key=channel.avatar_s3_key)
-            channel.set_avatar_s3_key(key=None)
             await self._channel_service.try_update(channel=channel)

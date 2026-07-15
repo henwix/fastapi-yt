@@ -14,6 +14,6 @@ def convert_video_row_to_detailed_dto(row: RowMapping) -> DetailedVideoDTO:
         is_reported=row['is_reported'],
         created_at=row['created_at'],
         channel_id=row['channel_id'],
-        channel_name=row['name'],
-        channel_slug=row['slug'],
+        channel_name=row['channel_name'],
+        channel_slug=row['channel_slug'],
     )

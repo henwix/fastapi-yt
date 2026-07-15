@@ -3,7 +3,6 @@ from uuid import UUID
 
 from app.application.channels.commands import GenerateChannelAvatarUploadURLCommand
 from app.application.common.interfaces.s3_provider import IS3Provider
-from app.application.common.interfaces.transaction_manager import ITransactionManager
 from app.core.configs import settings
 from app.domain.channels.services import IChannelService
 
@@ -11,7 +10,6 @@ from app.domain.channels.services import IChannelService
 @dataclass
 class GenerateChannelAvatarUploadURLUseCase:
     _channel_service: IChannelService
-    _transaction_manager: ITransactionManager
     _s3_provider: IS3Provider
 
     async def execute(self, command: GenerateChannelAvatarUploadURLCommand) -> tuple[str, str, UUID]:
@@ -19,8 +17,7 @@ class GenerateChannelAvatarUploadURLUseCase:
             value=command.filename
         )
 
-        async with self._transaction_manager:
-            channel = await self._channel_service.try_get_active_by_id(id=command.current_channel_id)
+        channel = await self._channel_service.try_get_active_by_id(id=command.current_channel_id)
 
         url, key = await self._s3_provider.generate_upload_url(
             bucket=settings.s3_public_bucket_name,

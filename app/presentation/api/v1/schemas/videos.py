@@ -6,7 +6,31 @@ from app.application.videos.dto import DetailedVideoDTO
 from app.domain.common.constants import FILENAME_PATTERN
 from app.domain.videos.entities import Video
 from app.domain.videos.enums import VideoPrivacyStatusEnum
-from app.presentation.api.v1.schemas.base import BaseSchema
+from app.presentation.api.v1.schemas.base import BaseSchema, BaseUpdateSchema
+
+
+class VideoOutSchema(BaseSchema):
+    id: str
+    title: str
+    description: str
+    privacy_status: VideoPrivacyStatusEnum
+    created_at: datetime
+
+    @staticmethod
+    def from_entity(entity: Video) -> VideoOutSchema:
+        return VideoOutSchema(
+            id=entity.id,
+            title=entity.title,
+            description=entity.description,
+            privacy_status=entity.privacy_status,
+            created_at=entity.created_at,
+        )
+
+
+class UpdateVideoInSchema(BaseUpdateSchema):
+    title: str = Field(default='', min_length=1, max_length=100)
+    description: str = ''
+    privacy_status: VideoPrivacyStatusEnum = VideoPrivacyStatusEnum.PUBLIC
 
 
 class CreateVideoMultipartUploadInSchema(BaseSchema):
@@ -21,6 +45,7 @@ class CreateVideoMultipartUploadOutSchema(BaseSchema):
     title: str
     description: str
     privacy_status: VideoPrivacyStatusEnum
+    created_at: datetime
     upload_id: str
     s3_key: str
 
@@ -31,6 +56,7 @@ class CreateVideoMultipartUploadOutSchema(BaseSchema):
             title=entity.title,
             description=entity.description,
             privacy_status=entity.privacy_status,
+            created_at=entity.created_at,
             upload_id=entity.upload_id,
             s3_key=entity.s3_key,
         )

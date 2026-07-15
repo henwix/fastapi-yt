@@ -1,6 +1,7 @@
 from dataclasses import dataclass
 from uuid import UUID
 
+from app.domain.common.constants import Empty
 from app.domain.videos.enums import VideoPrivacyStatusEnum
 
 
@@ -52,3 +53,12 @@ class DeleteVideoCommand:
 class GetVideoCommand:
     current_channel_id: UUID | None
     video_id: str
+
+
+@dataclass(kw_only=True, frozen=True)
+class UpdateVideoCommand:
+    current_channel_id: UUID
+    video_id: str
+    title: str | Empty = Empty.UNSET
+    description: str | Empty = Empty.UNSET
+    privacy_status: VideoPrivacyStatusEnum | Empty = Empty.UNSET

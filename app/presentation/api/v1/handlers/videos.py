@@ -12,6 +12,7 @@ from app.application.videos.commands import (
     GenerateVideoDownloadUrlCommand,
     GenerateVideoPartUploadUrlCommand,
     GetVideoCommand,
+    UpdateVideoCommand,
 )
 from app.application.videos.use_cases.abort_video_multipart_upload import AbortVideoMultipartUploadUseCase
 from app.application.videos.use_cases.complete_video_multipart_upload import CompleteVideoMultipartUploadUseCase
@@ -20,6 +21,7 @@ from app.application.videos.use_cases.delete_video import DeleteVideoUseCase
 from app.application.videos.use_cases.generate_video_download_url import GenerateVideoDownloadUrlUseCase
 from app.application.videos.use_cases.generate_video_part_upload_url import GenerateVideoPartUploadUrlUseCase
 from app.application.videos.use_cases.get_video import GetVideoUseCase
+from app.application.videos.use_cases.update_video import UpdateVideoUseCase
 from app.domain.auth.exceptions import JWTExpiredTokenError, JWTInvalidTokenError, NotAuthenticatedError
 from app.domain.channels.exceptions import ChannelNotActiveError, ChannelNotFoundByIdError
 from app.domain.common.exceptions import (
@@ -48,6 +50,8 @@ from app.presentation.api.v1.schemas.videos import (
     GenerateVideoDownloadUrlOutSchema,
     GenerateVideoPartUploadUrlInSchema,
     GenerateVideoPartUploadUrlOutSchema,
+    UpdateVideoInSchema,
+    VideoOutSchema,
 )
 
 router = APIRouter(
@@ -286,3 +290,36 @@ async def get_video(
     command = GetVideoCommand(current_channel_id=current_channel_id, video_id=video_id)
     video = await use_case.execute(command=command)
     return DetailedVideoSchema.from_dto(dto=video)
+
+
+@router.patch(
+    path='/{video_id}',
+    responses={
+        status.HTTP_401_UNAUTHORIZED: error_response(
+            NotAuthenticatedError,
+            JWTExpiredTokenError,
+            JWTInvalidTokenError,
+        ),
+        status.HTTP_403_FORBIDDEN: error_response(
+            ChannelNotActiveError,
+            VideoAccessForbiddenError,
+        ),
+        status.HTTP_404_NOT_FOUND: error_response(
+            ChannelNotFoundByIdError,
+            VideoNotFoundByIdError,
+        ),
+    },
+)
+async def update_video(
+    current_channel_id: CurrentChannelID,
+    video_id: PathVideoId,
+    schema: UpdateVideoInSchema,
+    use_case: FromDishka[UpdateVideoUseCase],
+) -> VideoOutSchema:
+    command = UpdateVideoCommand(
+        current_channel_id=current_channel_id,
+        video_id=video_id,
+        **schema.model_dump(exclude_unset=True),
+    )
+    video = await use_case.execute(command=command)
+    return VideoOutSchema.from_entity(entity=video)

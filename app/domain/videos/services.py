@@ -26,6 +26,9 @@ class IVideoService(ABC):
     async def try_get_by_upload_id_and_s3_key(self, upload_id: str, s3_key: str) -> Video: ...
 
     @abstractmethod
+    async def try_get_by_id(self, id: str) -> Video: ...
+
+    @abstractmethod
     async def try_get_completed_by_id(self, id: str) -> Video: ...
 
     @abstractmethod
@@ -58,6 +61,12 @@ class VideoService(IVideoService):
         video = await self._repo.get_by_upload_id_and_s3_key(upload_id=upload_id, s3_key=s3_key)
         if video is None:
             raise VideoNotFoundByUploadIdAndS3KeyError(upload_id=upload_id, s3_key=s3_key)
+        return video
+
+    async def try_get_by_id(self, id: str) -> Video:
+        video = await self._repo.get_by_id(id=id)
+        if video is None:
+            raise VideoNotFoundByIdError(video_id=id)
         return video
 
     async def try_get_completed_by_id(self, id: str) -> Video:

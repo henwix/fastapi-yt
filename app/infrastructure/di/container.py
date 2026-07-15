@@ -51,6 +51,7 @@ from app.application.videos.use_cases.delete_video import DeleteVideoUseCase
 from app.application.videos.use_cases.generate_video_download_url import GenerateVideoDownloadUrlUseCase
 from app.application.videos.use_cases.generate_video_part_upload_url import GenerateVideoPartUploadUrlUseCase
 from app.application.videos.use_cases.get_video import GetVideoUseCase
+from app.application.videos.use_cases.update_video import UpdateVideoUseCase
 from app.domain.channels.repositories import IChannelRepository
 from app.domain.channels.services import ChannelService, IChannelService
 from app.domain.post_comment_reactions.repositories import IPostCommentReactionRepository
@@ -169,6 +170,7 @@ class UseCasesProvider(Provider):
     generate_video_download_url = provide(GenerateVideoDownloadUrlUseCase)
     delete_video = provide(DeleteVideoUseCase)
     get_video = provide(GetVideoUseCase)
+    update_video = provide(UpdateVideoUseCase)
 
     # Posts
     create_post = provide(CreatePostUseCase)

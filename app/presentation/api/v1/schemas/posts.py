@@ -1,36 +1,39 @@
 from datetime import datetime
 from uuid import UUID
 
+from pydantic import Field
+
 from app.application.common.sorting import SortingOrderEnum
 from app.application.posts.dto import DetailedPostDTO
 from app.application.posts.queries import PostsSortingFieldsEnum
+from app.domain.posts.constants import POST_TEXT_MAX_LENGTH, POST_TEXT_MIN_LENGTH
 from app.domain.posts.entities import Post
 from app.presentation.api.v1.schemas.base import BaseCursorResponse, BaseSchema, BaseUpdateSchema
 
 
-class CreatePostSchema(BaseSchema):
-    text: str
+class CreatePostInSchema(BaseSchema):
+    text: str = Field(min_length=POST_TEXT_MIN_LENGTH, max_length=POST_TEXT_MAX_LENGTH)
 
 
-class UpdatePostSchema(BaseUpdateSchema):
-    text: str = ''
+class UpdatePostInSchema(BaseUpdateSchema):
+    text: str = Field(default='', min_length=POST_TEXT_MIN_LENGTH, max_length=POST_TEXT_MAX_LENGTH)
 
 
-class PostSchema(BaseSchema):
+class PostOutSchema(BaseSchema):
     id: UUID
     text: str
     created_at: datetime
 
     @staticmethod
-    def from_entity(entity: Post) -> PostSchema:
-        return PostSchema(
+    def from_entity(entity: Post) -> PostOutSchema:
+        return PostOutSchema(
             id=entity.id,
             text=entity.text,
             created_at=entity.created_at,
         )
 
 
-class DetailedPostSchema(BaseSchema):
+class DetailedPostOutSchema(BaseSchema):
     id: UUID
     text: str
     created_at: datetime
@@ -38,8 +41,8 @@ class DetailedPostSchema(BaseSchema):
     channel_slug: str
 
     @staticmethod
-    def from_dto(dto: DetailedPostDTO) -> DetailedPostSchema:
-        return DetailedPostSchema(
+    def from_dto(dto: DetailedPostDTO) -> DetailedPostOutSchema:
+        return DetailedPostOutSchema(
             id=dto.id,
             text=dto.text,
             created_at=dto.created_at,
@@ -54,4 +57,4 @@ class PostsSortingParams(BaseSchema):
 
 
 class PostsCursorResponse(BaseCursorResponse):
-    results: list[DetailedPostSchema]
+    results: list[DetailedPostOutSchema]

@@ -4,19 +4,28 @@ from uuid import UUID
 
 from pydantic import BaseModel, ConfigDict, EmailStr, Field, HttpUrl, field_validator
 
+from app.domain.channels.constants import (
+    CHANNEL_COUNTRY_MAX_LENGTH,
+    CHANNEL_DESCRIPTION_MAX_LENGTH,
+    CHANNEL_EMAIL_MAX_LENGTH,
+    CHANNEL_NAME_MAX_LENGTH,
+    CHANNEL_NAME_MIN_LENGTH,
+    CHANNEL_SLUG_MAX_LENGTH,
+    CHANNEL_SLUG_MIN_LENGTH,
+)
 from app.domain.channels.entities import Channel
-from app.domain.common.constants import FILENAME_PATTERN, SLUG_PATTERN
+from app.domain.common.constants import FILENAME_MAX_LENGTH, FILENAME_PATTERN, SLUG_PATTERN
 from app.presentation.api.v1.schemas.base import BaseSchema, BaseUpdateSchema
 
 
-class CreateChannelSchema(BaseModel):
+class CreateChannelInSchema(BaseModel):
     model_config = ConfigDict(extra='forbid')
 
-    email: EmailStr = Field(max_length=255)
-    name: str = Field(min_length=1, max_length=100)
-    slug: str = Field(min_length=1, max_length=40)
-    description: str = ''
-    country: str = ''
+    email: EmailStr = Field(max_length=CHANNEL_EMAIL_MAX_LENGTH)
+    name: str = Field(min_length=CHANNEL_NAME_MIN_LENGTH, max_length=CHANNEL_NAME_MAX_LENGTH)
+    slug: str = Field(min_length=CHANNEL_SLUG_MIN_LENGTH, max_length=CHANNEL_SLUG_MAX_LENGTH)
+    description: str = Field(default='', max_length=CHANNEL_DESCRIPTION_MAX_LENGTH)
+    country: str = Field(default='', max_length=CHANNEL_COUNTRY_MAX_LENGTH)
     password: str
 
     @field_validator('name', 'slug', 'description', 'country', mode='before')
@@ -32,11 +41,11 @@ class CreateChannelSchema(BaseModel):
         return v
 
 
-class UpdateChannelSchema(BaseUpdateSchema):
-    name: str = Field(default='', min_length=1, max_length=100)
-    slug: str = Field(default='', min_length=1, max_length=40)
-    description: str = ''
-    country: str = ''
+class UpdateChannelInSchema(BaseUpdateSchema):
+    name: str = Field(default='', min_length=CHANNEL_NAME_MIN_LENGTH, max_length=CHANNEL_NAME_MAX_LENGTH)
+    slug: str = Field(default='', min_length=CHANNEL_SLUG_MIN_LENGTH, max_length=CHANNEL_SLUG_MAX_LENGTH)
+    description: str = Field(default='', max_length=CHANNEL_DESCRIPTION_MAX_LENGTH)
+    country: str = Field(default='', max_length=CHANNEL_COUNTRY_MAX_LENGTH)
 
     @field_validator('slug', mode='after')
     @classmethod
@@ -46,11 +55,11 @@ class UpdateChannelSchema(BaseUpdateSchema):
         return v
 
 
-class SetChannelPasswordSchema(BaseModel):
+class SetChannelPasswordInSchema(BaseModel):
     new_password: str
 
 
-class ChannelSchema(BaseSchema):
+class ChannelOutSchema(BaseSchema):
     id: UUID
     email: EmailStr
     name: str
@@ -62,8 +71,8 @@ class ChannelSchema(BaseSchema):
     updated_at: datetime
 
     @staticmethod
-    def from_entity(entity: Channel) -> ChannelSchema:
-        return ChannelSchema(
+    def from_entity(entity: Channel) -> ChannelOutSchema:
+        return ChannelOutSchema(
             id=entity.id,
             email=entity.email,
             name=entity.name,
@@ -76,15 +85,15 @@ class ChannelSchema(BaseSchema):
         )
 
 
-class GenerateChannelAvatarUploadURLInSchema(BaseSchema):
-    filename: str = Field(max_length=100, pattern=FILENAME_PATTERN, examples=['avatar_image.png'])
+class GenerateChannelAvatarUploadUrlInSchema(BaseSchema):
+    filename: str = Field(max_length=FILENAME_MAX_LENGTH, pattern=FILENAME_PATTERN, examples=['avatar_image.png'])
 
 
-class GenerateChannelAvatarUploadURLOutSchema(BaseSchema):
+class GenerateChannelAvatarUploadUrlOutSchema(BaseSchema):
     upload_url: HttpUrl
     key: str
     channel_id: UUID
 
 
-class ChannelAvatarUploadConfirmSchema(BaseSchema):
+class ChannelAvatarUploadConfirmInSchema(BaseSchema):
     key: str

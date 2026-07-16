@@ -6,7 +6,7 @@ from app.application.channels.commands import (
     CreateChannelCommand,
     DeleteChannelAvatarCommand,
     DeleteChannelCommand,
-    GenerateChannelAvatarUploadURLCommand,
+    GenerateChannelAvatarUploadUrlCommand,
     SetChannelPasswordCommand,
     UpdateChannelCommand,
 )
@@ -15,9 +15,9 @@ from app.application.channels.use_cases.confirm_channel_avatar_upload import Con
 from app.application.channels.use_cases.create_channel import CreateChannelUseCase
 from app.application.channels.use_cases.delete_channel import DeleteChannelUseCase
 from app.application.channels.use_cases.delete_channel_avatar import DeleteChannelAvatarUseCase
-from app.application.channels.use_cases.generate_channel_avatar_upload_url import GenerateChannelAvatarUploadURLUseCase
+from app.application.channels.use_cases.generate_channel_avatar_upload_url import GenerateChannelAvatarUploadUrlUseCase
 from app.application.channels.use_cases.get_channel import GetChannelUseCase
-from app.application.channels.use_cases.set_password import SetChannelPasswordUseCase
+from app.application.channels.use_cases.set_channel_password import SetChannelPasswordUseCase
 from app.application.channels.use_cases.update_channel import UpdateChannelUseCase
 from app.domain.auth.exceptions import JWTExpiredTokenError, JWTInvalidTokenError, NotAuthenticatedError
 from app.domain.channels.exceptions import (
@@ -40,13 +40,13 @@ from app.domain.common.exceptions import (
 from app.presentation.api.openapi.common import error_response
 from app.presentation.api.v1.di.current_channel_id import CurrentChannelID
 from app.presentation.api.v1.schemas.channels import (
-    ChannelAvatarUploadConfirmSchema,
-    ChannelSchema,
-    CreateChannelSchema,
-    GenerateChannelAvatarUploadURLInSchema,
-    GenerateChannelAvatarUploadURLOutSchema,
-    SetChannelPasswordSchema,
-    UpdateChannelSchema,
+    ChannelAvatarUploadConfirmInSchema,
+    ChannelOutSchema,
+    CreateChannelInSchema,
+    GenerateChannelAvatarUploadUrlInSchema,
+    GenerateChannelAvatarUploadUrlOutSchema,
+    SetChannelPasswordInSchema,
+    UpdateChannelInSchema,
 )
 
 router = APIRouter(
@@ -67,12 +67,12 @@ router = APIRouter(
     },
 )
 async def create_channel(
-    schema: CreateChannelSchema,
+    schema: CreateChannelInSchema,
     use_case: FromDishka[CreateChannelUseCase],
-) -> ChannelSchema:
+) -> ChannelOutSchema:
     command = CreateChannelCommand(**schema.model_dump())
     channel = await use_case.execute(command=command)
-    return ChannelSchema.from_entity(entity=channel)
+    return ChannelOutSchema.from_entity(entity=channel)
 
 
 @router.get(
@@ -90,10 +90,10 @@ async def create_channel(
 async def get_channel(
     current_channel_id: CurrentChannelID,
     use_case: FromDishka[GetChannelUseCase],
-) -> ChannelSchema:
+) -> ChannelOutSchema:
     query = GetChannelQuery(current_channel_id=current_channel_id)
     channel = await use_case.execute(query=query)
-    return ChannelSchema.from_entity(entity=channel)
+    return ChannelOutSchema.from_entity(entity=channel)
 
 
 @router.patch(
@@ -110,13 +110,13 @@ async def get_channel(
     },
 )
 async def update_channel(
-    schema: UpdateChannelSchema,
+    schema: UpdateChannelInSchema,
     current_channel_id: CurrentChannelID,
     use_case: FromDishka[UpdateChannelUseCase],
-) -> ChannelSchema:
+) -> ChannelOutSchema:
     command = UpdateChannelCommand(current_channel_id=current_channel_id, **schema.model_dump(exclude_unset=True))
     channel = await use_case.execute(command=command)
-    return ChannelSchema.from_entity(entity=channel)
+    return ChannelOutSchema.from_entity(entity=channel)
 
 
 @router.delete(
@@ -154,7 +154,7 @@ async def delete_channel(
     },
 )
 async def set_password(
-    schema: SetChannelPasswordSchema,
+    schema: SetChannelPasswordInSchema,
     current_channel_id: CurrentChannelID,
     use_case: FromDishka[SetChannelPasswordUseCase],
 ) -> None:
@@ -180,15 +180,15 @@ async def set_password(
 )
 async def generate_avatar_upload_url(
     current_channel_id: CurrentChannelID,
-    schema: GenerateChannelAvatarUploadURLInSchema,
-    use_case: FromDishka[GenerateChannelAvatarUploadURLUseCase],
-) -> GenerateChannelAvatarUploadURLOutSchema:
-    command = GenerateChannelAvatarUploadURLCommand(
+    schema: GenerateChannelAvatarUploadUrlInSchema,
+    use_case: FromDishka[GenerateChannelAvatarUploadUrlUseCase],
+) -> GenerateChannelAvatarUploadUrlOutSchema:
+    command = GenerateChannelAvatarUploadUrlCommand(
         current_channel_id=current_channel_id,
         **schema.model_dump(),
     )
     url, key, channel_id = await use_case.execute(command=command)
-    return GenerateChannelAvatarUploadURLOutSchema(
+    return GenerateChannelAvatarUploadUrlOutSchema(
         upload_url=url,
         key=key,
         channel_id=channel_id,
@@ -217,7 +217,7 @@ async def generate_avatar_upload_url(
 )
 async def avatar_upload_confirm(
     current_channel_id: CurrentChannelID,
-    schema: ChannelAvatarUploadConfirmSchema,
+    schema: ChannelAvatarUploadConfirmInSchema,
     use_case: FromDishka[ConfirmChannelAvatarUploadUseCase],
 ) -> None:
     command = ConfirmChannelAvatarUploadCommand(current_channel_id=current_channel_id, **schema.model_dump())

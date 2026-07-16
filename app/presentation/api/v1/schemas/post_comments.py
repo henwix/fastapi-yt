@@ -8,10 +8,11 @@ from app.application.post_comments.dto import DetailedPostCommentDTO
 from app.application.post_comments.queries import PostCommentsSortingFieldsEnum
 from app.domain.post_comments.entities import PostComment
 from app.domain.post_comments.enums import PostCommentReplyLevelEnum
+from app.domain.posts.constants import POST_COMMENT_TEXT_MAX_LENGTH, POST_COMMENT_TEXT_MIN_LENGTH
 from app.presentation.api.v1.schemas.base import BaseSchema, BaseUpdateSchema
 
 
-class PostCommentSchema(BaseSchema):
+class PostCommentOutSchema(BaseSchema):
     id: UUID
     text: str
     reply_level: PostCommentReplyLevelEnum
@@ -20,8 +21,8 @@ class PostCommentSchema(BaseSchema):
     created_at: datetime
 
     @staticmethod
-    def from_entity(entity: PostComment) -> PostCommentSchema:
-        return PostCommentSchema(
+    def from_entity(entity: PostComment) -> PostCommentOutSchema:
+        return PostCommentOutSchema(
             id=entity.id,
             text=entity.text,
             reply_level=entity.reply_level,
@@ -31,12 +32,12 @@ class PostCommentSchema(BaseSchema):
         )
 
 
-class DetailedPostCommentSchema(PostCommentSchema):
+class DetailedPostCommentOutSchema(PostCommentOutSchema):
     author_slug: str
 
     @staticmethod
-    def from_dto(dto: DetailedPostCommentDTO) -> DetailedPostCommentSchema:
-        return DetailedPostCommentSchema(
+    def from_dto(dto: DetailedPostCommentDTO) -> DetailedPostCommentOutSchema:
+        return DetailedPostCommentOutSchema(
             id=dto.id,
             text=dto.text,
             reply_level=dto.reply_level,
@@ -47,13 +48,13 @@ class DetailedPostCommentSchema(PostCommentSchema):
         )
 
 
-class CreatePostCommentSchema(BaseSchema):
-    text: str = Field(min_length=1)
+class CreatePostCommentInSchema(BaseSchema):
+    text: str = Field(min_length=POST_COMMENT_TEXT_MIN_LENGTH, max_length=POST_COMMENT_TEXT_MAX_LENGTH)
     reply_comment_id: UUID | None = None
 
 
-class UpdatePostCommentSchema(BaseUpdateSchema):
-    text: str = Field(default='', min_length=1)
+class UpdatePostCommentInSchema(BaseUpdateSchema):
+    text: str = Field(default='', min_length=POST_COMMENT_TEXT_MIN_LENGTH, max_length=POST_COMMENT_TEXT_MAX_LENGTH)
 
 
 class PostCommentsSortingParams(BaseSchema):
@@ -63,4 +64,4 @@ class PostCommentsSortingParams(BaseSchema):
 
 class PostCommentsCursorResponse(BaseSchema):
     next_page: HttpUrl | None
-    results: list[DetailedPostCommentSchema]
+    results: list[DetailedPostCommentOutSchema]

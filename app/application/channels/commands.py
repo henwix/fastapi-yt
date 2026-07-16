@@ -35,7 +35,7 @@ class SetChannelPasswordCommand:
 
 
 @dataclass(kw_only=True, frozen=True)
-class GenerateChannelAvatarUploadURLCommand:
+class GenerateChannelAvatarUploadUrlCommand:
     current_channel_id: UUID
     filename: str
 

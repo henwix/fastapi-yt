@@ -21,12 +21,12 @@ from app.presentation.api.openapi.common import error_response
 from app.presentation.api.v1.di.current_channel_id import CurrentChannelID
 from app.presentation.api.v1.schemas.common import CursorPaginationParams
 from app.presentation.api.v1.schemas.posts import (
-    CreatePostSchema,
-    DetailedPostSchema,
-    PostSchema,
+    CreatePostInSchema,
+    DetailedPostOutSchema,
+    PostOutSchema,
     PostsCursorResponse,
     PostsSortingParams,
-    UpdatePostSchema,
+    UpdatePostInSchema,
 )
 
 router = APIRouter(
@@ -50,13 +50,13 @@ router = APIRouter(
     },
 )
 async def create_post(
-    schema: CreatePostSchema,
+    schema: CreatePostInSchema,
     current_channel_id: CurrentChannelID,
     use_case: FromDishka[CreatePostUseCase],
-) -> PostSchema:
+) -> PostOutSchema:
     command = CreatePostCommand(current_channel_id=current_channel_id, **schema.model_dump())
     post = await use_case.execute(command=command)
-    return PostSchema.from_entity(entity=post)
+    return PostOutSchema.from_entity(entity=post)
 
 
 @router.get(
@@ -66,10 +66,10 @@ async def create_post(
 async def get_post(
     post_id: UUID,
     use_case: FromDishka[GetPostUseCase],
-) -> PostSchema:
+) -> PostOutSchema:
     query = GetPostQuery(post_id=post_id)
     post = await use_case.execute(query=query)
-    return PostSchema.from_entity(entity=post)
+    return PostOutSchema.from_entity(entity=post)
 
 
 @router.get(
@@ -93,7 +93,7 @@ async def get_posts(
     posts, cursor = await use_case.execute(query=query)
     return PostsCursorResponse(
         next_page=str(request.url.include_query_params(cursor=cursor)) if cursor else None,
-        results=[DetailedPostSchema.from_dto(dto=post) for post in posts],
+        results=[DetailedPostOutSchema.from_dto(dto=post) for post in posts],
     )
 
 
@@ -111,17 +111,17 @@ async def get_posts(
 )
 async def update_post(
     post_id: UUID,
-    schema: UpdatePostSchema,
+    schema: UpdatePostInSchema,
     current_channel_id: CurrentChannelID,
     use_case: FromDishka[UpdatePostUseCase],
-) -> PostSchema:
+) -> PostOutSchema:
     command = UpdatePostCommand(
         current_channel_id=current_channel_id,
         post_id=post_id,
         **schema.model_dump(exclude_unset=True),
     )
     post = await use_case.execute(command=command)
-    return PostSchema.from_entity(entity=post)
+    return PostOutSchema.from_entity(entity=post)
 
 
 @router.delete(

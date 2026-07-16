@@ -25,12 +25,12 @@ from app.presentation.api.openapi.common import error_response
 from app.presentation.api.v1.di.current_channel_id import CurrentChannelID
 from app.presentation.api.v1.schemas.common import CursorPaginationParams
 from app.presentation.api.v1.schemas.post_comments import (
-    CreatePostCommentSchema,
-    DetailedPostCommentSchema,
-    PostCommentSchema,
+    CreatePostCommentInSchema,
+    DetailedPostCommentOutSchema,
+    PostCommentOutSchema,
     PostCommentsCursorResponse,
     PostCommentsSortingParams,
-    UpdatePostCommentSchema,
+    UpdatePostCommentInSchema,
 )
 
 router = APIRouter(
@@ -60,16 +60,16 @@ router = APIRouter(
 async def create_post_comment(
     current_channel_id: CurrentChannelID,
     post_id: UUID,
-    schema: CreatePostCommentSchema,
+    schema: CreatePostCommentInSchema,
     use_case: FromDishka[CreatePostCommentUseCase],
-) -> PostCommentSchema:
+) -> PostCommentOutSchema:
     command = CreatePostCommentCommand(
         current_channel_id=current_channel_id,
         post_id=post_id,
         **schema.model_dump(exclude_unset=True, exclude_none=True),
     )
     post_comment = await use_case.execute(command=command)
-    return PostCommentSchema.from_entity(entity=post_comment)
+    return PostCommentOutSchema.from_entity(entity=post_comment)
 
 
 @router.get(
@@ -93,7 +93,7 @@ async def get_post_comments(
     comments, cursor = await use_case.execute(query=query)
     return PostCommentsCursorResponse(
         next_page=str(request.url.include_query_params(cursor=cursor)) if cursor else None,
-        results=[DetailedPostCommentSchema.from_dto(dto=comment) for comment in comments],
+        results=[DetailedPostCommentOutSchema.from_dto(dto=comment) for comment in comments],
     )
 
 
@@ -118,7 +118,7 @@ async def get_post_comment_replies(
     replies, cursor = await use_case.execute(query=query)
     return PostCommentsCursorResponse(
         next_page=str(request.url.include_query_params(cursor=cursor)) if cursor else None,
-        results=[DetailedPostCommentSchema.from_dto(dto=reply) for reply in replies],
+        results=[DetailedPostCommentOutSchema.from_dto(dto=reply) for reply in replies],
     )
 
 
@@ -174,13 +174,13 @@ async def delete_post_comment(
 async def update_post_comment(
     current_channel_id: CurrentChannelID,
     post_comment_id: UUID,
-    schema: UpdatePostCommentSchema,
+    schema: UpdatePostCommentInSchema,
     use_case: FromDishka[UpdatePostCommentUseCase],
-) -> PostCommentSchema:
+) -> PostCommentOutSchema:
     command = UpdatePostCommentCommand(
         current_channel_id=current_channel_id,
         post_comment_id=post_comment_id,
         **schema.model_dump(exclude_unset=True),
     )
     post_comment = await use_case.execute(command=command)
-    return PostCommentSchema.from_entity(entity=post_comment)
+    return PostCommentOutSchema.from_entity(entity=post_comment)

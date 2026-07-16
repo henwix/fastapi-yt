@@ -24,8 +24,8 @@ from app.presentation.api.openapi.common import error_response
 from app.presentation.api.v1.di.current_channel_id import CurrentChannelID
 from app.presentation.api.v1.schemas.common import CursorPaginationParams
 from app.presentation.api.v1.schemas.subscriptions import (
-    DetailedSubscriptionSchema,
-    SubscriptionSchema,
+    DetailedSubscriptionOutSchema,
+    SubscriptionOutSchema,
     SubscriptionsCursorResponse,
     SubscriptionsSortingParams,
 )
@@ -58,10 +58,10 @@ async def subscribe(
     channel_slug: Annotated[str, Path(min_length=1, max_length=40, pattern=SLUG_PATTERN)],
     current_channel_id: CurrentChannelID,
     use_case: FromDishka[SubscribeUseCase],
-) -> SubscriptionSchema:
+) -> SubscriptionOutSchema:
     command = SubscribeCommand(current_channel_id=current_channel_id, channel_slug=channel_slug)
     subscription = await use_case.execute(command=command)
-    return SubscriptionSchema.from_entity(entity=subscription)
+    return SubscriptionOutSchema.from_entity(entity=subscription)
 
 
 @router.delete(
@@ -120,7 +120,7 @@ async def get_subscribers(
     subscribers, cursor = await use_case.execute(query=query)
     return SubscriptionsCursorResponse(
         next_page=str(request.url.include_query_params(cursor=cursor)) if cursor else None,
-        results=[DetailedSubscriptionSchema.from_dto(dto=sub) for sub in subscribers],
+        results=[DetailedSubscriptionOutSchema.from_dto(dto=sub) for sub in subscribers],
     )
 
 
@@ -154,5 +154,5 @@ async def get_subscriptions(
     subscriptions, cursor = await use_case.execute(query=query)
     return SubscriptionsCursorResponse(
         next_page=str(request.url.include_query_params(cursor=cursor)) if cursor else None,
-        results=[DetailedSubscriptionSchema.from_dto(dto=sub) for sub in subscriptions],
+        results=[DetailedSubscriptionOutSchema.from_dto(dto=sub) for sub in subscriptions],
     )

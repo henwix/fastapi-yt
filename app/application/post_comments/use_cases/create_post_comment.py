@@ -19,12 +19,14 @@ class CreatePostCommentUseCase:
     async def execute(self, command: CreatePostCommentCommand) -> PostComment:
         channel = await self._channel_service.try_get_active_by_id(id=command.current_channel_id)
         post = await self._post_service.try_get_by_id(id=command.post_id)
+
         reply_comment = None
         if command.reply_comment_id is not Empty.UNSET:
             reply_comment = await self._post_comment_service.try_get_by_id_and_post_id(
                 id=command.reply_comment_id,
                 post_id=post.id,
             )
+
         comment_entity = PostComment.create(
             post_id=post.id,
             channel_id=channel.id,

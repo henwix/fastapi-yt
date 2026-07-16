@@ -9,7 +9,6 @@ from app.domain.channels.enums import ChannelAvatarFileContentTypesEnum
 from app.domain.channels.exceptions import (
     ChannelAvatarAlreadySetError,
     ChannelAvatarInvalidFileContentTypeError,
-    ChannelAvatarInvalidKeyError,
 )
 from app.domain.channels.services import IChannelService
 from app.domain.common.exceptions import S3ObjectAccessForbiddenError
@@ -24,8 +23,7 @@ class ConfirmChannelAvatarUploadUseCase:
 
     async def execute(self, command: ConfirmChannelAvatarUploadCommand) -> None:
         self._channel_service.validate_channel_avatar_file_format_and_get_content_type(value=command.key)
-        if not command.key.startswith(settings.s3_avatars_key_prefix):
-            raise ChannelAvatarInvalidKeyError(key=command.key)
+        self._channel_service.validate_channel_avatar_key(key=command.key, key_prefix=settings.s3_avatars_key_prefix)
 
         channel = await self._channel_service.try_get_active_by_id(id=command.current_channel_id)
 
@@ -43,10 +41,14 @@ class ConfirmChannelAvatarUploadUseCase:
             await self._task_queue.delete_s3_object(bucket=settings.s3_public_bucket_name, key=command.key)
             raise ChannelAvatarInvalidFileContentTypeError(key=command.key, content_type=avatar_metadata_content_type)
 
-        if channel.avatar_s3_key is not None:
-            await self._task_queue.delete_s3_object(bucket=settings.s3_public_bucket_name, key=channel.avatar_s3_key)
+        old_channel_avatar_s3_key = channel.avatar_s3_key
 
         channel.set_avatar_s3_key(key=command.key)
-
         async with self._transaction_manager:
             await self._channel_service.try_update(channel=channel)
+
+        if old_channel_avatar_s3_key is not None:
+            await self._task_queue.delete_s3_object(
+                bucket=settings.s3_public_bucket_name,
+                key=old_channel_avatar_s3_key,
+            )

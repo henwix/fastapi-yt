@@ -6,7 +6,7 @@ from app.application.auth.commands import LoginCommand
 from app.application.auth.use_cases.login import LoginUseCase
 from app.domain.auth.exceptions import IncorrectEmailOrPasswordError
 from app.presentation.api.openapi.common import error_response
-from app.presentation.api.v1.schemas.auth import JWTSchema, LoginSchema
+from app.presentation.api.v1.schemas.auth import JWTOutSchema, LoginInSchema
 
 router = APIRouter(
     prefix='/auth',
@@ -23,9 +23,9 @@ router = APIRouter(
     },
 )
 async def login(
-    schema: LoginSchema,
+    schema: LoginInSchema,
     use_case: FromDishka[LoginUseCase],
-) -> JWTSchema:
+) -> JWTOutSchema:
     command = LoginCommand(**schema.model_dump())
     tokens = await use_case.execute(command=command)
-    return JWTSchema(**tokens)
+    return JWTOutSchema(**tokens)

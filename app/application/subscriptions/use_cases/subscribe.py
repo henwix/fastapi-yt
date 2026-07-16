@@ -24,10 +24,10 @@ class SubscribeUseCase:
             subscriber_id=current_channel.id,
             subscribed_to_id=subscribe_to_channel.id,
         )
+
         subscription_entity = Subscription.create(
             subscriber_id=current_channel.id,
             subscribed_to_id=subscribe_to_channel.id,
         )
-
         async with self._transaction_manager:
             return await self._subscription_service.create(subscription=subscription_entity)

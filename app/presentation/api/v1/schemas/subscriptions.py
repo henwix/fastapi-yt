@@ -8,15 +8,15 @@ from app.domain.subscriptions.entities import Subscription
 from app.presentation.api.v1.schemas.base import BaseCursorResponse, BaseSchema
 
 
-class SubscriptionSchema(BaseSchema):
+class SubscriptionOutSchema(BaseSchema):
     id: UUID
     subscriber_id: UUID
     subscribed_to_id: UUID
     created_at: datetime
 
     @staticmethod
-    def from_entity(entity: Subscription) -> SubscriptionSchema:
-        return SubscriptionSchema(
+    def from_entity(entity: Subscription) -> SubscriptionOutSchema:
+        return SubscriptionOutSchema(
             id=entity.id,
             subscriber_id=entity.subscriber_id,
             subscribed_to_id=entity.subscribed_to_id,
@@ -24,14 +24,14 @@ class SubscriptionSchema(BaseSchema):
         )
 
 
-class DetailedSubscriptionSchema(BaseSchema):
+class DetailedSubscriptionOutSchema(BaseSchema):
     subscription_id: UUID
     channel_slug: str
     created_at: datetime
 
     @staticmethod
-    def from_dto(dto: DetailedSubscriptionDTO) -> DetailedSubscriptionSchema:
-        return DetailedSubscriptionSchema(
+    def from_dto(dto: DetailedSubscriptionDTO) -> DetailedSubscriptionOutSchema:
+        return DetailedSubscriptionOutSchema(
             subscription_id=dto.subscription_id,
             channel_slug=dto.channel_slug,
             created_at=dto.created_at,
@@ -44,4 +44,4 @@ class SubscriptionsSortingParams(BaseSchema):
 
 
 class SubscriptionsCursorResponse(BaseCursorResponse):
-    results: list[DetailedSubscriptionSchema]
+    results: list[DetailedSubscriptionOutSchema]

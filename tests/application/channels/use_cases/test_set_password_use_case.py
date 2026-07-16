@@ -2,7 +2,7 @@ import pytest
 from dishka import AsyncContainer
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from app.application.channels.use_cases.set_password import SetChannelPasswordUseCase
+from app.application.channels.use_cases.set_channel_password import SetChannelPasswordUseCase
 from app.application.common.interfaces.password_hasher import IPasswordHasher
 from app.domain.channels.exceptions import ChannelNotActiveError, ChannelNotFoundByIdError
 from tests.factories.commands.channels import SetChannelPasswordCommandFactory

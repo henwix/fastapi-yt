@@ -39,6 +39,10 @@ class ChannelORM(
         foreign_keys='SubscriptionORM.subscribed_to_id',
     )
 
+    __table_args__ = (
+        sa.CheckConstraint('char_length(description) <= 1000', name='ck_channels_description_max_length'),
+    )
+
     def to_entity(self) -> Channel:
         return Channel(
             id=self.id,

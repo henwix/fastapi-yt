@@ -13,7 +13,7 @@ from app.domain.post_reactions.exceptions import PostReactionAlreadyExistsError,
 from app.domain.posts.exceptions import PostNotFoundByIdError
 from app.presentation.api.openapi.common import error_response
 from app.presentation.api.v1.di.current_channel_id import CurrentChannelID
-from app.presentation.api.v1.schemas.post_reactions import CreatePostReactionSchema, PostReactionSchema
+from app.presentation.api.v1.schemas.post_reactions import CreatePostReactionInSchema, PostReactionOutSchema
 
 router = APIRouter(
     prefix='/posts/{post_id}/reactions',
@@ -27,11 +27,11 @@ router = APIRouter(
     status_code=status.HTTP_200_OK,
     responses={
         status.HTTP_200_OK: {
-            'model': PostReactionSchema,
+            'model': PostReactionOutSchema,
             'description': 'Returns an existing reaction, or updates it if *reaction_type* is different',
         },
         status.HTTP_201_CREATED: {
-            'model': PostReactionSchema,
+            'model': PostReactionOutSchema,
             'description': 'Creates a new reaction',
         },
         status.HTTP_400_BAD_REQUEST: error_response(PostReactionAlreadyExistsError),
@@ -50,11 +50,11 @@ router = APIRouter(
 )
 async def create_post_reaction(
     post_id: UUID,
-    schema: CreatePostReactionSchema,
+    schema: CreatePostReactionInSchema,
     current_channel_id: CurrentChannelID,
     use_case: FromDishka[CreatePostReactionUseCase],
     response: Response,
-) -> PostReactionSchema:
+) -> PostReactionOutSchema:
     command = CreatePostReactionCommand(
         current_channel_id=current_channel_id,
         post_id=post_id,
@@ -63,7 +63,7 @@ async def create_post_reaction(
     post_reaction, is_created = await use_case.execute(command=command)
     if is_created:
         response.status_code = status.HTTP_201_CREATED
-    return PostReactionSchema.from_entity(entity=post_reaction)
+    return PostReactionOutSchema.from_entity(entity=post_reaction)
 
 
 @router.delete(

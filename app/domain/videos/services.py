@@ -8,6 +8,7 @@ from app.domain.videos.enums import VideoFileContentTypesEnum, VideoUploadStatus
 from app.domain.videos.exceptions import (
     VideoAccessForbiddenError,
     VideoInvalidFileFormatError,
+    VideoInvalidKeyError,
     VideoNotFoundByIdError,
     VideoNotFoundByUploadIdAndS3KeyError,
     VideoUploadAlreadyCompletedError,
@@ -42,6 +43,9 @@ class IVideoService(ABC):
 
     @abstractmethod
     def validate_video_file_format_and_get_content_type(self, value: str) -> str: ...
+
+    @abstractmethod
+    def validate_video_key(self, key: str, key_prefix: str) -> None: ...
 
 
 @dataclass
@@ -93,3 +97,7 @@ class VideoService(IVideoService):
         if content_type is None or content_type not in VideoFileContentTypesEnum:
             raise VideoInvalidFileFormatError(file=value)
         return content_type
+
+    def validate_video_key(self, key: str, key_prefix: str) -> None:
+        if not key.startswith(key_prefix):
+            raise VideoInvalidKeyError(key=key)

@@ -3,7 +3,8 @@ from datetime import datetime
 from pydantic import Field, HttpUrl
 
 from app.application.videos.dto import DetailedVideoDTO
-from app.domain.common.constants import FILENAME_PATTERN
+from app.domain.common.constants import FILENAME_MAX_LENGTH, FILENAME_PATTERN
+from app.domain.videos.constants import VIDEO_DESCRIPTION_MAX_LENGTH, VIDEO_TITLE_MAX_LENGTH, VIDEO_TITLE_MIN_LENGTH
 from app.domain.videos.entities import Video
 from app.domain.videos.enums import VideoPrivacyStatusEnum
 from app.presentation.api.v1.schemas.base import BaseSchema, BaseUpdateSchema
@@ -28,16 +29,16 @@ class VideoOutSchema(BaseSchema):
 
 
 class UpdateVideoInSchema(BaseUpdateSchema):
-    title: str = Field(default='', min_length=1, max_length=100)
-    description: str = ''
+    title: str = Field(default='', min_length=VIDEO_TITLE_MIN_LENGTH, max_length=VIDEO_TITLE_MAX_LENGTH)
+    description: str = Field(default='', max_length=VIDEO_DESCRIPTION_MAX_LENGTH)
     privacy_status: VideoPrivacyStatusEnum = VideoPrivacyStatusEnum.PUBLIC
 
 
 class CreateVideoMultipartUploadInSchema(BaseSchema):
-    title: str = Field(min_length=1, max_length=100)
-    description: str = ''
+    title: str = Field(min_length=VIDEO_TITLE_MIN_LENGTH, max_length=VIDEO_TITLE_MAX_LENGTH)
+    description: str = Field(default='', max_length=VIDEO_DESCRIPTION_MAX_LENGTH)
     privacy_status: VideoPrivacyStatusEnum
-    filename: str = Field(max_length=100, pattern=FILENAME_PATTERN, examples=['video.mp4'])
+    filename: str = Field(max_length=FILENAME_MAX_LENGTH, pattern=FILENAME_PATTERN, examples=['video.mp4'])
 
 
 class CreateVideoMultipartUploadOutSchema(BaseSchema):
@@ -81,7 +82,7 @@ class GenerateVideoDownloadUrlOutSchema(BaseSchema):
     download_url: HttpUrl
 
 
-class DetailedVideoSchema(BaseSchema):
+class DetailedVideoOutSchema(BaseSchema):
     id: str
     title: str
     description: str
@@ -93,8 +94,8 @@ class DetailedVideoSchema(BaseSchema):
     channel_slug: str
 
     @staticmethod
-    def from_dto(dto: DetailedVideoDTO) -> DetailedVideoSchema:
-        return DetailedVideoSchema(
+    def from_dto(dto: DetailedVideoDTO) -> DetailedVideoOutSchema:
+        return DetailedVideoOutSchema(
             id=dto.id,
             title=dto.title,
             description=dto.description,

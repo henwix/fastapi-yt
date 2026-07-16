@@ -36,6 +36,7 @@ class VideoORM(CreatedAtMixin, BaseORM):
         sa.CheckConstraint("id ~ '^[A-Za-z0-9_-]{11}$'"),
         sa.CheckConstraint("privacy_status IN ('public', 'unlisted', 'private')", name='ck_privacy_status'),
         sa.CheckConstraint("upload_status IN ('uploading', 'completed')", name='ck_upload_status'),
+        sa.CheckConstraint('char_length(description) <= 5000', name='ck_videos_description_max_length'),
     )
 
     @staticmethod

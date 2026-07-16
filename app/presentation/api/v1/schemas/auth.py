@@ -1,11 +1,11 @@
 from pydantic import BaseModel, EmailStr
 
 
-class LoginSchema(BaseModel):
+class LoginInSchema(BaseModel):
     email: EmailStr
     password: str
 
 
-class JWTSchema(BaseModel):
+class JWTOutSchema(BaseModel):
     access: str
     refresh: str

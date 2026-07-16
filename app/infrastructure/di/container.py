@@ -9,9 +9,9 @@ from app.application.channels.use_cases.confirm_channel_avatar_upload import Con
 from app.application.channels.use_cases.create_channel import CreateChannelUseCase
 from app.application.channels.use_cases.delete_channel import DeleteChannelUseCase
 from app.application.channels.use_cases.delete_channel_avatar import DeleteChannelAvatarUseCase
-from app.application.channels.use_cases.generate_channel_avatar_upload_url import GenerateChannelAvatarUploadURLUseCase
+from app.application.channels.use_cases.generate_channel_avatar_upload_url import GenerateChannelAvatarUploadUrlUseCase
 from app.application.channels.use_cases.get_channel import GetChannelUseCase
-from app.application.channels.use_cases.set_password import SetChannelPasswordUseCase
+from app.application.channels.use_cases.set_channel_password import SetChannelPasswordUseCase
 from app.application.channels.use_cases.update_channel import UpdateChannelUseCase
 from app.application.common.interfaces.jwt import IJWTService
 from app.application.common.interfaces.password_hasher import IPasswordHasher
@@ -155,7 +155,7 @@ class UseCasesProvider(Provider):
     update_channel = provide(UpdateChannelUseCase)
     delete_channel = provide(DeleteChannelUseCase)
     set_channel_password = provide(SetChannelPasswordUseCase)
-    generate_channel_avatar_upload_url = provide(GenerateChannelAvatarUploadURLUseCase)
+    generate_channel_avatar_upload_url = provide(GenerateChannelAvatarUploadUrlUseCase)
     confirm_channel_avatar_upload = provide(ConfirmChannelAvatarUploadUseCase)
     delete_channel_avatar = provide(DeleteChannelAvatarUseCase)
 

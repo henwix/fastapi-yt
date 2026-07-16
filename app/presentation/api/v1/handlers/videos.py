@@ -41,12 +41,12 @@ from app.domain.videos.exceptions import (
 )
 from app.presentation.api.openapi.common import error_response
 from app.presentation.api.v1.di.current_channel_id import CurrentChannelID, OptionalCurrentChannelID
-from app.presentation.api.v1.schemas.common import CompleteMultipartUploadSchema
+from app.presentation.api.v1.schemas.common import CompleteMultipartUploadInSchema
 from app.presentation.api.v1.schemas.videos import (
     AbortVideoMultipartUploadInSchema,
     CreateVideoMultipartUploadInSchema,
     CreateVideoMultipartUploadOutSchema,
-    DetailedVideoSchema,
+    DetailedVideoOutSchema,
     GenerateVideoDownloadUrlOutSchema,
     GenerateVideoPartUploadUrlInSchema,
     GenerateVideoPartUploadUrlOutSchema,
@@ -160,7 +160,7 @@ async def generate_part_upload_url(
 )
 async def complete_multipart_upload(
     current_channel_id: CurrentChannelID,
-    schema: CompleteMultipartUploadSchema,
+    schema: CompleteMultipartUploadInSchema,
     use_case: FromDishka[CompleteVideoMultipartUploadUseCase],
 ):
     command = CompleteVideoMultipartUploadCommand(
@@ -286,10 +286,10 @@ async def get_video(
     current_channel_id: OptionalCurrentChannelID,
     video_id: PathVideoId,
     use_case: FromDishka[GetVideoUseCase],
-) -> DetailedVideoSchema:
+) -> DetailedVideoOutSchema:
     command = GetVideoCommand(current_channel_id=current_channel_id, video_id=video_id)
     video = await use_case.execute(command=command)
-    return DetailedVideoSchema.from_dto(dto=video)
+    return DetailedVideoOutSchema.from_dto(dto=video)
 
 
 @router.patch(

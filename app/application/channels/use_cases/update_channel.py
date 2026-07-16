@@ -16,6 +16,7 @@ class UpdateChannelUseCase:
         channel = await self._channel_service.try_get_active_by_id(id=command.current_channel_id)
         if command.slug is not Empty.UNSET:
             await self._channel_service.check_slug_exists(slug=command.slug)
+
         channel.update(
             name=command.name,
             slug=command.slug,

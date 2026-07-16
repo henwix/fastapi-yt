@@ -24,8 +24,8 @@ from app.domain.post_comments.exceptions import PostCommentNotFoundByIdError
 from app.presentation.api.openapi.common import error_response
 from app.presentation.api.v1.di.current_channel_id import CurrentChannelID
 from app.presentation.api.v1.schemas.post_comment_reactions import (
-    CreatePostCommentReactionSchema,
-    PostCommentReactionSchema,
+    CreatePostCommentReactionInSchema,
+    PostCommentReactionOutSchema,
 )
 
 router = APIRouter(
@@ -39,11 +39,11 @@ router = APIRouter(
     path='',
     responses={
         status.HTTP_200_OK: {
-            'model': PostCommentReactionSchema,
+            'model': PostCommentReactionOutSchema,
             'description': 'Returns an existing reaction, or updates it if *reaction_type* is different',
         },
         status.HTTP_201_CREATED: {
-            'model': PostCommentReactionSchema,
+            'model': PostCommentReactionOutSchema,
             'description': 'Creates a new reaction',
         },
         status.HTTP_400_BAD_REQUEST: error_response(PostCommentReactionAlreadyExistsError),
@@ -63,10 +63,10 @@ router = APIRouter(
 async def create_post_comment_reaction(
     post_comment_id: UUID,
     current_channel_id: CurrentChannelID,
-    schema: CreatePostCommentReactionSchema,
+    schema: CreatePostCommentReactionInSchema,
     use_case: FromDishka[CreatePostCommentReactionUseCase],
     response: Response,
-) -> PostCommentReactionSchema:
+) -> PostCommentReactionOutSchema:
     command = CreatePostCommentReactionCommand(
         current_channel_id=current_channel_id,
         post_comment_id=post_comment_id,
@@ -75,7 +75,7 @@ async def create_post_comment_reaction(
     reaction, is_created = await use_case.execute(command=command)
     if is_created:
         response.status_code = status.HTTP_201_CREATED
-    return PostCommentReactionSchema.from_entity(entity=reaction)
+    return PostCommentReactionOutSchema.from_entity(entity=reaction)
 
 
 @router.delete(

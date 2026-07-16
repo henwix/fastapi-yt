@@ -13,7 +13,7 @@ class Part(BaseSchema):
     PartNumber: int = Field(ge=1, le=10000)
 
 
-class CompleteMultipartUploadSchema(BaseSchema):
+class CompleteMultipartUploadInSchema(BaseSchema):
     key: str
     upload_id: str
     parts: list[Part] = Field(min_length=1, max_length=10000)

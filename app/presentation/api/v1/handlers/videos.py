@@ -2,8 +2,9 @@ from typing import Annotated
 
 from dishka import FromDishka
 from dishka.integrations.fastapi import DishkaRoute
-from fastapi import APIRouter, Path, status
+from fastapi import APIRouter, Depends, Path, Request, status
 
+from app.application.common.pagination import CursorPagination
 from app.application.videos.commands import (
     AbortVideoMultipartUploadCommand,
     CompleteVideoMultipartUploadCommand,
@@ -11,8 +12,13 @@ from app.application.videos.commands import (
     DeleteVideoCommand,
     GenerateVideoDownloadUrlCommand,
     GenerateVideoPartUploadUrlCommand,
-    GetVideoCommand,
     UpdateVideoCommand,
+)
+from app.application.videos.queries import (
+    GetPersonalVideosFilters,
+    GetPersonalVideosQuery,
+    GetPersonalVideosSorting,
+    GetVideoQuery,
 )
 from app.application.videos.use_cases.abort_video_multipart_upload import AbortVideoMultipartUploadUseCase
 from app.application.videos.use_cases.complete_video_multipart_upload import CompleteVideoMultipartUploadUseCase
@@ -20,6 +26,7 @@ from app.application.videos.use_cases.create_video_multipart_upload import Creat
 from app.application.videos.use_cases.delete_video import DeleteVideoUseCase
 from app.application.videos.use_cases.generate_video_download_url import GenerateVideoDownloadUrlUseCase
 from app.application.videos.use_cases.generate_video_part_upload_url import GenerateVideoPartUploadUrlUseCase
+from app.application.videos.use_cases.get_personal_videos import GetPersonalVideosUseCase
 from app.application.videos.use_cases.get_video import GetVideoUseCase
 from app.application.videos.use_cases.update_video import UpdateVideoUseCase
 from app.domain.auth.exceptions import JWTExpiredTokenError, JWTInvalidTokenError, NotAuthenticatedError
@@ -41,7 +48,7 @@ from app.domain.videos.exceptions import (
 )
 from app.presentation.api.openapi.common import error_response
 from app.presentation.api.v1.di.current_channel_id import CurrentChannelID, OptionalCurrentChannelID
-from app.presentation.api.v1.schemas.common import CompleteMultipartUploadInSchema
+from app.presentation.api.v1.schemas.common import CompleteMultipartUploadInSchema, CursorPaginationParams
 from app.presentation.api.v1.schemas.videos import (
     AbortVideoMultipartUploadInSchema,
     CreateVideoMultipartUploadInSchema,
@@ -50,8 +57,12 @@ from app.presentation.api.v1.schemas.videos import (
     GenerateVideoDownloadUrlOutSchema,
     GenerateVideoPartUploadUrlInSchema,
     GenerateVideoPartUploadUrlOutSchema,
+    PersonalVideoPreviewOutSchema,
+    PersonalVideosCursorResponse,
+    PersonalVideosFiltersParams,
+    PersonalVideosSortingParams,
     UpdateVideoInSchema,
-    VideoOutSchema,
+    UpdateVideoOutSchema,
 )
 
 router = APIRouter(
@@ -287,8 +298,8 @@ async def get_video(
     video_id: PathVideoId,
     use_case: FromDishka[GetVideoUseCase],
 ) -> DetailedVideoOutSchema:
-    command = GetVideoCommand(current_channel_id=current_channel_id, video_id=video_id)
-    video = await use_case.execute(command=command)
+    query = GetVideoQuery(current_channel_id=current_channel_id, video_id=video_id)
+    video = await use_case.execute(query=query)
     return DetailedVideoOutSchema.from_dto(dto=video)
 
 
@@ -315,11 +326,35 @@ async def update_video(
     video_id: PathVideoId,
     schema: UpdateVideoInSchema,
     use_case: FromDishka[UpdateVideoUseCase],
-) -> VideoOutSchema:
+) -> UpdateVideoOutSchema:
     command = UpdateVideoCommand(
         current_channel_id=current_channel_id,
         video_id=video_id,
         **schema.model_dump(exclude_unset=True),
     )
     video = await use_case.execute(command=command)
-    return VideoOutSchema.from_entity(entity=video)
+    return UpdateVideoOutSchema.from_entity(entity=video)
+
+
+@router.get(
+    path='',
+)
+async def get_personal_videos(
+    current_channel_id: CurrentChannelID,
+    use_case: FromDishka[GetPersonalVideosUseCase],
+    filters: Annotated[PersonalVideosFiltersParams, Depends()],
+    sorting: Annotated[PersonalVideosSortingParams, Depends()],
+    pagination: Annotated[CursorPaginationParams, Depends()],
+    request: Request,
+) -> PersonalVideosCursorResponse:
+    query = GetPersonalVideosQuery(
+        current_channel_id=current_channel_id,
+        filters=GetPersonalVideosFilters(**filters.model_dump(exclude_none=True)),
+        sorting=GetPersonalVideosSorting(**sorting.model_dump()),
+        pagination=CursorPagination(**pagination.model_dump(exclude_none=True)),
+    )
+    videos, cursor = await use_case.execute(query=query)
+    return PersonalVideosCursorResponse(
+        next_page=str(request.url.include_query_params(cursor=cursor)) if cursor else None,
+        results=[PersonalVideoPreviewOutSchema.from_dto(dto=video) for video in videos],
+    )

@@ -50,12 +50,6 @@ class DeleteVideoCommand:
 
 
 @dataclass(kw_only=True, frozen=True)
-class GetVideoCommand:
-    current_channel_id: UUID | None
-    video_id: str
-
-
-@dataclass(kw_only=True, frozen=True)
 class UpdateVideoCommand:
     current_channel_id: UUID
     video_id: str

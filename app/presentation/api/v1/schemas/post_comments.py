@@ -32,7 +32,13 @@ class PostCommentOutSchema(BaseSchema):
         )
 
 
-class DetailedPostCommentOutSchema(PostCommentOutSchema):
+class DetailedPostCommentOutSchema(BaseSchema):
+    id: UUID
+    text: str
+    reply_level: PostCommentReplyLevelEnum
+    is_edited: bool
+    reply_comment_id: UUID | None
+    created_at: datetime
     author_slug: str
 
     @staticmethod

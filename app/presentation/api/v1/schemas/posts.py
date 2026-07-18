@@ -1,14 +1,14 @@
 from datetime import datetime
 from uuid import UUID
 
-from pydantic import Field
+from pydantic import Field, HttpUrl
 
 from app.application.common.sorting import SortingOrderEnum
 from app.application.posts.dto import DetailedPostDTO
 from app.application.posts.queries import PostsSortingFieldsEnum
 from app.domain.posts.constants import POST_TEXT_MAX_LENGTH, POST_TEXT_MIN_LENGTH
 from app.domain.posts.entities import Post
-from app.presentation.api.v1.schemas.base import BaseCursorResponse, BaseSchema, BaseUpdateSchema
+from app.presentation.api.v1.schemas.base import BaseSchema, BaseUpdateSchema
 
 
 class CreatePostInSchema(BaseSchema):
@@ -56,5 +56,6 @@ class PostsSortingParams(BaseSchema):
     order: SortingOrderEnum = SortingOrderEnum.DESC
 
 
-class PostsCursorResponse(BaseCursorResponse):
+class PostsCursorResponse(BaseSchema):
+    next_page: HttpUrl | None
     results: list[DetailedPostOutSchema]

@@ -1,6 +1,6 @@
 from typing import Self
 
-from pydantic import BaseModel, ConfigDict, HttpUrl, model_validator
+from pydantic import BaseModel, ConfigDict, model_validator
 
 
 class BaseSchema(BaseModel):
@@ -16,8 +16,3 @@ class BaseUpdateSchema(BaseSchema):
         if not self.model_fields_set:
             raise ValueError('At least one field must be provided')
         return self
-
-
-class BaseCursorResponse(BaseSchema):
-    next_page: HttpUrl | None
-    results: list[BaseModel]

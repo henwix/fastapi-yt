@@ -12,7 +12,7 @@ class ISubscriptionReader(ABC):
     async def get_subscribers_by_id(
         self,
         subscribed_to_id: UUID,
-        cursor_sort_value: str | datetime | None,
+        cursor_sort_value: datetime | None,
         cursor_id_value: UUID | None,
         sorting: SubscriptionsSorting,
         pagination: CursorPagination,
@@ -22,7 +22,7 @@ class ISubscriptionReader(ABC):
     async def get_subscriptions_by_id(
         self,
         subscriber_id: UUID,
-        cursor_sort_value: str | datetime | None,
+        cursor_sort_value: datetime | None,
         cursor_id_value: UUID | None,
         sorting: SubscriptionsSorting,
         pagination: CursorPagination,

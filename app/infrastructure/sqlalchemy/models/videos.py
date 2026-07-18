@@ -3,10 +3,12 @@ from uuid import UUID
 import sqlalchemy as sa
 from sqlalchemy.orm import Mapped, mapped_column
 
+from app.domain.common.enums import ReactionTypeEnum
+from app.domain.video_reactions.entities import VideoReaction
 from app.domain.videos.entities import Video
 from app.domain.videos.enums import VideoPrivacyStatusEnum, VideoUploadStatusEnum
 from app.infrastructure.sqlalchemy.models.base import BaseORM
-from app.infrastructure.sqlalchemy.models.mixins import CreatedAtMixin
+from app.infrastructure.sqlalchemy.models.mixins import CreatedAtMixin, UUIDIdMixin
 from app.utils.videos import generate_video_id
 
 
@@ -64,4 +66,44 @@ class VideoORM(CreatedAtMixin, BaseORM):
             upload_id=self.upload_id,
             s3_key=self.s3_key,
             upload_status=VideoUploadStatusEnum(self.upload_status),
+        )
+
+
+class VideoReactionORM(
+    UUIDIdMixin,
+    CreatedAtMixin,
+    BaseORM,
+):
+    __tablename__ = 'video_reactions'
+
+    video_id: Mapped[str] = mapped_column(
+        sa.ForeignKey('videos.id', ondelete='CASCADE'),
+    )
+    channel_id: Mapped[UUID] = mapped_column(
+        sa.ForeignKey('channels.id', ondelete='CASCADE'),
+    )
+    reaction_type: Mapped[str] = mapped_column(sa.String(length=8))
+
+    __table_args__ = (
+        sa.UniqueConstraint('video_id', 'channel_id', name='unique_channel_video_reaction'),
+        sa.CheckConstraint("reaction_type IN ('positive', 'negative')", name='ck_video_reactions_type'),
+    )
+
+    @staticmethod
+    def from_entity(entity: VideoReaction) -> VideoReactionORM:
+        return VideoReactionORM(
+            id=entity.id,
+            video_id=entity.video_id,
+            channel_id=entity.channel_id,
+            reaction_type=entity.reaction_type.value,
+            created_at=entity.created_at,
+        )
+
+    def to_entity(self) -> VideoReaction:
+        return VideoReaction(
+            id=self.id,
+            video_id=self.video_id,
+            channel_id=self.channel_id,
+            reaction_type=ReactionTypeEnum(self.reaction_type),
+            created_at=self.created_at,
         )

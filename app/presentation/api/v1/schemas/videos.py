@@ -18,7 +18,7 @@ class UpdateVideoInSchema(BaseUpdateSchema):
     privacy_status: VideoPrivacyStatusEnum = VideoPrivacyStatusEnum.PUBLIC
 
 
-class UpdateVideoOutSchema(BaseSchema):
+class VideoOutSchema(BaseSchema):
     id: str
     title: str
     description: str
@@ -26,51 +26,14 @@ class UpdateVideoOutSchema(BaseSchema):
     created_at: datetime
 
     @staticmethod
-    def from_entity(entity: Video) -> UpdateVideoOutSchema:
-        return UpdateVideoOutSchema(
+    def from_entity(entity: Video) -> VideoOutSchema:
+        return VideoOutSchema(
             id=entity.id,
             title=entity.title,
             description=entity.description,
             privacy_status=entity.privacy_status,
             created_at=entity.created_at,
         )
-
-
-class CreateVideoMultipartUploadInSchema(BaseSchema):
-    title: str = Field(min_length=VIDEO_TITLE_MIN_LENGTH, max_length=VIDEO_TITLE_MAX_LENGTH)
-    description: str = Field(default='', max_length=VIDEO_DESCRIPTION_MAX_LENGTH)
-    privacy_status: VideoPrivacyStatusEnum
-    filename: str = Field(max_length=FILENAME_MAX_LENGTH, pattern=FILENAME_PATTERN, examples=['video.mp4'])
-
-
-class CreateVideoMultipartUploadOutSchema(BaseSchema):
-    id: str
-    title: str
-    description: str
-    privacy_status: VideoPrivacyStatusEnum
-    created_at: datetime
-    upload_id: str
-    s3_key: str
-
-    @staticmethod
-    def from_entity(entity: Video) -> CreateVideoMultipartUploadOutSchema:
-        return CreateVideoMultipartUploadOutSchema(
-            id=entity.id,
-            title=entity.title,
-            description=entity.description,
-            privacy_status=entity.privacy_status,
-            created_at=entity.created_at,
-            upload_id=entity.upload_id,
-            s3_key=entity.s3_key,
-        )
-
-
-class GenerateVideoPartUploadUrlOutSchema(BaseSchema):
-    upload_url: HttpUrl
-
-
-class GenerateVideoDownloadUrlOutSchema(BaseSchema):
-    download_url: HttpUrl
 
 
 class DetailedVideoOutSchema(BaseSchema):
@@ -128,3 +91,18 @@ class PersonalVideoPreviewOutSchema(BaseSchema):
 class PersonalVideosCursorResponse(BaseSchema):
     next_page: HttpUrl | None
     results: list[PersonalVideoPreviewOutSchema]
+
+
+class CreateVideoMultipartUploadInSchema(BaseSchema):
+    title: str = Field(min_length=VIDEO_TITLE_MIN_LENGTH, max_length=VIDEO_TITLE_MAX_LENGTH)
+    description: str = Field(default='', max_length=VIDEO_DESCRIPTION_MAX_LENGTH)
+    privacy_status: VideoPrivacyStatusEnum
+    filename: str = Field(max_length=FILENAME_MAX_LENGTH, pattern=FILENAME_PATTERN, examples=['video.mp4'])
+
+
+class GenerateVideoPartUploadUrlOutSchema(BaseSchema):
+    upload_url: HttpUrl
+
+
+class GenerateVideoDownloadUrlOutSchema(BaseSchema):
+    download_url: HttpUrl

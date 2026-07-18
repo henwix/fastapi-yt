@@ -8,17 +8,17 @@ from app.utils.get_datetime_utc_now import get_datetime_utc_now
 
 
 @dataclass(kw_only=True)
-class PostCommentReaction(BaseEntity):
+class VideoReaction(BaseEntity):
     id: UUID = field(default_factory=uuid7)
-    post_comment_id: UUID
+    video_id: str
     channel_id: UUID
     reaction_type: ReactionTypeEnum
     created_at: datetime = field(default_factory=get_datetime_utc_now)
 
     @staticmethod
-    def create(post_comment_id: UUID, channel_id: UUID, reaction_type: ReactionTypeEnum) -> PostCommentReaction:
-        return PostCommentReaction(
-            post_comment_id=post_comment_id,
+    def create(video_id: str, channel_id: UUID, reaction_type: ReactionTypeEnum) -> VideoReaction:
+        return VideoReaction(
+            video_id=video_id,
             channel_id=channel_id,
             reaction_type=reaction_type,
         )

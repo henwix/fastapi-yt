@@ -43,6 +43,8 @@ from app.application.subscriptions.use_cases.get_subscribers import GetSubscribe
 from app.application.subscriptions.use_cases.get_subscriptions import GetSubscriptionsUseCase
 from app.application.subscriptions.use_cases.subscribe import SubscribeUseCase
 from app.application.subscriptions.use_cases.unsubscribe import UnsubscribeUseCase
+from app.application.video_reactions.use_cases.create_video_reaction import CreateVideoReactionUseCase
+from app.application.video_reactions.use_cases.delete_video_reaction import DeleteVideoReactionUseCase
 from app.application.videos.interfaces.reader import IVideoReader
 from app.application.videos.use_cases.abort_video_multipart_upload import AbortVideoMultipartUploadUseCase
 from app.application.videos.use_cases.complete_video_multipart_upload import CompleteVideoMultipartUploadUseCase
@@ -65,6 +67,8 @@ from app.domain.posts.repositories import IPostRepository
 from app.domain.posts.services import IPostService, PostService
 from app.domain.subscriptions.repositories import ISubscriptionRepository
 from app.domain.subscriptions.services import ISubscriptionService, SubscriptionService
+from app.domain.video_reactions.repositories import IVideoReactionRepository
+from app.domain.video_reactions.services import IVideoReactionService, VideoReactionService
 from app.domain.videos.repositories import IVideoRepository
 from app.domain.videos.services import IVideoService, VideoService
 from app.infrastructure.s3.client import BotoS3Client
@@ -82,6 +86,7 @@ from app.infrastructure.sqlalchemy.repositories.post_comments import SAPostComme
 from app.infrastructure.sqlalchemy.repositories.post_reactions import SAPostReactionRepository
 from app.infrastructure.sqlalchemy.repositories.posts import SAPostRepository
 from app.infrastructure.sqlalchemy.repositories.subscriptions import SASubscriptionRepository
+from app.infrastructure.sqlalchemy.repositories.video_reactions import SAVideoReactionRepository
 from app.infrastructure.sqlalchemy.repositories.videos import SAVideoRepository
 from app.infrastructure.sqlalchemy.transaction_manager import SATransactionManager
 from app.infrastructure.taskiq.task_queue import TaskiqTaskQueue
@@ -119,6 +124,7 @@ class RepositoriesProvider(Provider):
 
     channel_repository = provide(SAChannelRepository, provides=IChannelRepository)
     video_repository = provide(SAVideoRepository, provides=IVideoRepository)
+    video_reaction_repository = provide(SAVideoReactionRepository, provides=IVideoReactionRepository)
     post_repository = provide(SAPostRepository, provides=IPostRepository)
     post_reaction_repository = provide(SAPostReactionRepository, provides=IPostReactionRepository)
     post_comment_repository = provide(SAPostCommentRepository, provides=IPostCommentRepository)
@@ -140,6 +146,7 @@ class ServicesProvider(Provider):
 
     channel_service = provide(ChannelService, provides=IChannelService)
     video_service = provide(VideoService, provides=IVideoService)
+    video_reaction_service = provide(VideoReactionService, provides=IVideoReactionService)
     post_service = provide(PostService, provides=IPostService)
     post_reaction_service = provide(PostReactionService, provides=IPostReactionService)
     post_comment_service = provide(PostCommentService, provides=IPostCommentService)
@@ -164,15 +171,20 @@ class UseCasesProvider(Provider):
     login = provide(LoginUseCase)
 
     # Videos
+    delete_video = provide(DeleteVideoUseCase)
+    update_video = provide(UpdateVideoUseCase)
+    get_video = provide(GetVideoUseCase)
+    get_personal_videos = provide(GetPersonalVideosUseCase)
+
     create_video_multipart_upload = provide(CreateVideoMultipartUploadUseCase)
     abort_video_multipart_upload = provide(AbortVideoMultipartUploadUseCase)
     generate_video_part_upload_url = provide(GenerateVideoPartUploadUrlUseCase)
     complete_video_multipart_upload = provide(CompleteVideoMultipartUploadUseCase)
     generate_video_download_url = provide(GenerateVideoDownloadUrlUseCase)
-    delete_video = provide(DeleteVideoUseCase)
-    update_video = provide(UpdateVideoUseCase)
-    get_video = provide(GetVideoUseCase)
-    get_personal_videos = provide(GetPersonalVideosUseCase)
+
+    # Video reactions
+    create_video_reaction = provide(CreateVideoReactionUseCase)
+    delete_video_reaction = provide(DeleteVideoReactionUseCase)
 
     # Posts
     create_post = provide(CreatePostUseCase)

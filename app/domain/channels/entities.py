@@ -1,5 +1,6 @@
 from dataclasses import dataclass, field
 from datetime import datetime
+from uuid import UUID, uuid7
 
 from app.domain.common.constants import Empty
 from app.domain.common.entities import BaseEntity
@@ -8,6 +9,7 @@ from app.utils.get_datetime_utc_now import get_datetime_utc_now
 
 @dataclass(kw_only=True)
 class Channel(BaseEntity):
+    id: UUID = field(default_factory=uuid7)
     email: str
     name: str
     slug: str

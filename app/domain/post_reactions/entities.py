@@ -1,6 +1,6 @@
 from dataclasses import dataclass, field
 from datetime import datetime
-from uuid import UUID
+from uuid import UUID, uuid7
 
 from app.domain.common.entities import BaseEntity
 from app.domain.common.enums import ReactionTypeEnum
@@ -9,6 +9,7 @@ from app.utils.get_datetime_utc_now import get_datetime_utc_now
 
 @dataclass(kw_only=True)
 class PostReaction(BaseEntity):
+    id: UUID = field(default_factory=uuid7)
     post_id: UUID
     channel_id: UUID
     reaction_type: ReactionTypeEnum

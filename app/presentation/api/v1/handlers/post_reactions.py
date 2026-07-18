@@ -49,9 +49,9 @@ router = APIRouter(
     },
 )
 async def create_post_reaction(
+    current_channel_id: CurrentChannelID,
     post_id: UUID,
     schema: CreatePostReactionInSchema,
-    current_channel_id: CurrentChannelID,
     use_case: FromDishka[CreatePostReactionUseCase],
     response: Response,
 ) -> PostReactionOutSchema:
@@ -84,8 +84,8 @@ async def create_post_reaction(
     },
 )
 async def delete_post_reaction(
-    post_id: UUID,
     current_channel_id: CurrentChannelID,
+    post_id: UUID,
     use_case: FromDishka[DeletePostReactionUseCase],
 ) -> None:
     command = DeletePostReactionCommand(current_channel_id=current_channel_id, post_id=post_id)

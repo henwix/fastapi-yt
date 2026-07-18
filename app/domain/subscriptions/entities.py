@@ -1,6 +1,6 @@
 from dataclasses import dataclass, field
 from datetime import datetime
-from uuid import UUID
+from uuid import UUID, uuid7
 
 from app.domain.common.entities import BaseEntity
 from app.utils.get_datetime_utc_now import get_datetime_utc_now
@@ -8,6 +8,7 @@ from app.utils.get_datetime_utc_now import get_datetime_utc_now
 
 @dataclass(kw_only=True)
 class Subscription(BaseEntity):
+    id: UUID = field(default_factory=uuid7)
     subscriber_id: UUID
     subscribed_to_id: UUID
     created_at: datetime = field(default_factory=get_datetime_utc_now)

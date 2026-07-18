@@ -27,7 +27,7 @@ class PostORM(
     text: Mapped[str] = mapped_column(sa.Text)
 
     __table_args__ = (
-        sa.Index('ix_composite_channel_id_created_at_id', 'channel_id', 'created_at', 'id'),
+        sa.Index('ix_posts_composite_channel_id_created_at_id', 'channel_id', 'created_at', 'id'),
         sa.CheckConstraint('char_length(text) <= 5000', name='ck_posts_text_max_length'),
     )
 
@@ -117,10 +117,16 @@ class PostCommentORM(
     __table_args__ = (
         sa.CheckConstraint('reply_level IN (0, 1)', name='ck_reply_level'),
         sa.CheckConstraint('char_length(text) <= 10000', name='ck_post_comments_text_max_length'),
-        sa.Index('ix_composite_id_post_id', 'id', 'post_id'),
-        sa.Index('ix_composite_post_id_reply_level_created_at_id', 'post_id', 'reply_level', 'created_at', 'id'),
+        sa.Index('ix_post_comments_composite_id_post_id', 'id', 'post_id'),
         sa.Index(
-            'ix_composite_reply_comment_id_reply_level_created_at_id',
+            'ix_post_comments_composite_comments',
+            'post_id',
+            'reply_level',
+            'created_at',
+            'id',
+        ),
+        sa.Index(
+            'ix_post_comments_composite_replies',
             'reply_comment_id',
             'reply_level',
             'created_at',

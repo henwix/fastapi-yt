@@ -48,7 +48,8 @@
 
 
 #### Videos
-
+- [x] Videos CRUD
+- [x] Videos Uploads
 
 #### Video comments
 

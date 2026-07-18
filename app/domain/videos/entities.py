@@ -3,13 +3,14 @@ from datetime import datetime
 from uuid import UUID
 
 from app.domain.common.constants import Empty
+from app.domain.common.entities import BaseEntity
 from app.domain.videos.enums import VideoPrivacyStatusEnum, VideoUploadStatusEnum
 from app.utils.get_datetime_utc_now import get_datetime_utc_now
 from app.utils.videos import generate_video_id
 
 
 @dataclass(kw_only=True)
-class Video:
+class Video(BaseEntity):
     id: str = field(default_factory=generate_video_id)
     channel_id: UUID
     title: str

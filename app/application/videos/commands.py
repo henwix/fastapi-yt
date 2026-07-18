@@ -17,24 +17,21 @@ class CreateVideoMultipartUploadCommand:
 @dataclass(kw_only=True, frozen=True)
 class GenerateVideoPartUploadUrlCommand:
     current_channel_id: UUID
-    key: str
-    upload_id: str
+    video_id: str
     part_number: int
 
 
 @dataclass(kw_only=True, frozen=True)
 class CompleteVideoMultipartUploadCommand:
     current_channel_id: UUID
-    key: str
-    upload_id: str
+    video_id: str
     parts: list[dict]
 
 
 @dataclass(kw_only=True, frozen=True)
 class AbortVideoMultipartUploadCommand:
     current_channel_id: UUID
-    key: str
-    upload_id: str
+    video_id: str
 
 
 @dataclass(kw_only=True, frozen=True)

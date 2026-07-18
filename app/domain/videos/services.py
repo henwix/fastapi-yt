@@ -8,9 +8,7 @@ from app.domain.videos.enums import VideoFileContentTypesEnum, VideoUploadStatus
 from app.domain.videos.exceptions import (
     VideoAccessForbiddenError,
     VideoInvalidFileFormatError,
-    VideoInvalidKeyError,
     VideoNotFoundByIdError,
-    VideoNotFoundByUploadIdAndS3KeyError,
     VideoUploadAlreadyCompletedError,
 )
 from app.domain.videos.repositories import IVideoRepository
@@ -22,9 +20,6 @@ class IVideoService(ABC):
 
     @abstractmethod
     async def try_update(self, video: Video) -> Video: ...
-
-    @abstractmethod
-    async def try_get_by_upload_id_and_s3_key(self, upload_id: str, s3_key: str) -> Video: ...
 
     @abstractmethod
     async def try_get_by_id(self, id: str) -> Video: ...
@@ -44,9 +39,6 @@ class IVideoService(ABC):
     @abstractmethod
     def validate_video_file_format_and_get_content_type(self, value: str) -> str: ...
 
-    @abstractmethod
-    def validate_video_key(self, key: str, key_prefix: str) -> None: ...
-
 
 @dataclass
 class VideoService(IVideoService):
@@ -60,12 +52,6 @@ class VideoService(IVideoService):
         if updated_video is None:
             raise VideoNotFoundByIdError(video_id=video.id)
         return updated_video
-
-    async def try_get_by_upload_id_and_s3_key(self, upload_id: str, s3_key: str) -> Video:
-        video = await self._repo.get_by_upload_id_and_s3_key(upload_id=upload_id, s3_key=s3_key)
-        if video is None:
-            raise VideoNotFoundByUploadIdAndS3KeyError(upload_id=upload_id, s3_key=s3_key)
-        return video
 
     async def try_get_by_id(self, id: str) -> Video:
         video = await self._repo.get_by_id(id=id)
@@ -89,7 +75,7 @@ class VideoService(IVideoService):
             raise VideoAccessForbiddenError(video_id=video.id, channel_id=channel.id)
 
     def ensure_video_upload_not_completed(self, video: Video) -> None:
-        if video.upload_status is VideoUploadStatusEnum.COMPLETED:
+        if video.upload_status is VideoUploadStatusEnum.COMPLETED and video.upload_id is None:
             raise VideoUploadAlreadyCompletedError(video_id=video.id)
 
     def validate_video_file_format_and_get_content_type(self, value: str) -> str:
@@ -97,7 +83,3 @@ class VideoService(IVideoService):
         if content_type is None or content_type not in VideoFileContentTypesEnum:
             raise VideoInvalidFileFormatError(file=value)
         return content_type
-
-    def validate_video_key(self, key: str, key_prefix: str) -> None:
-        if not key.startswith(key_prefix):
-            raise VideoInvalidKeyError(key=key)

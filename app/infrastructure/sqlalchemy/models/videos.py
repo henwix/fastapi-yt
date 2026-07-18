@@ -32,7 +32,7 @@ class VideoORM(CreatedAtMixin, BaseORM):
     upload_status: Mapped[str] = mapped_column(sa.String(length=10))
 
     __table_args__ = (
-        sa.Index('ix_composite_upload_id_s3_key', 'upload_id', 's3_key'),
+        sa.Index('ix_videos_composite_channel_id_created_at_id', 'channel_id', 'created_at', 'id'),
         sa.CheckConstraint("id ~ '^[A-Za-z0-9_-]{11}$'"),
         sa.CheckConstraint("privacy_status IN ('public', 'unlisted', 'private')", name='ck_privacy_status'),
         sa.CheckConstraint("upload_status IN ('uploading', 'completed')", name='ck_upload_status'),

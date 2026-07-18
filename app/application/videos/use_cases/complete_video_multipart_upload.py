@@ -16,24 +16,19 @@ class CompleteVideoMultipartUploadUseCase:
     _s3_provider: IS3Provider
 
     async def execute(self, command: CompleteVideoMultipartUploadCommand) -> None:
-        self._video_service.validate_video_file_format_and_get_content_type(value=command.key)
-        self._video_service.validate_video_key(key=command.key, key_prefix=settings.s3_videos_key_prefix)
-
         channel = await self._channel_service.try_get_active_by_id(id=command.current_channel_id)
-        video = await self._video_service.try_get_by_upload_id_and_s3_key(
-            upload_id=command.upload_id,
-            s3_key=command.key,
-        )
+        video = await self._video_service.try_get_by_id(id=command.video_id)
+
         self._video_service.ensure_video_access(video=video, channel=channel)
         self._video_service.ensure_video_upload_not_completed(video=video)
 
         await self._s3_provider.complete_multipart_upload(
             bucket=settings.s3_private_bucket_name,
-            key=command.key,
-            upload_id=command.upload_id,
+            key=video.s3_key,
+            upload_id=video.upload_id,
             parts=command.parts,
         )
-        video.update_after_completed_upload()
 
+        video.update_after_completed_upload()
         async with self._transaction_manager:
             await self._video_service.try_update(video=video)

@@ -50,9 +50,7 @@ from app.domain.subscriptions.exceptions import (
 from app.domain.videos.exceptions import (
     VideoAccessForbiddenError,
     VideoInvalidFileFormatError,
-    VideoInvalidKeyError,
     VideoNotFoundByIdError,
-    VideoNotFoundByUploadIdAndS3KeyError,
     VideoUploadAlreadyCompletedError,
 )
 from app.presentation.api.responses.msgspec import MsgSpecJSONResponse
@@ -88,10 +86,8 @@ def get_http_status_code(exc: AppException):
         NotAuthenticatedError: status.HTTP_401_UNAUTHORIZED,
         # Videos
         VideoInvalidFileFormatError: status.HTTP_400_BAD_REQUEST,
-        VideoInvalidKeyError: status.HTTP_400_BAD_REQUEST,
         VideoUploadAlreadyCompletedError: status.HTTP_400_BAD_REQUEST,
         VideoAccessForbiddenError: status.HTTP_403_FORBIDDEN,
-        VideoNotFoundByUploadIdAndS3KeyError: status.HTTP_404_NOT_FOUND,
         VideoNotFoundByIdError: status.HTTP_404_NOT_FOUND,
         # Posts
         PostAccessForbiddenError: status.HTTP_403_FORBIDDEN,

@@ -14,6 +14,4 @@ class Part(BaseSchema):
 
 
 class CompleteMultipartUploadInSchema(BaseSchema):
-    key: str
-    upload_id: str
     parts: list[Part] = Field(min_length=1, max_length=10000)

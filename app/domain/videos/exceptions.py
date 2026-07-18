@@ -5,13 +5,6 @@ from app.domain.common.exceptions import AppException
 
 
 @dataclass(kw_only=True)
-class VideoNotFoundByUploadIdAndS3KeyError(AppException):
-    message = 'Video not found by upload_id and s3_key'
-    upload_id: str
-    s3_key: str
-
-
-@dataclass(kw_only=True)
 class VideoNotFoundByIdError(AppException):
     message = 'Video not found by id'
     video_id: str
@@ -27,12 +20,6 @@ class VideoUploadAlreadyCompletedError(AppException):
 class VideoInvalidFileFormatError(AppException):
     message = 'Video invalid file format'
     file: str
-
-
-@dataclass(kw_only=True)
-class VideoInvalidKeyError(AppException):
-    message = 'Video invalid key'
-    key: str
 
 
 @dataclass(kw_only=True)

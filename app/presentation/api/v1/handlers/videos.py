@@ -2,7 +2,7 @@ from typing import Annotated
 
 from dishka import FromDishka
 from dishka.integrations.fastapi import DishkaRoute
-from fastapi import APIRouter, Depends, Path, Request, status
+from fastapi import APIRouter, Depends, Path, Query, Request, status
 
 from app.application.common.pagination import CursorPagination
 from app.application.videos.commands import (
@@ -41,21 +41,17 @@ from app.domain.videos.constants import VIDEO_ID_PATTERN
 from app.domain.videos.exceptions import (
     VideoAccessForbiddenError,
     VideoInvalidFileFormatError,
-    VideoInvalidKeyError,
     VideoNotFoundByIdError,
-    VideoNotFoundByUploadIdAndS3KeyError,
     VideoUploadAlreadyCompletedError,
 )
 from app.presentation.api.openapi.common import error_response
 from app.presentation.api.v1.di.current_channel_id import CurrentChannelID, OptionalCurrentChannelID
 from app.presentation.api.v1.schemas.common import CompleteMultipartUploadInSchema, CursorPaginationParams
 from app.presentation.api.v1.schemas.videos import (
-    AbortVideoMultipartUploadInSchema,
     CreateVideoMultipartUploadInSchema,
     CreateVideoMultipartUploadOutSchema,
     DetailedVideoOutSchema,
     GenerateVideoDownloadUrlOutSchema,
-    GenerateVideoPartUploadUrlInSchema,
     GenerateVideoPartUploadUrlOutSchema,
     PersonalVideoPreviewOutSchema,
     PersonalVideosCursorResponse,
@@ -72,6 +68,30 @@ router = APIRouter(
 )
 
 PathVideoId = Annotated[str, Path(pattern=VIDEO_ID_PATTERN)]
+
+
+@router.get(
+    path='/personal',
+)
+async def get_personal_videos(
+    current_channel_id: CurrentChannelID,
+    use_case: FromDishka[GetPersonalVideosUseCase],
+    filters: Annotated[PersonalVideosFiltersParams, Depends()],
+    sorting: Annotated[PersonalVideosSortingParams, Depends()],
+    pagination: Annotated[CursorPaginationParams, Depends()],
+    request: Request,
+) -> PersonalVideosCursorResponse:
+    query = GetPersonalVideosQuery(
+        current_channel_id=current_channel_id,
+        filters=GetPersonalVideosFilters(**filters.model_dump(exclude_none=True)),
+        sorting=GetPersonalVideosSorting(**sorting.model_dump()),
+        pagination=CursorPagination(**pagination.model_dump(exclude_none=True)),
+    )
+    videos, cursor = await use_case.execute(query=query)
+    return PersonalVideosCursorResponse(
+        next_page=str(request.url.include_query_params(cursor=cursor)) if cursor else None,
+        results=[PersonalVideoPreviewOutSchema.from_dto(dto=video) for video in videos],
+    )
 
 
 @router.post(
@@ -102,14 +122,12 @@ async def create_mutipart_upload(
     return CreateVideoMultipartUploadOutSchema.from_entity(entity=video)
 
 
-@router.post(
-    '/part_upload_url',
+@router.get(
+    '/{video_id}/part_upload_url',
     summary='Generate Part Upload Url For Multipart Upload',
     status_code=status.HTTP_201_CREATED,
     responses={
         status.HTTP_400_BAD_REQUEST: error_response(
-            VideoInvalidFileFormatError,
-            VideoInvalidKeyError,
             VideoUploadAlreadyCompletedError,
         ),
         status.HTTP_401_UNAUTHORIZED: error_response(
@@ -123,31 +141,31 @@ async def create_mutipart_upload(
         ),
         status.HTTP_404_NOT_FOUND: error_response(
             ChannelNotFoundByIdError,
-            VideoNotFoundByUploadIdAndS3KeyError,
+            VideoNotFoundByIdError,
         ),
         status.HTTP_500_INTERNAL_SERVER_ERROR: error_response(S3RequestError, S3UnavailableError),
     },
 )
 async def generate_part_upload_url(
     current_channel_id: CurrentChannelID,
-    schema: GenerateVideoPartUploadUrlInSchema,
+    video_id: PathVideoId,
+    part_number: Annotated[int, Query(ge=1, le=10000)],
     use_case: FromDishka[GenerateVideoPartUploadUrlUseCase],
 ) -> GenerateVideoPartUploadUrlOutSchema:
     command = GenerateVideoPartUploadUrlCommand(
         current_channel_id=current_channel_id,
-        **schema.model_dump(),
+        video_id=video_id,
+        part_number=part_number,
     )
     upload_url = await use_case.execute(command=command)
     return GenerateVideoPartUploadUrlOutSchema(upload_url=upload_url)
 
 
 @router.post(
-    path='/complete_multipart_upload',
+    path='/{video_id}/complete_multipart_upload',
     status_code=status.HTTP_204_NO_CONTENT,
     responses={
         status.HTTP_400_BAD_REQUEST: error_response(
-            VideoInvalidFileFormatError,
-            VideoInvalidKeyError,
             VideoUploadAlreadyCompletedError,
             S3MultipartUploadInvalidPartsError,
         ),
@@ -162,7 +180,6 @@ async def generate_part_upload_url(
         ),
         status.HTTP_404_NOT_FOUND: error_response(
             ChannelNotFoundByIdError,
-            VideoNotFoundByUploadIdAndS3KeyError,
             VideoNotFoundByIdError,
             S3MultipartUploadNotFoundError,
         ),
@@ -171,23 +188,24 @@ async def generate_part_upload_url(
 )
 async def complete_multipart_upload(
     current_channel_id: CurrentChannelID,
+    video_id: PathVideoId,
     schema: CompleteMultipartUploadInSchema,
     use_case: FromDishka[CompleteVideoMultipartUploadUseCase],
 ):
     command = CompleteVideoMultipartUploadCommand(
         current_channel_id=current_channel_id,
+        video_id=video_id,
         **schema.model_dump(),
     )
     await use_case.execute(command=command)
 
 
-@router.post(
-    path='/abort_multipart_upload',
+@router.delete(
+    path='/{video_id}/abort_multipart_upload',
     status_code=status.HTTP_204_NO_CONTENT,
+    summary='Abort Multipart Upload And Delete Video',
     responses={
         status.HTTP_400_BAD_REQUEST: error_response(
-            VideoInvalidFileFormatError,
-            VideoInvalidKeyError,
             VideoUploadAlreadyCompletedError,
         ),
         status.HTTP_401_UNAUTHORIZED: error_response(
@@ -201,7 +219,6 @@ async def complete_multipart_upload(
         ),
         status.HTTP_404_NOT_FOUND: error_response(
             ChannelNotFoundByIdError,
-            VideoNotFoundByUploadIdAndS3KeyError,
             VideoNotFoundByIdError,
         ),
         status.HTTP_500_INTERNAL_SERVER_ERROR: error_response(S3RequestError, S3UnavailableError),
@@ -209,12 +226,12 @@ async def complete_multipart_upload(
 )
 async def abort_multipart_upload(
     current_channel_id: CurrentChannelID,
-    schema: AbortVideoMultipartUploadInSchema,
+    video_id: PathVideoId,
     use_case: FromDishka[AbortVideoMultipartUploadUseCase],
 ) -> None:
     command = AbortVideoMultipartUploadCommand(
         current_channel_id=current_channel_id,
-        **schema.model_dump(),
+        video_id=video_id,
     )
     await use_case.execute(command=command)
 
@@ -334,27 +351,3 @@ async def update_video(
     )
     video = await use_case.execute(command=command)
     return UpdateVideoOutSchema.from_entity(entity=video)
-
-
-@router.get(
-    path='',
-)
-async def get_personal_videos(
-    current_channel_id: CurrentChannelID,
-    use_case: FromDishka[GetPersonalVideosUseCase],
-    filters: Annotated[PersonalVideosFiltersParams, Depends()],
-    sorting: Annotated[PersonalVideosSortingParams, Depends()],
-    pagination: Annotated[CursorPaginationParams, Depends()],
-    request: Request,
-) -> PersonalVideosCursorResponse:
-    query = GetPersonalVideosQuery(
-        current_channel_id=current_channel_id,
-        filters=GetPersonalVideosFilters(**filters.model_dump(exclude_none=True)),
-        sorting=GetPersonalVideosSorting(**sorting.model_dump()),
-        pagination=CursorPagination(**pagination.model_dump(exclude_none=True)),
-    )
-    videos, cursor = await use_case.execute(query=query)
-    return PersonalVideosCursorResponse(
-        next_page=str(request.url.include_query_params(cursor=cursor)) if cursor else None,
-        results=[PersonalVideoPreviewOutSchema.from_dto(dto=video) for video in videos],
-    )

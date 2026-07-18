@@ -65,17 +65,6 @@ class CreateVideoMultipartUploadOutSchema(BaseSchema):
         )
 
 
-class AbortVideoMultipartUploadInSchema(BaseSchema):
-    key: str
-    upload_id: str
-
-
-class GenerateVideoPartUploadUrlInSchema(BaseSchema):
-    key: str
-    upload_id: str
-    part_number: int = Field(ge=1, le=10000)
-
-
 class GenerateVideoPartUploadUrlOutSchema(BaseSchema):
     upload_url: HttpUrl
 

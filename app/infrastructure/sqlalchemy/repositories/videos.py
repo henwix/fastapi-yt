@@ -41,10 +41,6 @@ class SAVideoRepository(IVideoRepository):
         updated_video = result.scalar_one_or_none()
         return updated_video.to_entity() if updated_video else None
 
-    async def get_by_upload_id_and_s3_key(self, upload_id: str, s3_key: str) -> Video | None:
-        stmt = select(VideoORM).where(VideoORM.upload_id == upload_id, VideoORM.s3_key == s3_key)
-        return await self._get_one_by_query(query=stmt)
-
     async def get_by_id(self, id: str) -> Video | None:
         stmt = select(VideoORM).where(VideoORM.id == id)
         return await self._get_one_by_query(query=stmt)

@@ -10,7 +10,7 @@ from app.domain.channels.exceptions import (
 )
 from app.domain.posts.exceptions import (
     PostAccessForbiddenError,
-    PostNotFoundByIdError,
+    PostNotFoundError,
 )
 from app.infrastructure.sqlalchemy.models.posts import PostORM
 from tests.factories.commands.posts import DeletePostCommandFactory
@@ -99,7 +99,7 @@ async def test_delete_post_raises_error_if_post_not_found(container: AsyncContai
             current_channel_id=db_channel.id,
         )
 
-        with pytest.raises(PostNotFoundByIdError):
+        with pytest.raises(PostNotFoundError):
             await use_case.execute(command=command)
 
 

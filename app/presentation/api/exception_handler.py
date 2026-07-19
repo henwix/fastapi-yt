@@ -38,10 +38,10 @@ from app.domain.post_comment_reactions.exceptions import (
 from app.domain.post_comments.exceptions import (
     PostCommentAccessForbiddenError,
     PostCommentInvalidReplyLevelError,
-    PostCommentNotFoundByIdError,
+    PostCommentNotFoundError,
 )
 from app.domain.post_reactions.exceptions import PostReactionAlreadyExistsError, PostReactionNotFoundError
-from app.domain.posts.exceptions import PostAccessForbiddenError, PostNotFoundByIdError
+from app.domain.posts.exceptions import PostAccessForbiddenError, PostNotFoundError
 from app.domain.subscriptions.exceptions import (
     SelfSubscriptionError,
     SubscriptionAlreadyExistsError,
@@ -51,7 +51,7 @@ from app.domain.video_reactions.exceptions import VideoReactionAlreadyExistsErro
 from app.domain.videos.exceptions import (
     VideoAccessForbiddenError,
     VideoInvalidFileFormatError,
-    VideoNotFoundByIdError,
+    VideoNotFoundError,
     VideoUploadAlreadyCompletedError,
 )
 from app.presentation.api.responses.msgspec import MsgSpecJSONResponse
@@ -89,19 +89,19 @@ def get_http_status_code(exc: AppException):
         VideoInvalidFileFormatError: status.HTTP_400_BAD_REQUEST,
         VideoUploadAlreadyCompletedError: status.HTTP_400_BAD_REQUEST,
         VideoAccessForbiddenError: status.HTTP_403_FORBIDDEN,
-        VideoNotFoundByIdError: status.HTTP_404_NOT_FOUND,
+        VideoNotFoundError: status.HTTP_404_NOT_FOUND,
         # Video reactions
         VideoReactionAlreadyExistsError: status.HTTP_400_BAD_REQUEST,
         VideoReactionNotFoundError: status.HTTP_404_NOT_FOUND,
         # Posts
         PostAccessForbiddenError: status.HTTP_403_FORBIDDEN,
-        PostNotFoundByIdError: status.HTTP_404_NOT_FOUND,
+        PostNotFoundError: status.HTTP_404_NOT_FOUND,
         # Post reactions
         PostReactionAlreadyExistsError: status.HTTP_400_BAD_REQUEST,
         PostReactionNotFoundError: status.HTTP_404_NOT_FOUND,
         # Post comment
         PostCommentAccessForbiddenError: status.HTTP_403_FORBIDDEN,
-        PostCommentNotFoundByIdError: status.HTTP_404_NOT_FOUND,
+        PostCommentNotFoundError: status.HTTP_404_NOT_FOUND,
         PostCommentInvalidReplyLevelError: status.HTTP_500_INTERNAL_SERVER_ERROR,
         # Post comment reactions
         PostCommentReactionAlreadyExistsError: status.HTTP_400_BAD_REQUEST,

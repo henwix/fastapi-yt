@@ -16,7 +16,7 @@ from app.application.posts.use_cases.update_post import UpdatePostUseCase
 from app.domain.auth.exceptions import JWTExpiredTokenError, JWTInvalidTokenError, NotAuthenticatedError
 from app.domain.channels.exceptions import ChannelNotActiveError, ChannelNotFoundByIdError, ChannelNotFoundBySlugError
 from app.domain.common.constants import SLUG_PATTERN
-from app.domain.posts.exceptions import PostAccessForbiddenError, PostNotFoundByIdError
+from app.domain.posts.exceptions import PostAccessForbiddenError, PostNotFoundError
 from app.presentation.api.openapi.common import error_response
 from app.presentation.api.v1.di.current_channel_id import CurrentChannelID
 from app.presentation.api.v1.schemas.common import CursorPaginationParams
@@ -61,7 +61,7 @@ async def create_post(
 
 @router.get(
     path='/posts/{post_id}',
-    responses={status.HTTP_404_NOT_FOUND: error_response(PostNotFoundByIdError)},
+    responses={status.HTTP_404_NOT_FOUND: error_response(PostNotFoundError)},
 )
 async def get_post(
     post_id: UUID,
@@ -106,7 +106,7 @@ async def get_posts(
             JWTInvalidTokenError,
         ),
         status.HTTP_403_FORBIDDEN: error_response(ChannelNotActiveError, PostAccessForbiddenError),
-        status.HTTP_404_NOT_FOUND: error_response(ChannelNotFoundByIdError, PostNotFoundByIdError),
+        status.HTTP_404_NOT_FOUND: error_response(ChannelNotFoundByIdError, PostNotFoundError),
     },
 )
 async def update_post(
@@ -134,7 +134,7 @@ async def update_post(
             JWTInvalidTokenError,
         ),
         status.HTTP_403_FORBIDDEN: error_response(ChannelNotActiveError, PostAccessForbiddenError),
-        status.HTTP_404_NOT_FOUND: error_response(ChannelNotFoundByIdError, PostNotFoundByIdError),
+        status.HTTP_404_NOT_FOUND: error_response(ChannelNotFoundByIdError, PostNotFoundError),
     },
 )
 async def delete_post(

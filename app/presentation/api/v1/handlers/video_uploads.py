@@ -27,7 +27,7 @@ from app.domain.common.exceptions import (
 from app.domain.videos.exceptions import (
     VideoAccessForbiddenError,
     VideoInvalidFileFormatError,
-    VideoNotFoundByIdError,
+    VideoNotFoundError,
     VideoUploadAlreadyCompletedError,
 )
 from app.presentation.api.openapi.common import error_response
@@ -95,7 +95,7 @@ async def create_mutipart_upload(
         ),
         status.HTTP_404_NOT_FOUND: error_response(
             ChannelNotFoundByIdError,
-            VideoNotFoundByIdError,
+            VideoNotFoundError,
         ),
         status.HTTP_500_INTERNAL_SERVER_ERROR: error_response(S3RequestError, S3UnavailableError),
     },
@@ -134,7 +134,7 @@ async def generate_part_upload_url(
         ),
         status.HTTP_404_NOT_FOUND: error_response(
             ChannelNotFoundByIdError,
-            VideoNotFoundByIdError,
+            VideoNotFoundError,
             S3MultipartUploadNotFoundError,
         ),
         status.HTTP_500_INTERNAL_SERVER_ERROR: error_response(S3RequestError, S3UnavailableError),
@@ -173,7 +173,7 @@ async def complete_multipart_upload(
         ),
         status.HTTP_404_NOT_FOUND: error_response(
             ChannelNotFoundByIdError,
-            VideoNotFoundByIdError,
+            VideoNotFoundError,
         ),
         status.HTTP_500_INTERNAL_SERVER_ERROR: error_response(S3RequestError, S3UnavailableError),
     },
@@ -204,7 +204,7 @@ async def abort_multipart_upload(
         ),
         status.HTTP_404_NOT_FOUND: error_response(
             ChannelNotFoundByIdError,
-            VideoNotFoundByIdError,
+            VideoNotFoundError,
         ),
     },
 )

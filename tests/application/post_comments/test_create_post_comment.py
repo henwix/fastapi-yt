@@ -12,8 +12,8 @@ from app.domain.channels.exceptions import ChannelNotActiveError, ChannelNotFoun
 from app.domain.common.constants import Empty
 from app.domain.post_comments.entities import PostComment
 from app.domain.post_comments.enums import PostCommentReplyLevelEnum
-from app.domain.post_comments.exceptions import PostCommentNotFoundByIdError
-from app.domain.posts.exceptions import PostNotFoundByIdError
+from app.domain.post_comments.exceptions import PostCommentNotFoundError
+from app.domain.posts.exceptions import PostNotFoundError
 from app.infrastructure.sqlalchemy.models.posts import PostCommentORM
 from tests.factories.commands.post_comments import CreatePostCommentCommandFactory
 from tests.factories.models.channels import ChannelORMFactory
@@ -102,7 +102,7 @@ async def test_create_post_comment_raises_if_reply_comment_not_found(container: 
             reply_comment_id=uuid7(),
         )
 
-        with pytest.raises(PostCommentNotFoundByIdError):
+        with pytest.raises(PostCommentNotFoundError):
             await use_case.execute(command=command)
 
 
@@ -118,7 +118,7 @@ async def test_create_post_comment_raises_if_post_not_found(container: AsyncCont
             current_channel_id=channel.id,
         )
 
-        with pytest.raises(PostNotFoundByIdError):
+        with pytest.raises(PostNotFoundError):
             await use_case.execute(command=command)
 
 

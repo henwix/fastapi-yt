@@ -7,7 +7,7 @@ from app.application.video_reactions.use_cases.delete_video_reaction import Dele
 from app.domain.auth.exceptions import JWTExpiredTokenError, JWTInvalidTokenError, NotAuthenticatedError
 from app.domain.channels.exceptions import ChannelNotActiveError, ChannelNotFoundByIdError
 from app.domain.video_reactions.exceptions import VideoReactionAlreadyExistsError, VideoReactionNotFoundError
-from app.domain.videos.exceptions import VideoAccessForbiddenError, VideoNotFoundByIdError
+from app.domain.videos.exceptions import VideoAccessForbiddenError, VideoNotFoundError
 from app.presentation.api.openapi.common import error_response
 from app.presentation.api.v1.di.current_channel_id import CurrentChannelID
 from app.presentation.api.v1.handlers.common.params import PathVideoId
@@ -43,7 +43,7 @@ router = APIRouter(
         ),
         status.HTTP_404_NOT_FOUND: error_response(
             ChannelNotFoundByIdError,
-            VideoNotFoundByIdError,
+            VideoNotFoundError,
             VideoReactionNotFoundError,
         ),
     },
@@ -81,7 +81,7 @@ async def create_video_reaction(
         ),
         status.HTTP_404_NOT_FOUND: error_response(
             ChannelNotFoundByIdError,
-            VideoNotFoundByIdError,
+            VideoNotFoundError,
             VideoReactionNotFoundError,
         ),
     },

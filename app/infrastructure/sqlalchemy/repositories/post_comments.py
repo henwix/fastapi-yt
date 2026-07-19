@@ -8,9 +8,9 @@ from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.domain.channels.exceptions import ChannelNotFoundByIdError
 from app.domain.post_comments.entities import PostComment
-from app.domain.post_comments.exceptions import PostCommentInvalidReplyLevelError, PostCommentNotFoundByIdError
+from app.domain.post_comments.exceptions import PostCommentInvalidReplyLevelError, PostCommentNotFoundError
 from app.domain.post_comments.repositories import IPostCommentRepository
-from app.domain.posts.exceptions import PostNotFoundByIdError
+from app.domain.posts.exceptions import PostNotFoundError
 from app.infrastructure.sqlalchemy.models.posts import PostCommentORM
 
 
@@ -25,11 +25,11 @@ class SAPostCommentRepository(IPostCommentRepository):
 
         match cause.constraint_name:
             case 'post_comments_post_id_fkey':
-                raise PostNotFoundByIdError(id=post_comment.post_id) from error
+                raise PostNotFoundError(id=post_comment.post_id) from error
             case 'post_comments_channel_id_fkey':
                 raise ChannelNotFoundByIdError(id=post_comment.channel_id) from error
             case 'post_comments_reply_comment_id_fkey':
-                raise PostCommentNotFoundByIdError(id=post_comment.reply_comment_id) from error
+                raise PostCommentNotFoundError(id=post_comment.reply_comment_id) from error
             case 'ck_reply_level':
                 raise PostCommentInvalidReplyLevelError(reply_level=post_comment.reply_level) from error
             case _:

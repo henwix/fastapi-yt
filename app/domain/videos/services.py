@@ -8,7 +8,7 @@ from app.domain.videos.enums import VideoFileContentTypesEnum, VideoUploadStatus
 from app.domain.videos.exceptions import (
     VideoAccessForbiddenError,
     VideoInvalidFileFormatError,
-    VideoNotFoundByIdError,
+    VideoNotFoundError,
     VideoUploadAlreadyCompletedError,
 )
 from app.domain.videos.repositories import IVideoRepository
@@ -50,25 +50,25 @@ class VideoService(IVideoService):
     async def try_update(self, video: Video) -> Video:
         updated_video = await self._repo.update(video=video)
         if updated_video is None:
-            raise VideoNotFoundByIdError(video_id=video.id)
+            raise VideoNotFoundError(video_id=video.id)
         return updated_video
 
     async def try_get_by_id(self, id: str) -> Video:
         video = await self._repo.get_by_id(id=id)
         if video is None:
-            raise VideoNotFoundByIdError(video_id=id)
+            raise VideoNotFoundError(video_id=id)
         return video
 
     async def try_get_completed_by_id(self, id: str) -> Video:
         video = await self._repo.get_completed_by_id(id=id)
         if video is None:
-            raise VideoNotFoundByIdError(video_id=id)
+            raise VideoNotFoundError(video_id=id)
         return video
 
     async def try_delete_by_id(self, id: str) -> None:
         is_deleted = await self._repo.delete_by_id(id=id)
         if not is_deleted:
-            raise VideoNotFoundByIdError(video_id=id)
+            raise VideoNotFoundError(video_id=id)
 
     def ensure_video_access(self, video: Video, channel: Channel) -> None:
         if video.channel_id != channel.id:

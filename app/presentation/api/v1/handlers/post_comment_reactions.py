@@ -20,7 +20,7 @@ from app.domain.post_comment_reactions.exceptions import (
     PostCommentReactionAlreadyExistsError,
     PostCommentReactionNotFoundError,
 )
-from app.domain.post_comments.exceptions import PostCommentNotFoundByIdError
+from app.domain.post_comments.exceptions import PostCommentNotFoundError
 from app.presentation.api.openapi.common import error_response
 from app.presentation.api.v1.di.current_channel_id import CurrentChannelID
 from app.presentation.api.v1.schemas.post_comment_reactions import (
@@ -55,7 +55,7 @@ router = APIRouter(
         status.HTTP_403_FORBIDDEN: error_response(ChannelNotActiveError),
         status.HTTP_404_NOT_FOUND: error_response(
             ChannelNotFoundByIdError,
-            PostCommentNotFoundByIdError,
+            PostCommentNotFoundError,
             PostCommentReactionNotFoundError,
         ),
     },
@@ -90,7 +90,7 @@ async def create_post_comment_reaction(
         status.HTTP_403_FORBIDDEN: error_response(ChannelNotActiveError),
         status.HTTP_404_NOT_FOUND: error_response(
             ChannelNotFoundByIdError,
-            PostCommentNotFoundByIdError,
+            PostCommentNotFoundError,
             PostCommentReactionNotFoundError,
         ),
     },

@@ -12,7 +12,7 @@ from app.application.videos.interfaces.reader import IVideoReader
 from app.application.videos.queries import GetPersonalVideosFilters, GetPersonalVideosSorting
 from app.domain.common.constants import Empty
 from app.domain.videos.enums import VideoUploadStatusEnum
-from app.domain.videos.exceptions import VideoNotFoundByIdError
+from app.domain.videos.exceptions import VideoNotFoundError
 from app.infrastructure.sqlalchemy.converters.videos import (
     convert_video_row_to_detailed_dto,
     convert_video_row_to_personal_video_dto,
@@ -45,7 +45,7 @@ class SAVideoReader(IVideoReader):
         video_row = result.mappings().one_or_none()
 
         if video_row is None:
-            raise VideoNotFoundByIdError(video_id=id)
+            raise VideoNotFoundError(video_id=id)
 
         return convert_video_row_to_detailed_dto(row=video_row)
 

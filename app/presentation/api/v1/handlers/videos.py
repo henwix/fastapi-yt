@@ -24,7 +24,7 @@ from app.domain.channels.exceptions import ChannelNotActiveError, ChannelNotFoun
 from app.domain.common.exceptions import InvalidCursorError
 from app.domain.videos.exceptions import (
     VideoAccessForbiddenError,
-    VideoNotFoundByIdError,
+    VideoNotFoundError,
 )
 from app.presentation.api.openapi.common import error_response
 from app.presentation.api.v1.di.current_channel_id import CurrentChannelID, OptionalCurrentChannelID
@@ -100,7 +100,7 @@ async def get_personal_videos(
         ),
         status.HTTP_404_NOT_FOUND: error_response(
             ChannelNotFoundByIdError,
-            VideoNotFoundByIdError,
+            VideoNotFoundError,
         ),
     },
 )
@@ -127,7 +127,7 @@ async def delete_video(
         ),
         status.HTTP_404_NOT_FOUND: error_response(
             ChannelNotFoundByIdError,
-            VideoNotFoundByIdError,
+            VideoNotFoundError,
         ),
     },
 )
@@ -155,7 +155,7 @@ async def get_video(
         ),
         status.HTTP_404_NOT_FOUND: error_response(
             ChannelNotFoundByIdError,
-            VideoNotFoundByIdError,
+            VideoNotFoundError,
         ),
     },
 )

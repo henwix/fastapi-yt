@@ -3,7 +3,14 @@ from random import Random
 from faker import Faker
 from polyfactory.factories import DataclassFactory
 
-from app.application.channels.commands import CreateChannelCommand, SetChannelPasswordCommand, UpdateChannelCommand
+from app.application.channels.commands import (
+    ConfirmChannelAvatarUploadCommand,
+    CreateChannelCommand,
+    DeleteChannelAvatarCommand,
+    GenerateChannelAvatarUploadUrlCommand,
+    SetChannelPasswordCommand,
+    UpdateChannelCommand,
+)
 from app.domain.common.constants import Empty
 
 
@@ -32,3 +39,15 @@ class UpdateChannelCommandFactory(DataclassFactory[UpdateChannelCommand]):
 
 class SetChannelPasswordCommandFactory(DataclassFactory[SetChannelPasswordCommand]):
     __model__ = SetChannelPasswordCommand
+
+
+class GenerateChannelAvatarUploadUrlCommandFactory(DataclassFactory[GenerateChannelAvatarUploadUrlCommand]):
+    __model__ = GenerateChannelAvatarUploadUrlCommand
+
+
+class ConfirmChannelAvatarUploadCommandFactory(DataclassFactory[ConfirmChannelAvatarUploadCommand]):
+    __model__ = ConfirmChannelAvatarUploadCommand
+
+
+class DeleteChannelAvatarCommandFactory(DataclassFactory[DeleteChannelAvatarCommand]):
+    __model__ = DeleteChannelAvatarCommand

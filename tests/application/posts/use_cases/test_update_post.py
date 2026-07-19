@@ -12,7 +12,7 @@ from app.domain.common.constants import Empty
 from app.domain.posts.entities import Post
 from app.domain.posts.exceptions import (
     PostAccessForbiddenError,
-    PostNotFoundByIdError,
+    PostNotFoundError,
 )
 from app.infrastructure.sqlalchemy.models.posts import PostORM
 from tests.factories.commands.posts import UpdatePostCommandFactory
@@ -102,7 +102,7 @@ async def test_update_post_raises_error_if_post_not_found(container: AsyncContai
 
         command = UpdatePostCommandFactory.build(current_channel_id=channel.id)
 
-        with pytest.raises(PostNotFoundByIdError):
+        with pytest.raises(PostNotFoundError):
             await use_case.execute(command=command)
 
 

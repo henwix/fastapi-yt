@@ -5,8 +5,8 @@ from app.domain.common.exceptions import AppException
 
 
 @dataclass(kw_only=True)
-class VideoNotFoundByIdError(AppException):
-    message = 'Video not found by id'
+class VideoNotFoundError(AppException):
+    message = 'Video not found'
     video_id: str
 
 

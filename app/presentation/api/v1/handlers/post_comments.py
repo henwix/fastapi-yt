@@ -19,8 +19,8 @@ from app.application.post_comments.use_cases.get_post_comments import GetPostCom
 from app.application.post_comments.use_cases.update_post_comment import UpdatePostCommentUseCase
 from app.domain.auth.exceptions import JWTExpiredTokenError, JWTInvalidTokenError, NotAuthenticatedError
 from app.domain.channels.exceptions import ChannelNotActiveError, ChannelNotFoundByIdError
-from app.domain.post_comments.exceptions import PostCommentAccessForbiddenError, PostCommentNotFoundByIdError
-from app.domain.posts.exceptions import PostNotFoundByIdError
+from app.domain.post_comments.exceptions import PostCommentAccessForbiddenError, PostCommentNotFoundError
+from app.domain.posts.exceptions import PostNotFoundError
 from app.presentation.api.openapi.common import error_response
 from app.presentation.api.v1.di.current_channel_id import CurrentChannelID
 from app.presentation.api.v1.schemas.common import CursorPaginationParams
@@ -52,8 +52,8 @@ router = APIRouter(
         status.HTTP_403_FORBIDDEN: error_response(ChannelNotActiveError),
         status.HTTP_404_NOT_FOUND: error_response(
             ChannelNotFoundByIdError,
-            PostNotFoundByIdError,
-            PostCommentNotFoundByIdError,
+            PostNotFoundError,
+            PostCommentNotFoundError,
         ),
     },
 )
@@ -75,7 +75,7 @@ async def create_post_comment(
 @router.get(
     path='/posts/{post_id}/comments',
     responses={
-        status.HTTP_404_NOT_FOUND: error_response(PostNotFoundByIdError),
+        status.HTTP_404_NOT_FOUND: error_response(PostNotFoundError),
     },
 )
 async def get_post_comments(
@@ -100,7 +100,7 @@ async def get_post_comments(
 @router.get(
     path='/post_comments/{post_comment_id}/replies',
     responses={
-        status.HTTP_404_NOT_FOUND: error_response(PostCommentNotFoundByIdError),
+        status.HTTP_404_NOT_FOUND: error_response(PostCommentNotFoundError),
     },
 )
 async def get_post_comment_replies(
@@ -137,7 +137,7 @@ async def get_post_comment_replies(
         ),
         status.HTTP_404_NOT_FOUND: error_response(
             ChannelNotFoundByIdError,
-            PostCommentNotFoundByIdError,
+            PostCommentNotFoundError,
         ),
     },
 )
@@ -167,7 +167,7 @@ async def delete_post_comment(
         ),
         status.HTTP_404_NOT_FOUND: error_response(
             ChannelNotFoundByIdError,
-            PostCommentNotFoundByIdError,
+            PostCommentNotFoundError,
         ),
     },
 )

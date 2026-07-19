@@ -5,8 +5,8 @@ from app.domain.common.exceptions import AppException
 
 
 @dataclass(kw_only=True)
-class PostCommentNotFoundByIdError(AppException):
-    message = 'Post comment not found by id'
+class PostCommentNotFoundError(AppException):
+    message = 'Post comment not found'
     id: UUID
 
 

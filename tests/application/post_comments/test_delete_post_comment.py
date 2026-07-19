@@ -11,7 +11,7 @@ from app.domain.channels.exceptions import (
     ChannelNotActiveError,
     ChannelNotFoundByIdError,
 )
-from app.domain.post_comments.exceptions import PostCommentAccessForbiddenError, PostCommentNotFoundByIdError
+from app.domain.post_comments.exceptions import PostCommentAccessForbiddenError, PostCommentNotFoundError
 from tests.factories.commands.post_comments import DeletePostCommentCommandFactory
 from tests.factories.models.channels import ChannelORMFactory
 from tests.factories.models.posts import PostCommentORMFactory, PostORMFactory
@@ -97,7 +97,7 @@ async def test_delete_post_comment_raises_if_post_comment_not_found(container: A
             post_comment_id=uuid7(),
         )
 
-        with pytest.raises(PostCommentNotFoundByIdError):
+        with pytest.raises(PostCommentNotFoundError):
             await use_case.execute(command=command)
 
 

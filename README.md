@@ -50,17 +50,16 @@
 #### Videos
 - [x] Videos CRUD
 - [x] Videos Uploads
-
-#### Video comments
+- [x] Video Reactions
+- [ ] Video Comments
+- [ ] Video Comment Reactions
+- [ ] Video Reports
 
 
 #### History
 
 
 #### Playlists
-
-
-#### Video reports
 
 
 #### Posts

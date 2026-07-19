@@ -5,8 +5,8 @@ from app.domain.common.exceptions import AppException
 
 
 @dataclass(kw_only=True)
-class PostNotFoundByIdError(AppException):
-    message = 'Post not found by id'
+class PostNotFoundError(AppException):
+    message = 'Post not found'
     id: UUID
 
 

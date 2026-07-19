@@ -4,7 +4,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.application.posts.use_cases.get_post import GetPostUseCase
 from app.domain.posts.entities import Post
-from app.domain.posts.exceptions import PostNotFoundByIdError
+from app.domain.posts.exceptions import PostNotFoundError
 from tests.factories.models.channels import ChannelORMFactory
 from tests.factories.models.posts import PostORMFactory
 from tests.factories.queries.posts import GetPostQueryFactory
@@ -44,5 +44,5 @@ async def test_get_post_raises_error_if_not_found(container: AsyncContainer):
 
         query = GetPostQueryFactory.build()
 
-        with pytest.raises(PostNotFoundByIdError):
+        with pytest.raises(PostNotFoundError):
             await use_case.execute(query=query)

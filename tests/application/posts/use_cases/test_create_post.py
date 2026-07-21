@@ -20,10 +20,7 @@ async def test_create_post_returns_correct_entity_if_created(container: AsyncCon
         use_case = await di.get(CreatePostUseCase)
         session = await di.get(AsyncSession)
 
-        db_channel = await ChannelORMFactory.create(
-            session=session,
-            is_active=True,
-        )
+        db_channel = await ChannelORMFactory.create(session=session)
 
         command = CreatePostCommandFactory.build(
             current_channel_id=db_channel.id,

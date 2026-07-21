@@ -1,10 +1,10 @@
 from abc import ABC, abstractmethod
 from dataclasses import dataclass
-from mimetypes import guess_type
+from pathlib import Path
 from uuid import UUID
 
+from app.domain.channels.constants import CHANNEL_AVATAR_FILE_MIME_TYPES
 from app.domain.channels.entities import Channel
-from app.domain.channels.enums import ChannelAvatarFileContentTypesEnum
 from app.domain.channels.exceptions import (
     ChannelAvatarInvalidFileFormatError,
     ChannelAvatarInvalidKeyError,
@@ -101,8 +101,8 @@ class ChannelService(IChannelService):
             raise ChannelNotFoundByIdError(id=id)
 
     def validate_channel_avatar_file_format_and_get_content_type(self, value: str) -> str:
-        content_type, _ = guess_type(value)
-        if content_type is None or content_type not in ChannelAvatarFileContentTypesEnum:
+        content_type = Path(value).suffix.lower()
+        if content_type not in CHANNEL_AVATAR_FILE_MIME_TYPES:
             raise ChannelAvatarInvalidFileFormatError(file=value)
         return content_type
 

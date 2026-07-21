@@ -16,10 +16,7 @@ async def test_get_post_returns_correct_entity(container: AsyncContainer):
         use_case = await di.get(GetPostUseCase)
         session = await di.get(AsyncSession)
 
-        channel = await ChannelORMFactory.create(
-            session=session,
-            is_active=True,
-        )
+        channel = await ChannelORMFactory.create(session=session)
 
         db_post = await PostORMFactory.create(
             session=session,

@@ -9,3 +9,9 @@ CHANNEL_EMAIL_MAX_LENGTH = 255
 CHANNEL_DESCRIPTION_MAX_LENGTH = 1000
 
 CHANNEL_COUNTRY_MAX_LENGTH = 40
+
+CHANNEL_AVATAR_FILE_MIME_TYPES = {
+    '.png': 'image/png',
+    '.jpg': 'image/jpeg',
+    '.jpeg': 'image/jpeg',
+}

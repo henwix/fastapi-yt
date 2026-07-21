@@ -26,10 +26,7 @@ async def test_update_post_returns_correct_entity_if_updated(container: AsyncCon
         use_case = await di.get(UpdatePostUseCase)
         session = await di.get(AsyncSession)
 
-        channel = await ChannelORMFactory.create(
-            session=session,
-            is_active=True,
-        )
+        channel = await ChannelORMFactory.create(session=session)
 
         db_post = await PostORMFactory.create(
             session=session,
@@ -95,10 +92,7 @@ async def test_update_post_raises_error_if_post_not_found(container: AsyncContai
         use_case = await di.get(UpdatePostUseCase)
         session = await di.get(AsyncSession)
 
-        channel = await ChannelORMFactory.create(
-            session=session,
-            is_active=True,
-        )
+        channel = await ChannelORMFactory.create(session=session)
 
         command = UpdatePostCommandFactory.build(current_channel_id=channel.id)
 
@@ -112,15 +106,9 @@ async def test_update_post_raises_error_if_no_post_access(container: AsyncContai
         use_case = await di.get(UpdatePostUseCase)
         session = await di.get(AsyncSession)
 
-        owner = await ChannelORMFactory.create(
-            session=session,
-            is_active=True,
-        )
+        owner = await ChannelORMFactory.create(session=session)
 
-        another_channel = await ChannelORMFactory.create(
-            session=session,
-            is_active=True,
-        )
+        another_channel = await ChannelORMFactory.create(session=session)
 
         db_post = await PostORMFactory.create(
             session=session,
@@ -143,7 +131,7 @@ async def test_update_post_does_not_change_text_if_unset(container: AsyncContain
         use_case = await di.get(UpdatePostUseCase)
         session = await di.get(AsyncSession)
 
-        channel = await ChannelORMFactory.create(session=session, is_active=True)
+        channel = await ChannelORMFactory.create(session=session)
 
         db_post = await PostORMFactory.create(
             session=session,

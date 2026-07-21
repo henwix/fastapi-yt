@@ -36,6 +36,10 @@ class ChannelORMFactory(SQLAlchemyFactory[ChannelORM]):
         return cls.__faker__.date_time(UTC)
 
     @classmethod
+    def is_active(cls) -> bool:
+        return True
+
+    @classmethod
     async def create(cls, session: AsyncSession, **kwargs) -> ChannelORM:
         object = cls.build(**kwargs)
         session.add(instance=object)

@@ -24,10 +24,7 @@ async def test_delete_post_returns_none_if_deleted(container: AsyncContainer):
         use_case = await di.get(DeletePostUseCase)
         session = await di.get(AsyncSession)
 
-        db_channel = await ChannelORMFactory.create(
-            session=session,
-            is_active=True,
-        )
+        db_channel = await ChannelORMFactory.create(session=session)
 
         db_post = await PostORMFactory.create(
             session=session,
@@ -90,10 +87,7 @@ async def test_delete_post_raises_error_if_post_not_found(container: AsyncContai
         use_case = await di.get(DeletePostUseCase)
         session = await di.get(AsyncSession)
 
-        db_channel = await ChannelORMFactory.create(
-            session=session,
-            is_active=True,
-        )
+        db_channel = await ChannelORMFactory.create(session=session)
 
         command = DeletePostCommandFactory.build(
             current_channel_id=db_channel.id,
@@ -109,15 +103,9 @@ async def test_delete_post_raises_error_if_no_post_access(container: AsyncContai
         use_case = await di.get(DeletePostUseCase)
         session = await di.get(AsyncSession)
 
-        owner = await ChannelORMFactory.create(
-            session=session,
-            is_active=True,
-        )
+        owner = await ChannelORMFactory.create(session=session)
 
-        another_channel = await ChannelORMFactory.create(
-            session=session,
-            is_active=True,
-        )
+        another_channel = await ChannelORMFactory.create(session=session)
 
         db_post = await PostORMFactory.create(
             session=session,

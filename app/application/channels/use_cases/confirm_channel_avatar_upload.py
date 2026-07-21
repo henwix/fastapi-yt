@@ -5,7 +5,7 @@ from app.application.common.interfaces.s3_provider import IS3Provider
 from app.application.common.interfaces.task_queue import ITaskQueue
 from app.application.common.interfaces.transaction_manager import ITransactionManager
 from app.core.configs import settings
-from app.domain.channels.enums import ChannelAvatarFileContentTypesEnum
+from app.domain.channels.constants import CHANNEL_AVATAR_FILE_MIME_TYPES
 from app.domain.channels.exceptions import (
     ChannelAvatarAlreadySetError,
     ChannelAvatarInvalidFileContentTypeError,
@@ -37,7 +37,7 @@ class ConfirmChannelAvatarUploadUseCase:
         if avatar_metadata_channel_id != str(channel.id):
             raise S3ObjectAccessForbiddenError(channel_id=channel.id, key=command.key)
 
-        if avatar_metadata_content_type not in ChannelAvatarFileContentTypesEnum:
+        if avatar_metadata_content_type not in CHANNEL_AVATAR_FILE_MIME_TYPES.values():
             await self._task_queue.delete_s3_object(bucket=settings.s3_public_bucket_name, key=command.key)
             raise ChannelAvatarInvalidFileContentTypeError(key=command.key, content_type=avatar_metadata_content_type)
 

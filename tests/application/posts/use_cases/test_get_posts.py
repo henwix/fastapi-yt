@@ -28,7 +28,7 @@ async def test_get_posts_returns_posts_without_next_cursor_if_last_page(containe
         use_case = await di.get(GetPostsUseCase)
         session = await di.get(AsyncSession)
 
-        channel = await ChannelORMFactory.create(session=session, is_active=True)
+        channel = await ChannelORMFactory.create(session=session)
 
         await PostORMFactory.create_batch(
             session=session,
@@ -61,7 +61,7 @@ async def test_get_posts_returns_next_cursor_if_more_items_exist(
         use_case = await di.get(GetPostsUseCase)
         session = await di.get(AsyncSession)
 
-        channel = await ChannelORMFactory.create(session=session, is_active=True)
+        channel = await ChannelORMFactory.create(session=session)
 
         await PostORMFactory.create_batch(
             session=session,
@@ -100,7 +100,7 @@ async def test_get_posts_returns_correct_page_by_cursor(container: AsyncContaine
         use_case = await di.get(GetPostsUseCase)
         session = await di.get(AsyncSession)
 
-        channel = await ChannelORMFactory.create(session=session, is_active=True)
+        channel = await ChannelORMFactory.create(session=session)
 
         await PostORMFactory.create_batch(
             session=session,

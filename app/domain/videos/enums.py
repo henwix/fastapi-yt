@@ -10,10 +10,3 @@ class VideoPrivacyStatusEnum(StrEnum):
 class VideoUploadStatusEnum(StrEnum):
     UPLOADING = 'uploading'
     COMPLETED = 'completed'
-
-
-class VideoFileContentTypesEnum(StrEnum):
-    MP4 = 'video/mp4'
-    MOV = 'video/quicktime'
-    MKV = 'video/matroska'
-    WEBM = 'video/webm'

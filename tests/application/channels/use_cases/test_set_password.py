@@ -15,7 +15,7 @@ async def test_set_password_returns_none_if_password_updated(container: AsyncCon
         use_case = await di.get(SetChannelPasswordUseCase)
         session = await di.get(AsyncSession)
         password_hasher = await di.get(IPasswordHasher)
-        db_channel = await ChannelORMFactory.create(session=session, is_active=True)
+        db_channel = await ChannelORMFactory.create(session=session)
         old_password_hash = db_channel.password_hash
         command = SetChannelPasswordCommandFactory.build(current_channel_id=db_channel.id)
 

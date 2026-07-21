@@ -1,5 +1,3 @@
-from uuid import uuid7
-
 import pytest
 from dishka import AsyncContainer
 from sqlalchemy.ext.asyncio import AsyncSession
@@ -16,7 +14,9 @@ from tests.factories.models.channels import ChannelORMFactory
 
 
 @pytest.mark.asyncio
-@pytest.mark.parametrize('expected_filename', ['test.png', 'test.jpg', 'test.jpeg'])
+@pytest.mark.parametrize(
+    'expected_filename', ['test.png', 'test.jpg', 'test.jpeg', 'test.PNG', 'test.JPG', 'test.JPEG']
+)
 async def test_generate_channel_avatar_upload_url_returns_correct_data(
     container: AsyncContainer,
     expected_filename: str,
@@ -25,7 +25,7 @@ async def test_generate_channel_avatar_upload_url_returns_correct_data(
         use_case = await di.get(GenerateChannelAvatarUploadUrlUseCase)
         session = await di.get(AsyncSession)
 
-        channel = await ChannelORMFactory.create(session=session, is_active=True)
+        channel = await ChannelORMFactory.create(session=session)
         command = GenerateChannelAvatarUploadUrlCommandFactory.build(
             current_channel_id=channel.id,
             filename=expected_filename,
@@ -33,9 +33,7 @@ async def test_generate_channel_avatar_upload_url_returns_correct_data(
 
         url, key, channel_id = await use_case.execute(command=command)
 
-        assert url.startswith(
-            f'{settings.s3_endpoint}/{settings.s3_public_bucket_name}/{settings.s3_avatars_key_prefix}/'
-        )
+        assert url.startswith(f'{settings.s3_endpoint}/{settings.s3_public_bucket_name}/{key}')
         assert 'amz-meta-channel_id' in url
         assert 'X-Amz-Signature' in url
         assert 'Amz-Expires' in url
@@ -44,7 +42,9 @@ async def test_generate_channel_avatar_upload_url_returns_correct_data(
 
 
 @pytest.mark.asyncio
-@pytest.mark.parametrize('expected_filename', ['test', 'test.mp4', 'test.mov', 'test.gif', 'test.test'])
+@pytest.mark.parametrize(
+    'expected_filename', ['test', 'test.mp4', 'test.mov', 'test.gif', 'test.test', 'test.MP4', 'test.GIF']
+)
 async def test_generate_channel_avatar_upload_url_raises_error_if_filename_invalid(
     container: AsyncContainer,
     expected_filename: str,
@@ -53,7 +53,7 @@ async def test_generate_channel_avatar_upload_url_raises_error_if_filename_inval
         use_case = await di.get(GenerateChannelAvatarUploadUrlUseCase)
         session = await di.get(AsyncSession)
 
-        channel = await ChannelORMFactory.create(session=session, is_active=True)
+        channel = await ChannelORMFactory.create(session=session)
         command = GenerateChannelAvatarUploadUrlCommandFactory.build(
             current_channel_id=channel.id,
             filename=expected_filename,
@@ -68,10 +68,7 @@ async def test_generate_channel_avatar_upload_url_raises_error_if_channel_not_fo
     async with container() as di:
         use_case = await di.get(GenerateChannelAvatarUploadUrlUseCase)
 
-        command = GenerateChannelAvatarUploadUrlCommandFactory.build(
-            current_channel_id=uuid7(),
-            filename='test.png',
-        )
+        command = GenerateChannelAvatarUploadUrlCommandFactory.build(filename='test.png')
 
         with pytest.raises(ChannelNotFoundByIdError):
             await use_case.execute(command=command)

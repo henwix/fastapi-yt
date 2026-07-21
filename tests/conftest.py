@@ -18,7 +18,7 @@ from app.infrastructure.di.container import (
 from app.infrastructure.sqlalchemy.database import create_engine, create_session_factory
 from app.infrastructure.sqlalchemy.models import *  # noqa F403
 from app.infrastructure.sqlalchemy.models.base import BaseORM
-from tests.mocks.s3_provider import DummyS3Provider
+from tests.mocks.s3_provider import MockS3Provider
 
 
 @pytest.fixture(scope='session')
@@ -52,7 +52,7 @@ async def setup_db(postgres_url: str):
 @pytest_asyncio.fixture
 async def container(postgres_url: str) -> AsyncGenerator[AsyncContainer]:
     class MockAppProvider(AppProvider):
-        s3_provider_mock = provide(DummyS3Provider, scope=Scope.REQUEST, provides=IS3Provider, override=True)
+        s3_provider_mock = provide(MockS3Provider, scope=Scope.REQUEST, provides=IS3Provider, override=True)
 
     class DatabaseProvider(Provider):
         @provide(scope=Scope.APP, provides=AsyncEngine)

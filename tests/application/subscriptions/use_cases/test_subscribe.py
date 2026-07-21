@@ -25,7 +25,7 @@ async def test_subscribe_returns_correct_entity_if_created(container: AsyncConta
         use_case = await di.get(SubscribeUseCase)
         session = await di.get(AsyncSession)
 
-        subscriber = await ChannelORMFactory.create(session=session, is_active=True)
+        subscriber = await ChannelORMFactory.create(session=session)
         subscribed_to = await ChannelORMFactory.create(session=session)
 
         command = SubscribeCommandFactory.build(
@@ -55,7 +55,7 @@ async def test_subscribe_raises_error_if_self_subscription(container: AsyncConta
         use_case = await di.get(SubscribeUseCase)
         session = await di.get(AsyncSession)
 
-        db_channel = await ChannelORMFactory.create(session=session, is_active=True)
+        db_channel = await ChannelORMFactory.create(session=session)
 
         command = SubscribeCommandFactory.build(
             current_channel_id=db_channel.id,
@@ -104,7 +104,7 @@ async def test_subscribe_raises_error_if_channel_slug_not_found(container: Async
         use_case = await di.get(SubscribeUseCase)
         session = await di.get(AsyncSession)
 
-        subscriber = await ChannelORMFactory.create(session=session, is_active=True)
+        subscriber = await ChannelORMFactory.create(session=session)
 
         command = SubscribeCommandFactory.build(current_channel_id=subscriber.id)
 
@@ -118,7 +118,7 @@ async def test_subscribe_raises_error_if_subscription_already_exists(container: 
         use_case = await di.get(SubscribeUseCase)
         session = await di.get(AsyncSession)
 
-        subscriber = await ChannelORMFactory.create(session=session, is_active=True)
+        subscriber = await ChannelORMFactory.create(session=session)
         subscribed_to = await ChannelORMFactory.create(session=session)
 
         await SubscriptionORMFactory.create(

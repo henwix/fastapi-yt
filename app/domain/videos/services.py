@@ -1,10 +1,11 @@
 from abc import ABC, abstractmethod
 from dataclasses import dataclass
-from mimetypes import guess_type
+from pathlib import Path
 
 from app.domain.channels.entities import Channel
+from app.domain.videos.constants import VIDEO_FILE_MIME_TYPES
 from app.domain.videos.entities import Video
-from app.domain.videos.enums import VideoFileContentTypesEnum, VideoUploadStatusEnum
+from app.domain.videos.enums import VideoUploadStatusEnum
 from app.domain.videos.exceptions import (
     VideoAccessForbiddenError,
     VideoInvalidFileFormatError,
@@ -75,11 +76,11 @@ class VideoService(IVideoService):
             raise VideoAccessForbiddenError(video_id=video.id, channel_id=channel.id)
 
     def ensure_video_upload_not_completed(self, video: Video) -> None:
-        if video.upload_status is VideoUploadStatusEnum.COMPLETED and video.upload_id is None:
+        if video.upload_status is VideoUploadStatusEnum.COMPLETED or video.upload_id is None:
             raise VideoUploadAlreadyCompletedError(video_id=video.id)
 
     def validate_video_file_format_and_get_content_type(self, value: str) -> str:
-        content_type, _ = guess_type(value)
-        if content_type is None or content_type not in VideoFileContentTypesEnum:
+        content_type = Path(value).suffix.lower()
+        if content_type not in VIDEO_FILE_MIME_TYPES:
             raise VideoInvalidFileFormatError(file=value)
         return content_type

@@ -35,7 +35,7 @@ async def test_get_subscribers_returns_subscribers_without_next_cursor_if_last_p
         use_case = await di.get(GetSubscribersUseCase)
         session = await di.get(AsyncSession)
 
-        channel = await ChannelORMFactory.create(session=session, is_active=True)
+        channel = await ChannelORMFactory.create(session=session)
 
         subscribers = await ChannelORMFactory.create_batch(session=session, size=2)
 
@@ -68,7 +68,7 @@ async def test_get_subscribers_returns_next_cursor_if_more_items_exist(
         use_case = await di.get(GetSubscribersUseCase)
         session = await di.get(AsyncSession)
 
-        channel = await ChannelORMFactory.create(session=session, is_active=True)
+        channel = await ChannelORMFactory.create(session=session)
 
         subscribers = await ChannelORMFactory.create_batch(session=session, size=3)
         for sub in subscribers:
@@ -103,7 +103,7 @@ async def test_get_subscribers_returns_correct_page_by_cursor(
         use_case = await di.get(GetSubscribersUseCase)
         session = await di.get(AsyncSession)
 
-        channel = await ChannelORMFactory.create(session=session, is_active=True)
+        channel = await ChannelORMFactory.create(session=session)
 
         subscribers = await ChannelORMFactory.create_batch(session=session, size=3)
 

@@ -28,7 +28,7 @@ async def test_update_channel_returns_correct_entity_if_updated(
     async with container() as di:
         use_case = await di.get(UpdateChannelUseCase)
         session = await di.get(AsyncSession)
-        db_channel = deepcopy(await ChannelORMFactory.create(session=session, is_active=True))
+        db_channel = deepcopy(await ChannelORMFactory.create(session=session))
         command = UpdateChannelCommandFactory.build(current_channel_id=db_channel.id, slug=expected_slug)
 
         updated_channel = await use_case.execute(command=command)
@@ -41,14 +41,26 @@ async def test_update_channel_returns_correct_entity_if_updated(
         assert updated_channel.created_at == db_channel.created_at
         assert updated_channel.updated_at > db_channel.updated_at
 
-        assert updated_channel.name == command.name if command.name is not Empty.UNSET else db_channel.name
-        assert updated_channel.slug == command.slug if command.slug is not Empty.UNSET else db_channel.slug
+        assert (
+            updated_channel.name == command.name
+            if command.name is not Empty.UNSET
+            else updated_channel.name == db_channel.name
+        )
+        assert (
+            updated_channel.slug == command.slug
+            if command.slug is not Empty.UNSET
+            else updated_channel.slug == db_channel.slug
+        )
         assert (
             updated_channel.description == command.description
             if command.description is not Empty.UNSET
             else db_channel.description
         )
-        assert updated_channel.country == command.country if command.country is not Empty.UNSET else db_channel.country
+        assert (
+            updated_channel.country == command.country
+            if command.country is not Empty.UNSET
+            else updated_channel.country == db_channel.country
+        )
 
 
 @pytest.mark.asyncio
@@ -56,7 +68,7 @@ async def test_update_channel_raises_error_if_slug_exists(container: AsyncContai
     async with container() as di:
         use_case = await di.get(UpdateChannelUseCase)
         session = await di.get(AsyncSession)
-        db_channel = await ChannelORMFactory.create(session=session, is_active=True)
+        db_channel = await ChannelORMFactory.create(session=session)
         command = UpdateChannelCommandFactory.build(current_channel_id=db_channel.id, slug=db_channel.slug)
 
         with pytest.raises(ChannelWithSlugAlreadyExistsError):

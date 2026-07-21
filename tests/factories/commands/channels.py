@@ -7,6 +7,7 @@ from app.application.channels.commands import (
     ConfirmChannelAvatarUploadCommand,
     CreateChannelCommand,
     DeleteChannelAvatarCommand,
+    DeleteChannelCommand,
     GenerateChannelAvatarUploadUrlCommand,
     SetChannelPasswordCommand,
     UpdateChannelCommand,
@@ -35,6 +36,10 @@ class UpdateChannelCommandFactory(DataclassFactory[UpdateChannelCommand]):
     @classmethod
     def slug(cls) -> str | Empty:
         return cls.__random__.choice([Empty.UNSET, cls.__faker__.slug()])
+
+
+class DeleteChannelCommandFactory(DataclassFactory[DeleteChannelCommand]):
+    __model__ = DeleteChannelCommand
 
 
 class SetChannelPasswordCommandFactory(DataclassFactory[SetChannelPasswordCommand]):

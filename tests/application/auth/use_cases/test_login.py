@@ -22,7 +22,6 @@ async def test_login_returns_tokens_if_credentials_are_correct(container: AsyncC
 
         db_channel = await ChannelORMFactory.create(
             session=session,
-            is_active=True,
             password_hash=password_hasher.get_password_hash(password),
         )
 
@@ -77,10 +76,7 @@ async def test_login_raises_error_if_password_is_incorrect(container: AsyncConta
         use_case = await di.get(LoginUseCase)
         session = await di.get(AsyncSession)
 
-        db_channel = await ChannelORMFactory.create(
-            session=session,
-            is_active=True,
-        )
+        db_channel = await ChannelORMFactory.create(session=session)
 
         command = LoginCommandFactory.build(
             email=db_channel.email,

@@ -26,7 +26,7 @@ async def test_create_post_comment_returns_correct_entity(container: AsyncContai
         use_case = await di.get(CreatePostCommentUseCase)
         session = await di.get(AsyncSession)
 
-        channel = await ChannelORMFactory.create(session=session, is_active=True)
+        channel = await ChannelORMFactory.create(session=session)
         post = await PostORMFactory.create(session=session, channel_id=channel.id)
 
         command = CreatePostCommentCommandFactory.build(
@@ -64,7 +64,7 @@ async def test_create_post_comment_with_reply_comment(container: AsyncContainer)
         use_case = await di.get(CreatePostCommentUseCase)
         session = await di.get(AsyncSession)
 
-        channel = await ChannelORMFactory.create(session=session, is_active=True)
+        channel = await ChannelORMFactory.create(session=session)
         post = await PostORMFactory.create(session=session, channel_id=channel.id)
 
         parent_comment = await PostCommentORMFactory.create(
@@ -93,7 +93,7 @@ async def test_create_post_comment_raises_if_reply_comment_not_found(container: 
         use_case = await di.get(CreatePostCommentUseCase)
         session = await di.get(AsyncSession)
 
-        channel = await ChannelORMFactory.create(session=session, is_active=True)
+        channel = await ChannelORMFactory.create(session=session)
         post = await PostORMFactory.create(session=session, channel_id=channel.id)
 
         command = CreatePostCommentCommandFactory.build(
@@ -112,7 +112,7 @@ async def test_create_post_comment_raises_if_post_not_found(container: AsyncCont
         use_case = await di.get(CreatePostCommentUseCase)
         session = await di.get(AsyncSession)
 
-        channel = await ChannelORMFactory.create(session=session, is_active=True)
+        channel = await ChannelORMFactory.create(session=session)
 
         command = CreatePostCommentCommandFactory.build(
             current_channel_id=channel.id,

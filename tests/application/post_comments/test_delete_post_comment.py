@@ -23,7 +23,7 @@ async def test_delete_post_comment_success(container: AsyncContainer):
         use_case = await di.get(DeletePostCommentUseCase)
         session = await di.get(AsyncSession)
 
-        channel = await ChannelORMFactory.create(session=session, is_active=True)
+        channel = await ChannelORMFactory.create(session=session)
         post = await PostORMFactory.create(session=session, channel_id=channel.id)
 
         post_comment = await PostCommentORMFactory.create(
@@ -90,12 +90,9 @@ async def test_delete_post_comment_raises_if_post_comment_not_found(container: A
         use_case = await di.get(DeletePostCommentUseCase)
         session = await di.get(AsyncSession)
 
-        channel = await ChannelORMFactory.create(session=session, is_active=True)
+        channel = await ChannelORMFactory.create(session=session)
 
-        command = DeletePostCommentCommandFactory.build(
-            current_channel_id=channel.id,
-            post_comment_id=uuid7(),
-        )
+        command = DeletePostCommentCommandFactory.build(current_channel_id=channel.id)
 
         with pytest.raises(PostCommentNotFoundError):
             await use_case.execute(command=command)
@@ -107,8 +104,8 @@ async def test_delete_post_comment_raises_if_no_access(container: AsyncContainer
         use_case = await di.get(DeletePostCommentUseCase)
         session = await di.get(AsyncSession)
 
-        owner_channel = await ChannelORMFactory.create(session=session, is_active=True)
-        other_channel = await ChannelORMFactory.create(session=session, is_active=True)
+        owner_channel = await ChannelORMFactory.create(session=session)
+        other_channel = await ChannelORMFactory.create(session=session)
         post = await PostORMFactory.create(session=session, channel_id=other_channel.id)
 
         post_comment = await PostCommentORMFactory.create(

@@ -21,7 +21,7 @@ async def test_unsubscribe_returns_none_if_deleted(container: AsyncContainer):
         use_case = await di.get(UnsubscribeUseCase)
         session = await di.get(AsyncSession)
 
-        subscriber = await ChannelORMFactory.create(session=session, is_active=True)
+        subscriber = await ChannelORMFactory.create(session=session)
         subscribed_to = await ChannelORMFactory.create(session=session)
 
         db_subscription = await SubscriptionORMFactory.create(
@@ -82,7 +82,7 @@ async def test_unsubscribe_raises_error_if_channel_slug_not_found(container: Asy
         use_case = await di.get(UnsubscribeUseCase)
         session = await di.get(AsyncSession)
 
-        subscriber = await ChannelORMFactory.create(session=session, is_active=True)
+        subscriber = await ChannelORMFactory.create(session=session)
 
         command = UnsubscribeCommandFactory.build(
             current_channel_id=subscriber.id,
@@ -98,7 +98,7 @@ async def test_unsubscribe_raises_error_if_subscription_not_found(container: Asy
         use_case = await di.get(UnsubscribeUseCase)
         session = await di.get(AsyncSession)
 
-        subscriber = await ChannelORMFactory.create(session=session, is_active=True)
+        subscriber = await ChannelORMFactory.create(session=session)
         subscribed_to = await ChannelORMFactory.create(session=session)
 
         command = UnsubscribeCommandFactory.build(
@@ -116,7 +116,7 @@ async def test_unsubscribe_raises_error_if_try_to_unsubscribe_from_self(containe
         use_case = await di.get(UnsubscribeUseCase)
         session = await di.get(AsyncSession)
 
-        channel = await ChannelORMFactory.create(session=session, is_active=True)
+        channel = await ChannelORMFactory.create(session=session)
 
         command = UnsubscribeCommandFactory.build(
             current_channel_id=channel.id,

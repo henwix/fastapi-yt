@@ -125,7 +125,7 @@ async def test_abort_video_multipart_upload_returns_none_if_video_already_upload
         video = await VideoORMFactory.create(
             session=session,
             channel_id=channel.id,
-            upload_status=VideoUploadStatusEnum.COMPLETED,
+            upload_status=VideoUploadStatusEnum.COMPLETED.value,
             upload_id=None,
         )
         command = AbortVideoMultipartUploadCommandFactory.build(

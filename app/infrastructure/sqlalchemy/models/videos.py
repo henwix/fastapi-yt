@@ -4,6 +4,8 @@ import sqlalchemy as sa
 from sqlalchemy.orm import Mapped, mapped_column
 
 from app.domain.common.enums import ReactionTypeEnum
+from app.domain.playlists.entities import Playlist, PlaylistItem
+from app.domain.playlists.enums import PlaylistPrivacyStatusEnum
 from app.domain.video_reactions.entities import VideoReaction
 from app.domain.videos.entities import Video
 from app.domain.videos.enums import VideoPrivacyStatusEnum, VideoUploadStatusEnum
@@ -106,4 +108,63 @@ class VideoReactionORM(
             channel_id=self.channel_id,
             reaction_type=ReactionTypeEnum(self.reaction_type),
             created_at=self.created_at,
+        )
+
+
+class PlaylistORM(UUIDIdMixin, CreatedAtMixin, BaseORM):
+    __tablename__ = 'playlists'
+
+    title: Mapped[str] = mapped_column(sa.String(length=150))
+    description: Mapped[str] = mapped_column(sa.Text)
+    privacy_status: Mapped[str] = mapped_column(sa.String(length=10))
+    channel_id: Mapped[UUID] = mapped_column(sa.ForeignKey('channels.id', ondelete='CASCADE'))
+
+    __table_args__ = (
+        sa.CheckConstraint("privacy_status IN ('public', 'private')", name='ck_playlists_privacy_status'),
+        sa.CheckConstraint('char_length(description) <= 5000', name='ck_playlists_description_max_length'),
+    )
+
+    @staticmethod
+    def from_entity(entity: Playlist) -> PlaylistORM:
+        return PlaylistORM(
+            id=entity.id,
+            title=entity.title,
+            description=entity.description,
+            privacy_status=entity.privacy_status.value,
+            channel_id=entity.channel_id,
+            created_at=entity.created_at,
+        )
+
+    def to_entity(self) -> Playlist:
+        return Playlist(
+            id=self.id,
+            title=self.title,
+            description=self.description,
+            privacy_status=PlaylistPrivacyStatusEnum(self.privacy_status),
+            channel_id=self.channel_id,
+            created_at=self.created_at,
+        )
+
+
+class PlaylistItemORM(UUIDIdMixin, BaseORM):
+    __tablename__ = 'playlist_items'
+
+    playlist_id: Mapped[UUID] = mapped_column(sa.ForeignKey('playlists.id', ondelete='CASCADE'))
+    video_id: Mapped[str] = mapped_column(sa.ForeignKey('videos.id', ondelete='CASCADE'))
+
+    __table_args__ = (sa.UniqueConstraint('playlist_id', 'video_id', name='unique_playlist_item'),)
+
+    @staticmethod
+    def from_entity(entity: PlaylistItem) -> PlaylistItemORM:
+        return PlaylistItemORM(
+            id=entity.id,
+            playlist_id=entity.playlist_id,
+            video_id=entity.video_id,
+        )
+
+    def to_entity(self) -> PlaylistItem:
+        return PlaylistItem(
+            id=self.id,
+            playlist_id=self.playlist_id,
+            video_id=self.video_id,
         )

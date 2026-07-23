@@ -18,11 +18,12 @@ class SASubscriptionRepository(ISubscriptionRepository):
     _session: AsyncSession
 
     def _parse_db_error(self, error: DBAPIError, subscription: Subscription) -> NoReturn:
-        cause = error.orig.__cause__
-        if cause is None:
+        cause: BaseException | None = getattr(error.orig, '__cause__', None)
+        constraint_name: str | None = getattr(cause, 'constraint_name', None)
+        if cause is None or constraint_name is None:
             raise
 
-        match cause.constraint_name:
+        match constraint_name:
             case 'unique_channel_subscription':
                 raise SubscriptionAlreadyExistsError(
                     subscriber_id=subscription.subscriber_id,

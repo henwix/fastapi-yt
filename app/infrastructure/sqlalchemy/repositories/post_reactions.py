@@ -6,9 +6,11 @@ from sqlalchemy import delete, select, update
 from sqlalchemy.exc import DBAPIError, IntegrityError
 from sqlalchemy.ext.asyncio import AsyncSession
 
+from app.domain.channels.exceptions import ChannelNotFoundByIdError
 from app.domain.post_reactions.entities import PostReaction
 from app.domain.post_reactions.exceptions import PostReactionAlreadyExistsError
 from app.domain.post_reactions.repositories import IPostReactionRepository
+from app.domain.posts.exceptions import PostNotFoundError
 from app.infrastructure.sqlalchemy.models.posts import PostReactionORM
 
 
@@ -17,16 +19,21 @@ class SAPostReactionRepository(IPostReactionRepository):
     _session: AsyncSession
 
     def _parse_db_error(self, error: DBAPIError, post_reaction: PostReaction) -> NoReturn:
-        cause = error.orig.__cause__
-        if cause is None:
+        cause: BaseException | None = getattr(error.orig, '__cause__', None)
+        constraint_name: str | None = getattr(cause, 'constraint_name', None)
+        if cause is None or constraint_name is None:
             raise
 
-        match cause.constraint_name:
+        match constraint_name:
             case 'unique_channel_post_reaction':
                 raise PostReactionAlreadyExistsError(
                     post_id=post_reaction.post_id,
                     channel_id=post_reaction.channel_id,
                 ) from error
+            case 'post_reactions_channel_id_fkey':
+                raise ChannelNotFoundByIdError(id=post_reaction.channel_id)
+            case 'post_reactions_post_id_fkey':
+                raise PostNotFoundError(id=post_reaction.post_id)
             case _:
                 raise
 

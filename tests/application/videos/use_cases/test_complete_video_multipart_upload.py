@@ -118,7 +118,7 @@ async def test_complete_video_multipart_upload_raises_error_if_video_already_upl
         video = await VideoORMFactory.create(
             session=session,
             channel_id=channel.id,
-            upload_status=VideoUploadStatusEnum.COMPLETED,
+            upload_status=VideoUploadStatusEnum.COMPLETED.value,
             upload_id=uuid7().hex,
         )
         command = CompleteVideoMultipartUploadCommandFactory.build(

@@ -6,9 +6,11 @@ from sqlalchemy import delete, select, update
 from sqlalchemy.exc import DBAPIError, IntegrityError
 from sqlalchemy.ext.asyncio import AsyncSession
 
+from app.domain.channels.exceptions import ChannelNotFoundByIdError
 from app.domain.post_comment_reactions.entities import PostCommentReaction
 from app.domain.post_comment_reactions.exceptions import PostCommentReactionAlreadyExistsError
 from app.domain.post_comment_reactions.repositories import IPostCommentReactionRepository
+from app.domain.post_comments.exceptions import PostCommentNotFoundError
 from app.infrastructure.sqlalchemy.models.posts import PostCommentReactionORM
 
 
@@ -17,16 +19,21 @@ class SAPostCommentReactionRepository(IPostCommentReactionRepository):
     _session: AsyncSession
 
     def _parse_db_error(self, error: DBAPIError, post_comment_reaction: PostCommentReaction) -> NoReturn:
-        cause = error.orig.__cause__
-        if cause is None:
+        cause: BaseException | None = getattr(error.orig, '__cause__', None)
+        constraint_name: str | None = getattr(cause, 'constraint_name', None)
+        if cause is None or constraint_name is None:
             raise
 
-        match cause.constraint_name:
+        match constraint_name:
             case 'unique_channel_post_comment_reaction':
                 raise PostCommentReactionAlreadyExistsError(
                     post_comment_id=post_comment_reaction.post_comment_id,
                     channel_id=post_comment_reaction.channel_id,
                 ) from error
+            case 'post_comment_reactions_channel_id_fkey':
+                raise ChannelNotFoundByIdError(id=post_comment_reaction.channel_id)
+            case 'post_comment_reactions_post_comment_id_fkey':
+                raise PostCommentNotFoundError(id=post_comment_reaction.post_comment_id)
             case _:
                 raise
 

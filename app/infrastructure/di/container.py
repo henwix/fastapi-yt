@@ -18,6 +18,10 @@ from app.application.common.interfaces.password_hasher import IPasswordHasher
 from app.application.common.interfaces.s3_provider import IS3Provider
 from app.application.common.interfaces.task_queue import ITaskQueue
 from app.application.common.interfaces.transaction_manager import ITransactionManager
+from app.application.playlists.use_cases.add_video_to_playlist import AddVideoToPlaylistUseCase
+from app.application.playlists.use_cases.create_playlist import CreatePlaylistUseCase
+from app.application.playlists.use_cases.delete_playlist import DeletePlaylistUseCase
+from app.application.playlists.use_cases.update_playlist import UpdatePlaylistUseCase
 from app.application.post_comment_reactions.use_cases.create_post_comment_reaction import (
     CreatePostCommentReactionUseCase,
 )
@@ -57,6 +61,8 @@ from app.application.videos.use_cases.get_video import GetVideoUseCase
 from app.application.videos.use_cases.update_video import UpdateVideoUseCase
 from app.domain.channels.repositories import IChannelRepository
 from app.domain.channels.services import ChannelService, IChannelService
+from app.domain.playlists.repositories import IPlaylistItemRepository, IPlaylistRepository
+from app.domain.playlists.services import IPlaylistItemService, IPlaylistService, PlaylistItemService, PlaylistService
 from app.domain.post_comment_reactions.repositories import IPostCommentReactionRepository
 from app.domain.post_comment_reactions.services import IPostCommentReactionService, PostCommentReactionService
 from app.domain.post_comments.repositories import IPostCommentRepository
@@ -81,6 +87,7 @@ from app.infrastructure.sqlalchemy.readers.posts import SAPostReader
 from app.infrastructure.sqlalchemy.readers.subscriptions import SASubscriptionReader
 from app.infrastructure.sqlalchemy.readers.videos import SAVideoReader
 from app.infrastructure.sqlalchemy.repositories.channels import SAChannelRepository
+from app.infrastructure.sqlalchemy.repositories.playlists import SAPlaylistItemRepository, SAPlaylistRepository
 from app.infrastructure.sqlalchemy.repositories.post_comment_reactions import SAPostCommentReactionRepository
 from app.infrastructure.sqlalchemy.repositories.post_comments import SAPostCommentRepository
 from app.infrastructure.sqlalchemy.repositories.post_reactions import SAPostReactionRepository
@@ -125,6 +132,8 @@ class RepositoriesProvider(Provider):
     channel_repository = provide(SAChannelRepository, provides=IChannelRepository)
     video_repository = provide(SAVideoRepository, provides=IVideoRepository)
     video_reaction_repository = provide(SAVideoReactionRepository, provides=IVideoReactionRepository)
+    playlist_repository = provide(SAPlaylistRepository, provides=IPlaylistRepository)
+    playlist_item_repository = provide(SAPlaylistItemRepository, provides=IPlaylistItemRepository)
     post_repository = provide(SAPostRepository, provides=IPostRepository)
     post_reaction_repository = provide(SAPostReactionRepository, provides=IPostReactionRepository)
     post_comment_repository = provide(SAPostCommentRepository, provides=IPostCommentRepository)
@@ -147,6 +156,8 @@ class ServicesProvider(Provider):
     channel_service = provide(ChannelService, provides=IChannelService)
     video_service = provide(VideoService, provides=IVideoService)
     video_reaction_service = provide(VideoReactionService, provides=IVideoReactionService)
+    playlist_service = provide(PlaylistService, provides=IPlaylistService)
+    playlist_item_service = provide(PlaylistItemService, provides=IPlaylistItemService)
     post_service = provide(PostService, provides=IPostService)
     post_reaction_service = provide(PostReactionService, provides=IPostReactionService)
     post_comment_service = provide(PostCommentService, provides=IPostCommentService)
@@ -185,6 +196,12 @@ class UseCasesProvider(Provider):
     # Video reactions
     create_video_reaction = provide(CreateVideoReactionUseCase)
     delete_video_reaction = provide(DeleteVideoReactionUseCase)
+
+    # Playlists
+    create_playlist = provide(CreatePlaylistUseCase)
+    delete_playlist = provide(DeletePlaylistUseCase)
+    update_playlist = provide(UpdatePlaylistUseCase)
+    add_video_to_playlist = provide(AddVideoToPlaylistUseCase)
 
     # Posts
     create_post = provide(CreatePostUseCase)

@@ -111,7 +111,7 @@ async def test_generate_video_part_upload_url_raises_error_if_video_already_uplo
         video = await VideoORMFactory.create(
             session=session,
             channel_id=channel.id,
-            upload_status=VideoUploadStatusEnum.COMPLETED,
+            upload_status=VideoUploadStatusEnum.COMPLETED.value,
             upload_id=uuid7().hex,
         )
         command = GenerateVideoPartUploadUrlCommandFactory.build(current_channel_id=channel.id, video_id=video.id)

@@ -17,11 +17,12 @@ class SAChannelRepository(IChannelRepository):
     _session: AsyncSession
 
     def _parse_db_error(self, error: DBAPIError, channel: Channel) -> NoReturn:
-        cause = error.orig.__cause__
-        if cause is None:
-            raise error
+        cause: BaseException | None = getattr(error.orig, '__cause__', None)
+        constraint_name: str | None = getattr(cause, 'constraint_name', None)
+        if cause is None or constraint_name is None:
+            raise
 
-        match cause.constraint_name:
+        match constraint_name:
             case 'channels_email_key':
                 raise ChannelWithEmailAlreadyExistsError(email=channel.email) from error
             case 'channels_slug_key':

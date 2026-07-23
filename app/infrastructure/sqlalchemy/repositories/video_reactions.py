@@ -17,11 +17,12 @@ class SAVideoReactionRepository(IVideoReactionRepository):
     _session: AsyncSession
 
     def _parse_db_error(self, error: DBAPIError, video_reaction: VideoReaction) -> NoReturn:
-        cause = error.orig.__cause__
-        if cause is None:
+        cause: BaseException | None = getattr(error.orig, '__cause__', None)
+        constraint_name: str | None = getattr(cause, 'constraint_name', None)
+        if cause is None or constraint_name is None:
             raise
 
-        match cause.constraint_name:
+        match constraint_name:
             case 'unique_channel_video_reaction':
                 raise VideoReactionAlreadyExistsError(
                     video_id=video_reaction.video_id,

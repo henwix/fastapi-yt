@@ -8,7 +8,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.domain.channels.exceptions import ChannelNotFoundByIdError
 from app.domain.post_comments.entities import PostComment
-from app.domain.post_comments.exceptions import PostCommentInvalidReplyLevelError, PostCommentNotFoundError
+from app.domain.post_comments.exceptions import PostCommentNotFoundError
 from app.domain.post_comments.repositories import IPostCommentRepository
 from app.domain.posts.exceptions import PostNotFoundError
 from app.infrastructure.sqlalchemy.models.posts import PostCommentORM
@@ -19,19 +19,18 @@ class SAPostCommentRepository(IPostCommentRepository):
     _session: AsyncSession
 
     def _parse_db_error(self, error: DBAPIError, post_comment: PostComment) -> NoReturn:
-        cause = error.orig.__cause__
-        if cause is None:
+        cause: BaseException | None = getattr(error.orig, '__cause__', None)
+        constraint_name: str | None = getattr(cause, 'constraint_name', None)
+        if cause is None or constraint_name is None:
             raise
 
-        match cause.constraint_name:
+        match constraint_name:
             case 'post_comments_post_id_fkey':
                 raise PostNotFoundError(id=post_comment.post_id) from error
             case 'post_comments_channel_id_fkey':
                 raise ChannelNotFoundByIdError(id=post_comment.channel_id) from error
             case 'post_comments_reply_comment_id_fkey':
                 raise PostCommentNotFoundError(id=post_comment.reply_comment_id) from error
-            case 'ck_reply_level':
-                raise PostCommentInvalidReplyLevelError(reply_level=post_comment.reply_level) from error
             case _:
                 raise
 

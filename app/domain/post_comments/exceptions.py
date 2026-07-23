@@ -11,12 +11,6 @@ class PostCommentNotFoundError(AppException):
 
 
 @dataclass(kw_only=True)
-class PostCommentInvalidReplyLevelError(AppException):
-    message = 'Invalid reply level'
-    reply_level: int
-
-
-@dataclass(kw_only=True)
 class PostCommentAccessForbiddenError(AppException):
     message = 'Post comment access forbidden'
     post_comment_id: UUID

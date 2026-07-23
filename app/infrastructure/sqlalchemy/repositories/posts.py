@@ -1,7 +1,9 @@
 from dataclasses import dataclass
+from typing import NoReturn
 from uuid import UUID
 
 from sqlalchemy import delete, select, update
+from sqlalchemy.exc import DBAPIError
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.domain.posts.entities import Post
@@ -12,6 +14,16 @@ from app.infrastructure.sqlalchemy.models.posts import PostORM
 @dataclass
 class SAPostRepository(IPostRepository):
     _session: AsyncSession
+
+    def _parse_db_error(self, error: DBAPIError, post: Post) -> NoReturn:
+        cause = getattr(error.orig, '__cause__', None)
+        constraint_name = getattr(cause, 'constraint_name', None)
+        if cause is None or constraint_name is None:
+            raise
+
+        match constraint_name:
+            case 'posts_channel_id_fkey':
+                raise ChannelNotFound
 
     async def create(self, post: Post) -> Post:
         model = PostORM.from_entity(entity=post)

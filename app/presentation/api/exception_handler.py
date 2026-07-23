@@ -31,13 +31,17 @@ from app.domain.common.exceptions import (
     S3RequestError,
     S3UnavailableError,
 )
+from app.domain.playlists.exceptions import (
+    PlaylistAccessForbiddenError,
+    PlaylistNotFoundError,
+    VideoAlreadyAddedToPlaylistError,
+)
 from app.domain.post_comment_reactions.exceptions import (
     PostCommentReactionAlreadyExistsError,
     PostCommentReactionNotFoundError,
 )
 from app.domain.post_comments.exceptions import (
     PostCommentAccessForbiddenError,
-    PostCommentInvalidReplyLevelError,
     PostCommentNotFoundError,
 )
 from app.domain.post_reactions.exceptions import PostReactionAlreadyExistsError, PostReactionNotFoundError
@@ -93,6 +97,10 @@ def get_http_status_code(exc: AppException):
         # Video reactions
         VideoReactionAlreadyExistsError: status.HTTP_400_BAD_REQUEST,
         VideoReactionNotFoundError: status.HTTP_404_NOT_FOUND,
+        # Playlists
+        VideoAlreadyAddedToPlaylistError: status.HTTP_400_BAD_REQUEST,
+        PlaylistAccessForbiddenError: status.HTTP_403_FORBIDDEN,
+        PlaylistNotFoundError: status.HTTP_404_NOT_FOUND,
         # Posts
         PostAccessForbiddenError: status.HTTP_403_FORBIDDEN,
         PostNotFoundError: status.HTTP_404_NOT_FOUND,
@@ -102,7 +110,6 @@ def get_http_status_code(exc: AppException):
         # Post comment
         PostCommentAccessForbiddenError: status.HTTP_403_FORBIDDEN,
         PostCommentNotFoundError: status.HTTP_404_NOT_FOUND,
-        PostCommentInvalidReplyLevelError: status.HTTP_500_INTERNAL_SERVER_ERROR,
         # Post comment reactions
         PostCommentReactionAlreadyExistsError: status.HTTP_400_BAD_REQUEST,
         PostCommentReactionNotFoundError: status.HTTP_404_NOT_FOUND,

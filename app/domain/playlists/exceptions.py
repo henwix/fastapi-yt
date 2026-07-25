@@ -14,11 +14,18 @@ class PlaylistNotFoundError(AppException):
 class PlaylistAccessForbiddenError(AppException):
     message = 'Playlist access forbidden'
     playlist_id: UUID
-    channel_id: UUID
+    channel_id: UUID | None
 
 
 @dataclass(kw_only=True)
 class VideoAlreadyAddedToPlaylistError(AppException):
     message = 'Video already added to playlist'
+    playlist_id: UUID
+    video_id: str
+
+
+@dataclass(kw_only=True)
+class VideoNotFoundInPlaylistError(AppException):
+    message = 'Video not found in playlist'
     playlist_id: UUID
     video_id: str

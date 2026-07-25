@@ -33,3 +33,10 @@ class AddVideoToPlaylistCommand:
     current_channel_id: UUID
     playlist_id: UUID
     video_id: str
+
+
+@dataclass(kw_only=True, frozen=True)
+class DeleteVideoFromPlaylistCommand:
+    current_channel_id: UUID
+    playlist_id: UUID
+    video_id: str

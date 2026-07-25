@@ -4,7 +4,11 @@ from uuid import UUID
 
 from app.domain.channels.entities import Channel
 from app.domain.playlists.entities import Playlist, PlaylistItem
-from app.domain.playlists.exceptions import PlaylistAccessForbiddenError, PlaylistNotFoundError
+from app.domain.playlists.exceptions import (
+    PlaylistAccessForbiddenError,
+    PlaylistNotFoundError,
+    VideoNotFoundInPlaylistError,
+)
 from app.domain.playlists.repositories import IPlaylistItemRepository, IPlaylistRepository
 
 
@@ -28,6 +32,9 @@ class IPlaylistService(ABC):
 class IPlaylistItemService(ABC):
     @abstractmethod
     async def create(self, playlist_item: PlaylistItem) -> PlaylistItem: ...
+
+    @abstractmethod
+    async def try_delete(self, playlist_id: UUID, video_id: str) -> None: ...
 
 
 @dataclass
@@ -65,3 +72,8 @@ class PlaylistItemService(IPlaylistItemService):
 
     async def create(self, playlist_item: PlaylistItem) -> PlaylistItem:
         return await self._repo.create(playlist_item=playlist_item)
+
+    async def try_delete(self, playlist_id: UUID, video_id: str) -> None:
+        is_deleted = await self._repo.delete(playlist_id=playlist_id, video_id=video_id)
+        if not is_deleted:
+            raise VideoNotFoundInPlaylistError(playlist_id=playlist_id, video_id=video_id)

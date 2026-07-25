@@ -21,3 +21,6 @@ class IPlaylistRepository(ABC):
 class IPlaylistItemRepository(ABC):
     @abstractmethod
     async def create(self, playlist_item: PlaylistItem) -> PlaylistItem: ...
+
+    @abstractmethod
+    async def delete(self, playlist_id: UUID, video_id: str) -> bool: ...

@@ -18,9 +18,12 @@ from app.application.common.interfaces.password_hasher import IPasswordHasher
 from app.application.common.interfaces.s3_provider import IS3Provider
 from app.application.common.interfaces.task_queue import ITaskQueue
 from app.application.common.interfaces.transaction_manager import ITransactionManager
+from app.application.playlists.interfaces.reader import IPlaylistReader
 from app.application.playlists.use_cases.add_video_to_playlist import AddVideoToPlaylistUseCase
 from app.application.playlists.use_cases.create_playlist import CreatePlaylistUseCase
 from app.application.playlists.use_cases.delete_playlist import DeletePlaylistUseCase
+from app.application.playlists.use_cases.delete_video_from_playlist import DeleteVideoFromPlaylistUseCase
+from app.application.playlists.use_cases.get_playlist import GetPlaylistUseCase
 from app.application.playlists.use_cases.update_playlist import UpdatePlaylistUseCase
 from app.application.post_comment_reactions.use_cases.create_post_comment_reaction import (
     CreatePostCommentReactionUseCase,
@@ -82,6 +85,7 @@ from app.infrastructure.s3.provider import BotoS3Provider
 from app.infrastructure.security.jwt import JWTService
 from app.infrastructure.security.password_hasher import PwdlibPasswordHasher
 from app.infrastructure.sqlalchemy.database import create_engine, create_session_factory
+from app.infrastructure.sqlalchemy.readers.playlists import SAPlaylistReader
 from app.infrastructure.sqlalchemy.readers.post_comments import SAPostCommentReader
 from app.infrastructure.sqlalchemy.readers.posts import SAPostReader
 from app.infrastructure.sqlalchemy.readers.subscriptions import SASubscriptionReader
@@ -148,6 +152,7 @@ class ReadersProvider(Provider):
     post_comment_reader = provide(SAPostCommentReader, provides=IPostCommentReader)
     subscription_reader = provide(SASubscriptionReader, provides=ISubscriptionReader)
     video_reader = provide(SAVideoReader, provides=IVideoReader)
+    playlist_reader = provide(SAPlaylistReader, provides=IPlaylistReader)
 
 
 class ServicesProvider(Provider):
@@ -199,9 +204,11 @@ class UseCasesProvider(Provider):
 
     # Playlists
     create_playlist = provide(CreatePlaylistUseCase)
+    get_playlist = provide(GetPlaylistUseCase)
     delete_playlist = provide(DeletePlaylistUseCase)
     update_playlist = provide(UpdatePlaylistUseCase)
     add_video_to_playlist = provide(AddVideoToPlaylistUseCase)
+    delete_video_from_playlist = provide(DeleteVideoFromPlaylistUseCase)
 
     # Posts
     create_post = provide(CreatePostUseCase)

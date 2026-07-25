@@ -35,6 +35,7 @@ from app.domain.playlists.exceptions import (
     PlaylistAccessForbiddenError,
     PlaylistNotFoundError,
     VideoAlreadyAddedToPlaylistError,
+    VideoNotFoundInPlaylistError,
 )
 from app.domain.post_comment_reactions.exceptions import (
     PostCommentReactionAlreadyExistsError,
@@ -101,6 +102,7 @@ def get_http_status_code(exc: AppException):
         VideoAlreadyAddedToPlaylistError: status.HTTP_400_BAD_REQUEST,
         PlaylistAccessForbiddenError: status.HTTP_403_FORBIDDEN,
         PlaylistNotFoundError: status.HTTP_404_NOT_FOUND,
+        VideoNotFoundInPlaylistError: status.HTTP_404_NOT_FOUND,
         # Posts
         PostAccessForbiddenError: status.HTTP_403_FORBIDDEN,
         PostNotFoundError: status.HTTP_404_NOT_FOUND,

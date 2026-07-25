@@ -3,6 +3,7 @@ from uuid import UUID
 
 from pydantic import Field
 
+from app.application.playlists.dto import DetailedPlaylistDTO
 from app.domain.playlists.constants import (
     PLAYLISTS_DESCRIPTION_MAX_LENGTH,
     PLAYLISTS_TITLE_MAX_LENGTH,
@@ -40,4 +41,28 @@ class PlaylistOutSchema(BaseSchema):
             description=entity.description,
             privacy_status=entity.privacy_status,
             created_at=entity.created_at,
+        )
+
+
+class DetailedPlaylistOutSchema(BaseSchema):
+    id: UUID
+    title: str
+    description: str
+    privacy_status: PlaylistPrivacyStatusEnum
+    created_at: datetime
+    author_name: str
+    author_slug: str
+    videos_count: int = Field(ge=0)
+
+    @staticmethod
+    def from_dto(dto: DetailedPlaylistDTO) -> DetailedPlaylistOutSchema:
+        return DetailedPlaylistOutSchema(
+            id=dto.id,
+            title=dto.title,
+            description=dto.description,
+            privacy_status=dto.privacy_status,
+            created_at=dto.created_at,
+            author_name=dto.author_name,
+            author_slug=dto.author_slug,
+            videos_count=dto.videos_count,
         )

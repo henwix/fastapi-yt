@@ -97,3 +97,11 @@ class SAPlaylistItemRepository(IPlaylistItemRepository):
         except IntegrityError as e:
             self._parse_db_error(error=e, playlist_item=playlist_item)
         return model.to_entity()
+
+    async def delete(self, playlist_id: UUID, video_id: str) -> bool:
+        stmt = delete(PlaylistItemORM).where(
+            PlaylistItemORM.playlist_id == playlist_id,
+            PlaylistItemORM.video_id == video_id,
+        )
+        result = await self._session.execute(statement=stmt)
+        return result.rowcount > 0

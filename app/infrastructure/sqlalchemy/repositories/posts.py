@@ -6,6 +6,7 @@ from sqlalchemy import delete, select, update
 from sqlalchemy.exc import DBAPIError
 from sqlalchemy.ext.asyncio import AsyncSession
 
+from app.domain.channels.exceptions import ChannelNotFoundByIdError
 from app.domain.posts.entities import Post
 from app.domain.posts.repositories import IPostRepository
 from app.infrastructure.sqlalchemy.models.posts import PostORM
@@ -23,7 +24,9 @@ class SAPostRepository(IPostRepository):
 
         match constraint_name:
             case 'posts_channel_id_fkey':
-                raise ChannelNotFound
+                raise ChannelNotFoundByIdError(channel_id=post.channel_id) from error
+            case _:
+                raise
 
     async def create(self, post: Post) -> Post:
         model = PostORM.from_entity(entity=post)

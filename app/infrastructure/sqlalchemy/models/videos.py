@@ -7,6 +7,7 @@ from app.domain.common.enums import ReactionTypeEnum
 from app.domain.playlists.entities import Playlist, PlaylistItem
 from app.domain.playlists.enums import PlaylistPrivacyStatusEnum
 from app.domain.video_reactions.entities import VideoReaction
+from app.domain.video_views.entities import VideoView
 from app.domain.videos.entities import Video
 from app.domain.videos.enums import VideoPrivacyStatusEnum, VideoUploadStatusEnum
 from app.infrastructure.sqlalchemy.models.base import BaseORM
@@ -111,6 +112,30 @@ class VideoReactionORM(
         )
 
 
+class VideoViewORM(UUIDIdMixin, CreatedAtMixin, BaseORM):
+    __tablename__ = 'video_views'
+
+    video_id: Mapped[str] = mapped_column(sa.ForeignKey('videos.id', ondelete='CASCADE'))
+    channel_id: Mapped[UUID] = mapped_column(sa.ForeignKey('channels.id', ondelete='CASCADE'), nullable=True)
+
+    @staticmethod
+    def from_entity(entity: VideoView) -> VideoViewORM:
+        return VideoViewORM(
+            id=entity.id,
+            video_id=entity.video_id,
+            channel_id=entity.channel_id,
+            created_at=entity.created_at,
+        )
+
+    def to_entity(self) -> VideoView:
+        return VideoView(
+            id=self.id,
+            video_id=self.video_id,
+            channel_id=self.channel_id,
+            created_at=self.created_at,
+        )
+
+
 class PlaylistORM(UUIDIdMixin, CreatedAtMixin, BaseORM):
     __tablename__ = 'playlists'
 
@@ -122,6 +147,7 @@ class PlaylistORM(UUIDIdMixin, CreatedAtMixin, BaseORM):
     __table_args__ = (
         sa.CheckConstraint("privacy_status IN ('public', 'private')", name='ck_playlists_privacy_status'),
         sa.CheckConstraint('char_length(description) <= 5000', name='ck_playlists_description_max_length'),
+        sa.Index('ix_playlists_composite_channel_id_created_at_id', 'channel_id', 'created_at', 'id'),
     )
 
     @staticmethod

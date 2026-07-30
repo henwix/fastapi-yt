@@ -30,9 +30,9 @@ class SASubscriptionRepository(ISubscriptionRepository):
                     subscribed_to_id=subscription.subscribed_to_id,
                 ) from error
             case 'subscriptions_subscribed_to_id_fkey':
-                raise ChannelNotFoundByIdError(id=subscription.subscribed_to_id) from error
+                raise ChannelNotFoundByIdError(channel_id=subscription.subscribed_to_id) from error
             case 'subscriptions_subscriber_id_fkey':
-                raise ChannelNotFoundByIdError(id=subscription.subscriber_id) from error
+                raise ChannelNotFoundByIdError(channel_id=subscription.subscriber_id) from error
             case _:
                 raise
 

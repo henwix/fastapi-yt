@@ -28,7 +28,7 @@ class SAPostCommentRepository(IPostCommentRepository):
             case 'post_comments_post_id_fkey':
                 raise PostNotFoundError(id=post_comment.post_id) from error
             case 'post_comments_channel_id_fkey':
-                raise ChannelNotFoundByIdError(id=post_comment.channel_id) from error
+                raise ChannelNotFoundByIdError(channel_id=post_comment.channel_id) from error
             case 'post_comments_reply_comment_id_fkey':
                 raise PostCommentNotFoundError(id=post_comment.reply_comment_id) from error
             case _:

@@ -7,31 +7,31 @@ from app.domain.common.exceptions import AppException
 @dataclass(kw_only=True)
 class ChannelWithSlugAlreadyExistsError(AppException):
     message = 'Channel with this slug already exists'
-    slug: str
+    channel_slug: str
 
 
 @dataclass(kw_only=True)
 class ChannelWithEmailAlreadyExistsError(AppException):
     message = 'Channel with this email already exists'
-    email: str
+    channel_email: str
 
 
 @dataclass(kw_only=True)
 class ChannelNotFoundByIdError(AppException):
     message = 'Channel not found by id'
-    id: UUID
+    channel_id: UUID
 
 
 @dataclass(kw_only=True)
 class ChannelNotFoundBySlugError(AppException):
     message = 'Channel not found by slug'
-    slug: str
+    channel_slug: str
 
 
 @dataclass(kw_only=True)
 class ChannelNotActiveError(AppException):
     message = 'Channel not active'
-    id: UUID
+    channel_id: UUID
 
 
 @dataclass(kw_only=True)

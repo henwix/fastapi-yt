@@ -9,7 +9,7 @@ from app.application.videos.queries import GetPersonalVideosFilters, GetPersonal
 
 class IVideoReader(ABC):
     @abstractmethod
-    async def try_get_detailed_by_id(self, id: str) -> DetailedVideoDTO: ...
+    async def try_get_detailed_video_by_id(self, id: str) -> DetailedVideoDTO: ...
 
     @abstractmethod
     async def get_personal_videos(

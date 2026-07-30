@@ -14,7 +14,7 @@ class GetPlaylistUseCase:
     _channel_service: IChannelService
 
     async def execute(self, query: GetPlaylistQuery) -> DetailedPlaylistDTO:
-        playlist = await self._playlist_reader.try_get_detailed_by_id(id=query.playlist_id)
+        playlist = await self._playlist_reader.try_get_detailed_playlist_by_id(id=query.playlist_id)
 
         if playlist.privacy_status is PlaylistPrivacyStatusEnum.PRIVATE:
             if query.current_channel_id is None:

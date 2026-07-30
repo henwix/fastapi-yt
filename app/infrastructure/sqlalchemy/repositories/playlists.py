@@ -26,7 +26,7 @@ class SAPlaylistRepository(IPlaylistRepository):
 
         match constraint_name:
             case 'playlists_channel_id_fkey':
-                raise ChannelNotFoundByIdError(id=playlist.channel_id)
+                raise ChannelNotFoundByIdError(channel_id=playlist.channel_id) from error
             case _:
                 raise
 
@@ -81,11 +81,11 @@ class SAPlaylistItemRepository(IPlaylistItemRepository):
                 raise VideoAlreadyAddedToPlaylistError(
                     playlist_id=playlist_item.playlist_id,
                     video_id=playlist_item.video_id,
-                )
+                ) from error
             case 'playlist_items_playlist_id_fkey':
-                raise PlaylistNotFoundError(playlist_id=playlist_item.playlist_id)
+                raise PlaylistNotFoundError(playlist_id=playlist_item.playlist_id) from error
             case 'playlist_items_video_id_fkey':
-                raise VideoNotFoundError(video_id=playlist_item.video_id)
+                raise VideoNotFoundError(video_id=playlist_item.video_id) from error
             case _:
                 raise
 

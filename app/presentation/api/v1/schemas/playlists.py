@@ -1,9 +1,11 @@
 from datetime import datetime
 from uuid import UUID
 
-from pydantic import Field
+from pydantic import Field, HttpUrl
 
-from app.application.playlists.dto import DetailedPlaylistDTO
+from app.application.common.sorting import SortingOrderEnum
+from app.application.playlists.dto import DetailedPlaylistDTO, PreviewPlaylistDTO
+from app.application.playlists.queries import GetPlaylistsPreviewSortingFieldsEnum
 from app.domain.playlists.constants import (
     PLAYLISTS_DESCRIPTION_MAX_LENGTH,
     PLAYLISTS_TITLE_MAX_LENGTH,
@@ -66,3 +68,31 @@ class DetailedPlaylistOutSchema(BaseSchema):
             author_slug=dto.author_slug,
             videos_count=dto.videos_count,
         )
+
+
+class GetPlaylistsPreviewSortingParams(BaseSchema):
+    sort_by: GetPlaylistsPreviewSortingFieldsEnum = GetPlaylistsPreviewSortingFieldsEnum.CREATED_AT
+    order: SortingOrderEnum = SortingOrderEnum.DESC
+
+
+class PreviewPlaylistOutSchema(BaseSchema):
+    id: UUID
+    title: str
+    privacy_status: PlaylistPrivacyStatusEnum
+    created_at: datetime
+    videos_count: int = Field(ge=0)
+
+    @staticmethod
+    def from_dto(dto: PreviewPlaylistDTO) -> PreviewPlaylistOutSchema:
+        return PreviewPlaylistOutSchema(
+            id=dto.id,
+            title=dto.title,
+            privacy_status=dto.privacy_status,
+            created_at=dto.created_at,
+            videos_count=dto.videos_count,
+        )
+
+
+class PreviewPlaylistsCursorResponse(BaseSchema):
+    next_page: HttpUrl | None
+    results: list[PreviewPlaylistOutSchema]

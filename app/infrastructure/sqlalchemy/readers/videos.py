@@ -25,7 +25,7 @@ from app.infrastructure.sqlalchemy.models.videos import VideoORM
 class SAVideoReader(IVideoReader):
     _session: AsyncSession
 
-    async def try_get_detailed_by_id(self, id: str) -> DetailedVideoDTO:
+    async def try_get_detailed_video_by_id(self, id: str) -> DetailedVideoDTO:
         stmt = (
             select(
                 VideoORM.id,

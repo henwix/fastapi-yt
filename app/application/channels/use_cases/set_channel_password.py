@@ -1,9 +1,12 @@
+import asyncio
 from dataclasses import dataclass
 
 from app.application.channels.commands import SetChannelPasswordCommand
 from app.application.common.interfaces.password_hasher import IPasswordHasher
 from app.application.common.interfaces.transaction_manager import ITransactionManager
 from app.domain.channels.services import IChannelService
+
+password_hash_semaphore = asyncio.Semaphore(2)
 
 
 @dataclass
@@ -14,7 +17,10 @@ class SetChannelPasswordUseCase:
 
     async def execute(self, command: SetChannelPasswordCommand) -> None:
         channel = await self._channel_service.try_get_active_by_id(id=command.current_channel_id)
-        new_password_hash = self._password_hasher.get_password_hash(password=command.new_password)
+
+        async with password_hash_semaphore:
+            new_password_hash = await asyncio.to_thread(self._password_hasher.get_password_hash, command.new_password)
+
         channel.set_password(password_hash=new_password_hash)
 
         async with self._transaction_manager:

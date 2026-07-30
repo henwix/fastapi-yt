@@ -78,7 +78,7 @@ async def get_post(
         status.HTTP_404_NOT_FOUND: error_response(ChannelNotFoundBySlugError),
     },
 )
-async def get_posts(
+async def get_channel_posts(
     channel_slug: Annotated[str, Path(min_length=1, max_length=40, pattern=SLUG_PATTERN)],
     sorting: Annotated[PostsSortingParams, Depends()],
     pagination: Annotated[CursorPaginationParams, Depends()],

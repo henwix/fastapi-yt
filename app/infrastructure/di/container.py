@@ -23,6 +23,8 @@ from app.application.playlists.use_cases.add_video_to_playlist import AddVideoTo
 from app.application.playlists.use_cases.create_playlist import CreatePlaylistUseCase
 from app.application.playlists.use_cases.delete_playlist import DeletePlaylistUseCase
 from app.application.playlists.use_cases.delete_video_from_playlist import DeleteVideoFromPlaylistUseCase
+from app.application.playlists.use_cases.get_channel_playlists import GetChannelPlaylistsUseCase
+from app.application.playlists.use_cases.get_personal_playlists import GetPersonalPlaylistsUseCase
 from app.application.playlists.use_cases.get_playlist import GetPlaylistUseCase
 from app.application.playlists.use_cases.update_playlist import UpdatePlaylistUseCase
 from app.application.post_comment_reactions.use_cases.create_post_comment_reaction import (
@@ -52,6 +54,7 @@ from app.application.subscriptions.use_cases.subscribe import SubscribeUseCase
 from app.application.subscriptions.use_cases.unsubscribe import UnsubscribeUseCase
 from app.application.video_reactions.use_cases.create_video_reaction import CreateVideoReactionUseCase
 from app.application.video_reactions.use_cases.delete_video_reaction import DeleteVideoReactionUseCase
+from app.application.video_views.use_cases.create_video_view import CreateVideoViewUseCase
 from app.application.videos.interfaces.reader import IVideoReader
 from app.application.videos.use_cases.abort_video_multipart_upload import AbortVideoMultipartUploadUseCase
 from app.application.videos.use_cases.complete_video_multipart_upload import CompleteVideoMultipartUploadUseCase
@@ -78,6 +81,8 @@ from app.domain.subscriptions.repositories import ISubscriptionRepository
 from app.domain.subscriptions.services import ISubscriptionService, SubscriptionService
 from app.domain.video_reactions.repositories import IVideoReactionRepository
 from app.domain.video_reactions.services import IVideoReactionService, VideoReactionService
+from app.domain.video_views.repositories import IVideoViewRepository
+from app.domain.video_views.services import IVideoViewService, VideoViewService
 from app.domain.videos.repositories import IVideoRepository
 from app.domain.videos.services import IVideoService, VideoService
 from app.infrastructure.s3.client import BotoS3Client
@@ -98,6 +103,7 @@ from app.infrastructure.sqlalchemy.repositories.post_reactions import SAPostReac
 from app.infrastructure.sqlalchemy.repositories.posts import SAPostRepository
 from app.infrastructure.sqlalchemy.repositories.subscriptions import SASubscriptionRepository
 from app.infrastructure.sqlalchemy.repositories.video_reactions import SAVideoReactionRepository
+from app.infrastructure.sqlalchemy.repositories.video_views import SAVideoViewRepository
 from app.infrastructure.sqlalchemy.repositories.videos import SAVideoRepository
 from app.infrastructure.sqlalchemy.transaction_manager import SATransactionManager
 from app.infrastructure.taskiq.task_queue import TaskiqTaskQueue
@@ -136,6 +142,7 @@ class RepositoriesProvider(Provider):
     channel_repository = provide(SAChannelRepository, provides=IChannelRepository)
     video_repository = provide(SAVideoRepository, provides=IVideoRepository)
     video_reaction_repository = provide(SAVideoReactionRepository, provides=IVideoReactionRepository)
+    video_view_repository = provide(SAVideoViewRepository, provides=IVideoViewRepository)
     playlist_repository = provide(SAPlaylistRepository, provides=IPlaylistRepository)
     playlist_item_repository = provide(SAPlaylistItemRepository, provides=IPlaylistItemRepository)
     post_repository = provide(SAPostRepository, provides=IPostRepository)
@@ -160,6 +167,7 @@ class ServicesProvider(Provider):
 
     channel_service = provide(ChannelService, provides=IChannelService)
     video_service = provide(VideoService, provides=IVideoService)
+    video_view_service = provide(VideoViewService, provides=IVideoViewService)
     video_reaction_service = provide(VideoReactionService, provides=IVideoReactionService)
     playlist_service = provide(PlaylistService, provides=IPlaylistService)
     playlist_item_service = provide(PlaylistItemService, provides=IPlaylistItemService)
@@ -198,6 +206,9 @@ class UseCasesProvider(Provider):
     complete_video_multipart_upload = provide(CompleteVideoMultipartUploadUseCase)
     generate_video_download_url = provide(GenerateVideoDownloadUrlUseCase)
 
+    # Video views
+    create_video_view = provide(CreateVideoViewUseCase)
+
     # Video reactions
     create_video_reaction = provide(CreateVideoReactionUseCase)
     delete_video_reaction = provide(DeleteVideoReactionUseCase)
@@ -205,6 +216,8 @@ class UseCasesProvider(Provider):
     # Playlists
     create_playlist = provide(CreatePlaylistUseCase)
     get_playlist = provide(GetPlaylistUseCase)
+    get_personal_playlists = provide(GetPersonalPlaylistsUseCase)
+    get_channel_playlists = provide(GetChannelPlaylistsUseCase)
     delete_playlist = provide(DeletePlaylistUseCase)
     update_playlist = provide(UpdatePlaylistUseCase)
     add_video_to_playlist = provide(AddVideoToPlaylistUseCase)

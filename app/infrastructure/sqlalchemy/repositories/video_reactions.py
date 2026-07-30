@@ -27,7 +27,7 @@ class SAVideoReactionRepository(IVideoReactionRepository):
                 raise VideoReactionAlreadyExistsError(
                     video_id=video_reaction.video_id,
                     channel_id=video_reaction.channel_id,
-                )
+                ) from error
             case _:
                 raise
 

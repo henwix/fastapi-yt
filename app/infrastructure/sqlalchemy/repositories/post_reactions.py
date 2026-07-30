@@ -31,9 +31,9 @@ class SAPostReactionRepository(IPostReactionRepository):
                     channel_id=post_reaction.channel_id,
                 ) from error
             case 'post_reactions_channel_id_fkey':
-                raise ChannelNotFoundByIdError(id=post_reaction.channel_id)
+                raise ChannelNotFoundByIdError(channel_id=post_reaction.channel_id) from error
             case 'post_reactions_post_id_fkey':
-                raise PostNotFoundError(id=post_reaction.post_id)
+                raise PostNotFoundError(id=post_reaction.post_id) from error
             case _:
                 raise
 

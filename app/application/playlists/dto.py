@@ -16,3 +16,12 @@ class DetailedPlaylistDTO(DTO):
     author_name: str
     author_slug: str
     videos_count: int
+
+
+@dataclass
+class PreviewPlaylistDTO(DTO):
+    id: UUID
+    title: str
+    privacy_status: PlaylistPrivacyStatusEnum
+    created_at: datetime
+    videos_count: int

@@ -24,9 +24,9 @@ class SAChannelRepository(IChannelRepository):
 
         match constraint_name:
             case 'channels_email_key':
-                raise ChannelWithEmailAlreadyExistsError(email=channel.email) from error
+                raise ChannelWithEmailAlreadyExistsError(channel_email=channel.email) from error
             case 'channels_slug_key':
-                raise ChannelWithSlugAlreadyExistsError(slug=channel.slug) from error
+                raise ChannelWithSlugAlreadyExistsError(channel_slug=channel.slug) from error
             case _:
                 raise error
 

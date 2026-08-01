@@ -7,15 +7,15 @@ from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.application.common.pagination import CursorPagination
 from app.application.common.sorting import SortingOrderEnum
-from app.application.videos.dto import DetailedVideoDTO, PersonalVideoDTO
+from app.application.videos.dto import DetailedVideoDTO, PersonalPreviewVideoDTO
 from app.application.videos.interfaces.reader import IVideoReader
-from app.application.videos.queries import GetPersonalVideosFilters, GetPersonalVideosSorting
+from app.application.videos.queries import PersonalVideosFilters, PreviewVideosSorting
 from app.domain.common.constants import Empty
 from app.domain.videos.enums import VideoUploadStatusEnum
 from app.domain.videos.exceptions import VideoNotFoundError
 from app.infrastructure.sqlalchemy.converters.videos import (
     convert_video_row_to_detailed_dto,
-    convert_video_row_to_personal_video_dto,
+    convert_video_row_to_personal_preview_video_dto,
 )
 from app.infrastructure.sqlalchemy.models.channels import ChannelORM
 from app.infrastructure.sqlalchemy.models.videos import VideoORM
@@ -54,10 +54,10 @@ class SAVideoReader(IVideoReader):
         channel_id: UUID,
         cursor_sort_value: datetime | None,
         cursor_id_value: str | None,
-        filters: GetPersonalVideosFilters,
-        sorting: GetPersonalVideosSorting,
+        filters: PersonalVideosFilters,
+        sorting: PreviewVideosSorting,
         pagination: CursorPagination,
-    ) -> list[PersonalVideoDTO]:
+    ) -> list[PersonalPreviewVideoDTO]:
         stmt = select(
             VideoORM.id,
             VideoORM.title,
@@ -89,4 +89,4 @@ class SAVideoReader(IVideoReader):
 
         result = await self._session.execute(statement=stmt)
         video_rows = result.mappings().all()
-        return [convert_video_row_to_personal_video_dto(row=row) for row in video_rows]
+        return [convert_video_row_to_personal_preview_video_dto(row=row) for row in video_rows]

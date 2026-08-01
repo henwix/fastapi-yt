@@ -5,7 +5,7 @@ from pydantic import Field, HttpUrl
 
 from app.application.common.sorting import SortingOrderEnum
 from app.application.playlists.dto import DetailedPlaylistDTO, PreviewPlaylistDTO
-from app.application.playlists.queries import GetPlaylistsPreviewSortingFieldsEnum
+from app.application.playlists.queries import PlaylistsPreviewSortingFieldsEnum
 from app.domain.playlists.constants import (
     PLAYLISTS_DESCRIPTION_MAX_LENGTH,
     PLAYLISTS_TITLE_MAX_LENGTH,
@@ -71,7 +71,7 @@ class DetailedPlaylistOutSchema(BaseSchema):
 
 
 class GetPlaylistsPreviewSortingParams(BaseSchema):
-    sort_by: GetPlaylistsPreviewSortingFieldsEnum = GetPlaylistsPreviewSortingFieldsEnum.CREATED_AT
+    sort_by: PlaylistsPreviewSortingFieldsEnum = PlaylistsPreviewSortingFieldsEnum.CREATED_AT
     order: SortingOrderEnum = SortingOrderEnum.DESC
 
 

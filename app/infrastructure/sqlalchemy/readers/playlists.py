@@ -10,7 +10,7 @@ from app.application.common.pagination import CursorPagination
 from app.application.common.sorting import SortingOrderEnum
 from app.application.playlists.dto import DetailedPlaylistDTO, PreviewPlaylistDTO
 from app.application.playlists.interfaces.reader import IPlaylistReader
-from app.application.playlists.queries import GetPlaylistsPreviewSorting
+from app.application.playlists.queries import PlaylistsPreviewSorting
 from app.domain.playlists.enums import PlaylistPrivacyStatusEnum
 from app.domain.playlists.exceptions import PlaylistNotFoundError
 from app.infrastructure.sqlalchemy.converters.playlists import (
@@ -30,7 +30,7 @@ class SAPlaylistReader(IPlaylistReader):
         *filters,
         cursor_sort_value: datetime | None,
         cursor_id_value: UUID | None,
-        sorting: GetPlaylistsPreviewSorting,
+        sorting: PlaylistsPreviewSorting,
         pagination: CursorPagination,
     ):
         videos_count_subquery = (
@@ -104,7 +104,7 @@ class SAPlaylistReader(IPlaylistReader):
         channel_id: UUID,
         cursor_sort_value: datetime | None,
         cursor_id_value: UUID | None,
-        sorting: GetPlaylistsPreviewSorting,
+        sorting: PlaylistsPreviewSorting,
         pagination: CursorPagination,
     ) -> list[PreviewPlaylistDTO]:
         return await self._get_playlists_preview(
@@ -120,7 +120,7 @@ class SAPlaylistReader(IPlaylistReader):
         channel_id: UUID,
         cursor_sort_value: datetime | None,
         cursor_id_value: UUID | None,
-        sorting: GetPlaylistsPreviewSorting,
+        sorting: PlaylistsPreviewSorting,
         pagination: CursorPagination,
     ) -> list[PreviewPlaylistDTO]:
         return await self._get_playlists_preview(

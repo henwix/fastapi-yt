@@ -4,7 +4,7 @@ from uuid import UUID
 
 from app.application.common.pagination import CursorPagination
 from app.application.playlists.dto import DetailedPlaylistDTO, PreviewPlaylistDTO
-from app.application.playlists.queries import GetPlaylistsPreviewSorting
+from app.application.playlists.queries import PlaylistsPreviewSorting
 
 
 class IPlaylistReader(ABC):
@@ -17,7 +17,7 @@ class IPlaylistReader(ABC):
         channel_id: UUID,
         cursor_sort_value: datetime | None,
         cursor_id_value: UUID | None,
-        sorting: GetPlaylistsPreviewSorting,
+        sorting: PlaylistsPreviewSorting,
         pagination: CursorPagination,
     ) -> list[PreviewPlaylistDTO]: ...
 
@@ -27,6 +27,6 @@ class IPlaylistReader(ABC):
         channel_id: UUID,
         cursor_sort_value: datetime | None,
         cursor_id_value: UUID | None,
-        sorting: GetPlaylistsPreviewSorting,
+        sorting: PlaylistsPreviewSorting,
         pagination: CursorPagination,
     ) -> list[PreviewPlaylistDTO]: ...

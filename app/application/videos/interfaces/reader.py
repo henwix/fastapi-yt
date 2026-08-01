@@ -3,8 +3,8 @@ from datetime import datetime
 from uuid import UUID
 
 from app.application.common.pagination import CursorPagination
-from app.application.videos.dto import DetailedVideoDTO, PersonalVideoDTO
-from app.application.videos.queries import GetPersonalVideosFilters, GetPersonalVideosSorting
+from app.application.videos.dto import DetailedVideoDTO, PersonalPreviewVideoDTO
+from app.application.videos.queries import PersonalVideosFilters, PreviewVideosSorting
 
 
 class IVideoReader(ABC):
@@ -17,7 +17,7 @@ class IVideoReader(ABC):
         channel_id: UUID,
         cursor_sort_value: datetime | None,
         cursor_id_value: str | None,
-        filters: GetPersonalVideosFilters,
-        sorting: GetPersonalVideosSorting,
+        filters: PersonalVideosFilters,
+        sorting: PreviewVideosSorting,
         pagination: CursorPagination,
-    ) -> list[PersonalVideoDTO]: ...
+    ) -> list[PersonalPreviewVideoDTO]: ...

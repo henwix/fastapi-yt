@@ -20,9 +20,18 @@ class DetailedVideoDTO(DTO):
 
 
 @dataclass(frozen=True)
-class PersonalVideoDTO(DTO):
+class PersonalPreviewVideoDTO(DTO):
     id: str
     title: str
     privacy_status: VideoPrivacyStatusEnum
     upload_status: VideoUploadStatusEnum
     created_at: datetime
+
+
+@dataclass(frozen=True)
+class PreviewVideoDTO(DTO):
+    id: str
+    title: str
+    created_at: datetime
+    author_name: str
+    author_slug: str

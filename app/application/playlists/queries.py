@@ -12,25 +12,42 @@ class GetPlaylistQuery:
     playlist_id: UUID
 
 
-class GetPlaylistsPreviewSortingFieldsEnum(StrEnum):
+class PlaylistsPreviewSortingFieldsEnum(StrEnum):
     CREATED_AT = 'created_at'
 
 
 @dataclass(kw_only=True, frozen=True)
-class GetPlaylistsPreviewSorting:
-    sort_by: GetPlaylistsPreviewSortingFieldsEnum
+class PlaylistsPreviewSorting:
+    sort_by: PlaylistsPreviewSortingFieldsEnum
     order: SortingOrderEnum
 
 
 @dataclass(kw_only=True, frozen=True)
 class GetPersonalPlaylistsQuery:
     current_channel_id: UUID
-    sorting: GetPlaylistsPreviewSorting
+    sorting: PlaylistsPreviewSorting
     pagination: CursorPagination
 
 
 @dataclass(kw_only=True, frozen=True)
 class GetChannelPlaylistsQuery:
     channel_slug: str
-    sorting: GetPlaylistsPreviewSorting
+    sorting: PlaylistsPreviewSorting
+    pagination: CursorPagination
+
+
+class PlaylistVideosSortingFieldsEnum(StrEnum):
+    CREATED_AT = 'created_at'
+
+
+@dataclass(kw_only=True, frozen=True)
+class PlaylistVideosSorting:
+    sort_by: PlaylistsPreviewSortingFieldsEnum
+    order: SortingOrderEnum
+
+
+@dataclass(kw_only=True, frozen=True)
+class GetPlaylistVideosQuery:
+    playlist_id: UUID
+    sorting: PlaylistVideosSorting
     pagination: CursorPagination

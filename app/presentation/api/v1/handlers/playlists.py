@@ -16,7 +16,7 @@ from app.application.playlists.queries import (
     GetChannelPlaylistsQuery,
     GetPersonalPlaylistsQuery,
     GetPlaylistQuery,
-    GetPlaylistsPreviewSorting,
+    PlaylistsPreviewSorting,
 )
 from app.application.playlists.use_cases.add_video_to_playlist import AddVideoToPlaylistUseCase
 from app.application.playlists.use_cases.create_playlist import CreatePlaylistUseCase
@@ -111,7 +111,7 @@ async def get_personal_playlists(
 ) -> PreviewPlaylistsCursorResponse:
     query = GetPersonalPlaylistsQuery(
         current_channel_id=current_channel_id,
-        sorting=GetPlaylistsPreviewSorting(**sorting.model_dump()),
+        sorting=PlaylistsPreviewSorting(**sorting.model_dump()),
         pagination=CursorPagination(**pagination.model_dump(exclude_none=True)),
     )
     playlists, next_cursor = await use_case.execute(query=query)
@@ -139,7 +139,7 @@ async def get_channel_playlists(
 ) -> PreviewPlaylistsCursorResponse:
     query = GetChannelPlaylistsQuery(
         channel_slug=channel_slug,
-        sorting=GetPlaylistsPreviewSorting(**sorting.model_dump()),
+        sorting=PlaylistsPreviewSorting(**sorting.model_dump()),
         pagination=CursorPagination(**pagination.model_dump(exclude_none=True)),
     )
     playlists, next_cursor = await use_case.execute(query=query)

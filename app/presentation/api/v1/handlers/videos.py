@@ -10,10 +10,10 @@ from app.application.videos.commands import (
     UpdateVideoCommand,
 )
 from app.application.videos.queries import (
-    GetPersonalVideosFilters,
     GetPersonalVideosQuery,
-    GetPersonalVideosSorting,
     GetVideoQuery,
+    PersonalVideosFilters,
+    PreviewVideosSorting,
 )
 from app.application.videos.use_cases.delete_video import DeleteVideoUseCase
 from app.application.videos.use_cases.get_personal_videos import GetPersonalVideosUseCase
@@ -32,10 +32,10 @@ from app.presentation.api.v1.handlers.common.params import PathVideoId
 from app.presentation.api.v1.schemas.common import CursorPaginationParams
 from app.presentation.api.v1.schemas.videos import (
     DetailedVideoOutSchema,
-    PersonalVideoPreviewOutSchema,
-    PersonalVideosCursorResponse,
-    PersonalVideosFiltersParams,
-    PersonalVideosSortingParams,
+    PersonalPreviewVideoOutSchema,
+    PersonalPreviewVideosCursorResponse,
+    PersonalPreviewVideosFiltersParams,
+    PreviewVideosSortingParams,
     UpdateVideoInSchema,
     VideoOutSchema,
 )
@@ -67,21 +67,21 @@ router = APIRouter(
 async def get_personal_videos(
     current_channel_id: CurrentChannelID,
     use_case: FromDishka[GetPersonalVideosUseCase],
-    filters: Annotated[PersonalVideosFiltersParams, Depends()],
-    sorting: Annotated[PersonalVideosSortingParams, Depends()],
+    filters: Annotated[PersonalPreviewVideosFiltersParams, Depends()],
+    sorting: Annotated[PreviewVideosSortingParams, Depends()],
     pagination: Annotated[CursorPaginationParams, Depends()],
     request: Request,
-) -> PersonalVideosCursorResponse:
+) -> PersonalPreviewVideosCursorResponse:
     query = GetPersonalVideosQuery(
         current_channel_id=current_channel_id,
-        filters=GetPersonalVideosFilters(**filters.model_dump(exclude_none=True)),
-        sorting=GetPersonalVideosSorting(**sorting.model_dump()),
+        filters=PersonalVideosFilters(**filters.model_dump(exclude_none=True)),
+        sorting=PreviewVideosSorting(**sorting.model_dump()),
         pagination=CursorPagination(**pagination.model_dump(exclude_none=True)),
     )
     videos, cursor = await use_case.execute(query=query)
-    return PersonalVideosCursorResponse(
+    return PersonalPreviewVideosCursorResponse(
         next_page=str(request.url.include_query_params(cursor=cursor)) if cursor else None,
-        results=[PersonalVideoPreviewOutSchema.from_dto(dto=video) for video in videos],
+        results=[PersonalPreviewVideoOutSchema.from_dto(dto=video) for video in videos],
     )
 
 

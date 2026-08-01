@@ -15,24 +15,24 @@ class GetVideoQuery:
 
 
 @dataclass(kw_only=True, frozen=True)
-class GetPersonalVideosFilters:
+class PersonalVideosFilters:
     privacy_status: VideoPrivacyStatusEnum | Empty = Empty.UNSET
     upload_status: VideoUploadStatusEnum | Empty = Empty.UNSET
 
 
-class GetPersonalVideosSortingFieldEnum(StrEnum):
+class PreviewVideosSortingFieldEnum(StrEnum):
     CREATED_AT = 'created_at'
 
 
 @dataclass(kw_only=True, frozen=True)
-class GetPersonalVideosSorting:
-    sort_by: GetPersonalVideosSortingFieldEnum
+class PreviewVideosSorting:
+    sort_by: PreviewVideosSortingFieldEnum
     order: SortingOrderEnum
 
 
 @dataclass(kw_only=True, frozen=True)
 class GetPersonalVideosQuery:
     current_channel_id: UUID
-    filters: GetPersonalVideosFilters
-    sorting: GetPersonalVideosSorting
+    filters: PersonalVideosFilters
+    sorting: PreviewVideosSorting
     pagination: CursorPagination

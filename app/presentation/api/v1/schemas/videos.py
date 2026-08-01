@@ -3,8 +3,8 @@ from datetime import datetime
 from pydantic import Field, HttpUrl
 
 from app.application.common.sorting import SortingOrderEnum
-from app.application.videos.dto import DetailedVideoDTO, PersonalVideoDTO
-from app.application.videos.queries import GetPersonalVideosSortingFieldEnum
+from app.application.videos.dto import DetailedVideoDTO, PersonalPreviewVideoDTO
+from app.application.videos.queries import PreviewVideosSortingFieldEnum
 from app.domain.common.constants import FILENAME_MAX_LENGTH, FILENAME_PATTERN
 from app.domain.videos.constants import VIDEO_DESCRIPTION_MAX_LENGTH, VIDEO_TITLE_MAX_LENGTH, VIDEO_TITLE_MIN_LENGTH
 from app.domain.videos.entities import Video
@@ -60,17 +60,25 @@ class DetailedVideoOutSchema(BaseSchema):
         )
 
 
-class PersonalVideosFiltersParams(BaseSchema):
+class PreviewVideoOutSchema(BaseSchema):
+    id: str
+    title: str
+    created_at: datetime
+    author_name: str
+    author_slug: str
+
+
+class PersonalPreviewVideosFiltersParams(BaseSchema):
     privacy_status: VideoPrivacyStatusEnum | None = None
     upload_status: VideoUploadStatusEnum | None = None
 
 
-class PersonalVideosSortingParams(BaseSchema):
-    sort_by: GetPersonalVideosSortingFieldEnum = GetPersonalVideosSortingFieldEnum.CREATED_AT
+class PreviewVideosSortingParams(BaseSchema):
+    sort_by: PreviewVideosSortingFieldEnum = PreviewVideosSortingFieldEnum.CREATED_AT
     order: SortingOrderEnum = SortingOrderEnum.DESC
 
 
-class PersonalVideoPreviewOutSchema(BaseSchema):
+class PersonalPreviewVideoOutSchema(BaseSchema):
     id: str
     title: str
     privacy_status: VideoPrivacyStatusEnum
@@ -78,8 +86,8 @@ class PersonalVideoPreviewOutSchema(BaseSchema):
     created_at: datetime
 
     @staticmethod
-    def from_dto(dto: PersonalVideoDTO) -> PersonalVideoPreviewOutSchema:
-        return PersonalVideoPreviewOutSchema(
+    def from_dto(dto: PersonalPreviewVideoDTO) -> PersonalPreviewVideoOutSchema:
+        return PersonalPreviewVideoOutSchema(
             id=dto.id,
             title=dto.title,
             privacy_status=dto.privacy_status,
@@ -88,9 +96,9 @@ class PersonalVideoPreviewOutSchema(BaseSchema):
         )
 
 
-class PersonalVideosCursorResponse(BaseSchema):
+class PersonalPreviewVideosCursorResponse(BaseSchema):
     next_page: HttpUrl | None
-    results: list[PersonalVideoPreviewOutSchema]
+    results: list[PersonalPreviewVideoOutSchema]
 
 
 class CreateVideoMultipartUploadInSchema(BaseSchema):

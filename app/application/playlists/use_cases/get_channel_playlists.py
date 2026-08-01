@@ -4,7 +4,7 @@ from uuid import UUID
 
 from app.application.playlists.dto import PreviewPlaylistDTO
 from app.application.playlists.interfaces.reader import IPlaylistReader
-from app.application.playlists.queries import GetChannelPlaylistsQuery, GetPlaylistsPreviewSortingFieldsEnum
+from app.application.playlists.queries import GetChannelPlaylistsQuery, PlaylistsPreviewSortingFieldsEnum
 from app.domain.channels.services import IChannelService
 from app.domain.common.constants import Empty
 from app.domain.common.exceptions import InvalidCursorError
@@ -26,9 +26,9 @@ class GetChannelPlaylistsUseCase:
                 cursor_id_value = UUID(decoded_cursor['id'])
 
                 match query.sorting.sort_by:
-                    case GetPlaylistsPreviewSortingFieldsEnum.CREATED_AT:
+                    case PlaylistsPreviewSortingFieldsEnum.CREATED_AT:
                         cursor_sort_value = datetime.fromisoformat(
-                            decoded_cursor[GetPlaylistsPreviewSortingFieldsEnum.CREATED_AT.value]
+                            decoded_cursor[PlaylistsPreviewSortingFieldsEnum.CREATED_AT.value]
                         )
             except Exception as e:
                 raise InvalidCursorError(cursor=query.pagination.cursor, exc_details=str(e)) from e
@@ -50,9 +50,7 @@ class GetChannelPlaylistsUseCase:
             next_cursor = {'id': str(last_item.id)}
 
             match query.sorting.sort_by:
-                case GetPlaylistsPreviewSortingFieldsEnum.CREATED_AT:
-                    next_cursor[GetPlaylistsPreviewSortingFieldsEnum.CREATED_AT.value] = (
-                        last_item.created_at.isoformat()
-                    )
+                case PlaylistsPreviewSortingFieldsEnum.CREATED_AT:
+                    next_cursor[PlaylistsPreviewSortingFieldsEnum.CREATED_AT.value] = last_item.created_at.isoformat()
 
         return playlists, base64url_encode(value=next_cursor) if next_cursor is not None else None

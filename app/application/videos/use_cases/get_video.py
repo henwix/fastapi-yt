@@ -16,7 +16,7 @@ class GetVideoUseCase:
     _channel_service: IChannelService
 
     async def execute(self, query: GetVideoQuery) -> DetailedVideoDTO:
-        video = await self._video_reader.try_get_detailed_by_id(id=query.video_id)
+        video = await self._video_reader.try_get_detailed_video_by_id(id=query.video_id)
 
         if video.privacy_status is VideoPrivacyStatusEnum.PRIVATE:
             if query.current_channel_id is None:

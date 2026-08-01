@@ -16,7 +16,9 @@ from app.application.playlists.queries import (
     GetChannelPlaylistsQuery,
     GetPersonalPlaylistsQuery,
     GetPlaylistQuery,
+    GetPlaylistVideosQuery,
     PlaylistsPreviewSorting,
+    PlaylistVideosSorting,
 )
 from app.application.playlists.use_cases.add_video_to_playlist import AddVideoToPlaylistUseCase
 from app.application.playlists.use_cases.create_playlist import CreatePlaylistUseCase
@@ -25,6 +27,7 @@ from app.application.playlists.use_cases.delete_video_from_playlist import Delet
 from app.application.playlists.use_cases.get_channel_playlists import GetChannelPlaylistsUseCase
 from app.application.playlists.use_cases.get_personal_playlists import GetPersonalPlaylistsUseCase
 from app.application.playlists.use_cases.get_playlist import GetPlaylistUseCase
+from app.application.playlists.use_cases.get_playlist_videos import GetPlaylistVideosUseCase
 from app.application.playlists.use_cases.update_playlist import UpdatePlaylistUseCase
 from app.domain.auth.exceptions import JWTExpiredTokenError, JWTInvalidTokenError, NotAuthenticatedError
 from app.domain.channels.exceptions import ChannelNotActiveError, ChannelNotFoundByIdError, ChannelNotFoundBySlugError
@@ -44,8 +47,11 @@ from app.presentation.api.v1.schemas.common import CursorPaginationParams
 from app.presentation.api.v1.schemas.playlists import (
     CreatePlaylistInSchema,
     DetailedPlaylistOutSchema,
-    GetPlaylistsPreviewSortingParams,
     PlaylistOutSchema,
+    PlaylistsPreviewSortingParams,
+    PlaylistVideoOutSchema,
+    PlaylistVideosCursorResponse,
+    PlaylistVideosSortingParams,
     PreviewPlaylistOutSchema,
     PreviewPlaylistsCursorResponse,
     UpdatePlaylistInSchema,
@@ -104,7 +110,7 @@ async def create_playlist(
 )
 async def get_personal_playlists(
     current_channel_id: CurrentChannelID,
-    sorting: Annotated[GetPlaylistsPreviewSortingParams, Depends()],
+    sorting: Annotated[PlaylistsPreviewSortingParams, Depends()],
     pagination: Annotated[CursorPaginationParams, Depends()],
     use_case: FromDishka[GetPersonalPlaylistsUseCase],
     request: Request,
@@ -132,7 +138,7 @@ async def get_personal_playlists(
 )
 async def get_channel_playlists(
     channel_slug: Annotated[str, Path(min_length=1, max_length=40, pattern=SLUG_PATTERN)],
-    sorting: Annotated[GetPlaylistsPreviewSortingParams, Depends()],
+    sorting: Annotated[PlaylistsPreviewSortingParams, Depends()],
     pagination: Annotated[CursorPaginationParams, Depends()],
     use_case: FromDishka[GetChannelPlaylistsUseCase],
     request: Request,
@@ -178,6 +184,47 @@ async def get_playlist(
     )
     playlist = await use_case.execute(query=query)
     return DetailedPlaylistOutSchema.from_dto(dto=playlist)
+
+
+@router.get(
+    path='/playlists/{playlist_id}/videos',
+    responses={
+        status.HTTP_400_BAD_REQUEST: error_response(InvalidCursorError),
+        status.HTTP_401_UNAUTHORIZED: error_response(
+            NotAuthenticatedError,
+            JWTExpiredTokenError,
+            JWTInvalidTokenError,
+        ),
+        status.HTTP_403_FORBIDDEN: error_response(
+            ChannelNotActiveError,
+            PlaylistAccessForbiddenError,
+        ),
+        status.HTTP_404_NOT_FOUND: error_response(
+            ChannelNotFoundByIdError,
+            PlaylistNotFoundError,
+        ),
+    },
+)
+async def get_playlist_videos(
+    current_channel_id: OptionalCurrentChannelID,
+    playlist_id: UUID,
+    sorting: Annotated[PlaylistVideosSortingParams, Depends()],
+    pagination: Annotated[CursorPaginationParams, Depends()],
+    use_case: FromDishka[GetPlaylistVideosUseCase],
+    request: Request,
+) -> PlaylistVideosCursorResponse:
+    query = GetPlaylistVideosQuery(
+        current_channel_id=current_channel_id,
+        playlist_id=playlist_id,
+        sorting=PlaylistVideosSorting(**sorting.model_dump()),
+        pagination=CursorPagination(**pagination.model_dump(exclude_none=True)),
+    )
+    playlist_videos, next_cursor = await use_case.execute(query=query)
+
+    return PlaylistVideosCursorResponse(
+        next_page=str(request.url.include_query_params(cursor=next_cursor)) if next_cursor is not None else None,
+        results=[PlaylistVideoOutSchema.from_dto(dto=video) for video in playlist_videos],
+    )
 
 
 @router.delete(

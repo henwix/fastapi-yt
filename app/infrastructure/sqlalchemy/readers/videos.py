@@ -14,8 +14,8 @@ from app.domain.common.constants import Empty
 from app.domain.videos.enums import VideoUploadStatusEnum
 from app.domain.videos.exceptions import VideoNotFoundError
 from app.infrastructure.sqlalchemy.converters.videos import (
-    convert_video_row_to_detailed_dto,
-    convert_video_row_to_personal_preview_video_dto,
+    convert_row_to_detailed_video_dto,
+    convert_row_to_personal_preview_video_dto,
 )
 from app.infrastructure.sqlalchemy.models.channels import ChannelORM
 from app.infrastructure.sqlalchemy.models.videos import VideoORM
@@ -47,7 +47,7 @@ class SAVideoReader(IVideoReader):
         if video_row is None:
             raise VideoNotFoundError(video_id=id)
 
-        return convert_video_row_to_detailed_dto(row=video_row)
+        return convert_row_to_detailed_video_dto(row=video_row)
 
     async def get_personal_videos(
         self,
@@ -89,4 +89,4 @@ class SAVideoReader(IVideoReader):
 
         result = await self._session.execute(statement=stmt)
         video_rows = result.mappings().all()
-        return [convert_video_row_to_personal_preview_video_dto(row=row) for row in video_rows]
+        return [convert_row_to_personal_preview_video_dto(row=row) for row in video_rows]

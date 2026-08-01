@@ -4,7 +4,7 @@ from app.application.videos.dto import DetailedVideoDTO, PersonalPreviewVideoDTO
 from app.domain.videos.enums import VideoPrivacyStatusEnum, VideoUploadStatusEnum
 
 
-def convert_video_row_to_detailed_dto(row: RowMapping) -> DetailedVideoDTO:
+def convert_row_to_detailed_video_dto(row: RowMapping) -> DetailedVideoDTO:
     return DetailedVideoDTO(
         id=row['id'],
         title=row['title'],
@@ -18,7 +18,7 @@ def convert_video_row_to_detailed_dto(row: RowMapping) -> DetailedVideoDTO:
     )
 
 
-def convert_video_row_to_personal_preview_video_dto(row: RowMapping) -> PersonalPreviewVideoDTO:
+def convert_row_to_personal_preview_video_dto(row: RowMapping) -> PersonalPreviewVideoDTO:
     return PersonalPreviewVideoDTO(
         id=row['id'],
         title=row['title'],

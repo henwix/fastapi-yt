@@ -3,8 +3,8 @@ from datetime import datetime
 from uuid import UUID
 
 from app.application.common.pagination import CursorPagination
-from app.application.playlists.dto import DetailedPlaylistDTO, PreviewPlaylistDTO
-from app.application.playlists.queries import PlaylistsPreviewSorting
+from app.application.playlists.dto import DetailedPlaylistDTO, PlaylistVideoDTO, PreviewPlaylistDTO
+from app.application.playlists.queries import PlaylistsPreviewSorting, PlaylistVideosSorting
 
 
 class IPlaylistReader(ABC):
@@ -30,3 +30,13 @@ class IPlaylistReader(ABC):
         sorting: PlaylistsPreviewSorting,
         pagination: CursorPagination,
     ) -> list[PreviewPlaylistDTO]: ...
+
+    @abstractmethod
+    async def get_playlist_videos_by_playlist_id(
+        self,
+        playlist_id: UUID,
+        cursor_sort_value: datetime | None,
+        cursor_id_value: str | None,
+        sorting: PlaylistVideosSorting,
+        pagination: CursorPagination,
+    ) -> list[PlaylistVideoDTO]: ...

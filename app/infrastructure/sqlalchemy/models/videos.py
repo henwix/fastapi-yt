@@ -145,7 +145,7 @@ class PlaylistORM(UUIDIdMixin, CreatedAtMixin, BaseORM):
     channel_id: Mapped[UUID] = mapped_column(sa.ForeignKey('channels.id', ondelete='CASCADE'))
 
     __table_args__ = (
-        sa.CheckConstraint("privacy_status IN ('public', 'private')", name='ck_playlists_privacy_status'),
+        sa.CheckConstraint("privacy_status IN ('public', 'unlisted', 'private')", name='ck_playlists_privacy_status'),
         sa.CheckConstraint('char_length(description) <= 5000', name='ck_playlists_description_max_length'),
         sa.Index('ix_playlists_composite_channel_id_created_at_id', 'channel_id', 'created_at', 'id'),
     )
@@ -172,7 +172,7 @@ class PlaylistORM(UUIDIdMixin, CreatedAtMixin, BaseORM):
         )
 
 
-class PlaylistItemORM(UUIDIdMixin, BaseORM):
+class PlaylistItemORM(UUIDIdMixin, CreatedAtMixin, BaseORM):
     __tablename__ = 'playlist_items'
 
     playlist_id: Mapped[UUID] = mapped_column(sa.ForeignKey('playlists.id', ondelete='CASCADE'))

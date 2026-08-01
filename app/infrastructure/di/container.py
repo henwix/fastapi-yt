@@ -26,6 +26,7 @@ from app.application.playlists.use_cases.delete_video_from_playlist import Delet
 from app.application.playlists.use_cases.get_channel_playlists import GetChannelPlaylistsUseCase
 from app.application.playlists.use_cases.get_personal_playlists import GetPersonalPlaylistsUseCase
 from app.application.playlists.use_cases.get_playlist import GetPlaylistUseCase
+from app.application.playlists.use_cases.get_playlist_videos import GetPlaylistVideosUseCase
 from app.application.playlists.use_cases.update_playlist import UpdatePlaylistUseCase
 from app.application.post_comment_reactions.use_cases.create_post_comment_reaction import (
     CreatePostCommentReactionUseCase,
@@ -216,6 +217,7 @@ class UseCasesProvider(Provider):
     # Playlists
     create_playlist = provide(CreatePlaylistUseCase)
     get_playlist = provide(GetPlaylistUseCase)
+    get_playlist_videos = provide(GetPlaylistVideosUseCase)
     get_personal_playlists = provide(GetPersonalPlaylistsUseCase)
     get_channel_playlists = provide(GetChannelPlaylistsUseCase)
     delete_playlist = provide(DeletePlaylistUseCase)

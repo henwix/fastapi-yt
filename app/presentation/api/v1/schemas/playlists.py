@@ -4,8 +4,8 @@ from uuid import UUID
 from pydantic import Field, HttpUrl
 
 from app.application.common.sorting import SortingOrderEnum
-from app.application.playlists.dto import DetailedPlaylistDTO, PreviewPlaylistDTO
-from app.application.playlists.queries import PlaylistsPreviewSortingFieldsEnum
+from app.application.playlists.dto import DetailedPlaylistDTO, PlaylistVideoDTO, PreviewPlaylistDTO
+from app.application.playlists.queries import PlaylistsPreviewSortingFieldsEnum, PlaylistVideosSortingFieldsEnum
 from app.domain.playlists.constants import (
     PLAYLISTS_DESCRIPTION_MAX_LENGTH,
     PLAYLISTS_TITLE_MAX_LENGTH,
@@ -13,6 +13,7 @@ from app.domain.playlists.constants import (
 )
 from app.domain.playlists.entities import Playlist
 from app.domain.playlists.enums import PlaylistPrivacyStatusEnum
+from app.domain.videos.enums import VideoPrivacyStatusEnum
 from app.presentation.api.v1.schemas.base import BaseSchema, BaseUpdateSchema
 
 
@@ -70,7 +71,7 @@ class DetailedPlaylistOutSchema(BaseSchema):
         )
 
 
-class GetPlaylistsPreviewSortingParams(BaseSchema):
+class PlaylistsPreviewSortingParams(BaseSchema):
     sort_by: PlaylistsPreviewSortingFieldsEnum = PlaylistsPreviewSortingFieldsEnum.CREATED_AT
     order: SortingOrderEnum = SortingOrderEnum.DESC
 
@@ -96,3 +97,35 @@ class PreviewPlaylistOutSchema(BaseSchema):
 class PreviewPlaylistsCursorResponse(BaseSchema):
     next_page: HttpUrl | None
     results: list[PreviewPlaylistOutSchema]
+
+
+class PlaylistVideosSortingParams(BaseSchema):
+    sort_by: PlaylistVideosSortingFieldsEnum = PlaylistVideosSortingFieldsEnum.ADDED_AT
+    order: SortingOrderEnum = SortingOrderEnum.DESC
+
+
+class PlaylistVideoOutSchema(BaseSchema):
+    id: str
+    title: str
+    privacy_status: VideoPrivacyStatusEnum
+    created_at: datetime
+    added_at: datetime
+    author_name: str
+    author_slug: str
+
+    @staticmethod
+    def from_dto(dto: PlaylistVideoDTO) -> PlaylistVideoOutSchema:
+        return PlaylistVideoOutSchema(
+            id=dto.id,
+            title=dto.title,
+            privacy_status=dto.privacy_status,
+            created_at=dto.created_at,
+            added_at=dto.added_at,
+            author_name=dto.author_name,
+            author_slug=dto.author_slug,
+        )
+
+
+class PlaylistVideosCursorResponse(BaseSchema):
+    next_page: HttpUrl | None
+    results: list[PlaylistVideoOutSchema]

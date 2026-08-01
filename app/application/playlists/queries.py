@@ -37,17 +37,19 @@ class GetChannelPlaylistsQuery:
 
 
 class PlaylistVideosSortingFieldsEnum(StrEnum):
+    ADDED_AT = 'added_at'
     CREATED_AT = 'created_at'
 
 
 @dataclass(kw_only=True, frozen=True)
 class PlaylistVideosSorting:
-    sort_by: PlaylistsPreviewSortingFieldsEnum
+    sort_by: PlaylistVideosSortingFieldsEnum
     order: SortingOrderEnum
 
 
 @dataclass(kw_only=True, frozen=True)
 class GetPlaylistVideosQuery:
+    current_channel_id: UUID | None
     playlist_id: UUID
     sorting: PlaylistVideosSorting
     pagination: CursorPagination

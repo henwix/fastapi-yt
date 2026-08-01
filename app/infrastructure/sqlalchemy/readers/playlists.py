@@ -8,17 +8,23 @@ from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.application.common.pagination import CursorPagination
 from app.application.common.sorting import SortingOrderEnum
-from app.application.playlists.dto import DetailedPlaylistDTO, PreviewPlaylistDTO
+from app.application.playlists.dto import DetailedPlaylistDTO, PlaylistVideoDTO, PreviewPlaylistDTO
 from app.application.playlists.interfaces.reader import IPlaylistReader
-from app.application.playlists.queries import PlaylistsPreviewSorting
+from app.application.playlists.queries import (
+    PlaylistsPreviewSorting,
+    PlaylistVideosSorting,
+    PlaylistVideosSortingFieldsEnum,
+)
 from app.domain.playlists.enums import PlaylistPrivacyStatusEnum
 from app.domain.playlists.exceptions import PlaylistNotFoundError
+from app.domain.videos.enums import VideoPrivacyStatusEnum
 from app.infrastructure.sqlalchemy.converters.playlists import (
-    convert_playlist_row_to_detailed_dto,
-    convert_playlist_row_to_preview_dto,
+    convert_row_to_detailed_playlist_dto,
+    convert_row_to_playlist_video_dto,
+    convert_row_to_preview_playlist_dto,
 )
 from app.infrastructure.sqlalchemy.models.channels import ChannelORM
-from app.infrastructure.sqlalchemy.models.videos import PlaylistItemORM, PlaylistORM
+from app.infrastructure.sqlalchemy.models.videos import PlaylistItemORM, PlaylistORM, VideoORM
 
 
 @dataclass
@@ -35,7 +41,16 @@ class SAPlaylistReader(IPlaylistReader):
     ):
         videos_count_subquery = (
             select(sa.func.count(PlaylistItemORM.playlist_id))
-            .where(PlaylistItemORM.playlist_id == PlaylistORM.id)
+            .join(VideoORM, PlaylistItemORM.video_id == VideoORM.id)
+            .where(
+                PlaylistItemORM.playlist_id == PlaylistORM.id,
+                VideoORM.privacy_status.in_(
+                    [
+                        VideoPrivacyStatusEnum.PUBLIC.value,
+                        VideoPrivacyStatusEnum.UNLISTED.value,
+                    ]
+                ),
+            )
             .correlate(PlaylistORM)
             .scalar_subquery()
         )
@@ -66,13 +81,20 @@ class SAPlaylistReader(IPlaylistReader):
 
         result = await self._session.execute(statement=stmt)
         playlist_rows = result.mappings().all()
-        return [convert_playlist_row_to_preview_dto(row=row) for row in playlist_rows]
+        return [convert_row_to_preview_playlist_dto(row=row) for row in playlist_rows]
 
     async def try_get_detailed_playlist_by_id(self, id: UUID) -> DetailedPlaylistDTO:
         videos_count_subquery = (
             select(sa.func.count(PlaylistItemORM.playlist_id))
+            .join(VideoORM, PlaylistItemORM.video_id == VideoORM.id)
             .where(
                 PlaylistItemORM.playlist_id == id,
+                VideoORM.privacy_status.in_(
+                    [
+                        VideoPrivacyStatusEnum.PUBLIC.value,
+                        VideoPrivacyStatusEnum.UNLISTED.value,
+                    ]
+                ),
             )
             .scalar_subquery()
         )
@@ -97,9 +119,9 @@ class SAPlaylistReader(IPlaylistReader):
         if playlist_row is None:
             raise PlaylistNotFoundError(playlist_id=id)
 
-        return convert_playlist_row_to_detailed_dto(row=playlist_row)
+        return convert_row_to_detailed_playlist_dto(row=playlist_row)
 
-    async def get_personal_playlists(
+    async def get_playlists_by_channel_id(
         self,
         channel_id: UUID,
         cursor_sort_value: datetime | None,
@@ -115,7 +137,7 @@ class SAPlaylistReader(IPlaylistReader):
             pagination=pagination,
         )
 
-    async def get_public_playlist_by_channel_id(
+    async def get_public_playlists_by_channel_id(
         self,
         channel_id: UUID,
         cursor_sort_value: datetime | None,
@@ -131,3 +153,58 @@ class SAPlaylistReader(IPlaylistReader):
             sorting=sorting,
             pagination=pagination,
         )
+
+    async def get_playlist_videos_by_playlist_id(
+        self,
+        playlist_id: UUID,
+        cursor_sort_value: datetime | None,
+        cursor_id_value: str | None,
+        sorting: PlaylistVideosSorting,
+        pagination: CursorPagination,
+    ) -> list[PlaylistVideoDTO]:
+        stmt = (
+            select(
+                VideoORM.id,
+                VideoORM.title,
+                VideoORM.privacy_status,
+                VideoORM.created_at,
+                PlaylistItemORM.created_at.label('added_at'),
+                ChannelORM.name.label('author_name'),
+                ChannelORM.slug.label('author_slug'),
+            )
+            .where(
+                PlaylistItemORM.playlist_id == playlist_id,
+                VideoORM.privacy_status.in_(
+                    [
+                        VideoPrivacyStatusEnum.PUBLIC.value,
+                        VideoPrivacyStatusEnum.UNLISTED.value,
+                    ]
+                ),
+            )
+            .join(VideoORM, PlaylistItemORM.video_id == VideoORM.id)
+            .join(ChannelORM, VideoORM.channel_id == ChannelORM.id)
+        )
+
+        match sorting.sort_by:
+            case PlaylistVideosSortingFieldsEnum.ADDED_AT:
+                sort_field = PlaylistItemORM.created_at
+            case PlaylistVideosSortingFieldsEnum.CREATED_AT:
+                sort_field = VideoORM.created_at
+
+        if cursor_sort_value and cursor_id_value:
+            cursor_tuple = tuple_(sort_field, VideoORM.id)
+
+            if sorting.order is SortingOrderEnum.DESC:
+                stmt = stmt.where(cursor_tuple < (cursor_sort_value, cursor_id_value))
+            else:
+                stmt = stmt.where(cursor_tuple > (cursor_sort_value, cursor_id_value))
+
+        stmt = stmt.order_by(
+            sort_field.desc() if sorting.order is SortingOrderEnum.DESC else sort_field,
+            VideoORM.id.desc() if sorting.order is SortingOrderEnum.DESC else VideoORM.id,
+        )
+        stmt = stmt.limit(limit=pagination.per_page + 1)
+
+        result = await self._session.execute(statement=stmt)
+        video_rows = result.mappings().all()
+        return [convert_row_to_playlist_video_dto(row=row) for row in video_rows]

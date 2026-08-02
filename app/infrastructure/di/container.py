@@ -53,6 +53,7 @@ from app.application.subscriptions.use_cases.get_subscribers import GetSubscribe
 from app.application.subscriptions.use_cases.get_subscriptions import GetSubscriptionsUseCase
 from app.application.subscriptions.use_cases.subscribe import SubscribeUseCase
 from app.application.subscriptions.use_cases.unsubscribe import UnsubscribeUseCase
+from app.application.video_history.use_cases.add_video_to_history import AddVideoToHistoryUseCase
 from app.application.video_reactions.use_cases.create_video_reaction import CreateVideoReactionUseCase
 from app.application.video_reactions.use_cases.delete_video_reaction import DeleteVideoReactionUseCase
 from app.application.video_views.use_cases.create_video_view import CreateVideoViewUseCase
@@ -80,6 +81,8 @@ from app.domain.posts.repositories import IPostRepository
 from app.domain.posts.services import IPostService, PostService
 from app.domain.subscriptions.repositories import ISubscriptionRepository
 from app.domain.subscriptions.services import ISubscriptionService, SubscriptionService
+from app.domain.video_history.repositories import IVideoHistoryItemRepository
+from app.domain.video_history.services import IVideoHistoryItemService, VideoHistoryItemService
 from app.domain.video_reactions.repositories import IVideoReactionRepository
 from app.domain.video_reactions.services import IVideoReactionService, VideoReactionService
 from app.domain.video_views.repositories import IVideoViewRepository
@@ -103,6 +106,7 @@ from app.infrastructure.sqlalchemy.repositories.post_comments import SAPostComme
 from app.infrastructure.sqlalchemy.repositories.post_reactions import SAPostReactionRepository
 from app.infrastructure.sqlalchemy.repositories.posts import SAPostRepository
 from app.infrastructure.sqlalchemy.repositories.subscriptions import SASubscriptionRepository
+from app.infrastructure.sqlalchemy.repositories.video_history import SAVideoHistoryItemRepository
 from app.infrastructure.sqlalchemy.repositories.video_reactions import SAVideoReactionRepository
 from app.infrastructure.sqlalchemy.repositories.video_views import SAVideoViewRepository
 from app.infrastructure.sqlalchemy.repositories.videos import SAVideoRepository
@@ -143,6 +147,7 @@ class RepositoriesProvider(Provider):
     channel_repository = provide(SAChannelRepository, provides=IChannelRepository)
     video_repository = provide(SAVideoRepository, provides=IVideoRepository)
     video_reaction_repository = provide(SAVideoReactionRepository, provides=IVideoReactionRepository)
+    video_history_item_repository = provide(SAVideoHistoryItemRepository, provides=IVideoHistoryItemRepository)
     video_view_repository = provide(SAVideoViewRepository, provides=IVideoViewRepository)
     playlist_repository = provide(SAPlaylistRepository, provides=IPlaylistRepository)
     playlist_item_repository = provide(SAPlaylistItemRepository, provides=IPlaylistItemRepository)
@@ -170,6 +175,7 @@ class ServicesProvider(Provider):
     video_service = provide(VideoService, provides=IVideoService)
     video_view_service = provide(VideoViewService, provides=IVideoViewService)
     video_reaction_service = provide(VideoReactionService, provides=IVideoReactionService)
+    video_history_item_service = provide(VideoHistoryItemService, provides=IVideoHistoryItemService)
     playlist_service = provide(PlaylistService, provides=IPlaylistService)
     playlist_item_service = provide(PlaylistItemService, provides=IPlaylistItemService)
     post_service = provide(PostService, provides=IPostService)
@@ -213,6 +219,9 @@ class UseCasesProvider(Provider):
     # Video reactions
     create_video_reaction = provide(CreateVideoReactionUseCase)
     delete_video_reaction = provide(DeleteVideoReactionUseCase)
+
+    # Video history
+    add_video_to_history = provide(AddVideoToHistoryUseCase)
 
     # Playlists
     create_playlist = provide(CreatePlaylistUseCase)

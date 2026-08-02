@@ -8,6 +8,7 @@ from app.presentation.api.v1.handlers.post_comments import router as post_commen
 from app.presentation.api.v1.handlers.post_reactions import router as post_reactions_router
 from app.presentation.api.v1.handlers.posts import router as posts_router
 from app.presentation.api.v1.handlers.subscriptions import router as subscriptions_router
+from app.presentation.api.v1.handlers.video_history import router as video_history_router
 from app.presentation.api.v1.handlers.video_reactions import router as video_reactions_router
 from app.presentation.api.v1.handlers.video_uploads import router as video_uploads_router
 from app.presentation.api.v1.handlers.video_views import router as video_views_router
@@ -21,6 +22,7 @@ v1_router.include_router(router=video_uploads_router)
 v1_router.include_router(router=videos_router)
 v1_router.include_router(router=video_views_router)
 v1_router.include_router(router=video_reactions_router)
+v1_router.include_router(router=video_history_router)
 v1_router.include_router(router=playlists_router)
 v1_router.include_router(router=posts_router)
 v1_router.include_router(router=post_reactions_router)

@@ -6,6 +6,7 @@ from sqlalchemy.orm import Mapped, mapped_column
 from app.domain.common.enums import ReactionTypeEnum
 from app.domain.playlists.entities import Playlist, PlaylistItem
 from app.domain.playlists.enums import PlaylistPrivacyStatusEnum
+from app.domain.video_history.entities import VideoHistoryItem
 from app.domain.video_reactions.entities import VideoReaction
 from app.domain.video_views.entities import VideoView
 from app.domain.videos.entities import Video
@@ -196,4 +197,30 @@ class PlaylistItemORM(UUIDIdMixin, CreatedAtMixin, BaseORM):
             id=self.id,
             playlist_id=self.playlist_id,
             video_id=self.video_id,
+        )
+
+
+class VideoHistoryItemORM(CreatedAtMixin, UUIDIdMixin, BaseORM):
+    __tablename__ = 'video_history_items'
+
+    channel_id: Mapped[UUID] = mapped_column(sa.ForeignKey('channels.id', ondelete='CASCADE'))
+    video_id: Mapped[str] = mapped_column(sa.ForeignKey('videos.id', ondelete='CASCADE'))
+
+    __table_args__ = (sa.UniqueConstraint('channel_id', 'video_id', name='unique_video_history_item'),)
+
+    @staticmethod
+    def from_entity(entity: VideoHistoryItem) -> VideoHistoryItemORM:
+        return VideoHistoryItemORM(
+            id=entity.id,
+            channel_id=entity.channel_id,
+            video_id=entity.video_id,
+            created_at=entity.created_at,
+        )
+
+    def to_entity(self) -> VideoHistoryItem:
+        return VideoHistoryItem(
+            id=self.id,
+            channel_id=self.channel_id,
+            video_id=self.video_id,
+            created_at=self.created_at,
         )

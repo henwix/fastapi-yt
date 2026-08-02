@@ -178,7 +178,10 @@ class PlaylistItemORM(UUIDIdMixin, CreatedAtMixin, BaseORM):
     playlist_id: Mapped[UUID] = mapped_column(sa.ForeignKey('playlists.id', ondelete='CASCADE'))
     video_id: Mapped[str] = mapped_column(sa.ForeignKey('videos.id', ondelete='CASCADE'))
 
-    __table_args__ = (sa.UniqueConstraint('playlist_id', 'video_id', name='unique_playlist_item'),)
+    __table_args__ = (
+        sa.UniqueConstraint('playlist_id', 'video_id', name='unique_playlist_item'),
+        sa.Index('ix_playlist_items_composite_added_at_filter', 'playlist_id', 'created_at', 'video_id'),
+    )
 
     @staticmethod
     def from_entity(entity: PlaylistItem) -> PlaylistItemORM:

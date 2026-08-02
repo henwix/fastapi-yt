@@ -164,7 +164,7 @@ class SAPlaylistReader(IPlaylistReader):
     ) -> list[PlaylistVideoDTO]:
         stmt = (
             select(
-                VideoORM.id,
+                PlaylistItemORM.video_id.label('id'),
                 VideoORM.title,
                 VideoORM.privacy_status,
                 VideoORM.created_at,
@@ -172,6 +172,8 @@ class SAPlaylistReader(IPlaylistReader):
                 ChannelORM.name.label('author_name'),
                 ChannelORM.slug.label('author_slug'),
             )
+            .join(VideoORM, PlaylistItemORM.video_id == VideoORM.id)
+            .join(ChannelORM, VideoORM.channel_id == ChannelORM.id)
             .where(
                 PlaylistItemORM.playlist_id == playlist_id,
                 VideoORM.privacy_status.in_(
@@ -181,8 +183,6 @@ class SAPlaylistReader(IPlaylistReader):
                     ]
                 ),
             )
-            .join(VideoORM, PlaylistItemORM.video_id == VideoORM.id)
-            .join(ChannelORM, VideoORM.channel_id == ChannelORM.id)
         )
 
         match sorting.sort_by:
@@ -192,7 +192,7 @@ class SAPlaylistReader(IPlaylistReader):
                 sort_field = VideoORM.created_at
 
         if cursor_sort_value and cursor_id_value:
-            cursor_tuple = tuple_(sort_field, VideoORM.id)
+            cursor_tuple = tuple_(sort_field, PlaylistItemORM.video_id)
 
             if sorting.order is SortingOrderEnum.DESC:
                 stmt = stmt.where(cursor_tuple < (cursor_sort_value, cursor_id_value))
@@ -201,7 +201,7 @@ class SAPlaylistReader(IPlaylistReader):
 
         stmt = stmt.order_by(
             sort_field.desc() if sorting.order is SortingOrderEnum.DESC else sort_field,
-            VideoORM.id.desc() if sorting.order is SortingOrderEnum.DESC else VideoORM.id,
+            PlaylistItemORM.video_id.desc() if sorting.order is SortingOrderEnum.DESC else PlaylistItemORM.video_id,
         )
         stmt = stmt.limit(limit=pagination.per_page + 1)
 

@@ -1,19 +1,21 @@
 from dataclasses import dataclass
 from typing import NoReturn
+from uuid import UUID
 
+from sqlalchemy import delete
 from sqlalchemy.dialects.postgresql import insert
 from sqlalchemy.exc import DBAPIError, IntegrityError
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.domain.channels.exceptions import ChannelNotFoundByIdError
 from app.domain.video_history.entities import VideoHistoryItem
-from app.domain.video_history.repositories import IVideoHistoryItemRepository
+from app.domain.video_history.repositories import IVideoHistoryRepository
 from app.domain.videos.exceptions import VideoNotFoundError
 from app.infrastructure.sqlalchemy.models.videos import VideoHistoryItemORM
 
 
 @dataclass
-class SAVideoHistoryItemRepository(IVideoHistoryItemRepository):
+class SAVideoHistoryRepository(IVideoHistoryRepository):
     _session: AsyncSession
 
     def _parse_db_error(self, error: DBAPIError, video_history_item: VideoHistoryItem) -> NoReturn:
@@ -51,3 +53,16 @@ class SAVideoHistoryItemRepository(IVideoHistoryItemRepository):
             self._parse_db_error(error=e, video_history_item=video_history_item)
         model = result.scalar_one()
         return model.to_entity()
+
+    async def delete(self, channel_id: UUID, video_id: str) -> bool:
+        stmt = delete(VideoHistoryItemORM).where(
+            VideoHistoryItemORM.channel_id == channel_id,
+            VideoHistoryItemORM.video_id == video_id,
+        )
+        result = await self._session.execute(statement=stmt)
+        return result.rowcount > 0
+
+    async def clear(self, channel_id: UUID) -> bool:
+        stmt = delete(VideoHistoryItemORM).where(VideoHistoryItemORM.channel_id == channel_id)
+        result = await self._session.execute(statement=stmt)
+        return result.rowcount > 0

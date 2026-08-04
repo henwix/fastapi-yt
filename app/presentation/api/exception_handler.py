@@ -52,7 +52,7 @@ from app.domain.subscriptions.exceptions import (
     SubscriptionAlreadyExistsError,
     SubscriptionNotFoundError,
 )
-from app.domain.video_history.exceptions import VideoNotFoundInHistoryError
+from app.domain.video_history.exceptions import VideoHistoryEmptyError, VideoNotFoundInHistoryError
 from app.domain.video_reactions.exceptions import VideoReactionAlreadyExistsError, VideoReactionNotFoundError
 from app.domain.videos.exceptions import (
     VideoAccessForbiddenError,
@@ -101,6 +101,7 @@ def get_http_status_code(exc: AppException):
         VideoReactionNotFoundError: status.HTTP_404_NOT_FOUND,
         # Video history
         VideoNotFoundInHistoryError: status.HTTP_404_NOT_FOUND,
+        VideoHistoryEmptyError: status.HTTP_404_NOT_FOUND,
         # Playlists
         VideoAlreadyAddedToPlaylistError: status.HTTP_400_BAD_REQUEST,
         PlaylistAccessForbiddenError: status.HTTP_403_FORBIDDEN,

@@ -9,3 +9,9 @@ class VideoNotFoundInHistoryError(AppException):
     message = 'Video not found in history'
     channel_id: UUID
     video_id: str
+
+
+@dataclass(kw_only=True)
+class VideoHistoryEmptyError(AppException):
+    message = 'Video history is empty'
+    channel_id: UUID

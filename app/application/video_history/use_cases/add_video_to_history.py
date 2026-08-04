@@ -4,7 +4,7 @@ from app.application.common.interfaces.transaction_manager import ITransactionMa
 from app.application.video_history.commands import AddVideoToHistoryCommand
 from app.domain.channels.services import IChannelService
 from app.domain.video_history.entities import VideoHistoryItem
-from app.domain.video_history.services import IVideoHistoryItemService
+from app.domain.video_history.services import IVideoHistoryService
 from app.domain.videos.enums import VideoPrivacyStatusEnum
 from app.domain.videos.exceptions import VideoAccessForbiddenError
 from app.domain.videos.services import IVideoService
@@ -14,7 +14,7 @@ from app.domain.videos.services import IVideoService
 class AddVideoToHistoryUseCase:
     _channel_service: IChannelService
     _video_service: IVideoService
-    _video_history_item_service: IVideoHistoryItemService
+    _video_history_service: IVideoHistoryService
     _transaction_manager: ITransactionManager
 
     async def execute(self, command: AddVideoToHistoryCommand) -> None:
@@ -27,4 +27,4 @@ class AddVideoToHistoryUseCase:
         video_history_item_entity = VideoHistoryItem.create(channel_id=channel.id, video_id=video.id)
 
         async with self._transaction_manager:
-            await self._video_history_item_service.upsert(video_history_item=video_history_item_entity)
+            await self._video_history_service.upsert(video_history_item=video_history_item_entity)

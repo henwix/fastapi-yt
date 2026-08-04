@@ -16,6 +16,3 @@ class VideoHistoryItem(BaseEntity):
     @staticmethod
     def create(channel_id: UUID, video_id: str) -> VideoHistoryItem:
         return VideoHistoryItem(channel_id=channel_id, video_id=video_id)
-
-    def set_current_time_for_created_at(self) -> None:
-        self.created_at = get_datetime_utc_now()

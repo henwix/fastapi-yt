@@ -4,7 +4,7 @@ from uuid import UUID
 from pydantic import Field, HttpUrl
 
 from app.application.common.sorting import SortingOrderEnum
-from app.application.playlists.dto import DetailedPlaylistDTO, PlaylistVideoDTO, PreviewPlaylistDTO
+from app.application.playlists.dto import DetailedPlaylistDTO, PlaylistPreviewVideoDTO, PreviewPlaylistDTO
 from app.application.playlists.queries import PlaylistsPreviewSortingFieldsEnum, PlaylistVideosSortingFieldsEnum
 from app.domain.playlists.constants import (
     PLAYLISTS_DESCRIPTION_MAX_LENGTH,
@@ -104,7 +104,7 @@ class PlaylistVideosSortingParams(BaseSchema):
     order: SortingOrderEnum = SortingOrderEnum.DESC
 
 
-class PlaylistVideoOutSchema(BaseSchema):
+class PlaylistPreviewVideoOutSchema(BaseSchema):
     id: str
     title: str
     privacy_status: VideoPrivacyStatusEnum
@@ -114,8 +114,8 @@ class PlaylistVideoOutSchema(BaseSchema):
     author_slug: str
 
     @staticmethod
-    def from_dto(dto: PlaylistVideoDTO) -> PlaylistVideoOutSchema:
-        return PlaylistVideoOutSchema(
+    def from_dto(dto: PlaylistPreviewVideoDTO) -> PlaylistPreviewVideoOutSchema:
+        return PlaylistPreviewVideoOutSchema(
             id=dto.id,
             title=dto.title,
             privacy_status=dto.privacy_status,
@@ -128,4 +128,4 @@ class PlaylistVideoOutSchema(BaseSchema):
 
 class PlaylistVideosCursorResponse(BaseSchema):
     next_page: HttpUrl | None
-    results: list[PlaylistVideoOutSchema]
+    results: list[PlaylistPreviewVideoOutSchema]

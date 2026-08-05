@@ -3,7 +3,7 @@ from datetime import datetime
 from uuid import UUID
 
 from app.application.common.pagination import CursorPagination
-from app.application.playlists.dto import DetailedPlaylistDTO, PlaylistVideoDTO, PreviewPlaylistDTO
+from app.application.playlists.dto import DetailedPlaylistDTO, PlaylistPreviewVideoDTO, PreviewPlaylistDTO
 from app.application.playlists.queries import PlaylistsPreviewSorting, PlaylistVideosSorting
 
 
@@ -39,4 +39,4 @@ class IPlaylistReader(ABC):
         cursor_id_value: str | None,
         sorting: PlaylistVideosSorting,
         pagination: CursorPagination,
-    ) -> list[PlaylistVideoDTO]: ...
+    ) -> list[PlaylistPreviewVideoDTO]: ...

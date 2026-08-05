@@ -29,7 +29,7 @@ class PreviewPlaylistDTO(DTO):
 
 
 @dataclass
-class PlaylistVideoDTO(DTO):
+class PlaylistPreviewVideoDTO(DTO):
     id: str
     title: str
     privacy_status: VideoPrivacyStatusEnum

@@ -53,9 +53,11 @@ from app.application.subscriptions.use_cases.get_subscribers import GetSubscribe
 from app.application.subscriptions.use_cases.get_subscriptions import GetSubscriptionsUseCase
 from app.application.subscriptions.use_cases.subscribe import SubscribeUseCase
 from app.application.subscriptions.use_cases.unsubscribe import UnsubscribeUseCase
+from app.application.video_history.interfaces.reader import IVideoHistoryReader
 from app.application.video_history.use_cases.add_video_to_history import AddVideoToHistoryUseCase
 from app.application.video_history.use_cases.clear_video_history import ClearVideoHistoryUseCase
 from app.application.video_history.use_cases.delete_video_from_history import DeleteVideoFromHistoryUseCase
+from app.application.video_history.use_cases.get_video_history import GetVideoHistoryUseCase
 from app.application.video_reactions.use_cases.create_video_reaction import CreateVideoReactionUseCase
 from app.application.video_reactions.use_cases.delete_video_reaction import DeleteVideoReactionUseCase
 from app.application.video_views.use_cases.create_video_view import CreateVideoViewUseCase
@@ -100,6 +102,7 @@ from app.infrastructure.sqlalchemy.readers.playlists import SAPlaylistReader
 from app.infrastructure.sqlalchemy.readers.post_comments import SAPostCommentReader
 from app.infrastructure.sqlalchemy.readers.posts import SAPostReader
 from app.infrastructure.sqlalchemy.readers.subscriptions import SASubscriptionReader
+from app.infrastructure.sqlalchemy.readers.video_history import SAVideoHistoryReader
 from app.infrastructure.sqlalchemy.readers.videos import SAVideoReader
 from app.infrastructure.sqlalchemy.repositories.channels import SAChannelRepository
 from app.infrastructure.sqlalchemy.repositories.playlists import SAPlaylistItemRepository, SAPlaylistRepository
@@ -167,6 +170,7 @@ class ReadersProvider(Provider):
     post_comment_reader = provide(SAPostCommentReader, provides=IPostCommentReader)
     subscription_reader = provide(SASubscriptionReader, provides=ISubscriptionReader)
     video_reader = provide(SAVideoReader, provides=IVideoReader)
+    video_history_reader = provide(SAVideoHistoryReader, provides=IVideoHistoryReader)
     playlist_reader = provide(SAPlaylistReader, provides=IPlaylistReader)
 
 
@@ -226,6 +230,7 @@ class UseCasesProvider(Provider):
     add_video_to_history = provide(AddVideoToHistoryUseCase)
     delete_video_from_history = provide(DeleteVideoFromHistoryUseCase)
     clear_video_history = provide(ClearVideoHistoryUseCase)
+    get_video_history = provide(GetVideoHistoryUseCase)
 
     # Playlists
     create_playlist = provide(CreatePlaylistUseCase)

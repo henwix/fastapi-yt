@@ -48,8 +48,8 @@ from app.presentation.api.v1.schemas.playlists import (
     CreatePlaylistInSchema,
     DetailedPlaylistOutSchema,
     PlaylistOutSchema,
+    PlaylistPreviewVideoOutSchema,
     PlaylistsPreviewSortingParams,
-    PlaylistVideoOutSchema,
     PlaylistVideosCursorResponse,
     PlaylistVideosSortingParams,
     PreviewPlaylistOutSchema,
@@ -223,7 +223,7 @@ async def get_playlist_videos(
 
     return PlaylistVideosCursorResponse(
         next_page=str(request.url.include_query_params(cursor=next_cursor)) if next_cursor is not None else None,
-        results=[PlaylistVideoOutSchema.from_dto(dto=video) for video in playlist_videos],
+        results=[PlaylistPreviewVideoOutSchema.from_dto(dto=video) for video in playlist_videos],
     )
 
 

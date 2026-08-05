@@ -8,7 +8,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.application.common.pagination import CursorPagination
 from app.application.common.sorting import SortingOrderEnum
-from app.application.playlists.dto import DetailedPlaylistDTO, PlaylistVideoDTO, PreviewPlaylistDTO
+from app.application.playlists.dto import DetailedPlaylistDTO, PlaylistPreviewVideoDTO, PreviewPlaylistDTO
 from app.application.playlists.interfaces.reader import IPlaylistReader
 from app.application.playlists.queries import (
     PlaylistsPreviewSorting,
@@ -161,7 +161,7 @@ class SAPlaylistReader(IPlaylistReader):
         cursor_id_value: str | None,
         sorting: PlaylistVideosSorting,
         pagination: CursorPagination,
-    ) -> list[PlaylistVideoDTO]:
+    ) -> list[PlaylistPreviewVideoDTO]:
         stmt = (
             select(
                 PlaylistItemORM.video_id.label('id'),

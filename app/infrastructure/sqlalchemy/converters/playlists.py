@@ -1,6 +1,6 @@
 from sqlalchemy import RowMapping
 
-from app.application.playlists.dto import DetailedPlaylistDTO, PlaylistVideoDTO, PreviewPlaylistDTO
+from app.application.playlists.dto import DetailedPlaylistDTO, PlaylistPreviewVideoDTO, PreviewPlaylistDTO
 from app.domain.playlists.enums import PlaylistPrivacyStatusEnum
 from app.domain.videos.enums import VideoPrivacyStatusEnum
 
@@ -28,8 +28,8 @@ def convert_row_to_preview_playlist_dto(row: RowMapping) -> PreviewPlaylistDTO:
     )
 
 
-def convert_row_to_playlist_video_dto(row: RowMapping) -> PlaylistVideoDTO:
-    return PlaylistVideoDTO(
+def convert_row_to_playlist_video_dto(row: RowMapping) -> PlaylistPreviewVideoDTO:
+    return PlaylistPreviewVideoDTO(
         id=row['id'],
         title=row['title'],
         privacy_status=VideoPrivacyStatusEnum(row['privacy_status']),

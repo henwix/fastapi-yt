@@ -206,7 +206,10 @@ class VideoHistoryItemORM(CreatedAtMixin, UUIDIdMixin, BaseORM):
     channel_id: Mapped[UUID] = mapped_column(sa.ForeignKey('channels.id', ondelete='CASCADE'))
     video_id: Mapped[str] = mapped_column(sa.ForeignKey('videos.id', ondelete='CASCADE'))
 
-    __table_args__ = (sa.UniqueConstraint('channel_id', 'video_id', name='unique_video_history_item'),)
+    __table_args__ = (
+        sa.UniqueConstraint('channel_id', 'video_id', name='unique_video_history_item'),
+        sa.Index('ix_video_history_items_composite_added_at_filter', 'channel_id', 'created_at', 'video_id'),
+    )
 
     @staticmethod
     def from_entity(entity: VideoHistoryItem) -> VideoHistoryItemORM:

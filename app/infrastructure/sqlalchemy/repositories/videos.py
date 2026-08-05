@@ -41,6 +41,11 @@ class SAVideoRepository(IVideoRepository):
         updated_video = result.scalar_one_or_none()
         return updated_video.to_entity() if updated_video else None
 
+    async def increase_views_count(self, video_id: str) -> bool:
+        stmt = update(VideoORM).where(VideoORM.id == video_id).values(views_count=VideoORM.views_count + 1)
+        result = await self._session.execute(statement=stmt)
+        return result.rowcount > 0
+
     async def get_by_id(self, id: str) -> Video | None:
         stmt = select(VideoORM).where(VideoORM.id == id)
         return await self._get_one_by_query(query=stmt)

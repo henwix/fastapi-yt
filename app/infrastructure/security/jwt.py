@@ -7,7 +7,7 @@ import jwt
 from app.application.common.interfaces.jwt import IJWTService
 from app.core.configs import settings
 from app.domain.auth.exceptions import JWTExpiredTokenError, JWTInvalidTokenError
-from app.utils.get_datetime_utc_now import get_datetime_utc_now
+from app.utils.datetime import get_current_utc_datetime
 
 
 class JWTService(IJWTService):
@@ -24,7 +24,7 @@ class JWTService(IJWTService):
         payload = {
             'sub': sub,
             'token_type': token_type,
-            'exp': get_datetime_utc_now() + timedelta(days=exp_days),
+            'exp': get_current_utc_datetime() + timedelta(days=exp_days),
         }
         return jwt.encode(payload=payload, key=key, algorithm=self._ALGORITHM)
 

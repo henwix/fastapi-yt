@@ -5,7 +5,7 @@ from uuid import UUID
 from app.domain.common.constants import Empty
 from app.domain.common.entities import BaseEntity
 from app.domain.videos.enums import VideoPrivacyStatusEnum, VideoUploadStatusEnum
-from app.utils.get_datetime_utc_now import get_datetime_utc_now
+from app.utils.datetime import get_current_utc_datetime
 from app.utils.videos import generate_video_id
 
 
@@ -17,7 +17,8 @@ class Video(BaseEntity):
     description: str
     privacy_status: VideoPrivacyStatusEnum
     is_reported: bool = False
-    created_at: datetime = field(default_factory=get_datetime_utc_now)
+    created_at: datetime = field(default_factory=get_current_utc_datetime)
+    views_count: int = 0
     upload_id: str | None
     s3_key: str
     upload_status: VideoUploadStatusEnum = VideoUploadStatusEnum.UPLOADING

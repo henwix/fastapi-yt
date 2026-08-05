@@ -11,6 +11,7 @@ class PreviewVideoHistoryDTO(DTO):
     title: str
     privacy_status: VideoPrivacyStatusEnum
     created_at: datetime
+    views_count: int
     watched_at: datetime
     author_name: str
     author_slug: str

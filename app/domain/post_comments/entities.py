@@ -5,7 +5,7 @@ from uuid import UUID, uuid7
 from app.domain.common.constants import Empty
 from app.domain.common.entities import BaseEntity
 from app.domain.post_comments.enums import PostCommentReplyLevelEnum
-from app.utils.get_datetime_utc_now import get_datetime_utc_now
+from app.utils.datetime import get_current_utc_datetime
 
 
 @dataclass(kw_only=True)
@@ -17,7 +17,7 @@ class PostComment(BaseEntity):
     is_edited: bool = False
     text: str
     reply_level: PostCommentReplyLevelEnum
-    created_at: datetime = field(default_factory=get_datetime_utc_now)
+    created_at: datetime = field(default_factory=get_current_utc_datetime)
 
     @staticmethod
     def create(

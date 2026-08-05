@@ -1,3 +1,4 @@
+from datetime import date
 from uuid import UUID
 
 import sqlalchemy as sa
@@ -13,6 +14,7 @@ from app.domain.videos.entities import Video
 from app.domain.videos.enums import VideoPrivacyStatusEnum, VideoUploadStatusEnum
 from app.infrastructure.sqlalchemy.models.base import BaseORM
 from app.infrastructure.sqlalchemy.models.mixins import CreatedAtMixin, UUIDIdMixin
+from app.utils.datetime import get_current_utc_date
 from app.utils.videos import generate_video_id
 
 
@@ -32,6 +34,10 @@ class VideoORM(CreatedAtMixin, BaseORM):
     description: Mapped[str] = mapped_column(sa.Text)
     privacy_status: Mapped[str] = mapped_column(sa.String(length=10))
     is_reported: Mapped[bool] = mapped_column(default=False, server_default=sa.sql.false())
+    views_count: Mapped[int] = mapped_column(
+        default=0,
+        server_default='0',
+    )
 
     upload_id: Mapped[str | None] = mapped_column(default=None, server_default=sa.sql.null(), unique=True)
     s3_key: Mapped[str] = mapped_column(sa.String(length=255), unique=True)
@@ -54,6 +60,7 @@ class VideoORM(CreatedAtMixin, BaseORM):
             description=entity.description,
             privacy_status=entity.privacy_status.value,
             is_reported=entity.is_reported,
+            views_count=entity.views_count,
             upload_id=entity.upload_id,
             s3_key=entity.s3_key,
             upload_status=entity.upload_status.value,
@@ -67,6 +74,7 @@ class VideoORM(CreatedAtMixin, BaseORM):
             description=self.description,
             privacy_status=VideoPrivacyStatusEnum(self.privacy_status),
             is_reported=self.is_reported,
+            views_count=self.views_count,
             upload_id=self.upload_id,
             s3_key=self.s3_key,
             upload_status=VideoUploadStatusEnum(self.upload_status),
@@ -113,11 +121,40 @@ class VideoReactionORM(
         )
 
 
-class VideoViewORM(UUIDIdMixin, CreatedAtMixin, BaseORM):
+class VideoViewORM(UUIDIdMixin, BaseORM):
     __tablename__ = 'video_views'
 
     video_id: Mapped[str] = mapped_column(sa.ForeignKey('videos.id', ondelete='CASCADE'))
-    channel_id: Mapped[UUID] = mapped_column(sa.ForeignKey('channels.id', ondelete='CASCADE'), nullable=True)
+    channel_id: Mapped[UUID | None] = mapped_column(sa.ForeignKey('channels.id', ondelete='CASCADE'))
+    anonymous_id: Mapped[UUID | None]
+    views_count: Mapped[int] = mapped_column(
+        default=1,
+        server_default='1',
+    )
+    created_at: Mapped[date] = mapped_column(
+        sa.Date,
+        default=get_current_utc_date,
+        server_default=sa.func.current_date(),
+    )
+
+    __table_args__ = (
+        sa.Index(
+            'unique_video_views_channel_view',
+            'video_id',
+            'channel_id',
+            'created_at',
+            unique=True,
+            postgresql_where=sa.text('channel_id IS NOT NULL'),
+        ),
+        sa.Index(
+            'unique_video_views_anonymous_view',
+            'video_id',
+            'anonymous_id',
+            'created_at',
+            unique=True,
+            postgresql_where=sa.text('anonymous_id IS NOT NULL'),
+        ),
+    )
 
     @staticmethod
     def from_entity(entity: VideoView) -> VideoViewORM:
@@ -125,6 +162,8 @@ class VideoViewORM(UUIDIdMixin, CreatedAtMixin, BaseORM):
             id=entity.id,
             video_id=entity.video_id,
             channel_id=entity.channel_id,
+            anonymous_id=entity.anonymous_id,
+            views_count=entity.views_count,
             created_at=entity.created_at,
         )
 
@@ -133,6 +172,8 @@ class VideoViewORM(UUIDIdMixin, CreatedAtMixin, BaseORM):
             id=self.id,
             video_id=self.video_id,
             channel_id=self.channel_id,
+            anonymous_id=self.anonymous_id,
+            views_count=self.views_count,
             created_at=self.created_at,
         )
 

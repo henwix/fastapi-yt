@@ -4,7 +4,7 @@ from uuid import UUID, uuid7
 
 from app.domain.common.constants import Empty
 from app.domain.common.entities import BaseEntity
-from app.utils.get_datetime_utc_now import get_datetime_utc_now
+from app.utils.datetime import get_current_utc_datetime
 
 
 @dataclass(kw_only=True)
@@ -18,8 +18,8 @@ class Channel(BaseEntity):
     password_hash: str
     is_active: bool = True
     avatar_s3_key: str | None = None
-    created_at: datetime = field(default_factory=get_datetime_utc_now)
-    updated_at: datetime = field(default_factory=get_datetime_utc_now)
+    created_at: datetime = field(default_factory=get_current_utc_datetime)
+    updated_at: datetime = field(default_factory=get_current_utc_datetime)
 
     def set_password(self, password_hash: str) -> None:
         self.password_hash = password_hash

@@ -34,6 +34,7 @@ class PlaylistPreviewVideoDTO(DTO):
     title: str
     privacy_status: VideoPrivacyStatusEnum
     created_at: datetime
+    views_count: int
     added_at: datetime
     author_name: str
     author_slug: str

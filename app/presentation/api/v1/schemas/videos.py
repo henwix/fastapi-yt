@@ -84,6 +84,7 @@ class PersonalPreviewVideoOutSchema(BaseSchema):
     privacy_status: VideoPrivacyStatusEnum
     upload_status: VideoUploadStatusEnum
     created_at: datetime
+    views_count: int
 
     @staticmethod
     def from_dto(dto: PersonalPreviewVideoDTO) -> PersonalPreviewVideoOutSchema:
@@ -93,6 +94,7 @@ class PersonalPreviewVideoOutSchema(BaseSchema):
             privacy_status=dto.privacy_status,
             upload_status=dto.upload_status,
             created_at=dto.created_at,
+            views_count=dto.views_count,
         )
 
 

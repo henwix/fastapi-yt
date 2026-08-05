@@ -25,4 +25,5 @@ def convert_row_to_personal_preview_video_dto(row: RowMapping) -> PersonalPrevie
         privacy_status=VideoPrivacyStatusEnum(row['privacy_status']),
         upload_status=VideoUploadStatusEnum(row['upload_status']),
         created_at=row['created_at'],
+        views_count=row['views_count'],
     )

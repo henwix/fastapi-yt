@@ -64,6 +64,7 @@ class SAVideoReader(IVideoReader):
             VideoORM.privacy_status,
             VideoORM.upload_status,
             VideoORM.created_at,
+            VideoORM.views_count,
         ).where(VideoORM.channel_id == channel_id)
 
         sort_field = getattr(VideoORM, sorting.sort_by.value)

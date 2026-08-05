@@ -4,13 +4,13 @@ from logging.config import dictConfig
 from msgspec import json
 
 from app.core.configs import settings
-from app.utils.get_datetime_utc_now import get_datetime_utc_now
+from app.utils.datetime import get_current_utc_datetime
 
 
 class JSONFormatter(logging.Formatter):
     def format(self, record: logging.LogRecord) -> str:
         log_record = {
-            'timestamp': get_datetime_utc_now().isoformat(),
+            'timestamp': get_current_utc_datetime().isoformat(),
             'process': record.processName,
             'level': record.levelname,
             'module': record.name,
@@ -30,7 +30,7 @@ class JSONFormatter(logging.Formatter):
 class StringFormatter(logging.Formatter):
     def format(self, record: logging.LogRecord) -> str:
         log_record = [
-            f'{get_datetime_utc_now().isoformat()} | ',
+            f'{get_current_utc_datetime().isoformat()} | ',
             f'{record.processName} | ',
             f'{record.levelname:<8} | ',
             f'{record.name}:{record.lineno} - ',

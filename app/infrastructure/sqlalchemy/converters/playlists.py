@@ -34,6 +34,7 @@ def convert_row_to_playlist_video_dto(row: RowMapping) -> PlaylistPreviewVideoDT
         title=row['title'],
         privacy_status=VideoPrivacyStatusEnum(row['privacy_status']),
         created_at=row['created_at'],
+        views_count=row['views_count'],
         added_at=row['added_at'],
         author_name=row['author_name'],
         author_slug=row['author_slug'],

@@ -26,6 +26,7 @@ class PersonalPreviewVideoDTO(DTO):
     privacy_status: VideoPrivacyStatusEnum
     upload_status: VideoUploadStatusEnum
     created_at: datetime
+    views_count: int
 
 
 @dataclass(frozen=True)

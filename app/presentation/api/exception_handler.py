@@ -54,6 +54,7 @@ from app.domain.subscriptions.exceptions import (
 )
 from app.domain.video_history.exceptions import VideoHistoryEmptyError, VideoNotFoundInHistoryError
 from app.domain.video_reactions.exceptions import VideoReactionAlreadyExistsError, VideoReactionNotFoundError
+from app.domain.video_views.exceptions import VideoViewsLimitReached
 from app.domain.videos.exceptions import (
     VideoAccessForbiddenError,
     VideoInvalidFileFormatError,
@@ -96,6 +97,8 @@ def get_http_status_code(exc: AppException):
         VideoUploadAlreadyCompletedError: status.HTTP_400_BAD_REQUEST,
         VideoAccessForbiddenError: status.HTTP_403_FORBIDDEN,
         VideoNotFoundError: status.HTTP_404_NOT_FOUND,
+        # Video views
+        VideoViewsLimitReached: status.HTTP_400_BAD_REQUEST,
         # Video reactions
         VideoReactionAlreadyExistsError: status.HTTP_400_BAD_REQUEST,
         VideoReactionNotFoundError: status.HTTP_404_NOT_FOUND,

@@ -168,6 +168,7 @@ class SAPlaylistReader(IPlaylistReader):
                 VideoORM.title,
                 VideoORM.privacy_status,
                 VideoORM.created_at,
+                VideoORM.views_count,
                 PlaylistItemORM.created_at.label('added_at'),
                 ChannelORM.name.label('author_name'),
                 ChannelORM.slug.label('author_slug'),

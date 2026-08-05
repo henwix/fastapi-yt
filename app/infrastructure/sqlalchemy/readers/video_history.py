@@ -33,6 +33,7 @@ class SAVideoHistoryReader(IVideoHistoryReader):
                 VideoORM.title,
                 VideoORM.privacy_status,
                 VideoORM.created_at,
+                VideoORM.views_count,
                 VideoHistoryItemORM.created_at.label('watched_at'),
                 ChannelORM.name.label('author_name'),
                 ChannelORM.slug.label('author_slug'),

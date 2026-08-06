@@ -28,7 +28,7 @@ def convert_row_to_preview_playlist_dto(row: RowMapping) -> PreviewPlaylistDTO:
     )
 
 
-def convert_row_to_playlist_video_dto(row: RowMapping) -> PlaylistPreviewVideoDTO:
+def convert_row_to_playlist_preview_video_dto(row: RowMapping) -> PlaylistPreviewVideoDTO:
     return PlaylistPreviewVideoDTO(
         id=row['id'],
         title=row['title'],

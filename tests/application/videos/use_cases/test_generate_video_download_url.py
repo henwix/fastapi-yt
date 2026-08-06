@@ -16,7 +16,7 @@ from tests.factories.models.videos import VideoORMFactory
 
 
 @pytest.mark.asyncio
-async def test_generate_video_download_url_returns_correct_url_if_video_public_and_user_not_authenticated(
+async def test_generate_video_download_url_returns_correct_url_if_video_public_and_channel_not_authenticated(
     container: AsyncContainer,
 ):
     async with container() as di:
@@ -43,7 +43,7 @@ async def test_generate_video_download_url_returns_correct_url_if_video_public_a
 
 
 @pytest.mark.asyncio
-async def test_generate_video_download_url_returns_correct_url_if_video_unlisted_and_user_not_authenticated(
+async def test_generate_video_download_url_returns_correct_url_if_video_unlisted_and_channel_not_authenticated(
     container: AsyncContainer,
 ):
     async with container() as di:
@@ -70,7 +70,7 @@ async def test_generate_video_download_url_returns_correct_url_if_video_unlisted
 
 
 @pytest.mark.asyncio
-async def test_generate_video_download_url_returns_correct_url_if_video_private_and_user_is_author(
+async def test_generate_video_download_url_returns_correct_url_if_video_private_and_channel_is_author(
     container: AsyncContainer,
 ):
     async with container() as di:
@@ -97,7 +97,7 @@ async def test_generate_video_download_url_returns_correct_url_if_video_private_
 
 
 @pytest.mark.asyncio
-async def test_generate_video_download_url_raises_error_if_video_private_and_user_not_authenticated(
+async def test_generate_video_download_url_raises_error_if_video_private_and_channel_not_authenticated(
     container: AsyncContainer,
 ):
     async with container() as di:
@@ -122,7 +122,7 @@ async def test_generate_video_download_url_raises_error_if_video_private_and_use
 
 
 @pytest.mark.asyncio
-async def test_generate_video_download_url_raises_error_if_video_private_and_user_not_author(
+async def test_generate_video_download_url_raises_error_if_video_private_and_channel_not_author(
     container: AsyncContainer,
 ):
     async with container() as di:
@@ -148,7 +148,7 @@ async def test_generate_video_download_url_raises_error_if_video_private_and_use
 
 
 @pytest.mark.asyncio
-async def test_generate_video_download_url_raises_error_if_video_private_and_user_not_active(
+async def test_generate_video_download_url_raises_error_if_video_private_and_channel_not_active(
     container: AsyncContainer,
 ):
     async with container() as di:
@@ -173,7 +173,7 @@ async def test_generate_video_download_url_raises_error_if_video_private_and_use
 
 
 @pytest.mark.asyncio
-async def test_generate_video_download_url_raises_error_if_video_private_and_user_not_found(
+async def test_generate_video_download_url_raises_error_if_video_private_and_channel_not_found(
     container: AsyncContainer,
 ):
     async with container() as di:

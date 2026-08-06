@@ -43,6 +43,7 @@ class DetailedVideoOutSchema(BaseSchema):
     privacy_status: VideoPrivacyStatusEnum
     is_reported: bool
     created_at: datetime
+    views_count: int
     channel_name: str
     channel_slug: str
 
@@ -55,6 +56,7 @@ class DetailedVideoOutSchema(BaseSchema):
             privacy_status=dto.privacy_status,
             is_reported=dto.is_reported,
             created_at=dto.created_at,
+            views_count=dto.views_count,
             channel_name=dto.channel_name,
             channel_slug=dto.channel_slug,
         )

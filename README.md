@@ -51,26 +51,26 @@
 - [x] Videos CRUD
 - [x] Videos Uploads
 - [x] Video Reactions
+- [x] Video Views
 - [ ] Video Comments
 - [ ] Video Comment Reactions
 - [ ] Video Reports
 
 
 #### History
+- [x] History CRUD
 
 
 #### Playlists
+- [x] History CRUD
 
 
 #### Posts
 - [x] Posts CRUD
 - [x] Get Posts by Channel slug endpoint
-
 - [x] Post Reactions CRUD
-
 - [x] Post Comments CRUD
 - [x] Get Post Comment Replies endpoint
-
 - [x] Post Comment Reactions CRUD
 
 

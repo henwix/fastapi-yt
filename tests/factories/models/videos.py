@@ -1,4 +1,4 @@
-from datetime import UTC, datetime
+from datetime import UTC, date, datetime
 from random import Random
 from uuid import uuid4
 
@@ -7,8 +7,10 @@ from polyfactory.factories.sqlalchemy_factory import SQLAlchemyFactory
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.core.configs import settings
+from app.domain.video_views.constants import VIDEO_VIEWS_LIMIT_PER_DAY
 from app.domain.videos.enums import VideoPrivacyStatusEnum, VideoUploadStatusEnum
-from app.infrastructure.sqlalchemy.models.videos import VideoORM
+from app.infrastructure.sqlalchemy.models.videos import VideoORM, VideoViewORM
+from app.utils.datetime import get_current_utc_date
 from app.utils.videos import generate_video_id
 
 
@@ -54,3 +56,23 @@ class VideoORMFactory(SQLAlchemyFactory[VideoORM]):
         session.add_all(objects)
         await session.commit()
         return objects
+
+
+class VideoViewORMFactory(SQLAlchemyFactory[VideoViewORM]):
+    __set_relationships__ = False
+    __random__ = Random()
+
+    @classmethod
+    def views_count(cls) -> int:
+        return cls.__random__.choice(range(1, VIDEO_VIEWS_LIMIT_PER_DAY + 1))
+
+    @classmethod
+    def created_at(cls) -> date:
+        return get_current_utc_date()
+
+    @classmethod
+    async def create(cls, session: AsyncSession, **kwargs) -> VideoViewORM:
+        obj = cls.build(**kwargs)
+        session.add(obj)
+        await session.commit()
+        return obj

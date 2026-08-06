@@ -10,12 +10,12 @@ from app.domain.post_comments.enums import PostCommentReplyLevelEnum
 from app.domain.post_reactions.entities import PostReaction
 from app.domain.posts.entities import Post
 from app.infrastructure.sqlalchemy.models.base import BaseORM
-from app.infrastructure.sqlalchemy.models.mixins import CreatedAtMixin, UUIDIdMixin
+from app.infrastructure.sqlalchemy.models.mixins import CreatedAtDatetimeMixin, UUIDIdMixin
 
 
 class PostORM(
     UUIDIdMixin,
-    CreatedAtMixin,
+    CreatedAtDatetimeMixin,
     BaseORM,
 ):
     __tablename__ = 'posts'
@@ -51,7 +51,7 @@ class PostORM(
 
 class PostReactionORM(
     UUIDIdMixin,
-    CreatedAtMixin,
+    CreatedAtDatetimeMixin,
     BaseORM,
 ):
     __tablename__ = 'post_reactions'
@@ -91,7 +91,7 @@ class PostReactionORM(
 
 class PostCommentORM(
     UUIDIdMixin,
-    CreatedAtMixin,
+    CreatedAtDatetimeMixin,
     BaseORM,
 ):
     __tablename__ = 'post_comments'
@@ -162,7 +162,7 @@ class PostCommentORM(
 
 class PostCommentReactionORM(
     UUIDIdMixin,
-    CreatedAtMixin,
+    CreatedAtDatetimeMixin,
     BaseORM,
 ):
     __tablename__ = 'post_comment_reactions'

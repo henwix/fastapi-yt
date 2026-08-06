@@ -12,6 +12,7 @@ def convert_row_to_detailed_video_dto(row: RowMapping) -> DetailedVideoDTO:
         privacy_status=VideoPrivacyStatusEnum(row['privacy_status']),
         is_reported=row['is_reported'],
         created_at=row['created_at'],
+        views_count=row['views_count'],
         channel_id=row['channel_id'],
         channel_name=row['channel_name'],
         channel_slug=row['channel_slug'],

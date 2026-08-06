@@ -8,6 +8,7 @@ from testcontainers.postgres import PostgresContainer
 
 from app.application.common.interfaces.s3_provider import IS3Provider
 from app.core.configs import settings
+from app.domain.videos.services import IVideoService
 from app.infrastructure.di.container import (
     AppProvider,
     ReadersProvider,
@@ -19,6 +20,7 @@ from app.infrastructure.sqlalchemy.database import create_engine, create_session
 from app.infrastructure.sqlalchemy.models import *  # noqa F403
 from app.infrastructure.sqlalchemy.models.base import BaseORM
 from tests.mocks.s3_provider import MockS3Provider
+from tests.mocks.video_service import MockVideoService
 
 
 @pytest.fixture(scope='session')
@@ -52,7 +54,10 @@ async def setup_db(postgres_url: str):
 @pytest_asyncio.fixture
 async def container(postgres_url: str) -> AsyncGenerator[AsyncContainer]:
     class MockAppProvider(AppProvider):
-        s3_provider_mock = provide(MockS3Provider, scope=Scope.REQUEST, provides=IS3Provider, override=True)
+        mock_s3_provider = provide(MockS3Provider, scope=Scope.REQUEST, provides=IS3Provider, override=True)
+
+    class MockServicesProvider(ServicesProvider):
+        mock_video_service = provide(MockVideoService, provides=IVideoService, override=True)
 
     class DatabaseProvider(Provider):
         @provide(scope=Scope.APP, provides=AsyncEngine)
@@ -76,7 +81,7 @@ async def container(postgres_url: str) -> AsyncGenerator[AsyncContainer]:
         DatabaseProvider(),
         RepositoriesProvider(),
         ReadersProvider(),
-        ServicesProvider(),
+        MockServicesProvider(),
         UseCasesProvider(),
     )
 

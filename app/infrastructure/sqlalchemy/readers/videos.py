@@ -34,6 +34,7 @@ class SAVideoReader(IVideoReader):
                 VideoORM.privacy_status,
                 VideoORM.is_reported,
                 VideoORM.created_at,
+                VideoORM.views_count,
                 VideoORM.channel_id,
                 ChannelORM.name.label('channel_name'),
                 ChannelORM.slug.label('channel_slug'),

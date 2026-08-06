@@ -1,4 +1,3 @@
-from datetime import date
 from uuid import UUID
 
 import sqlalchemy as sa
@@ -13,12 +12,11 @@ from app.domain.video_views.entities import VideoView
 from app.domain.videos.entities import Video
 from app.domain.videos.enums import VideoPrivacyStatusEnum, VideoUploadStatusEnum
 from app.infrastructure.sqlalchemy.models.base import BaseORM
-from app.infrastructure.sqlalchemy.models.mixins import CreatedAtMixin, UUIDIdMixin
-from app.utils.datetime import get_current_utc_date
+from app.infrastructure.sqlalchemy.models.mixins import CreatedAtDateMixin, CreatedAtDatetimeMixin, UUIDIdMixin
 from app.utils.videos import generate_video_id
 
 
-class VideoORM(CreatedAtMixin, BaseORM):
+class VideoORM(CreatedAtDatetimeMixin, BaseORM):
     __tablename__ = 'videos'
 
     id: Mapped[str] = mapped_column(
@@ -83,7 +81,7 @@ class VideoORM(CreatedAtMixin, BaseORM):
 
 class VideoReactionORM(
     UUIDIdMixin,
-    CreatedAtMixin,
+    CreatedAtDatetimeMixin,
     BaseORM,
 ):
     __tablename__ = 'video_reactions'
@@ -121,7 +119,7 @@ class VideoReactionORM(
         )
 
 
-class VideoViewORM(UUIDIdMixin, BaseORM):
+class VideoViewORM(UUIDIdMixin, CreatedAtDateMixin, BaseORM):
     __tablename__ = 'video_views'
 
     video_id: Mapped[str] = mapped_column(sa.ForeignKey('videos.id', ondelete='CASCADE'))
@@ -130,11 +128,6 @@ class VideoViewORM(UUIDIdMixin, BaseORM):
     views_count: Mapped[int] = mapped_column(
         default=1,
         server_default='1',
-    )
-    created_at: Mapped[date] = mapped_column(
-        sa.Date,
-        default=get_current_utc_date,
-        server_default=sa.func.current_date(),
     )
 
     __table_args__ = (
@@ -178,7 +171,7 @@ class VideoViewORM(UUIDIdMixin, BaseORM):
         )
 
 
-class PlaylistORM(UUIDIdMixin, CreatedAtMixin, BaseORM):
+class PlaylistORM(UUIDIdMixin, CreatedAtDatetimeMixin, BaseORM):
     __tablename__ = 'playlists'
 
     title: Mapped[str] = mapped_column(sa.String(length=150))
@@ -214,7 +207,7 @@ class PlaylistORM(UUIDIdMixin, CreatedAtMixin, BaseORM):
         )
 
 
-class PlaylistItemORM(UUIDIdMixin, CreatedAtMixin, BaseORM):
+class PlaylistItemORM(UUIDIdMixin, CreatedAtDatetimeMixin, BaseORM):
     __tablename__ = 'playlist_items'
 
     playlist_id: Mapped[UUID] = mapped_column(sa.ForeignKey('playlists.id', ondelete='CASCADE'))
@@ -241,7 +234,7 @@ class PlaylistItemORM(UUIDIdMixin, CreatedAtMixin, BaseORM):
         )
 
 
-class VideoHistoryItemORM(CreatedAtMixin, UUIDIdMixin, BaseORM):
+class VideoHistoryItemORM(CreatedAtDatetimeMixin, UUIDIdMixin, BaseORM):
     __tablename__ = 'video_history_items'
 
     channel_id: Mapped[UUID] = mapped_column(sa.ForeignKey('channels.id', ondelete='CASCADE'))

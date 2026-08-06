@@ -6,13 +6,13 @@ from sqlalchemy.orm import Mapped, mapped_column, relationship
 from app.domain.channels.entities import Channel
 from app.domain.subscriptions.entities import Subscription
 from app.infrastructure.sqlalchemy.models.base import BaseORM
-from app.infrastructure.sqlalchemy.models.mixins import CreatedAtMixin, UpdatedAtMixin, UUIDIdMixin
+from app.infrastructure.sqlalchemy.models.mixins import CreatedAtDatetimeMixin, UpdatedAtDatetimeMixin, UUIDIdMixin
 
 
 class ChannelORM(
     UUIDIdMixin,
-    CreatedAtMixin,
-    UpdatedAtMixin,
+    CreatedAtDatetimeMixin,
+    UpdatedAtDatetimeMixin,
     BaseORM,
 ):
     __tablename__ = 'channels'
@@ -77,7 +77,7 @@ class ChannelORM(
 
 class SubscriptionORM(
     UUIDIdMixin,
-    CreatedAtMixin,
+    CreatedAtDatetimeMixin,
     BaseORM,
 ):
     __tablename__ = 'subscriptions'

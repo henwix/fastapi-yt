@@ -20,7 +20,7 @@ from app.domain.playlists.exceptions import PlaylistNotFoundError
 from app.domain.videos.enums import VideoPrivacyStatusEnum
 from app.infrastructure.sqlalchemy.converters.playlists import (
     convert_row_to_detailed_playlist_dto,
-    convert_row_to_playlist_video_dto,
+    convert_row_to_playlist_preview_video_dto,
     convert_row_to_preview_playlist_dto,
 )
 from app.infrastructure.sqlalchemy.models.channels import ChannelORM
@@ -208,4 +208,4 @@ class SAPlaylistReader(IPlaylistReader):
 
         result = await self._session.execute(statement=stmt)
         video_rows = result.mappings().all()
-        return [convert_row_to_playlist_video_dto(row=row) for row in video_rows]
+        return [convert_row_to_playlist_preview_video_dto(row=row) for row in video_rows]

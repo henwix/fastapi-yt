@@ -5,5 +5,5 @@ from uuid import UUID
 @dataclass
 class CreateVideoViewCommand:
     current_channel_id: UUID | None
-    anonymous_id: UUID | None
+    anonymous_id: UUID
     video_id: str

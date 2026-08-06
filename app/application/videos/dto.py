@@ -14,6 +14,7 @@ class DetailedVideoDTO(DTO):
     privacy_status: VideoPrivacyStatusEnum
     is_reported: bool
     created_at: datetime
+    views_count: int
     channel_id: UUID
     channel_name: str
     channel_slug: str

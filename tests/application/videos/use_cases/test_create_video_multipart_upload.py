@@ -45,6 +45,7 @@ async def test_create_video_multipart_upload_returns_correct_entity(
         assert video.channel_id == channel.id
         assert video.description == command.description
         assert video.upload_id == expected_upload_id
+        assert video.views_count == 0
         assert video.s3_key.startswith(settings.s3_videos_key_prefix) and video.s3_key.endswith(command.filename)
         assert not video.is_reported
         assert video.upload_status is VideoUploadStatusEnum.UPLOADING

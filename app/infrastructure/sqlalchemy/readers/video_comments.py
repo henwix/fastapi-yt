@@ -7,17 +7,17 @@ from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.application.common.pagination import CursorPagination
 from app.application.common.sorting import SortingOrderEnum
-from app.application.post_comments.dto import DetailedPostCommentDTO
-from app.application.post_comments.interfaces.reader import IPostCommentReader
-from app.application.post_comments.queries import PostCommentsSorting
-from app.domain.post_comments.enums import PostCommentReplyLevelEnum
-from app.infrastructure.sqlalchemy.converters.post_comments import convert_row_to_detailed_post_comment_dto
+from app.application.video_comments.dto import DetailedVideoCommentDTO
+from app.application.video_comments.interfaces.reader import IVideoCommentReader
+from app.application.video_comments.queries import VideoCommentsSorting
+from app.domain.video_comments.enums import VideoCommentReplyLevelEnum
+from app.infrastructure.sqlalchemy.converters.video_comments import convert_row_to_detailed_video_comment_dto
 from app.infrastructure.sqlalchemy.models.channels import ChannelORM
-from app.infrastructure.sqlalchemy.models.posts import PostCommentORM
+from app.infrastructure.sqlalchemy.models.videos import VideoCommentORM
 
 
 @dataclass
-class SAPostCommentReader(IPostCommentReader):
+class SAVideoCommentReader(IVideoCommentReader):
     _session: AsyncSession
 
     async def _get_many_by_filters(
@@ -25,27 +25,27 @@ class SAPostCommentReader(IPostCommentReader):
         *filters,
         cursor_sort_value: datetime | None,
         cursor_id_value: UUID | None,
-        sorting: PostCommentsSorting,
+        sorting: VideoCommentsSorting,
         pagination: CursorPagination,
-    ) -> list[DetailedPostCommentDTO]:
+    ) -> list[DetailedVideoCommentDTO]:
         stmt = (
             select(
-                PostCommentORM.id,
-                PostCommentORM.text,
-                PostCommentORM.reply_level,
-                PostCommentORM.is_edited,
-                PostCommentORM.reply_comment_id,
-                PostCommentORM.created_at,
+                VideoCommentORM.id,
+                VideoCommentORM.text,
+                VideoCommentORM.reply_level,
+                VideoCommentORM.is_edited,
+                VideoCommentORM.reply_comment_id,
+                VideoCommentORM.created_at,
                 ChannelORM.slug.label('author_slug'),
             )
             .where(*filters)
-            .join(ChannelORM, PostCommentORM.channel_id == ChannelORM.id)
+            .join(ChannelORM, VideoCommentORM.channel_id == ChannelORM.id)
         )
 
-        sort_field = getattr(PostCommentORM, sorting.sort_by.value)
+        sort_field = getattr(VideoCommentORM, sorting.sort_by.value)
 
         if cursor_sort_value and cursor_id_value:
-            cursor_tuple = tuple_(sort_field, PostCommentORM.id)
+            cursor_tuple = tuple_(sort_field, VideoCommentORM.id)
 
             if sorting.order is SortingOrderEnum.DESC:
                 stmt = stmt.where(cursor_tuple < (cursor_sort_value, cursor_id_value))
@@ -54,25 +54,25 @@ class SAPostCommentReader(IPostCommentReader):
 
         stmt = stmt.order_by(
             sort_field.desc() if sorting.order is SortingOrderEnum.DESC else sort_field,
-            PostCommentORM.id.desc() if sorting.order is SortingOrderEnum.DESC else PostCommentORM.id,
+            VideoCommentORM.id.desc() if sorting.order is SortingOrderEnum.DESC else VideoCommentORM.id,
         )
         stmt = stmt.limit(limit=pagination.per_page + 1)
 
         result = await self._session.execute(statement=stmt)
-        post_comment_rows = result.mappings().all()
-        return [convert_row_to_detailed_post_comment_dto(row=row) for row in post_comment_rows]
+        video_comment_rows = result.mappings().all()
+        return [convert_row_to_detailed_video_comment_dto(row=row) for row in video_comment_rows]
 
     async def get_comments(
         self,
-        post_id: UUID,
+        video_id: str,
         cursor_sort_value: datetime | None,
         cursor_id_value: UUID | None,
-        sorting: PostCommentsSorting,
+        sorting: VideoCommentsSorting,
         pagination: CursorPagination,
-    ) -> list[DetailedPostCommentDTO]:
+    ) -> list[DetailedVideoCommentDTO]:
         return await self._get_many_by_filters(
-            PostCommentORM.post_id == post_id,
-            PostCommentORM.reply_level == PostCommentReplyLevelEnum.ZERO.value,
+            VideoCommentORM.video_id == video_id,
+            VideoCommentORM.reply_level == VideoCommentReplyLevelEnum.ZERO.value,
             cursor_sort_value=cursor_sort_value,
             cursor_id_value=cursor_id_value,
             sorting=sorting,
@@ -81,15 +81,15 @@ class SAPostCommentReader(IPostCommentReader):
 
     async def get_replies(
         self,
-        post_comment_id: UUID,
+        video_comment_id: UUID,
         cursor_sort_value: datetime | None,
         cursor_id_value: UUID | None,
-        sorting: PostCommentsSorting,
+        sorting: VideoCommentsSorting,
         pagination: CursorPagination,
-    ) -> list[DetailedPostCommentDTO]:
+    ) -> list[DetailedVideoCommentDTO]:
         return await self._get_many_by_filters(
-            PostCommentORM.reply_comment_id == post_comment_id,
-            PostCommentORM.reply_level == PostCommentReplyLevelEnum.ONE.value,
+            VideoCommentORM.reply_comment_id == video_comment_id,
+            VideoCommentORM.reply_level == VideoCommentReplyLevelEnum.ONE.value,
             cursor_sort_value=cursor_sort_value,
             cursor_id_value=cursor_id_value,
             sorting=sorting,

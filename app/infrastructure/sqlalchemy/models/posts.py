@@ -117,7 +117,6 @@ class PostCommentORM(
     __table_args__ = (
         sa.CheckConstraint('reply_level IN (0, 1)', name='ck_reply_level'),
         sa.CheckConstraint('char_length(text) <= 10000', name='ck_post_comments_text_max_length'),
-        sa.Index('ix_post_comments_composite_id_post_id', 'id', 'post_id'),
         sa.Index(
             'ix_post_comments_composite_comments',
             'post_id',

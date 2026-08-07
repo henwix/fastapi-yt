@@ -19,6 +19,7 @@ from app.application.post_comments.use_cases.get_post_comments import GetPostCom
 from app.application.post_comments.use_cases.update_post_comment import UpdatePostCommentUseCase
 from app.domain.auth.exceptions import JWTExpiredTokenError, JWTInvalidTokenError, NotAuthenticatedError
 from app.domain.channels.exceptions import ChannelNotActiveError, ChannelNotFoundByIdError
+from app.domain.common.exceptions import InvalidCursorError
 from app.domain.post_comments.exceptions import PostCommentAccessForbiddenError, PostCommentNotFoundError
 from app.domain.posts.exceptions import PostNotFoundError
 from app.presentation.api.openapi.common import error_response
@@ -75,6 +76,7 @@ async def create_post_comment(
 @router.get(
     path='/posts/{post_id}/comments',
     responses={
+        status.HTTP_400_BAD_REQUEST: error_response(InvalidCursorError),
         status.HTTP_404_NOT_FOUND: error_response(PostNotFoundError),
     },
 )
@@ -100,6 +102,7 @@ async def get_post_comments(
 @router.get(
     path='/post_comments/{post_comment_id}/replies',
     responses={
+        status.HTTP_400_BAD_REQUEST: error_response(InvalidCursorError),
         status.HTTP_404_NOT_FOUND: error_response(PostCommentNotFoundError),
     },
 )

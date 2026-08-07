@@ -6,9 +6,9 @@ from pydantic import Field, HttpUrl
 from app.application.common.sorting import SortingOrderEnum
 from app.application.post_comments.dto import DetailedPostCommentDTO
 from app.application.post_comments.queries import PostCommentsSortingFieldsEnum
+from app.domain.post_comments.constants import POST_COMMENT_TEXT_MAX_LENGTH, POST_COMMENT_TEXT_MIN_LENGTH
 from app.domain.post_comments.entities import PostComment
 from app.domain.post_comments.enums import PostCommentReplyLevelEnum
-from app.domain.posts.constants import POST_COMMENT_TEXT_MAX_LENGTH, POST_COMMENT_TEXT_MIN_LENGTH
 from app.presentation.api.v1.schemas.base import BaseSchema, BaseUpdateSchema
 
 

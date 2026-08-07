@@ -16,6 +16,7 @@ from app.application.video_history.use_cases.delete_video_from_history import De
 from app.application.video_history.use_cases.get_video_history import GetVideoHistoryUseCase
 from app.domain.auth.exceptions import JWTExpiredTokenError, JWTInvalidTokenError, NotAuthenticatedError
 from app.domain.channels.exceptions import ChannelNotActiveError, ChannelNotFoundByIdError
+from app.domain.common.exceptions import InvalidCursorError
 from app.domain.video_history.exceptions import VideoHistoryEmptyError, VideoNotFoundInHistoryError
 from app.domain.videos.exceptions import VideoAccessForbiddenError, VideoNotFoundError
 from app.presentation.api.openapi.common import error_response
@@ -124,6 +125,20 @@ async def clear_video_history(
 
 @router.get(
     '/history',
+    responses={
+        status.HTTP_400_BAD_REQUEST: error_response(InvalidCursorError),
+        status.HTTP_401_UNAUTHORIZED: error_response(
+            NotAuthenticatedError,
+            JWTExpiredTokenError,
+            JWTInvalidTokenError,
+        ),
+        status.HTTP_403_FORBIDDEN: error_response(
+            ChannelNotActiveError,
+        ),
+        status.HTTP_404_NOT_FOUND: error_response(
+            ChannelNotFoundByIdError,
+        ),
+    },
 )
 async def get_video_history(
     current_channel_id: CurrentChannelID,

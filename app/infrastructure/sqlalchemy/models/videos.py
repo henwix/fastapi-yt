@@ -6,6 +6,8 @@ from sqlalchemy.orm import Mapped, mapped_column
 from app.domain.common.enums import ReactionTypeEnum
 from app.domain.playlists.entities import Playlist, PlaylistItem
 from app.domain.playlists.enums import PlaylistPrivacyStatusEnum
+from app.domain.video_comments.entities import VideoComment
+from app.domain.video_comments.enums import VideoCommentReplyLevelEnum
 from app.domain.video_history.entities import VideoHistoryItem
 from app.domain.video_reactions.entities import VideoReaction
 from app.domain.video_views.entities import VideoView
@@ -259,5 +261,75 @@ class VideoHistoryItemORM(CreatedAtDatetimeMixin, UUIDIdMixin, BaseORM):
             id=self.id,
             channel_id=self.channel_id,
             video_id=self.video_id,
+            created_at=self.created_at,
+        )
+
+
+class VideoCommentORM(
+    UUIDIdMixin,
+    CreatedAtDatetimeMixin,
+    BaseORM,
+):
+    __tablename__ = 'video_comments'
+
+    video_id: Mapped[str] = mapped_column(
+        sa.ForeignKey('videos.id', ondelete='CASCADE'),
+    )
+    channel_id: Mapped[UUID] = mapped_column(
+        sa.ForeignKey('channels.id', ondelete='CASCADE'),
+    )
+    reply_comment_id: Mapped[UUID | None] = mapped_column(
+        sa.ForeignKey('video_comments.id'),
+        default=None,
+        server_default=sa.sql.null(),
+    )
+    is_edited: Mapped[bool] = mapped_column(
+        default=False,
+        server_default=sa.sql.false(),
+    )
+    text: Mapped[str] = mapped_column(sa.Text)
+    reply_level: Mapped[int] = mapped_column(default=0, server_default=sa.text('0'))
+
+    __table_args__ = (
+        sa.CheckConstraint('reply_level IN (0, 1)', name='ck_video_comments_reply_level'),
+        sa.CheckConstraint('char_length(text) <= 10000', name='ck_video_comments_text_max_length'),
+        sa.Index(
+            'ix_video_comments_composite_comments',
+            'video_id',
+            'reply_level',
+            'created_at',
+            'id',
+        ),
+        sa.Index(
+            'ix_video_comments_composite_replies',
+            'reply_comment_id',
+            'reply_level',
+            'created_at',
+            'id',
+        ),
+    )
+
+    @staticmethod
+    def from_entity(entity: VideoComment) -> VideoCommentORM:
+        return VideoCommentORM(
+            id=entity.id,
+            video_id=entity.video_id,
+            channel_id=entity.channel_id,
+            reply_comment_id=entity.reply_comment_id,
+            is_edited=entity.is_edited,
+            text=entity.text,
+            reply_level=entity.reply_level.value,
+            created_at=entity.created_at,
+        )
+
+    def to_entity(self) -> VideoComment:
+        return VideoComment(
+            id=self.id,
+            video_id=self.video_id,
+            channel_id=self.channel_id,
+            reply_comment_id=self.reply_comment_id,
+            is_edited=self.is_edited,
+            text=self.text,
+            reply_level=VideoCommentReplyLevelEnum(self.reply_level),
             created_at=self.created_at,
         )

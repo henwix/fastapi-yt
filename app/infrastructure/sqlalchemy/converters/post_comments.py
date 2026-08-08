@@ -1,14 +1,13 @@
 from sqlalchemy import RowMapping
 
 from app.application.post_comments.dto import DetailedPostCommentDTO
-from app.domain.post_comments.enums import PostCommentReplyLevelEnum
 
 
 def convert_row_to_detailed_post_comment_dto(row: RowMapping) -> DetailedPostCommentDTO:
     return DetailedPostCommentDTO(
         id=row['id'],
         text=row['text'],
-        reply_level=PostCommentReplyLevelEnum(row['reply_level']),
+        reply_level=row['reply_level'],
         is_edited=row['is_edited'],
         reply_comment_id=row['reply_comment_id'],
         created_at=row['created_at'],

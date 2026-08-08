@@ -4,7 +4,6 @@ from uuid import UUID, uuid7
 
 from app.domain.common.constants import Empty
 from app.domain.common.entities import BaseEntity
-from app.domain.post_comments.enums import PostCommentReplyLevelEnum
 from app.utils.datetime import get_current_utc_datetime
 
 
@@ -16,7 +15,7 @@ class PostComment(BaseEntity):
     reply_comment_id: UUID | None
     is_edited: bool = False
     text: str
-    reply_level: PostCommentReplyLevelEnum
+    reply_level: int = 0
     created_at: datetime = field(default_factory=get_current_utc_datetime)
 
     @staticmethod
@@ -24,9 +23,9 @@ class PostComment(BaseEntity):
         post_id: UUID,
         channel_id: UUID,
         reply_comment_id: UUID | None,
+        reply_level: int,
         text: str,
     ) -> PostComment:
-        reply_level = PostCommentReplyLevelEnum.ZERO if reply_comment_id is None else PostCommentReplyLevelEnum.ONE
         return PostComment(
             post_id=post_id,
             channel_id=channel_id,

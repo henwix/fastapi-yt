@@ -34,7 +34,8 @@ class CreateVideoCommentUseCase:
         comment_entity = VideoComment.create(
             video_id=video.id,
             channel_id=channel.id,
-            reply_comment_id=reply_comment.id if reply_comment else None,
+            reply_comment_id=reply_comment.id if reply_comment is not None else None,
+            reply_level=reply_comment.reply_level + 1 if reply_comment is not None else 0,
             text=command.text,
         )
 

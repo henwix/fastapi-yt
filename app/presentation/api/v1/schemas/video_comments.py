@@ -8,7 +8,6 @@ from app.application.video_comments.dto import DetailedVideoCommentDTO
 from app.application.video_comments.queries import VideoCommentsSortingFieldsEnum
 from app.domain.video_comments.constants import VIDEO_COMMENT_TEXT_MAX_LENGTH, VIDEO_COMMENT_TEXT_MIN_LENGTH
 from app.domain.video_comments.entities import VideoComment
-from app.domain.video_comments.enums import VideoCommentReplyLevelEnum
 from app.presentation.api.v1.schemas.base import BaseSchema, BaseUpdateSchema
 
 
@@ -24,7 +23,7 @@ class UpdateVideoCommentInSchema(BaseUpdateSchema):
 class VideoCommentOutSchema(BaseSchema):
     id: UUID
     text: str
-    reply_level: VideoCommentReplyLevelEnum
+    reply_level: int
     is_edited: bool
     reply_comment_id: UUID | None
     created_at: datetime
@@ -44,7 +43,7 @@ class VideoCommentOutSchema(BaseSchema):
 class DetailedVideoCommentOutSchema(BaseSchema):
     id: UUID
     text: str
-    reply_level: VideoCommentReplyLevelEnum
+    reply_level: int
     is_edited: bool
     reply_comment_id: UUID | None
     created_at: datetime

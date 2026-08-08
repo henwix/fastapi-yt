@@ -7,7 +7,6 @@ from app.domain.common.enums import ReactionTypeEnum
 from app.domain.playlists.entities import Playlist, PlaylistItem
 from app.domain.playlists.enums import PlaylistPrivacyStatusEnum
 from app.domain.video_comments.entities import VideoComment
-from app.domain.video_comments.enums import VideoCommentReplyLevelEnum
 from app.domain.video_history.entities import VideoHistoryItem
 from app.domain.video_reactions.entities import VideoReaction
 from app.domain.video_views.entities import VideoView
@@ -318,7 +317,7 @@ class VideoCommentORM(
             reply_comment_id=entity.reply_comment_id,
             is_edited=entity.is_edited,
             text=entity.text,
-            reply_level=entity.reply_level.value,
+            reply_level=entity.reply_level,
             created_at=entity.created_at,
         )
 
@@ -330,6 +329,6 @@ class VideoCommentORM(
             reply_comment_id=self.reply_comment_id,
             is_edited=self.is_edited,
             text=self.text,
-            reply_level=VideoCommentReplyLevelEnum(self.reply_level),
+            reply_level=self.reply_level,
             created_at=self.created_at,
         )

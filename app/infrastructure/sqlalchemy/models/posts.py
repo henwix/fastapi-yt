@@ -6,7 +6,6 @@ from sqlalchemy.orm import Mapped, mapped_column
 from app.domain.common.enums import ReactionTypeEnum
 from app.domain.post_comment_reactions.entities import PostCommentReaction
 from app.domain.post_comments.entities import PostComment
-from app.domain.post_comments.enums import PostCommentReplyLevelEnum
 from app.domain.post_reactions.entities import PostReaction
 from app.domain.posts.entities import Post
 from app.infrastructure.sqlalchemy.models.base import BaseORM
@@ -115,7 +114,7 @@ class PostCommentORM(
     reply_level: Mapped[int] = mapped_column(default=0, server_default=sa.text('0'))
 
     __table_args__ = (
-        sa.CheckConstraint('reply_level IN (0, 1)', name='ck_reply_level'),
+        sa.CheckConstraint('reply_level >= 0', name='ck_reply_level'),
         sa.CheckConstraint('char_length(text) <= 10000', name='ck_post_comments_text_max_length'),
         sa.Index(
             'ix_post_comments_composite_comments',
@@ -142,7 +141,7 @@ class PostCommentORM(
             reply_comment_id=entity.reply_comment_id,
             is_edited=entity.is_edited,
             text=entity.text,
-            reply_level=entity.reply_level.value,
+            reply_level=entity.reply_level,
             created_at=entity.created_at,
         )
 
@@ -154,7 +153,7 @@ class PostCommentORM(
             reply_comment_id=self.reply_comment_id,
             is_edited=self.is_edited,
             text=self.text,
-            reply_level=PostCommentReplyLevelEnum(self.reply_level),
+            reply_level=self.reply_level,
             created_at=self.created_at,
         )
 

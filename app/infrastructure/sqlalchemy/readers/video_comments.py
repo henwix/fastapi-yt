@@ -10,7 +10,6 @@ from app.application.common.sorting import SortingOrderEnum
 from app.application.video_comments.dto import DetailedVideoCommentDTO
 from app.application.video_comments.interfaces.reader import IVideoCommentReader
 from app.application.video_comments.queries import VideoCommentsSorting
-from app.domain.video_comments.enums import VideoCommentReplyLevelEnum
 from app.infrastructure.sqlalchemy.converters.video_comments import convert_row_to_detailed_video_comment_dto
 from app.infrastructure.sqlalchemy.models.channels import ChannelORM
 from app.infrastructure.sqlalchemy.models.videos import VideoCommentORM
@@ -72,7 +71,7 @@ class SAVideoCommentReader(IVideoCommentReader):
     ) -> list[DetailedVideoCommentDTO]:
         return await self._get_many_by_filters(
             VideoCommentORM.video_id == video_id,
-            VideoCommentORM.reply_level == VideoCommentReplyLevelEnum.ZERO.value,
+            VideoCommentORM.reply_level == 0,
             cursor_sort_value=cursor_sort_value,
             cursor_id_value=cursor_id_value,
             sorting=sorting,
@@ -89,7 +88,6 @@ class SAVideoCommentReader(IVideoCommentReader):
     ) -> list[DetailedVideoCommentDTO]:
         return await self._get_many_by_filters(
             VideoCommentORM.reply_comment_id == video_comment_id,
-            VideoCommentORM.reply_level == VideoCommentReplyLevelEnum.ONE.value,
             cursor_sort_value=cursor_sort_value,
             cursor_id_value=cursor_id_value,
             sorting=sorting,

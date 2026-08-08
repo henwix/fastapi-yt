@@ -10,7 +10,6 @@ from app.application.common.sorting import SortingOrderEnum
 from app.application.post_comments.dto import DetailedPostCommentDTO
 from app.application.post_comments.interfaces.reader import IPostCommentReader
 from app.application.post_comments.queries import PostCommentsSorting
-from app.domain.post_comments.enums import PostCommentReplyLevelEnum
 from app.infrastructure.sqlalchemy.converters.post_comments import convert_row_to_detailed_post_comment_dto
 from app.infrastructure.sqlalchemy.models.channels import ChannelORM
 from app.infrastructure.sqlalchemy.models.posts import PostCommentORM
@@ -72,7 +71,7 @@ class SAPostCommentReader(IPostCommentReader):
     ) -> list[DetailedPostCommentDTO]:
         return await self._get_many_by_filters(
             PostCommentORM.post_id == post_id,
-            PostCommentORM.reply_level == PostCommentReplyLevelEnum.ZERO.value,
+            PostCommentORM.reply_level == 0,
             cursor_sort_value=cursor_sort_value,
             cursor_id_value=cursor_id_value,
             sorting=sorting,
@@ -89,7 +88,6 @@ class SAPostCommentReader(IPostCommentReader):
     ) -> list[DetailedPostCommentDTO]:
         return await self._get_many_by_filters(
             PostCommentORM.reply_comment_id == post_comment_id,
-            PostCommentORM.reply_level == PostCommentReplyLevelEnum.ONE.value,
             cursor_sort_value=cursor_sort_value,
             cursor_id_value=cursor_id_value,
             sorting=sorting,

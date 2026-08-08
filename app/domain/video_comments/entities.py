@@ -4,7 +4,6 @@ from uuid import UUID, uuid7
 
 from app.domain.common.constants import Empty
 from app.domain.common.entities import BaseEntity
-from app.domain.video_comments.enums import VideoCommentReplyLevelEnum
 from app.utils.datetime import get_current_utc_datetime
 
 
@@ -16,7 +15,7 @@ class VideoComment(BaseEntity):
     reply_comment_id: UUID | None
     is_edited: bool = False
     text: str
-    reply_level: VideoCommentReplyLevelEnum
+    reply_level: int
     created_at: datetime = field(default_factory=get_current_utc_datetime)
 
     @staticmethod
@@ -25,8 +24,8 @@ class VideoComment(BaseEntity):
         channel_id: UUID,
         reply_comment_id: UUID | None,
         text: str,
+        reply_level: int,
     ) -> VideoComment:
-        reply_level = VideoCommentReplyLevelEnum.ZERO if reply_comment_id is None else VideoCommentReplyLevelEnum.ONE
         return VideoComment(
             video_id=video_id,
             channel_id=channel_id,

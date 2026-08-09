@@ -6,6 +6,7 @@ from sqlalchemy.orm import Mapped, mapped_column
 from app.domain.common.enums import ReactionTypeEnum
 from app.domain.playlists.entities import Playlist, PlaylistItem
 from app.domain.playlists.enums import PlaylistPrivacyStatusEnum
+from app.domain.video_comment_reactions.entities import VideoCommentReaction
 from app.domain.video_comments.entities import VideoComment
 from app.domain.video_history.entities import VideoHistoryItem
 from app.domain.video_reactions.entities import VideoReaction
@@ -330,5 +331,47 @@ class VideoCommentORM(
             is_edited=self.is_edited,
             text=self.text,
             reply_level=self.reply_level,
+            created_at=self.created_at,
+        )
+
+
+class VideoCommentReactionORM(
+    UUIDIdMixin,
+    CreatedAtDatetimeMixin,
+    BaseORM,
+):
+    __tablename__ = 'video_comment_reactions'
+
+    video_comment_id: Mapped[UUID] = mapped_column(
+        sa.ForeignKey('video_comments.id', ondelete='CASCADE'),
+    )
+    channel_id: Mapped[UUID] = mapped_column(
+        sa.ForeignKey('channels.id', ondelete='CASCADE'),
+    )
+    reaction_type: Mapped[str] = mapped_column(sa.String(length=8))
+
+    __table_args__ = (
+        sa.UniqueConstraint('video_comment_id', 'channel_id', name='uq_channel_video_comment_reaction'),
+        sa.CheckConstraint(
+            "reaction_type IN ('positive', 'negative')", name='ck_video_comment_reactions_reaction_type'
+        ),
+    )
+
+    @staticmethod
+    def from_entity(entity: VideoCommentReaction) -> VideoCommentReactionORM:
+        return VideoCommentReactionORM(
+            id=entity.id,
+            video_comment_id=entity.video_comment_id,
+            channel_id=entity.channel_id,
+            reaction_type=entity.reaction_type.value,
+            created_at=entity.created_at,
+        )
+
+    def to_entity(self) -> VideoCommentReaction:
+        return VideoCommentReaction(
+            id=self.id,
+            video_comment_id=self.video_comment_id,
+            channel_id=self.channel_id,
+            reaction_type=ReactionTypeEnum(self.reaction_type),
             created_at=self.created_at,
         )

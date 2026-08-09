@@ -53,6 +53,12 @@ from app.application.subscriptions.use_cases.get_subscribers import GetSubscribe
 from app.application.subscriptions.use_cases.get_subscriptions import GetSubscriptionsUseCase
 from app.application.subscriptions.use_cases.subscribe import SubscribeUseCase
 from app.application.subscriptions.use_cases.unsubscribe import UnsubscribeUseCase
+from app.application.video_comment_reactions.use_cases.create_video_comment_reaction import (
+    CreateVideoCommentReactionUseCase,
+)
+from app.application.video_comment_reactions.use_cases.delete_video_comment_reaction import (
+    DeleteVideoCommentReactionUseCase,
+)
 from app.application.video_comments.interfaces.reader import IVideoCommentReader
 from app.application.video_comments.use_cases.create_video_comment import CreateVideoCommentUseCase
 from app.application.video_comments.use_cases.delete_video_comment import DeleteVideoCommentUseCase
@@ -91,6 +97,8 @@ from app.domain.posts.repositories import IPostRepository
 from app.domain.posts.services import IPostService, PostService
 from app.domain.subscriptions.repositories import ISubscriptionRepository
 from app.domain.subscriptions.services import ISubscriptionService, SubscriptionService
+from app.domain.video_comment_reactions.repositories import IVideoCommentReactionRepository
+from app.domain.video_comment_reactions.services import IVideoCommentReactionService, VideoCommentReactionService
 from app.domain.video_comments.repositories import IVideoCommentRepository
 from app.domain.video_comments.services import IVideoCommentService, VideoCommentService
 from app.domain.video_history.repositories import IVideoHistoryRepository
@@ -120,6 +128,7 @@ from app.infrastructure.sqlalchemy.repositories.post_comments import SAPostComme
 from app.infrastructure.sqlalchemy.repositories.post_reactions import SAPostReactionRepository
 from app.infrastructure.sqlalchemy.repositories.posts import SAPostRepository
 from app.infrastructure.sqlalchemy.repositories.subscriptions import SASubscriptionRepository
+from app.infrastructure.sqlalchemy.repositories.video_comment_reactions import SAVideoCommentReactionRepository
 from app.infrastructure.sqlalchemy.repositories.video_comments import SAVideoCommentRepository
 from app.infrastructure.sqlalchemy.repositories.video_history import SAVideoHistoryRepository
 from app.infrastructure.sqlalchemy.repositories.video_reactions import SAVideoReactionRepository
@@ -165,6 +174,9 @@ class RepositoriesProvider(Provider):
     video_history_repository = provide(SAVideoHistoryRepository, provides=IVideoHistoryRepository)
     video_view_repository = provide(SAVideoViewRepository, provides=IVideoViewRepository)
     video_comment_repository = provide(SAVideoCommentRepository, provides=IVideoCommentRepository)
+    video_comment_reaction_repository = provide(
+        SAVideoCommentReactionRepository, provides=IVideoCommentReactionRepository
+    )
     playlist_repository = provide(SAPlaylistRepository, provides=IPlaylistRepository)
     playlist_item_repository = provide(SAPlaylistItemRepository, provides=IPlaylistItemRepository)
     post_repository = provide(SAPostRepository, provides=IPostRepository)
@@ -195,6 +207,7 @@ class ServicesProvider(Provider):
     video_reaction_service = provide(VideoReactionService, provides=IVideoReactionService)
     video_history_service = provide(VideoHistoryService, provides=IVideoHistoryService)
     video_comment_service = provide(VideoCommentService, provides=IVideoCommentService)
+    video_comment_reaction_service = provide(VideoCommentReactionService, provides=IVideoCommentReactionService)
     playlist_service = provide(PlaylistService, provides=IPlaylistService)
     playlist_item_service = provide(PlaylistItemService, provides=IPlaylistItemService)
     post_service = provide(PostService, provides=IPostService)
@@ -238,6 +251,10 @@ class UseCasesProvider(Provider):
     # Video reactions
     create_video_reaction = provide(CreateVideoReactionUseCase)
     delete_video_reaction = provide(DeleteVideoReactionUseCase)
+
+    # Video comment reactions
+    create_video_comment_reaction = provide(CreateVideoCommentReactionUseCase)
+    delete_video_comment_reaction = provide(DeleteVideoCommentReactionUseCase)
 
     # Video comments
     create_video_comment = provide(CreateVideoCommentUseCase)

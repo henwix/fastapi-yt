@@ -52,6 +52,10 @@ from app.domain.subscriptions.exceptions import (
     SubscriptionAlreadyExistsError,
     SubscriptionNotFoundError,
 )
+from app.domain.video_comment_reactions.exceptions import (
+    VideoCommentReactionAlreadyExistsError,
+    VideoCommentReactionNotFoundError,
+)
 from app.domain.video_comments.exceptions import VideoCommentAccessForbiddenError, VideoCommentNotFoundError
 from app.domain.video_history.exceptions import VideoHistoryEmptyError, VideoNotFoundInHistoryError
 from app.domain.video_reactions.exceptions import VideoReactionAlreadyExistsError, VideoReactionNotFoundError
@@ -106,6 +110,9 @@ def get_http_status_code(exc: AppException):
         # Video comments
         VideoCommentAccessForbiddenError: status.HTTP_403_FORBIDDEN,
         VideoCommentNotFoundError: status.HTTP_404_NOT_FOUND,
+        # Video comment reactions
+        VideoCommentReactionAlreadyExistsError: status.HTTP_400_BAD_REQUEST,
+        VideoCommentReactionNotFoundError: status.HTTP_404_NOT_FOUND,
         # Video history
         VideoNotFoundInHistoryError: status.HTTP_404_NOT_FOUND,
         VideoHistoryEmptyError: status.HTTP_404_NOT_FOUND,

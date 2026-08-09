@@ -52,8 +52,8 @@
 - [x] Videos Uploads
 - [x] Video Reactions
 - [x] Video Views
-- [ ] Video Comments
-- [ ] Video Comment Reactions
+- [x] Video Comments
+- [x] Video Comment Reactions
 - [ ] Video Reports
 
 

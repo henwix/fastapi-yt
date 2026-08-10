@@ -22,6 +22,7 @@ class PersonalVideosFilters:
 
 class PreviewVideosSortingFieldEnum(StrEnum):
     CREATED_AT = 'created_at'
+    POPULAR = 'popular'
 
 
 @dataclass(kw_only=True, frozen=True)

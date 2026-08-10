@@ -30,6 +30,8 @@ class GetPersonalVideosUseCase:
                         cursor_sort_value = datetime.fromisoformat(
                             decoded_cursor[PreviewVideosSortingFieldEnum.CREATED_AT.value]
                         )
+                    case PreviewVideosSortingFieldEnum.POPULAR:
+                        cursor_sort_value = int(decoded_cursor[PreviewVideosSortingFieldEnum.POPULAR.value])
 
             except Exception as e:
                 raise InvalidCursorError(cursor=query.pagination.cursor, exc_details=str(e))
@@ -54,5 +56,7 @@ class GetPersonalVideosUseCase:
             match query.sorting.sort_by:
                 case PreviewVideosSortingFieldEnum.CREATED_AT:
                     next_cursor[PreviewVideosSortingFieldEnum.CREATED_AT.value] = last_item.created_at.isoformat()
+                case PreviewVideosSortingFieldEnum.POPULAR:
+                    next_cursor[PreviewVideosSortingFieldEnum.POPULAR.value] = str(last_item.views_count)
 
         return videos, base64url_encode(value=next_cursor) if next_cursor is not None else None

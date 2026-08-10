@@ -29,10 +29,16 @@ class GetPlaylistVideosUseCase:
                 cursor_id_value = decoded_cursor['id']
 
                 match query.sorting.sort_by:
-                    case PlaylistVideosSortingFieldsEnum.CREATED_AT:
-                        cursor_sort_value = datetime.fromisoformat(decoded_cursor['created_at'])
                     case PlaylistVideosSortingFieldsEnum.ADDED_AT:
-                        cursor_sort_value = datetime.fromisoformat(decoded_cursor['added_at'])
+                        cursor_sort_value = datetime.fromisoformat(
+                            decoded_cursor[PlaylistVideosSortingFieldsEnum.ADDED_AT.value]
+                        )
+                    case PlaylistVideosSortingFieldsEnum.CREATED_AT:
+                        cursor_sort_value = datetime.fromisoformat(
+                            decoded_cursor[PlaylistVideosSortingFieldsEnum.CREATED_AT.value]
+                        )
+                    case PlaylistVideosSortingFieldsEnum.POPULAR:
+                        cursor_sort_value = int(decoded_cursor[PlaylistVideosSortingFieldsEnum.POPULAR.value])
 
             except Exception as e:
                 raise InvalidCursorError(cursor=query.pagination.cursor, exc_details=str(e)) from e
@@ -62,9 +68,11 @@ class GetPlaylistVideosUseCase:
             next_cursor = {'id': last_item.id}
 
             match query.sorting.sort_by:
-                case PlaylistVideosSortingFieldsEnum.CREATED_AT:
-                    next_cursor['created_at'] = last_item.created_at.isoformat()
                 case PlaylistVideosSortingFieldsEnum.ADDED_AT:
-                    next_cursor['added_at'] = last_item.added_at.isoformat()
+                    next_cursor[PlaylistVideosSortingFieldsEnum.ADDED_AT.value] = last_item.added_at.isoformat()
+                case PlaylistVideosSortingFieldsEnum.CREATED_AT:
+                    next_cursor[PlaylistVideosSortingFieldsEnum.CREATED_AT.value] = last_item.created_at.isoformat()
+                case PlaylistVideosSortingFieldsEnum.POPULAR:
+                    next_cursor[PlaylistVideosSortingFieldsEnum.POPULAR.value] = str(last_item.views_count)
 
         return playlist_videos, base64url_encode(value=next_cursor) if next_cursor is not None else None

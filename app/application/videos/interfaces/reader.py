@@ -15,7 +15,7 @@ class IVideoReader(ABC):
     async def get_personal_videos(
         self,
         channel_id: UUID,
-        cursor_sort_value: datetime | None,
+        cursor_sort_value: datetime | int | None,
         cursor_id_value: str | None,
         filters: PersonalVideosFilters,
         sorting: PreviewVideosSorting,

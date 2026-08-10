@@ -39,6 +39,7 @@ class GetChannelPlaylistsQuery:
 class PlaylistVideosSortingFieldsEnum(StrEnum):
     ADDED_AT = 'added_at'
     CREATED_AT = 'created_at'
+    POPULAR = 'popular'
 
 
 @dataclass(kw_only=True, frozen=True)

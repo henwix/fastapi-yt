@@ -32,7 +32,7 @@ class SASubscriptionReader(ISubscriptionReader):
         )
         sort_field = getattr(SubscriptionORM, sorting.sort_by.value)
 
-        if cursor_sort_value and cursor_id_value:
+        if cursor_sort_value is not None and cursor_id_value is not None:
             cursor_tuple = tuple_(sort_field, SubscriptionORM.id)
 
             if sorting.order is SortingOrderEnum.DESC:
@@ -66,7 +66,7 @@ class SASubscriptionReader(ISubscriptionReader):
         )
 
         sort_field = getattr(SubscriptionORM, sorting.sort_by.value)
-        if cursor_sort_value and cursor_id_value:
+        if cursor_sort_value is not None and cursor_id_value is not None:
             cursor_tuple = tuple_(sort_field, SubscriptionORM.id)
 
             if sorting.order is SortingOrderEnum.DESC:

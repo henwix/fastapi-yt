@@ -40,7 +40,7 @@ class SAPostReader(IPostReader):
 
         sort_field = getattr(PostORM, sorting.sort_by.value)
 
-        if cursor_sort_value and cursor_id_value:
+        if cursor_sort_value is not None and cursor_id_value is not None:
             cursor_tuple = tuple_(sort_field, PostORM.id)
 
             if sorting.order is SortingOrderEnum.DESC:

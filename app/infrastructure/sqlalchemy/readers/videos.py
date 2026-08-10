@@ -9,7 +9,7 @@ from app.application.common.pagination import CursorPagination
 from app.application.common.sorting import SortingOrderEnum
 from app.application.videos.dto import DetailedVideoDTO, PersonalPreviewVideoDTO
 from app.application.videos.interfaces.reader import IVideoReader
-from app.application.videos.queries import PersonalVideosFilters, PreviewVideosSorting
+from app.application.videos.queries import PersonalVideosFilters, PreviewVideosSorting, PreviewVideosSortingFieldEnum
 from app.domain.common.constants import Empty
 from app.domain.videos.enums import VideoUploadStatusEnum
 from app.domain.videos.exceptions import VideoNotFoundError
@@ -53,7 +53,7 @@ class SAVideoReader(IVideoReader):
     async def get_personal_videos(
         self,
         channel_id: UUID,
-        cursor_sort_value: datetime | None,
+        cursor_sort_value: datetime | int | None,
         cursor_id_value: str | None,
         filters: PersonalVideosFilters,
         sorting: PreviewVideosSorting,
@@ -68,9 +68,13 @@ class SAVideoReader(IVideoReader):
             VideoORM.views_count,
         ).where(VideoORM.channel_id == channel_id)
 
-        sort_field = getattr(VideoORM, sorting.sort_by.value)
+        match sorting.sort_by:
+            case PreviewVideosSortingFieldEnum.CREATED_AT:
+                sort_field = VideoORM.created_at
+            case PreviewVideosSortingFieldEnum.POPULAR:
+                sort_field = VideoORM.views_count
 
-        if cursor_sort_value and cursor_id_value:
+        if cursor_sort_value is not None and cursor_id_value is not None:
             cursor_tuple = tuple_(sort_field, VideoORM.id)
 
             if sorting.order is SortingOrderEnum.DESC:

@@ -35,7 +35,7 @@ class IPlaylistReader(ABC):
     async def get_playlist_videos_by_playlist_id(
         self,
         playlist_id: UUID,
-        cursor_sort_value: datetime | None,
+        cursor_sort_value: datetime | int | None,
         cursor_id_value: str | None,
         sorting: PlaylistVideosSorting,
         pagination: CursorPagination,

@@ -157,7 +157,7 @@ class SAPlaylistReader(IPlaylistReader):
     async def get_playlist_videos_by_playlist_id(
         self,
         playlist_id: UUID,
-        cursor_sort_value: datetime | None,
+        cursor_sort_value: datetime | int | None,
         cursor_id_value: str | None,
         sorting: PlaylistVideosSorting,
         pagination: CursorPagination,
@@ -191,8 +191,10 @@ class SAPlaylistReader(IPlaylistReader):
                 sort_field = PlaylistItemORM.created_at
             case PlaylistVideosSortingFieldsEnum.CREATED_AT:
                 sort_field = VideoORM.created_at
+            case PlaylistVideosSortingFieldsEnum.POPULAR:
+                sort_field = VideoORM.views_count
 
-        if cursor_sort_value and cursor_id_value:
+        if cursor_sort_value is not None and cursor_id_value is not None:
             cursor_tuple = tuple_(sort_field, PlaylistItemORM.video_id)
 
             if sorting.order is SortingOrderEnum.DESC:

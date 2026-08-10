@@ -45,6 +45,7 @@ class VideoORM(CreatedAtDatetimeMixin, BaseORM):
 
     __table_args__ = (
         sa.Index('ix_videos_composite_channel_id_created_at_id', 'channel_id', 'created_at', 'id'),
+        sa.Index('ix_videos_composite_channel_id_views_count_id', 'channel_id', 'views_count', 'id'),
         sa.CheckConstraint("id ~ '^[A-Za-z0-9_-]{11}$'"),
         sa.CheckConstraint("privacy_status IN ('public', 'unlisted', 'private')", name='ck_privacy_status'),
         sa.CheckConstraint("upload_status IN ('uploading', 'completed')", name='ck_upload_status'),

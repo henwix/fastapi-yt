@@ -54,7 +54,13 @@
 - [x] Video Views
 - [x] Video Comments
 - [x] Video Comment Reactions
+
+
+#### Reports
 - [ ] Video Reports
+- [ ] Comments Reports
+- [ ] Posts Reports
+- [ ] Channel Reports
 
 
 #### History

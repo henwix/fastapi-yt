@@ -3,7 +3,7 @@ from uuid import UUID
 
 from dishka import FromDishka
 from dishka.integrations.fastapi import DishkaRoute
-from fastapi import APIRouter, Depends, Path, Request, status
+from fastapi import APIRouter, Depends, Request, status
 
 from app.application.common.pagination import CursorPagination
 from app.application.posts.commands import CreatePostCommand, DeletePostCommand, UpdatePostCommand
@@ -15,11 +15,11 @@ from app.application.posts.use_cases.get_posts import GetPostsUseCase
 from app.application.posts.use_cases.update_post import UpdatePostUseCase
 from app.domain.auth.exceptions import JWTExpiredTokenError, JWTInvalidTokenError, NotAuthenticatedError
 from app.domain.channels.exceptions import ChannelNotActiveError, ChannelNotFoundByIdError, ChannelNotFoundBySlugError
-from app.domain.common.constants import SLUG_PATTERN
 from app.domain.common.exceptions import InvalidCursorError
 from app.domain.posts.exceptions import PostAccessForbiddenError, PostNotFoundError
 from app.presentation.api.openapi.common import error_response
 from app.presentation.api.v1.di.current_channel_id import CurrentChannelID
+from app.presentation.api.v1.handlers.common.params import PathChannelSlug
 from app.presentation.api.v1.schemas.common import CursorPaginationParams
 from app.presentation.api.v1.schemas.posts import (
     CreatePostInSchema,
@@ -81,7 +81,7 @@ async def get_post(
     },
 )
 async def get_channel_posts(
-    channel_slug: Annotated[str, Path(min_length=1, max_length=40, pattern=SLUG_PATTERN)],
+    channel_slug: PathChannelSlug,
     sorting: Annotated[PostsSortingParams, Depends()],
     pagination: Annotated[CursorPaginationParams, Depends()],
     use_case: FromDishka[GetPostsUseCase],

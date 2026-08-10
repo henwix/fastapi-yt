@@ -4,6 +4,7 @@ from uuid import UUID
 
 from pydantic import BaseModel, ConfigDict, EmailStr, Field, HttpUrl, field_validator
 
+from app.application.channels.dto import ChannelAboutInfoDTO
 from app.domain.channels.constants import (
     CHANNEL_COUNTRY_MAX_LENGTH,
     CHANNEL_DESCRIPTION_MAX_LENGTH,
@@ -82,6 +83,32 @@ class ChannelOutSchema(BaseSchema):
             avatar_s3_key=entity.avatar_s3_key,
             created_at=entity.created_at,
             updated_at=entity.updated_at,
+        )
+
+
+class ChannelAboutInfoOutSchema(BaseSchema):
+    id: UUID
+    name: str
+    slug: str
+    description: str
+    country: str
+    created_at: datetime
+    subscribers_count: int
+    videos_count: int
+    views_count: int
+
+    @staticmethod
+    def from_dto(dto: ChannelAboutInfoDTO) -> ChannelAboutInfoOutSchema:
+        return ChannelAboutInfoOutSchema(
+            id=dto.id,
+            name=dto.name,
+            slug=dto.slug,
+            description=dto.description,
+            country=dto.country,
+            created_at=dto.created_at,
+            subscribers_count=dto.subscribers_count,
+            videos_count=dto.videos_count,
+            views_count=dto.views_count,
         )
 
 

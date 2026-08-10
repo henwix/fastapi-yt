@@ -10,13 +10,14 @@ from app.application.channels.commands import (
     SetChannelPasswordCommand,
     UpdateChannelCommand,
 )
-from app.application.channels.queries import GetChannelQuery
+from app.application.channels.queries import GetChannelAboutInfoQuery, GetChannelQuery
 from app.application.channels.use_cases.confirm_channel_avatar_upload import ConfirmChannelAvatarUploadUseCase
 from app.application.channels.use_cases.create_channel import CreateChannelUseCase
 from app.application.channels.use_cases.delete_channel import DeleteChannelUseCase
 from app.application.channels.use_cases.delete_channel_avatar import DeleteChannelAvatarUseCase
 from app.application.channels.use_cases.generate_channel_avatar_upload_url import GenerateChannelAvatarUploadUrlUseCase
 from app.application.channels.use_cases.get_channel import GetChannelUseCase
+from app.application.channels.use_cases.get_channel_about_info import GetChannelAboutInfoUseCase
 from app.application.channels.use_cases.set_channel_password import SetChannelPasswordUseCase
 from app.application.channels.use_cases.update_channel import UpdateChannelUseCase
 from app.domain.auth.exceptions import JWTExpiredTokenError, JWTInvalidTokenError, NotAuthenticatedError
@@ -28,6 +29,7 @@ from app.domain.channels.exceptions import (
     ChannelAvatarNotFoundError,
     ChannelNotActiveError,
     ChannelNotFoundByIdError,
+    ChannelNotFoundBySlugError,
     ChannelWithEmailAlreadyExistsError,
     ChannelWithSlugAlreadyExistsError,
 )
@@ -39,7 +41,9 @@ from app.domain.common.exceptions import (
 )
 from app.presentation.api.openapi.common import error_response
 from app.presentation.api.v1.di.current_channel_id import CurrentChannelID
+from app.presentation.api.v1.handlers.common.params import PathChannelSlug
 from app.presentation.api.v1.schemas.channels import (
+    ChannelAboutInfoOutSchema,
     ChannelAvatarUploadConfirmInSchema,
     ChannelOutSchema,
     CreateChannelInSchema,
@@ -138,6 +142,21 @@ async def delete_channel(
 ) -> None:
     command = DeleteChannelCommand(current_channel_id=current_channel_id)
     await use_case.execute(command=command)
+
+
+@router.get(
+    path='/{channel_slug}/about',
+    responses={
+        status.HTTP_404_NOT_FOUND: error_response(ChannelNotFoundBySlugError),
+    },
+)
+async def get_channel_about_info(
+    channel_slug: PathChannelSlug,
+    use_case: FromDishka[GetChannelAboutInfoUseCase],
+) -> ChannelAboutInfoOutSchema:
+    query = GetChannelAboutInfoQuery(channel_slug=channel_slug)
+    channel_about_info_dto = await use_case.execute(query=query)
+    return ChannelAboutInfoOutSchema.from_dto(dto=channel_about_info_dto)
 
 
 @router.post(

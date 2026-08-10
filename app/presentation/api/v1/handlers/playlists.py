@@ -2,7 +2,7 @@ from typing import Annotated
 from uuid import UUID
 
 from dishka.integrations.fastapi import DishkaRoute, FromDishka
-from fastapi import APIRouter, Depends, Path, Request, status
+from fastapi import APIRouter, Depends, Request, status
 
 from app.application.common.pagination import CursorPagination
 from app.application.playlists.commands import (
@@ -31,7 +31,6 @@ from app.application.playlists.use_cases.get_playlist_videos import GetPlaylistV
 from app.application.playlists.use_cases.update_playlist import UpdatePlaylistUseCase
 from app.domain.auth.exceptions import JWTExpiredTokenError, JWTInvalidTokenError, NotAuthenticatedError
 from app.domain.channels.exceptions import ChannelNotActiveError, ChannelNotFoundByIdError, ChannelNotFoundBySlugError
-from app.domain.common.constants import SLUG_PATTERN
 from app.domain.common.exceptions import InvalidCursorError
 from app.domain.playlists.exceptions import (
     PlaylistAccessForbiddenError,
@@ -42,7 +41,7 @@ from app.domain.playlists.exceptions import (
 from app.domain.videos.exceptions import VideoAccessForbiddenError, VideoNotFoundError
 from app.presentation.api.openapi.common import error_response
 from app.presentation.api.v1.di.current_channel_id import CurrentChannelID, OptionalCurrentChannelID
-from app.presentation.api.v1.handlers.common.params import PathVideoId
+from app.presentation.api.v1.handlers.common.params import PathChannelSlug, PathVideoId
 from app.presentation.api.v1.schemas.common import CursorPaginationParams
 from app.presentation.api.v1.schemas.playlists import (
     CreatePlaylistInSchema,
@@ -137,7 +136,7 @@ async def get_personal_playlists(
     },
 )
 async def get_channel_playlists(
-    channel_slug: Annotated[str, Path(min_length=1, max_length=40, pattern=SLUG_PATTERN)],
+    channel_slug: PathChannelSlug,
     sorting: Annotated[PlaylistsPreviewSortingParams, Depends()],
     pagination: Annotated[CursorPaginationParams, Depends()],
     use_case: FromDishka[GetChannelPlaylistsUseCase],

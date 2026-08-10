@@ -2,7 +2,7 @@ from typing import Annotated
 
 from dishka import FromDishka
 from dishka.integrations.fastapi import DishkaRoute
-from fastapi import APIRouter, Depends, Path, Request, status
+from fastapi import APIRouter, Depends, Request, status
 
 from app.application.common.pagination import CursorPagination
 from app.application.subscriptions.commands import SubscribeCommand, UnsubscribeCommand
@@ -17,11 +17,11 @@ from app.application.subscriptions.use_cases.subscribe import SubscribeUseCase
 from app.application.subscriptions.use_cases.unsubscribe import UnsubscribeUseCase
 from app.domain.auth.exceptions import JWTExpiredTokenError, JWTInvalidTokenError, NotAuthenticatedError
 from app.domain.channels.exceptions import ChannelNotActiveError, ChannelNotFoundByIdError, ChannelNotFoundBySlugError
-from app.domain.common.constants import SLUG_PATTERN
 from app.domain.common.exceptions import InvalidCursorError
 from app.domain.subscriptions.exceptions import SubscriptionAlreadyExistsError, SubscriptionNotFoundError
 from app.presentation.api.openapi.common import error_response
 from app.presentation.api.v1.di.current_channel_id import CurrentChannelID
+from app.presentation.api.v1.handlers.common.params import PathChannelSlug
 from app.presentation.api.v1.schemas.common import CursorPaginationParams
 from app.presentation.api.v1.schemas.subscriptions import (
     DetailedSubscriptionOutSchema,
@@ -55,7 +55,7 @@ router = APIRouter(
     },
 )
 async def subscribe(
-    channel_slug: Annotated[str, Path(min_length=1, max_length=40, pattern=SLUG_PATTERN)],
+    channel_slug: PathChannelSlug,
     current_channel_id: CurrentChannelID,
     use_case: FromDishka[SubscribeUseCase],
 ) -> SubscriptionOutSchema:
@@ -82,7 +82,7 @@ async def subscribe(
     },
 )
 async def unsubscribe(
-    channel_slug: Annotated[str, Path(min_length=1, max_length=40, pattern=SLUG_PATTERN)],
+    channel_slug: PathChannelSlug,
     current_channel_id: CurrentChannelID,
     use_case: FromDishka[UnsubscribeUseCase],
 ) -> None:

@@ -5,12 +5,14 @@ from dishka import AsyncContainer, Provider, Scope, make_async_container, provid
 from sqlalchemy.ext.asyncio import AsyncEngine, AsyncSession, async_sessionmaker
 
 from app.application.auth.use_cases.login import LoginUseCase
+from app.application.channels.interfaces.reader import IChannelReader
 from app.application.channels.use_cases.confirm_channel_avatar_upload import ConfirmChannelAvatarUploadUseCase
 from app.application.channels.use_cases.create_channel import CreateChannelUseCase
 from app.application.channels.use_cases.delete_channel import DeleteChannelUseCase
 from app.application.channels.use_cases.delete_channel_avatar import DeleteChannelAvatarUseCase
 from app.application.channels.use_cases.generate_channel_avatar_upload_url import GenerateChannelAvatarUploadUrlUseCase
 from app.application.channels.use_cases.get_channel import GetChannelUseCase
+from app.application.channels.use_cases.get_channel_about_info import GetChannelAboutInfoUseCase
 from app.application.channels.use_cases.set_channel_password import SetChannelPasswordUseCase
 from app.application.channels.use_cases.update_channel import UpdateChannelUseCase
 from app.application.common.interfaces.jwt import IJWTService
@@ -114,6 +116,7 @@ from app.infrastructure.s3.provider import BotoS3Provider
 from app.infrastructure.security.jwt import JWTService
 from app.infrastructure.security.password_hasher import PwdlibPasswordHasher
 from app.infrastructure.sqlalchemy.database import create_engine, create_session_factory
+from app.infrastructure.sqlalchemy.readers.channels import SAChannelReader
 from app.infrastructure.sqlalchemy.readers.playlists import SAPlaylistReader
 from app.infrastructure.sqlalchemy.readers.post_comments import SAPostCommentReader
 from app.infrastructure.sqlalchemy.readers.posts import SAPostReader
@@ -189,6 +192,7 @@ class RepositoriesProvider(Provider):
 class ReadersProvider(Provider):
     scope = Scope.REQUEST
 
+    channel_reader = provide(SAChannelReader, provides=IChannelReader)
     post_reader = provide(SAPostReader, provides=IPostReader)
     post_comment_reader = provide(SAPostCommentReader, provides=IPostCommentReader)
     subscription_reader = provide(SASubscriptionReader, provides=ISubscriptionReader)
@@ -223,6 +227,7 @@ class UseCasesProvider(Provider):
     # Channels
     create_channel = provide(CreateChannelUseCase)
     get_channel = provide(GetChannelUseCase)
+    get_channel_about_info = provide(GetChannelAboutInfoUseCase)
     update_channel = provide(UpdateChannelUseCase)
     delete_channel = provide(DeleteChannelUseCase)
     set_channel_password = provide(SetChannelPasswordUseCase)

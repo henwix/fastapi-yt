@@ -6,7 +6,7 @@ from app.application.video_reactions.use_cases.create_video_reaction import Crea
 from app.application.video_reactions.use_cases.delete_video_reaction import DeleteVideoReactionUseCase
 from app.domain.auth.exceptions import JWTExpiredTokenError, JWTInvalidTokenError, NotAuthenticatedError
 from app.domain.channels.exceptions import ChannelNotActiveError, ChannelNotFoundByIdError
-from app.domain.video_reactions.exceptions import VideoReactionAlreadyExistsError, VideoReactionNotFoundError
+from app.domain.video_reactions.exceptions import VideoReactionNotFoundError
 from app.domain.videos.exceptions import VideoAccessForbiddenError, VideoNotFoundError
 from app.presentation.api.openapi.common import error_response
 from app.presentation.api.v1.di.current_channel_id import CurrentChannelID
@@ -22,16 +22,15 @@ router = APIRouter(
 
 @router.post(
     path='',
+    status_code=status.HTTP_201_CREATED,
     responses={
-        status.HTTP_200_OK: {
-            'model': VideoReactionOutSchema,
-            'description': 'Returns an existing reaction, or updates it if *reaction_type* is different',
-        },
         status.HTTP_201_CREATED: {
             'model': VideoReactionOutSchema,
-            'description': 'Creates a new reaction',
+            'description': 'Returns a new reaction or updates an existing one if *reaction_type* is different',
         },
-        status.HTTP_400_BAD_REQUEST: error_response(VideoReactionAlreadyExistsError),
+        status.HTTP_204_NO_CONTENT: {
+            'description': 'Returns nothing if a reaction with the same *reaction_type* already exists',
+        },
         status.HTTP_401_UNAUTHORIZED: error_response(
             NotAuthenticatedError,
             JWTExpiredTokenError,
@@ -44,7 +43,6 @@ router = APIRouter(
         status.HTTP_404_NOT_FOUND: error_response(
             ChannelNotFoundByIdError,
             VideoNotFoundError,
-            VideoReactionNotFoundError,
         ),
     },
 )
@@ -54,15 +52,16 @@ async def create_video_reaction(
     video_id: PathVideoId,
     response: Response,
     use_case: FromDishka[CreateVideoReactionUseCase],
-) -> VideoReactionOutSchema:
+) -> VideoReactionOutSchema | None:
     command = CreateVideoReactionCommand(
         current_channel_id=current_channel_id,
         video_id=video_id,
         **schema.model_dump(),
     )
-    video_reaction, is_created = await use_case.execute(command=command)
-    if is_created:
-        response.status_code = status.HTTP_201_CREATED
+    video_reaction = await use_case.execute(command=command)
+    if video_reaction is None:
+        response.status_code = status.HTTP_204_NO_CONTENT
+        return
     return VideoReactionOutSchema.from_entity(entity=video_reaction)
 
 

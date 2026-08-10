@@ -9,17 +9,7 @@ from app.domain.post_reactions.repositories import IPostReactionRepository
 
 class IPostReactionService(ABC):
     @abstractmethod
-    async def create(self, post_reaction: PostReaction) -> PostReaction: ...
-
-    @abstractmethod
-    async def get_by_post_id_and_channel_id(
-        self,
-        post_id: UUID,
-        channel_id: UUID,
-    ) -> PostReaction | None: ...
-
-    @abstractmethod
-    async def try_update(self, post_reaction: PostReaction) -> PostReaction: ...
+    async def upsert(self, post_reaction: PostReaction) -> PostReaction | None: ...
 
     @abstractmethod
     async def try_delete_by_post_id_and_channel_id(self, post_id: UUID, channel_id: UUID) -> None: ...
@@ -27,26 +17,13 @@ class IPostReactionService(ABC):
 
 @dataclass
 class PostReactionService(IPostReactionService):
-    _post_reactions_repo: IPostReactionRepository
+    _repo: IPostReactionRepository
 
-    async def create(self, post_reaction: PostReaction) -> PostReaction:
-        return await self._post_reactions_repo.create(post_reaction=post_reaction)
-
-    async def get_by_post_id_and_channel_id(
-        self,
-        post_id: UUID,
-        channel_id: UUID,
-    ) -> PostReaction | None:
-        return await self._post_reactions_repo.get_by_post_id_and_channel_id(post_id=post_id, channel_id=channel_id)
-
-    async def try_update(self, post_reaction: PostReaction) -> PostReaction:
-        updated_post_reaction = await self._post_reactions_repo.update(post_reaction=post_reaction)
-        if not updated_post_reaction:
-            raise PostReactionNotFoundError(post_id=post_reaction.post_id, channel_id=post_reaction.channel_id)
-        return updated_post_reaction
+    async def upsert(self, post_reaction: PostReaction) -> PostReaction | None:
+        return await self._repo.upsert(post_reaction=post_reaction)
 
     async def try_delete_by_post_id_and_channel_id(self, post_id: UUID, channel_id: UUID) -> None:
-        is_deleted = await self._post_reactions_repo.delete_by_post_id_and_channel_id(
+        is_deleted = await self._repo.delete_by_post_id_and_channel_id(
             post_id=post_id,
             channel_id=channel_id,
         )

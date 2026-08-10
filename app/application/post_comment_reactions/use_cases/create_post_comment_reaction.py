@@ -15,28 +15,14 @@ class CreatePostCommentReactionUseCase:
     _post_comment_reaction_service: IPostCommentReactionService
     _transaction_manager: ITransactionManager
 
-    async def execute(self, command: CreatePostCommentReactionCommand) -> tuple[PostCommentReaction, bool]:
+    async def execute(self, command: CreatePostCommentReactionCommand) -> PostCommentReaction | None:
         channel = await self._channel_service.try_get_active_by_id(id=command.current_channel_id)
         post_comment = await self._post_comment_service.try_get_by_id(id=command.post_comment_id)
-        post_comment_reaction = await self._post_comment_reaction_service.get_by_post_comment_id_and_channel_id(
-            post_comment_id=post_comment.id, channel_id=channel.id
+        post_comment_reaction_entity = PostCommentReaction.create(
+            post_comment_id=post_comment.id,
+            channel_id=channel.id,
+            reaction_type=command.reaction_type,
         )
 
         async with self._transaction_manager:
-            if post_comment_reaction is not None:
-                if post_comment_reaction.reaction_type != command.reaction_type:
-                    post_comment_reaction.set_reaction_type(reaction_type=command.reaction_type)
-                    post_comment_reaction = await self._post_comment_reaction_service.try_update(
-                        post_comment_reaction=post_comment_reaction
-                    )
-                return post_comment_reaction, False
-
-            post_comment_reaction_entity = PostCommentReaction.create(
-                post_comment_id=post_comment.id,
-                channel_id=channel.id,
-                reaction_type=command.reaction_type,
-            )
-            new_post_comment_reaction = await self._post_comment_reaction_service.create(
-                post_comment_reaction=post_comment_reaction_entity
-            )
-            return new_post_comment_reaction, True
+            return await self._post_comment_reaction_service.upsert(post_comment_reaction=post_comment_reaction_entity)

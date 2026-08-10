@@ -9,7 +9,7 @@ from app.application.post_reactions.use_cases.create_post_reaction import Create
 from app.application.post_reactions.use_cases.delete_post_reaction import DeletePostReactionUseCase
 from app.domain.auth.exceptions import JWTExpiredTokenError, JWTInvalidTokenError, NotAuthenticatedError
 from app.domain.channels.exceptions import ChannelNotActiveError, ChannelNotFoundByIdError
-from app.domain.post_reactions.exceptions import PostReactionAlreadyExistsError, PostReactionNotFoundError
+from app.domain.post_reactions.exceptions import PostReactionNotFoundError
 from app.domain.posts.exceptions import PostNotFoundError
 from app.presentation.api.openapi.common import error_response
 from app.presentation.api.v1.di.current_channel_id import CurrentChannelID
@@ -24,17 +24,15 @@ router = APIRouter(
 
 @router.post(
     path='',
-    status_code=status.HTTP_200_OK,
+    status_code=status.HTTP_201_CREATED,
     responses={
-        status.HTTP_200_OK: {
-            'model': PostReactionOutSchema,
-            'description': 'Returns an existing reaction, or updates it if *reaction_type* is different',
-        },
         status.HTTP_201_CREATED: {
             'model': PostReactionOutSchema,
-            'description': 'Creates a new reaction',
+            'description': 'Returns a new reaction or updates an existing one if *reaction_type* is different',
         },
-        status.HTTP_400_BAD_REQUEST: error_response(PostReactionAlreadyExistsError),
+        status.HTTP_204_NO_CONTENT: {
+            'description': 'Returns nothing if a reaction with the same *reaction_type* already exists',
+        },
         status.HTTP_401_UNAUTHORIZED: error_response(
             NotAuthenticatedError,
             JWTExpiredTokenError,
@@ -44,7 +42,6 @@ router = APIRouter(
         status.HTTP_404_NOT_FOUND: error_response(
             ChannelNotFoundByIdError,
             PostNotFoundError,
-            PostReactionNotFoundError,
         ),
     },
 )
@@ -54,15 +51,16 @@ async def create_post_reaction(
     schema: CreatePostReactionInSchema,
     use_case: FromDishka[CreatePostReactionUseCase],
     response: Response,
-) -> PostReactionOutSchema:
+) -> PostReactionOutSchema | None:
     command = CreatePostReactionCommand(
         current_channel_id=current_channel_id,
         post_id=post_id,
         **schema.model_dump(),
     )
-    post_reaction, is_created = await use_case.execute(command=command)
-    if is_created:
-        response.status_code = status.HTTP_201_CREATED
+    post_reaction = await use_case.execute(command=command)
+    if post_reaction is None:
+        response.status_code = status.HTTP_204_NO_CONTENT
+        return
     return PostReactionOutSchema.from_entity(entity=post_reaction)
 
 

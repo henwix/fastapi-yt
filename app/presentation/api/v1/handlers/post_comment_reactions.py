@@ -17,7 +17,6 @@ from app.application.post_comment_reactions.use_cases.delete_post_comment_reacti
 from app.domain.auth.exceptions import JWTExpiredTokenError, JWTInvalidTokenError, NotAuthenticatedError
 from app.domain.channels.exceptions import ChannelNotActiveError, ChannelNotFoundByIdError
 from app.domain.post_comment_reactions.exceptions import (
-    PostCommentReactionAlreadyExistsError,
     PostCommentReactionNotFoundError,
 )
 from app.domain.post_comments.exceptions import PostCommentNotFoundError
@@ -37,16 +36,15 @@ router = APIRouter(
 
 @router.post(
     path='',
+    status_code=status.HTTP_201_CREATED,
     responses={
-        status.HTTP_200_OK: {
-            'model': PostCommentReactionOutSchema,
-            'description': 'Returns an existing reaction, or updates it if *reaction_type* is different',
-        },
         status.HTTP_201_CREATED: {
             'model': PostCommentReactionOutSchema,
-            'description': 'Creates a new reaction',
+            'description': 'Returns a new reaction or updates an existing one if *reaction_type* is different',
         },
-        status.HTTP_400_BAD_REQUEST: error_response(PostCommentReactionAlreadyExistsError),
+        status.HTTP_204_NO_CONTENT: {
+            'description': 'Returns nothing if a reaction with the same *reaction_type* already exists',
+        },
         status.HTTP_401_UNAUTHORIZED: error_response(
             NotAuthenticatedError,
             JWTExpiredTokenError,
@@ -56,7 +54,6 @@ router = APIRouter(
         status.HTTP_404_NOT_FOUND: error_response(
             ChannelNotFoundByIdError,
             PostCommentNotFoundError,
-            PostCommentReactionNotFoundError,
         ),
     },
 )
@@ -66,15 +63,16 @@ async def create_post_comment_reaction(
     schema: CreatePostCommentReactionInSchema,
     use_case: FromDishka[CreatePostCommentReactionUseCase],
     response: Response,
-) -> PostCommentReactionOutSchema:
+) -> PostCommentReactionOutSchema | None:
     command = CreatePostCommentReactionCommand(
         current_channel_id=current_channel_id,
         post_comment_id=post_comment_id,
         **schema.model_dump(),
     )
-    reaction, is_created = await use_case.execute(command=command)
-    if is_created:
-        response.status_code = status.HTTP_201_CREATED
+    reaction = await use_case.execute(command=command)
+    if reaction is None:
+        response.status_code = status.HTTP_204_NO_CONTENT
+        return
     return PostCommentReactionOutSchema.from_entity(entity=reaction)
 
 

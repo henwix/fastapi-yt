@@ -9,6 +9,9 @@ from app.domain.video_comment_reactions.repositories import IVideoCommentReactio
 
 class IVideoCommentReactionService(ABC):
     @abstractmethod
+    async def upsert(self, video_comment_reaction: VideoCommentReaction) -> VideoCommentReaction | None: ...
+
+    @abstractmethod
     async def get_by_video_comment_id_and_channel_id(
         self,
         video_comment_id: UUID,
@@ -32,6 +35,9 @@ class IVideoCommentReactionService(ABC):
 @dataclass
 class VideoCommentReactionService(IVideoCommentReactionService):
     _repo: IVideoCommentReactionRepository
+
+    async def upsert(self, video_comment_reaction: VideoCommentReaction) -> VideoCommentReaction | None:
+        return await self._repo.upsert(video_comment_reaction=video_comment_reaction)
 
     async def get_by_video_comment_id_and_channel_id(
         self, video_comment_id: UUID, channel_id: UUID

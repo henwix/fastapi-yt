@@ -15,10 +15,7 @@ from app.application.video_comment_reactions.use_cases.delete_video_comment_reac
 )
 from app.domain.auth.exceptions import JWTExpiredTokenError, JWTInvalidTokenError, NotAuthenticatedError
 from app.domain.channels.exceptions import ChannelNotActiveError, ChannelNotFoundByIdError
-from app.domain.video_comment_reactions.exceptions import (
-    VideoCommentReactionAlreadyExistsError,
-    VideoCommentReactionNotFoundError,
-)
+from app.domain.video_comment_reactions.exceptions import VideoCommentReactionNotFoundError
 from app.domain.video_comments.exceptions import VideoCommentNotFoundError
 from app.presentation.api.openapi.common import error_response
 from app.presentation.api.v1.di.current_channel_id import CurrentChannelID
@@ -36,16 +33,15 @@ router = APIRouter(
 
 @router.post(
     path='',
+    status_code=status.HTTP_201_CREATED,
     responses={
-        status.HTTP_200_OK: {
-            'model': VideoCommentReactionOutSchema,
-            'description': 'Returns an existing reaction, or updates it if *reaction_type* is different',
-        },
         status.HTTP_201_CREATED: {
             'model': VideoCommentReactionOutSchema,
-            'description': 'Creates a new reaction',
+            'description': 'Returns a new reaction or updates an existing one if *reaction_type* is different',
         },
-        status.HTTP_400_BAD_REQUEST: error_response(VideoCommentReactionAlreadyExistsError),
+        status.HTTP_204_NO_CONTENT: {
+            'description': 'Returns nothing if a reaction with the same *reaction_type* already exists',
+        },
         status.HTTP_401_UNAUTHORIZED: error_response(
             NotAuthenticatedError,
             JWTExpiredTokenError,
@@ -55,7 +51,6 @@ router = APIRouter(
         status.HTTP_404_NOT_FOUND: error_response(
             ChannelNotFoundByIdError,
             VideoCommentNotFoundError,
-            VideoCommentReactionNotFoundError,
         ),
     },
 )
@@ -65,15 +60,16 @@ async def create_video_comment_reaction(
     schema: CreateVideoCommentReactionInSchema,
     use_case: FromDishka[CreateVideoCommentReactionUseCase],
     response: Response,
-) -> VideoCommentReactionOutSchema:
+) -> VideoCommentReactionOutSchema | None:
     command = CreateVideoCommentReactionCommand(
         current_channel_id=current_channel_id,
         video_comment_id=video_comment_id,
         **schema.model_dump(),
     )
-    reaction, is_created = await use_case.execute(command=command)
-    if is_created:
-        response.status_code = status.HTTP_201_CREATED
+    reaction = await use_case.execute(command=command)
+    if reaction is None:
+        response.status_code = status.HTTP_204_NO_CONTENT
+        return
     return VideoCommentReactionOutSchema.from_entity(entity=reaction)
 
 

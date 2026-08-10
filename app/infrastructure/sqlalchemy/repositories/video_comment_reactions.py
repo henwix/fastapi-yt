@@ -3,12 +3,12 @@ from typing import NoReturn
 from uuid import UUID
 
 from sqlalchemy import delete, select, update
+from sqlalchemy.dialects.postgresql import insert
 from sqlalchemy.exc import DBAPIError, IntegrityError
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.domain.channels.exceptions import ChannelNotFoundByIdError
 from app.domain.video_comment_reactions.entities import VideoCommentReaction
-from app.domain.video_comment_reactions.exceptions import VideoCommentReactionAlreadyExistsError
 from app.domain.video_comment_reactions.repositories import IVideoCommentReactionRepository
 from app.domain.video_comments.exceptions import VideoCommentNotFoundError
 from app.infrastructure.sqlalchemy.models.videos import VideoCommentReactionORM
@@ -25,17 +25,36 @@ class SAVideoCommentReactionRepository(IVideoCommentReactionRepository):
             raise
 
         match constraint_name:
-            case 'uq_channel_video_comment_reaction':
-                raise VideoCommentReactionAlreadyExistsError(
-                    video_comment_id=video_comment_reaction.video_comment_id,
-                    channel_id=video_comment_reaction.channel_id,
-                ) from error
             case 'video_comment_reactions_channel_id_fkey':
                 raise ChannelNotFoundByIdError(channel_id=video_comment_reaction.channel_id) from error
             case 'video_comment_reactions_video_comment_id_fkey':
                 raise VideoCommentNotFoundError(id=video_comment_reaction.video_comment_id) from error
             case _:
                 raise
+
+    async def upsert(self, video_comment_reaction: VideoCommentReaction) -> VideoCommentReaction | None:
+        stmt = (
+            insert(VideoCommentReactionORM)
+            .values(
+                id=video_comment_reaction.id,
+                video_comment_id=video_comment_reaction.video_comment_id,
+                channel_id=video_comment_reaction.channel_id,
+                reaction_type=video_comment_reaction.reaction_type.value,
+                created_at=video_comment_reaction.created_at,
+            )
+            .on_conflict_do_update(
+                constraint='uq_channel_video_comment_reaction',
+                set_={'reaction_type': video_comment_reaction.reaction_type.value},
+                where=VideoCommentReactionORM.reaction_type != video_comment_reaction.reaction_type.value,
+            )
+            .returning(VideoCommentReactionORM)
+        )
+        try:
+            result = await self._session.execute(statement=stmt)
+        except IntegrityError as e:
+            self._parse_db_error(error=e, video_comment_reaction=video_comment_reaction)
+        model = result.scalar_one_or_none()
+        return model.to_entity() if model is not None else None
 
     async def get_by_video_comment_id_and_channel_id(
         self,

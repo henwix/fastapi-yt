@@ -38,14 +38,13 @@ from app.domain.playlists.exceptions import (
     VideoNotFoundInPlaylistError,
 )
 from app.domain.post_comment_reactions.exceptions import (
-    PostCommentReactionAlreadyExistsError,
     PostCommentReactionNotFoundError,
 )
 from app.domain.post_comments.exceptions import (
     PostCommentAccessForbiddenError,
     PostCommentNotFoundError,
 )
-from app.domain.post_reactions.exceptions import PostReactionAlreadyExistsError, PostReactionNotFoundError
+from app.domain.post_reactions.exceptions import PostReactionNotFoundError
 from app.domain.posts.exceptions import PostAccessForbiddenError, PostNotFoundError
 from app.domain.subscriptions.exceptions import (
     SelfSubscriptionError,
@@ -53,12 +52,11 @@ from app.domain.subscriptions.exceptions import (
     SubscriptionNotFoundError,
 )
 from app.domain.video_comment_reactions.exceptions import (
-    VideoCommentReactionAlreadyExistsError,
     VideoCommentReactionNotFoundError,
 )
 from app.domain.video_comments.exceptions import VideoCommentAccessForbiddenError, VideoCommentNotFoundError
 from app.domain.video_history.exceptions import VideoHistoryEmptyError, VideoNotFoundInHistoryError
-from app.domain.video_reactions.exceptions import VideoReactionAlreadyExistsError, VideoReactionNotFoundError
+from app.domain.video_reactions.exceptions import VideoReactionNotFoundError
 from app.domain.video_views.exceptions import VideoViewsLimitReached
 from app.domain.videos.exceptions import (
     VideoAccessForbiddenError,
@@ -105,13 +103,11 @@ def get_http_status_code(exc: AppException):
         # Video views
         VideoViewsLimitReached: status.HTTP_400_BAD_REQUEST,
         # Video reactions
-        VideoReactionAlreadyExistsError: status.HTTP_400_BAD_REQUEST,
         VideoReactionNotFoundError: status.HTTP_404_NOT_FOUND,
         # Video comments
         VideoCommentAccessForbiddenError: status.HTTP_403_FORBIDDEN,
         VideoCommentNotFoundError: status.HTTP_404_NOT_FOUND,
         # Video comment reactions
-        VideoCommentReactionAlreadyExistsError: status.HTTP_400_BAD_REQUEST,
         VideoCommentReactionNotFoundError: status.HTTP_404_NOT_FOUND,
         # Video history
         VideoNotFoundInHistoryError: status.HTTP_404_NOT_FOUND,
@@ -125,13 +121,11 @@ def get_http_status_code(exc: AppException):
         PostAccessForbiddenError: status.HTTP_403_FORBIDDEN,
         PostNotFoundError: status.HTTP_404_NOT_FOUND,
         # Post reactions
-        PostReactionAlreadyExistsError: status.HTTP_400_BAD_REQUEST,
         PostReactionNotFoundError: status.HTTP_404_NOT_FOUND,
         # Post comment
         PostCommentAccessForbiddenError: status.HTTP_403_FORBIDDEN,
         PostCommentNotFoundError: status.HTTP_404_NOT_FOUND,
         # Post comment reactions
-        PostCommentReactionAlreadyExistsError: status.HTTP_400_BAD_REQUEST,
         PostCommentReactionNotFoundError: status.HTTP_404_NOT_FOUND,
         # Subscriptions
         SubscriptionAlreadyExistsError: status.HTTP_400_BAD_REQUEST,

@@ -1,9 +1,7 @@
-from dataclasses import dataclass
 from datetime import datetime
 from uuid import UUID
 
 from sqlalchemy import select, tuple_
-from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.application.common.pagination import CursorPagination
 from app.application.common.sorting import SortingOrderEnum
@@ -12,12 +10,10 @@ from app.application.posts.interfaces.reader import IPostReader
 from app.application.posts.queries import PostsSorting
 from app.infrastructure.sqlalchemy.models.channels import ChannelORM
 from app.infrastructure.sqlalchemy.models.posts import PostORM
+from app.infrastructure.sqlalchemy.readers.base import SAReader
 
 
-@dataclass
-class SAPostReader(IPostReader):
-    _session: AsyncSession
-
+class SAPostReader(SAReader, IPostReader):
     async def get_many(
         self,
         channel_id: UUID,

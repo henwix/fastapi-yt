@@ -23,11 +23,11 @@ from app.presentation.api.openapi.common import error_response
 from app.presentation.api.v1.di.current_channel_id import CurrentChannelID
 from app.presentation.api.v1.handlers.common.params import PathChannelSlug
 from app.presentation.api.v1.schemas.common import CursorPaginationParams
-from app.presentation.api.v1.schemas.subscriptions import (
+from app.presentation.api.v1.schemas.requests.subscriptions import SubscriptionsSortingParams
+from app.presentation.api.v1.schemas.responses.subscriptions import (
     DetailedSubscriptionOutSchema,
     SubscriptionOutSchema,
     SubscriptionsCursorResponse,
-    SubscriptionsSortingParams,
 )
 
 router = APIRouter(

@@ -30,13 +30,15 @@ from app.presentation.api.openapi.common import error_response
 from app.presentation.api.v1.di.current_channel_id import CurrentChannelID, OptionalCurrentChannelID
 from app.presentation.api.v1.handlers.common.params import PathVideoId
 from app.presentation.api.v1.schemas.common import CursorPaginationParams
-from app.presentation.api.v1.schemas.videos import (
-    DetailedVideoOutSchema,
-    PersonalPreviewVideoOutSchema,
-    PersonalPreviewVideosCursorResponse,
+from app.presentation.api.v1.schemas.requests.videos import (
     PersonalPreviewVideosFiltersParams,
     PreviewVideosSortingParams,
     UpdateVideoInSchema,
+)
+from app.presentation.api.v1.schemas.responses.videos import (
+    DetailedVideoOutSchema,
+    PersonalPreviewVideoOutSchema,
+    PersonalPreviewVideosCursorResponse,
     VideoOutSchema,
 )
 

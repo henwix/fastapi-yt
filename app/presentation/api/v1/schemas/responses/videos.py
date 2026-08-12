@@ -1,21 +1,11 @@
 from datetime import datetime
 
-from pydantic import Field, HttpUrl
+from pydantic import HttpUrl
 
-from app.application.common.sorting import SortingOrderEnum
 from app.application.videos.dto import DetailedVideoDTO, PersonalPreviewVideoDTO
-from app.application.videos.queries import PreviewVideosSortingFieldEnum
-from app.domain.common.constants import FILENAME_MAX_LENGTH, FILENAME_PATTERN
-from app.domain.videos.constants import VIDEO_DESCRIPTION_MAX_LENGTH, VIDEO_TITLE_MAX_LENGTH, VIDEO_TITLE_MIN_LENGTH
 from app.domain.videos.entities import Video
 from app.domain.videos.enums import VideoPrivacyStatusEnum, VideoUploadStatusEnum
-from app.presentation.api.v1.schemas.base import BaseSchema, BaseUpdateSchema
-
-
-class UpdateVideoInSchema(BaseUpdateSchema):
-    title: str = Field(default='', min_length=VIDEO_TITLE_MIN_LENGTH, max_length=VIDEO_TITLE_MAX_LENGTH)
-    description: str = Field(default='', max_length=VIDEO_DESCRIPTION_MAX_LENGTH)
-    privacy_status: VideoPrivacyStatusEnum = VideoPrivacyStatusEnum.PUBLIC
+from app.presentation.api.v1.schemas.base import BaseSchema
 
 
 class VideoOutSchema(BaseSchema):
@@ -70,16 +60,6 @@ class PreviewVideoOutSchema(BaseSchema):
     author_slug: str
 
 
-class PersonalPreviewVideosFiltersParams(BaseSchema):
-    privacy_status: VideoPrivacyStatusEnum | None = None
-    upload_status: VideoUploadStatusEnum | None = None
-
-
-class PreviewVideosSortingParams(BaseSchema):
-    sort_by: PreviewVideosSortingFieldEnum = PreviewVideosSortingFieldEnum.CREATED_AT
-    order: SortingOrderEnum = SortingOrderEnum.DESC
-
-
 class PersonalPreviewVideoOutSchema(BaseSchema):
     id: str
     title: str
@@ -103,13 +83,6 @@ class PersonalPreviewVideoOutSchema(BaseSchema):
 class PersonalPreviewVideosCursorResponse(BaseSchema):
     next_page: HttpUrl | None
     results: list[PersonalPreviewVideoOutSchema]
-
-
-class CreateVideoMultipartUploadInSchema(BaseSchema):
-    title: str = Field(min_length=VIDEO_TITLE_MIN_LENGTH, max_length=VIDEO_TITLE_MAX_LENGTH)
-    description: str = Field(default='', max_length=VIDEO_DESCRIPTION_MAX_LENGTH)
-    privacy_status: VideoPrivacyStatusEnum
-    filename: str = Field(max_length=FILENAME_MAX_LENGTH, pattern=FILENAME_PATTERN, examples=['video.mp4'])
 
 
 class GenerateVideoPartUploadUrlOutSchema(BaseSchema):

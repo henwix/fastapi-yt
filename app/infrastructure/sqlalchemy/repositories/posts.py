@@ -1,21 +1,17 @@
-from dataclasses import dataclass
 from typing import NoReturn
 from uuid import UUID
 
 from sqlalchemy import delete, select, update
 from sqlalchemy.exc import DBAPIError
-from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.domain.channels.exceptions import ChannelNotFoundByIdError
 from app.domain.posts.entities import Post
 from app.domain.posts.repositories import IPostRepository
 from app.infrastructure.sqlalchemy.models.posts import PostORM
+from app.infrastructure.sqlalchemy.repositories.base import SARepository
 
 
-@dataclass
-class SAPostRepository(IPostRepository):
-    _session: AsyncSession
-
+class SAPostRepository(SARepository, IPostRepository):
     def _parse_db_error(self, error: DBAPIError, post: Post) -> NoReturn:
         cause = getattr(error.orig, '__cause__', None)
         constraint_name = getattr(cause, 'constraint_name', None)

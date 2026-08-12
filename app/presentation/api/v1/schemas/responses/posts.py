@@ -1,22 +1,11 @@
 from datetime import datetime
 from uuid import UUID
 
-from pydantic import Field, HttpUrl
+from pydantic import HttpUrl
 
-from app.application.common.sorting import SortingOrderEnum
 from app.application.posts.dto import DetailedPostDTO
-from app.application.posts.queries import PostsSortingFieldsEnum
-from app.domain.posts.constants import POST_TEXT_MAX_LENGTH, POST_TEXT_MIN_LENGTH
 from app.domain.posts.entities import Post
-from app.presentation.api.v1.schemas.base import BaseSchema, BaseUpdateSchema
-
-
-class CreatePostInSchema(BaseSchema):
-    text: str = Field(min_length=POST_TEXT_MIN_LENGTH, max_length=POST_TEXT_MAX_LENGTH)
-
-
-class UpdatePostInSchema(BaseUpdateSchema):
-    text: str = Field(default='', min_length=POST_TEXT_MIN_LENGTH, max_length=POST_TEXT_MAX_LENGTH)
+from app.presentation.api.v1.schemas.base import BaseSchema
 
 
 class PostOutSchema(BaseSchema):
@@ -49,11 +38,6 @@ class DetailedPostOutSchema(BaseSchema):
             channel_name=dto.channel_name,
             channel_slug=dto.channel_slug,
         )
-
-
-class PostsSortingParams(BaseSchema):
-    sort_by: PostsSortingFieldsEnum = PostsSortingFieldsEnum.CREATED_AT
-    order: SortingOrderEnum = SortingOrderEnum.DESC
 
 
 class PostsCursorResponse(BaseSchema):

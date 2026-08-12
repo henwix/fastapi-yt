@@ -1,14 +1,11 @@
 from datetime import datetime
 from uuid import UUID
 
-from pydantic import Field, HttpUrl
+from pydantic import HttpUrl
 
-from app.application.common.sorting import SortingOrderEnum
 from app.application.post_comments.dto import DetailedPostCommentDTO
-from app.application.post_comments.queries import PostCommentsSortingFieldsEnum
-from app.domain.post_comments.constants import POST_COMMENT_TEXT_MAX_LENGTH, POST_COMMENT_TEXT_MIN_LENGTH
 from app.domain.post_comments.entities import PostComment
-from app.presentation.api.v1.schemas.base import BaseSchema, BaseUpdateSchema
+from app.presentation.api.v1.schemas.base import BaseSchema
 
 
 class PostCommentOutSchema(BaseSchema):
@@ -51,20 +48,6 @@ class DetailedPostCommentOutSchema(BaseSchema):
             created_at=dto.created_at,
             author_slug=dto.author_slug,
         )
-
-
-class CreatePostCommentInSchema(BaseSchema):
-    text: str = Field(min_length=POST_COMMENT_TEXT_MIN_LENGTH, max_length=POST_COMMENT_TEXT_MAX_LENGTH)
-    reply_comment_id: UUID | None = None
-
-
-class UpdatePostCommentInSchema(BaseUpdateSchema):
-    text: str = Field(default='', min_length=POST_COMMENT_TEXT_MIN_LENGTH, max_length=POST_COMMENT_TEXT_MAX_LENGTH)
-
-
-class PostCommentsSortingParams(BaseSchema):
-    sort_by: PostCommentsSortingFieldsEnum = PostCommentsSortingFieldsEnum.CREATED_AT
-    order: SortingOrderEnum = SortingOrderEnum.DESC
 
 
 class PostCommentsCursorResponse(BaseSchema):

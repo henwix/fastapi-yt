@@ -2,16 +2,9 @@ from datetime import datetime
 
 from pydantic import HttpUrl
 
-from app.application.common.sorting import SortingOrderEnum
 from app.application.video_history.dto import PreviewVideoHistoryDTO
-from app.application.video_history.queries import VideoHistorySortingFieldsEnum
 from app.domain.videos.enums import VideoPrivacyStatusEnum
 from app.presentation.api.v1.schemas.base import BaseSchema
-
-
-class VideoHistorySortingParams(BaseSchema):
-    sort_by: VideoHistorySortingFieldsEnum = VideoHistorySortingFieldsEnum.WATCHED_AT
-    order: SortingOrderEnum = SortingOrderEnum.DESC
 
 
 class PreviewVideoHistoryOutSchema(BaseSchema):

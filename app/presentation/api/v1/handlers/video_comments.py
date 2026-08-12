@@ -29,13 +29,15 @@ from app.presentation.api.openapi.common import error_response
 from app.presentation.api.v1.di.current_channel_id import CurrentChannelID
 from app.presentation.api.v1.handlers.common.params import PathVideoId
 from app.presentation.api.v1.schemas.common import CursorPaginationParams
-from app.presentation.api.v1.schemas.video_comments import (
+from app.presentation.api.v1.schemas.requests.video_comments import (
     CreateVideoCommentInSchema,
-    DetailedVideoCommentOutSchema,
     UpdateVideoCommentInSchema,
+    VideoCommentsSortingParams,
+)
+from app.presentation.api.v1.schemas.responses.video_comments import (
+    DetailedVideoCommentOutSchema,
     VideoCommentOutSchema,
     VideoCommentsCursorResponse,
-    VideoCommentsSortingParams,
 )
 
 router = APIRouter(

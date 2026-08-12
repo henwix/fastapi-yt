@@ -1,9 +1,7 @@
-from dataclasses import dataclass
 from datetime import datetime
 from uuid import UUID
 
 from sqlalchemy import select, tuple_
-from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.application.common.pagination import CursorPagination
 from app.application.common.sorting import SortingOrderEnum
@@ -19,12 +17,10 @@ from app.infrastructure.sqlalchemy.converters.videos import (
 )
 from app.infrastructure.sqlalchemy.models.channels import ChannelORM
 from app.infrastructure.sqlalchemy.models.videos import VideoORM
+from app.infrastructure.sqlalchemy.readers.base import SAReader
 
 
-@dataclass
-class SAVideoReader(IVideoReader):
-    _session: AsyncSession
-
+class SAVideoReader(SAReader, IVideoReader):
     async def try_get_detailed_video_by_id(self, id: str) -> DetailedVideoDTO:
         stmt = (
             select(

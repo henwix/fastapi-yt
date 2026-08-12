@@ -5,10 +5,6 @@ from app.domain.video_reactions.entities import VideoReaction
 from app.presentation.api.v1.schemas.base import BaseSchema
 
 
-class CreateVideoReactionInSchema(BaseSchema):
-    reaction_type: ReactionTypeEnum
-
-
 class VideoReactionOutSchema(BaseSchema):
     video_id: str
     reaction_type: ReactionTypeEnum

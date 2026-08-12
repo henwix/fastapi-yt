@@ -23,10 +23,10 @@ from app.presentation.api.openapi.common import error_response
 from app.presentation.api.v1.di.current_channel_id import CurrentChannelID
 from app.presentation.api.v1.handlers.common.params import PathVideoId
 from app.presentation.api.v1.schemas.common import CursorPaginationParams
-from app.presentation.api.v1.schemas.video_history import (
+from app.presentation.api.v1.schemas.requests.video_history import VideoHistorySortingParams
+from app.presentation.api.v1.schemas.responses.video_history import (
     PreviewVideoHistoryOutSchema,
     VideoHistoryCursorResponse,
-    VideoHistorySortingParams,
 )
 
 router = APIRouter(

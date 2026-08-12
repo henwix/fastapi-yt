@@ -1,10 +1,8 @@
-from dataclasses import dataclass
 from typing import NoReturn
 from uuid import UUID
 
 from sqlalchemy import delete, select, update
 from sqlalchemy.exc import DBAPIError, IntegrityError
-from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.domain.channels.exceptions import ChannelNotFoundByIdError
 from app.domain.video_comments.entities import VideoComment
@@ -12,12 +10,10 @@ from app.domain.video_comments.exceptions import VideoCommentNotFoundError
 from app.domain.video_comments.repositories import IVideoCommentRepository
 from app.domain.videos.exceptions import VideoNotFoundError
 from app.infrastructure.sqlalchemy.models.videos import VideoCommentORM
+from app.infrastructure.sqlalchemy.repositories.base import SARepository
 
 
-@dataclass
-class SAVideoCommentRepository(IVideoCommentRepository):
-    _session: AsyncSession
-
+class SAVideoCommentRepository(SARepository, IVideoCommentRepository):
     def _parse_db_error(self, error: DBAPIError, video_comment: VideoComment) -> NoReturn:
         cause: BaseException | None = getattr(error.orig, '__cause__', None)
         constraint_name: str | None = getattr(cause, 'constraint_name', None)

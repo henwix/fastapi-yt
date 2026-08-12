@@ -42,15 +42,17 @@ from app.domain.common.exceptions import (
 from app.presentation.api.openapi.common import error_response
 from app.presentation.api.v1.di.current_channel_id import CurrentChannelID
 from app.presentation.api.v1.handlers.common.params import PathChannelSlug
-from app.presentation.api.v1.schemas.channels import (
-    ChannelAboutInfoOutSchema,
+from app.presentation.api.v1.schemas.requests.channels import (
     ChannelAvatarUploadConfirmInSchema,
-    ChannelOutSchema,
     CreateChannelInSchema,
     GenerateChannelAvatarUploadUrlInSchema,
-    GenerateChannelAvatarUploadUrlOutSchema,
     SetChannelPasswordInSchema,
     UpdateChannelInSchema,
+)
+from app.presentation.api.v1.schemas.responses.channels import (
+    ChannelAboutInfoOutSchema,
+    ChannelOutSchema,
+    GenerateChannelAvatarUploadUrlOutSchema,
 )
 
 router = APIRouter(

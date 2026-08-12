@@ -1,23 +1,11 @@
 from datetime import datetime
 from uuid import UUID
 
-from pydantic import Field, HttpUrl
+from pydantic import HttpUrl
 
-from app.application.common.sorting import SortingOrderEnum
 from app.application.video_comments.dto import DetailedVideoCommentDTO
-from app.application.video_comments.queries import VideoCommentsSortingFieldsEnum
-from app.domain.video_comments.constants import VIDEO_COMMENT_TEXT_MAX_LENGTH, VIDEO_COMMENT_TEXT_MIN_LENGTH
 from app.domain.video_comments.entities import VideoComment
-from app.presentation.api.v1.schemas.base import BaseSchema, BaseUpdateSchema
-
-
-class CreateVideoCommentInSchema(BaseSchema):
-    text: str = Field(min_length=VIDEO_COMMENT_TEXT_MIN_LENGTH, max_length=VIDEO_COMMENT_TEXT_MAX_LENGTH)
-    reply_comment_id: UUID | None = None
-
-
-class UpdateVideoCommentInSchema(BaseUpdateSchema):
-    text: str = Field(default='', min_length=VIDEO_COMMENT_TEXT_MIN_LENGTH, max_length=VIDEO_COMMENT_TEXT_MAX_LENGTH)
+from app.presentation.api.v1.schemas.base import BaseSchema
 
 
 class VideoCommentOutSchema(BaseSchema):
@@ -60,11 +48,6 @@ class DetailedVideoCommentOutSchema(BaseSchema):
             created_at=dto.created_at,
             author_slug=dto.author_slug,
         )
-
-
-class VideoCommentsSortingParams(BaseSchema):
-    sort_by: VideoCommentsSortingFieldsEnum = VideoCommentsSortingFieldsEnum.CREATED_AT
-    order: SortingOrderEnum = SortingOrderEnum.DESC
 
 
 class VideoCommentsCursorResponse(BaseSchema):

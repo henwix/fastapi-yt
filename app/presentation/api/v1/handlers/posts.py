@@ -21,14 +21,8 @@ from app.presentation.api.openapi.common import error_response
 from app.presentation.api.v1.di.current_channel_id import CurrentChannelID
 from app.presentation.api.v1.handlers.common.params import PathChannelSlug
 from app.presentation.api.v1.schemas.common import CursorPaginationParams
-from app.presentation.api.v1.schemas.posts import (
-    CreatePostInSchema,
-    DetailedPostOutSchema,
-    PostOutSchema,
-    PostsCursorResponse,
-    PostsSortingParams,
-    UpdatePostInSchema,
-)
+from app.presentation.api.v1.schemas.requests.posts import CreatePostInSchema, PostsSortingParams, UpdatePostInSchema
+from app.presentation.api.v1.schemas.responses.posts import DetailedPostOutSchema, PostOutSchema, PostsCursorResponse
 
 router = APIRouter(
     prefix='',

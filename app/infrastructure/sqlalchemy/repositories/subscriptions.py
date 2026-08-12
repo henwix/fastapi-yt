@@ -1,22 +1,18 @@
-from dataclasses import dataclass
 from typing import NoReturn
 from uuid import UUID
 
 from sqlalchemy import delete, exists, select
 from sqlalchemy.exc import DBAPIError, IntegrityError
-from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.domain.channels.exceptions import ChannelNotFoundByIdError
 from app.domain.subscriptions.entities import Subscription
 from app.domain.subscriptions.exceptions import SubscriptionAlreadyExistsError
 from app.domain.subscriptions.repositories import ISubscriptionRepository
 from app.infrastructure.sqlalchemy.models.channels import SubscriptionORM
+from app.infrastructure.sqlalchemy.repositories.base import SARepository
 
 
-@dataclass
-class SASubscriptionRepository(ISubscriptionRepository):
-    _session: AsyncSession
-
+class SASubscriptionRepository(SARepository, ISubscriptionRepository):
     def _parse_db_error(self, error: DBAPIError, subscription: Subscription) -> NoReturn:
         cause: BaseException | None = getattr(error.orig, '__cause__', None)
         constraint_name: str | None = getattr(cause, 'constraint_name', None)

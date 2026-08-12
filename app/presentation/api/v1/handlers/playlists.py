@@ -43,17 +43,19 @@ from app.presentation.api.openapi.common import error_response
 from app.presentation.api.v1.di.current_channel_id import CurrentChannelID, OptionalCurrentChannelID
 from app.presentation.api.v1.handlers.common.params import PathChannelSlug, PathVideoId
 from app.presentation.api.v1.schemas.common import CursorPaginationParams
-from app.presentation.api.v1.schemas.playlists import (
+from app.presentation.api.v1.schemas.requests.playlists import (
     CreatePlaylistInSchema,
+    PlaylistsPreviewSortingParams,
+    PlaylistVideosSortingParams,
+    UpdatePlaylistInSchema,
+)
+from app.presentation.api.v1.schemas.responses.playlists import (
     DetailedPlaylistOutSchema,
     PlaylistOutSchema,
     PlaylistPreviewVideoOutSchema,
-    PlaylistsPreviewSortingParams,
     PlaylistVideosCursorResponse,
-    PlaylistVideosSortingParams,
     PreviewPlaylistOutSchema,
     PreviewPlaylistsCursorResponse,
-    UpdatePlaylistInSchema,
 )
 
 router = APIRouter(

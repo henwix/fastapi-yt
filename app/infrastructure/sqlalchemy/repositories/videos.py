@@ -1,18 +1,13 @@
-from dataclasses import dataclass
-
 from sqlalchemy import delete, select, update
-from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.domain.videos.entities import Video
 from app.domain.videos.enums import VideoUploadStatusEnum
 from app.domain.videos.repositories import IVideoRepository
 from app.infrastructure.sqlalchemy.models.videos import VideoORM
+from app.infrastructure.sqlalchemy.repositories.base import SARepository
 
 
-@dataclass
-class SAVideoRepository(IVideoRepository):
-    _session: AsyncSession
-
+class SAVideoRepository(SARepository, IVideoRepository):
     async def _get_one_by_query(self, query) -> Video | None:
         result = await self._session.execute(statement=query)
         video = result.scalar_one_or_none()

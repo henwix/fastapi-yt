@@ -1,23 +1,19 @@
-from dataclasses import dataclass
 from typing import NoReturn
 from uuid import UUID
 
 from sqlalchemy import delete
 from sqlalchemy.dialects.postgresql import insert
 from sqlalchemy.exc import DBAPIError, IntegrityError
-from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.domain.channels.exceptions import ChannelNotFoundByIdError
 from app.domain.video_history.entities import VideoHistoryItem
 from app.domain.video_history.repositories import IVideoHistoryRepository
 from app.domain.videos.exceptions import VideoNotFoundError
 from app.infrastructure.sqlalchemy.models.videos import VideoHistoryItemORM
+from app.infrastructure.sqlalchemy.repositories.base import SARepository
 
 
-@dataclass
-class SAVideoHistoryRepository(IVideoHistoryRepository):
-    _session: AsyncSession
-
+class SAVideoHistoryRepository(SARepository, IVideoHistoryRepository):
     def _parse_db_error(self, error: DBAPIError, video_history_item: VideoHistoryItem) -> NoReturn:
         cause: BaseException | None = getattr(error.orig, '__cause__', None)
         constraint_name: str | None = getattr(cause, 'constraint_name', None)

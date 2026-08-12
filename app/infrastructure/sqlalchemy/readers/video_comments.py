@@ -1,9 +1,7 @@
-from dataclasses import dataclass
 from datetime import datetime
 from uuid import UUID
 
 from sqlalchemy import select, tuple_
-from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.application.common.pagination import CursorPagination
 from app.application.common.sorting import SortingOrderEnum
@@ -13,12 +11,10 @@ from app.application.video_comments.queries import VideoCommentsSorting
 from app.infrastructure.sqlalchemy.converters.video_comments import convert_row_to_detailed_video_comment_dto
 from app.infrastructure.sqlalchemy.models.channels import ChannelORM
 from app.infrastructure.sqlalchemy.models.videos import VideoCommentORM
+from app.infrastructure.sqlalchemy.readers.base import SAReader
 
 
-@dataclass
-class SAVideoCommentReader(IVideoCommentReader):
-    _session: AsyncSession
-
+class SAVideoCommentReader(SAReader, IVideoCommentReader):
     async def _get_many_by_filters(
         self,
         *filters,

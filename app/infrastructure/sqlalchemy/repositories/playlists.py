@@ -1,10 +1,8 @@
-from dataclasses import dataclass
 from typing import NoReturn
 from uuid import UUID
 
 from sqlalchemy import delete, select, update
 from sqlalchemy.exc import DBAPIError, IntegrityError
-from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.domain.channels.exceptions import ChannelNotFoundByIdError
 from app.domain.playlists.entities import Playlist, PlaylistItem
@@ -12,12 +10,10 @@ from app.domain.playlists.exceptions import PlaylistNotFoundError, VideoAlreadyA
 from app.domain.playlists.repositories import IPlaylistItemRepository, IPlaylistRepository
 from app.domain.videos.exceptions import VideoNotFoundError
 from app.infrastructure.sqlalchemy.models.videos import PlaylistItemORM, PlaylistORM
+from app.infrastructure.sqlalchemy.repositories.base import SARepository
 
 
-@dataclass
-class SAPlaylistRepository(IPlaylistRepository):
-    _session: AsyncSession
-
+class SAPlaylistRepository(SARepository, IPlaylistRepository):
     def _parse_db_error(self, error: DBAPIError, playlist: Playlist) -> NoReturn:
         cause: BaseException | None = getattr(error.orig, '__cause__', None)
         constraint_name: str | None = getattr(cause, 'constraint_name', None)
@@ -66,10 +62,7 @@ class SAPlaylistRepository(IPlaylistRepository):
         return result.rowcount > 0
 
 
-@dataclass
-class SAPlaylistItemRepository(IPlaylistItemRepository):
-    _session: AsyncSession
-
+class SAPlaylistItemRepository(SARepository, IPlaylistItemRepository):
     def _parse_db_error(self, error: DBAPIError, playlist_item: PlaylistItem) -> NoReturn:
         cause: BaseException | None = getattr(error.orig, '__cause__', None)
         constraint_name: str | None = getattr(cause, 'constraint_name', None)

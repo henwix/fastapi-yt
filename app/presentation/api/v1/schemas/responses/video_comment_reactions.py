@@ -6,10 +6,6 @@ from app.domain.video_comment_reactions.entities import VideoCommentReaction
 from app.presentation.api.v1.schemas.base import BaseSchema
 
 
-class CreateVideoCommentReactionInSchema(BaseSchema):
-    reaction_type: ReactionTypeEnum
-
-
 class VideoCommentReactionOutSchema(BaseSchema):
     video_comment_id: UUID
     reaction_type: ReactionTypeEnum

@@ -1,9 +1,7 @@
-from dataclasses import dataclass
 from datetime import datetime
 from uuid import UUID
 
 from sqlalchemy import select, tuple_
-from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.application.common.pagination import CursorPagination
 from app.application.common.sorting import SortingOrderEnum
@@ -13,12 +11,10 @@ from app.application.post_comments.queries import PostCommentsSorting
 from app.infrastructure.sqlalchemy.converters.post_comments import convert_row_to_detailed_post_comment_dto
 from app.infrastructure.sqlalchemy.models.channels import ChannelORM
 from app.infrastructure.sqlalchemy.models.posts import PostCommentORM
+from app.infrastructure.sqlalchemy.readers.base import SAReader
 
 
-@dataclass
-class SAPostCommentReader(IPostCommentReader):
-    _session: AsyncSession
-
+class SAPostCommentReader(SAReader, IPostCommentReader):
     async def _get_many_by_filters(
         self,
         *filters,

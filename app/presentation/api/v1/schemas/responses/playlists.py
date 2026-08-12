@@ -3,30 +3,11 @@ from uuid import UUID
 
 from pydantic import Field, HttpUrl
 
-from app.application.common.sorting import SortingOrderEnum
 from app.application.playlists.dto import DetailedPlaylistDTO, PlaylistPreviewVideoDTO, PreviewPlaylistDTO
-from app.application.playlists.queries import PlaylistsPreviewSortingFieldsEnum, PlaylistVideosSortingFieldsEnum
-from app.domain.playlists.constants import (
-    PLAYLISTS_DESCRIPTION_MAX_LENGTH,
-    PLAYLISTS_TITLE_MAX_LENGTH,
-    PLAYLISTS_TITLE_MIN_LENGTH,
-)
 from app.domain.playlists.entities import Playlist
 from app.domain.playlists.enums import PlaylistPrivacyStatusEnum
 from app.domain.videos.enums import VideoPrivacyStatusEnum
-from app.presentation.api.v1.schemas.base import BaseSchema, BaseUpdateSchema
-
-
-class CreatePlaylistInSchema(BaseSchema):
-    title: str = Field(min_length=PLAYLISTS_TITLE_MIN_LENGTH, max_length=PLAYLISTS_TITLE_MAX_LENGTH)
-    description: str = Field(max_length=PLAYLISTS_DESCRIPTION_MAX_LENGTH)
-    privacy_status: PlaylistPrivacyStatusEnum
-
-
-class UpdatePlaylistInSchema(BaseUpdateSchema):
-    title: str = Field(default='', min_length=PLAYLISTS_TITLE_MIN_LENGTH, max_length=PLAYLISTS_TITLE_MAX_LENGTH)
-    description: str = Field(default='', max_length=PLAYLISTS_DESCRIPTION_MAX_LENGTH)
-    privacy_status: PlaylistPrivacyStatusEnum = PlaylistPrivacyStatusEnum.PUBLIC
+from app.presentation.api.v1.schemas.base import BaseSchema
 
 
 class PlaylistOutSchema(BaseSchema):
@@ -71,11 +52,6 @@ class DetailedPlaylistOutSchema(BaseSchema):
         )
 
 
-class PlaylistsPreviewSortingParams(BaseSchema):
-    sort_by: PlaylistsPreviewSortingFieldsEnum = PlaylistsPreviewSortingFieldsEnum.CREATED_AT
-    order: SortingOrderEnum = SortingOrderEnum.DESC
-
-
 class PreviewPlaylistOutSchema(BaseSchema):
     id: UUID
     title: str
@@ -97,11 +73,6 @@ class PreviewPlaylistOutSchema(BaseSchema):
 class PreviewPlaylistsCursorResponse(BaseSchema):
     next_page: HttpUrl | None
     results: list[PreviewPlaylistOutSchema]
-
-
-class PlaylistVideosSortingParams(BaseSchema):
-    sort_by: PlaylistVideosSortingFieldsEnum = PlaylistVideosSortingFieldsEnum.ADDED_AT
-    order: SortingOrderEnum = SortingOrderEnum.DESC
 
 
 class PlaylistPreviewVideoOutSchema(BaseSchema):

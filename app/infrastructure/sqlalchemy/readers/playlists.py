@@ -1,10 +1,8 @@
-from dataclasses import dataclass
 from datetime import datetime
 from uuid import UUID
 
 import sqlalchemy as sa
 from sqlalchemy import select, tuple_
-from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.application.common.pagination import CursorPagination
 from app.application.common.sorting import SortingOrderEnum
@@ -25,12 +23,10 @@ from app.infrastructure.sqlalchemy.converters.playlists import (
 )
 from app.infrastructure.sqlalchemy.models.channels import ChannelORM
 from app.infrastructure.sqlalchemy.models.videos import PlaylistItemORM, PlaylistORM, VideoORM
+from app.infrastructure.sqlalchemy.readers.base import SAReader
 
 
-@dataclass
-class SAPlaylistReader(IPlaylistReader):
-    _session: AsyncSession
-
+class SAPlaylistReader(SAReader, IPlaylistReader):
     async def _get_playlists_preview(
         self,
         *filters,

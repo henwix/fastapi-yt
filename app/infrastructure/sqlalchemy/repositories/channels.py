@@ -1,21 +1,17 @@
-from dataclasses import dataclass
 from typing import Any, NoReturn
 from uuid import UUID
 
 from sqlalchemy import delete, exists, select, update
 from sqlalchemy.exc import DBAPIError, IntegrityError
-from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.domain.channels.entities import Channel
 from app.domain.channels.exceptions import ChannelWithEmailAlreadyExistsError, ChannelWithSlugAlreadyExistsError
 from app.domain.channels.repositories import IChannelRepository
 from app.infrastructure.sqlalchemy.models.channels import ChannelORM
+from app.infrastructure.sqlalchemy.repositories.base import SARepository
 
 
-@dataclass
-class SAChannelRepository(IChannelRepository):
-    _session: AsyncSession
-
+class SAChannelRepository(SARepository, IChannelRepository):
     def _parse_db_error(self, error: DBAPIError, channel: Channel) -> NoReturn:
         cause: BaseException | None = getattr(error.orig, '__cause__', None)
         constraint_name: str | None = getattr(cause, 'constraint_name', None)

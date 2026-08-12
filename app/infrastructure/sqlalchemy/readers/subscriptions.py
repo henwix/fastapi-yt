@@ -1,9 +1,7 @@
-from dataclasses import dataclass
 from datetime import datetime
 from uuid import UUID
 
 from sqlalchemy import select, tuple_
-from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.application.common.pagination import CursorPagination
 from app.application.common.sorting import SortingOrderEnum
@@ -11,12 +9,10 @@ from app.application.subscriptions.dto import DetailedSubscriptionDTO
 from app.application.subscriptions.interfaces.reader import ISubscriptionReader
 from app.application.subscriptions.queries import SubscriptionsSorting
 from app.infrastructure.sqlalchemy.models.channels import ChannelORM, SubscriptionORM
+from app.infrastructure.sqlalchemy.readers.base import SAReader
 
 
-@dataclass
-class SASubscriptionReader(ISubscriptionReader):
-    _session: AsyncSession
-
+class SASubscriptionReader(SAReader, ISubscriptionReader):
     async def get_subscribers_by_id(
         self,
         subscribed_to_id: UUID,

@@ -19,10 +19,8 @@ from app.domain.video_comment_reactions.exceptions import VideoCommentReactionNo
 from app.domain.video_comments.exceptions import VideoCommentNotFoundError
 from app.presentation.api.openapi.common import error_response
 from app.presentation.api.v1.di.current_channel_id import CurrentChannelID
-from app.presentation.api.v1.schemas.video_comment_reactions import (
-    CreateVideoCommentReactionInSchema,
-    VideoCommentReactionOutSchema,
-)
+from app.presentation.api.v1.schemas.requests.video_comment_reactions import CreateVideoCommentReactionInSchema
+from app.presentation.api.v1.schemas.responses.video_comment_reactions import VideoCommentReactionOutSchema
 
 router = APIRouter(
     prefix='/video_comments/{video_comment_id}/reactions',

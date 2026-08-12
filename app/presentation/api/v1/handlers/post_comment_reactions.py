@@ -22,10 +22,8 @@ from app.domain.post_comment_reactions.exceptions import (
 from app.domain.post_comments.exceptions import PostCommentNotFoundError
 from app.presentation.api.openapi.common import error_response
 from app.presentation.api.v1.di.current_channel_id import CurrentChannelID
-from app.presentation.api.v1.schemas.post_comment_reactions import (
-    CreatePostCommentReactionInSchema,
-    PostCommentReactionOutSchema,
-)
+from app.presentation.api.v1.schemas.requests.post_comment_reactions import CreatePostCommentReactionInSchema
+from app.presentation.api.v1.schemas.responses.post_comment_reactions import PostCommentReactionOutSchema
 
 router = APIRouter(
     prefix='/post_comments/{post_comment_id}/reactions',

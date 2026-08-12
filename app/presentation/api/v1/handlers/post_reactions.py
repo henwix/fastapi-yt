@@ -13,7 +13,8 @@ from app.domain.post_reactions.exceptions import PostReactionNotFoundError
 from app.domain.posts.exceptions import PostNotFoundError
 from app.presentation.api.openapi.common import error_response
 from app.presentation.api.v1.di.current_channel_id import CurrentChannelID
-from app.presentation.api.v1.schemas.post_reactions import CreatePostReactionInSchema, PostReactionOutSchema
+from app.presentation.api.v1.schemas.requests.post_reactions import CreatePostReactionInSchema
+from app.presentation.api.v1.schemas.responses.post_reactions import PostReactionOutSchema
 
 router = APIRouter(
     prefix='/posts/{post_id}/reactions',

@@ -11,7 +11,8 @@ from app.domain.videos.exceptions import VideoAccessForbiddenError, VideoNotFoun
 from app.presentation.api.openapi.common import error_response
 from app.presentation.api.v1.di.current_channel_id import CurrentChannelID
 from app.presentation.api.v1.handlers.common.params import PathVideoId
-from app.presentation.api.v1.schemas.video_reactions import CreateVideoReactionInSchema, VideoReactionOutSchema
+from app.presentation.api.v1.schemas.requests.video_reactions import CreateVideoReactionInSchema
+from app.presentation.api.v1.schemas.responses.video_reactions import VideoReactionOutSchema
 
 router = APIRouter(
     prefix='/videos/{video_id}/reactions',

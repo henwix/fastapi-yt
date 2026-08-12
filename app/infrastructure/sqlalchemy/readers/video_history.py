@@ -1,9 +1,7 @@
-from dataclasses import dataclass
 from datetime import datetime
 from uuid import UUID
 
 from sqlalchemy import select, tuple_
-from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.application.common.pagination import CursorPagination
 from app.application.common.sorting import SortingOrderEnum
@@ -13,12 +11,10 @@ from app.application.video_history.queries import VideoHistorySorting, VideoHist
 from app.infrastructure.sqlalchemy.converters.video_history import convert_row_to_preview_video_history_dto
 from app.infrastructure.sqlalchemy.models.channels import ChannelORM
 from app.infrastructure.sqlalchemy.models.videos import VideoHistoryItemORM, VideoORM
+from app.infrastructure.sqlalchemy.readers.base import SAReader
 
 
-@dataclass
-class SAVideoHistoryReader(IVideoHistoryReader):
-    _session: AsyncSession
-
+class SAVideoHistoryReader(SAReader, IVideoHistoryReader):
     async def get_many(
         self,
         channel_id: UUID,

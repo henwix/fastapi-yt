@@ -3,9 +3,7 @@ from uuid import UUID
 
 from pydantic import HttpUrl
 
-from app.application.common.sorting import SortingOrderEnum
 from app.application.subscriptions.dto import DetailedSubscriptionDTO
-from app.application.subscriptions.queries import SubscriptionsSortingFieldsEnum
 from app.domain.subscriptions.entities import Subscription
 from app.presentation.api.v1.schemas.base import BaseSchema
 
@@ -38,11 +36,6 @@ class DetailedSubscriptionOutSchema(BaseSchema):
             channel_slug=dto.channel_slug,
             created_at=dto.created_at,
         )
-
-
-class SubscriptionsSortingParams(BaseSchema):
-    sort_by: SubscriptionsSortingFieldsEnum = SubscriptionsSortingFieldsEnum.CREATED_AT
-    order: SortingOrderEnum = SortingOrderEnum.DESC
 
 
 class SubscriptionsCursorResponse(BaseSchema):

@@ -1,9 +1,7 @@
-from dataclasses import dataclass
 from typing import NoReturn
 
 from sqlalchemy.dialects.postgresql import insert
 from sqlalchemy.exc import DBAPIError, IntegrityError
-from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.domain.channels.exceptions import ChannelNotFoundByIdError
 from app.domain.video_views.constants import VIDEO_VIEWS_LIMIT_PER_DAY
@@ -11,12 +9,10 @@ from app.domain.video_views.entities import VideoView
 from app.domain.video_views.repositories import IVideoViewRepository
 from app.domain.videos.exceptions import VideoNotFoundError
 from app.infrastructure.sqlalchemy.models.videos import VideoViewORM
+from app.infrastructure.sqlalchemy.repositories.base import SARepository
 
 
-@dataclass
-class SAVideoViewRepository(IVideoViewRepository):
-    _session: AsyncSession
-
+class SAVideoViewRepository(SARepository, IVideoViewRepository):
     def _parse_db_error(self, error: DBAPIError, video_view: VideoView) -> NoReturn:
         cause = getattr(error.orig, '__cause__', None)
         constraint_name = getattr(cause, 'constraint_name', None)

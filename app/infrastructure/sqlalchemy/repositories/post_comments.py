@@ -1,10 +1,8 @@
-from dataclasses import dataclass
 from typing import NoReturn
 from uuid import UUID
 
 from sqlalchemy import delete, select, update
 from sqlalchemy.exc import DBAPIError, IntegrityError
-from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.domain.channels.exceptions import ChannelNotFoundByIdError
 from app.domain.post_comments.entities import PostComment
@@ -12,12 +10,10 @@ from app.domain.post_comments.exceptions import PostCommentNotFoundError
 from app.domain.post_comments.repositories import IPostCommentRepository
 from app.domain.posts.exceptions import PostNotFoundError
 from app.infrastructure.sqlalchemy.models.posts import PostCommentORM
+from app.infrastructure.sqlalchemy.repositories.base import SARepository
 
 
-@dataclass
-class SAPostCommentRepository(IPostCommentRepository):
-    _session: AsyncSession
-
+class SAPostCommentRepository(SARepository, IPostCommentRepository):
     def _parse_db_error(self, error: DBAPIError, post_comment: PostComment) -> NoReturn:
         cause: BaseException | None = getattr(error.orig, '__cause__', None)
         constraint_name: str | None = getattr(cause, 'constraint_name', None)

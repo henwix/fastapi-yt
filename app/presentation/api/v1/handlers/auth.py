@@ -6,7 +6,8 @@ from app.application.auth.commands import LoginCommand
 from app.application.auth.use_cases.login import LoginUseCase
 from app.domain.auth.exceptions import IncorrectEmailOrPasswordError
 from app.presentation.api.openapi.common import error_response
-from app.presentation.api.v1.schemas.auth import JWTOutSchema, LoginInSchema
+from app.presentation.api.v1.schemas.requests.auth import LoginInSchema
+from app.presentation.api.v1.schemas.responses.auth import JWTOutSchema
 
 router = APIRouter(
     prefix='/auth',

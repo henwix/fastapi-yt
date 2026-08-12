@@ -1,8 +1,5 @@
-from dataclasses import dataclass
-
 import sqlalchemy as sa
 from sqlalchemy import select
-from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.application.channels.dto import ChannelAboutInfoDTO
 from app.application.channels.interfaces.reader import IChannelReader
@@ -11,12 +8,10 @@ from app.domain.videos.enums import VideoPrivacyStatusEnum, VideoUploadStatusEnu
 from app.infrastructure.sqlalchemy.converters.channels import convert_row_to_channel_about_info_dto
 from app.infrastructure.sqlalchemy.models.channels import ChannelORM, SubscriptionORM
 from app.infrastructure.sqlalchemy.models.videos import VideoORM
+from app.infrastructure.sqlalchemy.readers.base import SAReader
 
 
-@dataclass
-class SAChannelReader(IChannelReader):
-    _session: AsyncSession
-
+class SAChannelReader(SAReader, IChannelReader):
     async def try_get_about_info(self, slug: str) -> ChannelAboutInfoDTO:
         subscribers_count_subquery = (
             select(sa.func.count(SubscriptionORM.subscribed_to_id))

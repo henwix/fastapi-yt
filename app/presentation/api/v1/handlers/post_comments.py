@@ -25,13 +25,15 @@ from app.domain.posts.exceptions import PostNotFoundError
 from app.presentation.api.openapi.common import error_response
 from app.presentation.api.v1.di.current_channel_id import CurrentChannelID
 from app.presentation.api.v1.schemas.common import CursorPaginationParams
-from app.presentation.api.v1.schemas.post_comments import (
+from app.presentation.api.v1.schemas.requests.post_comments import (
     CreatePostCommentInSchema,
+    PostCommentsSortingParams,
+    UpdatePostCommentInSchema,
+)
+from app.presentation.api.v1.schemas.responses.post_comments import (
     DetailedPostCommentOutSchema,
     PostCommentOutSchema,
     PostCommentsCursorResponse,
-    PostCommentsSortingParams,
-    UpdatePostCommentInSchema,
 )
 
 router = APIRouter(

@@ -1,23 +1,19 @@
-from dataclasses import dataclass
 from typing import NoReturn
 from uuid import UUID
 
 from sqlalchemy import delete
 from sqlalchemy.dialects.postgresql import insert
 from sqlalchemy.exc import DBAPIError, IntegrityError
-from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.domain.channels.exceptions import ChannelNotFoundByIdError
 from app.domain.post_reactions.entities import PostReaction
 from app.domain.post_reactions.repositories import IPostReactionRepository
 from app.domain.posts.exceptions import PostNotFoundError
 from app.infrastructure.sqlalchemy.models.posts import PostReactionORM
+from app.infrastructure.sqlalchemy.repositories.base import SARepository
 
 
-@dataclass
-class SAPostReactionRepository(IPostReactionRepository):
-    _session: AsyncSession
-
+class SAPostReactionRepository(SARepository, IPostReactionRepository):
     def _parse_db_error(self, error: DBAPIError, post_reaction: PostReaction) -> NoReturn:
         cause: BaseException | None = getattr(error.orig, '__cause__', None)
         constraint_name: str | None = getattr(cause, 'constraint_name', None)

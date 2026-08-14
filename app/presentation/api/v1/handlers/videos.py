@@ -10,17 +10,19 @@ from app.application.videos.commands import (
     UpdateVideoCommand,
 )
 from app.application.videos.queries import (
+    GetChannelVideosQuery,
     GetPersonalVideosQuery,
     GetVideoQuery,
     PersonalVideosFilters,
     PreviewVideosSorting,
 )
 from app.application.videos.use_cases.delete_video import DeleteVideoUseCase
+from app.application.videos.use_cases.get_channel_videos import GetChannelVideosUseCase
 from app.application.videos.use_cases.get_personal_videos import GetPersonalVideosUseCase
 from app.application.videos.use_cases.get_video import GetVideoUseCase
 from app.application.videos.use_cases.update_video import UpdateVideoUseCase
 from app.domain.auth.exceptions import JWTExpiredTokenError, JWTInvalidTokenError, NotAuthenticatedError
-from app.domain.channels.exceptions import ChannelNotActiveError, ChannelNotFoundByIdError
+from app.domain.channels.exceptions import ChannelNotActiveError, ChannelNotFoundByIdError, ChannelNotFoundBySlugError
 from app.domain.common.exceptions import InvalidCursorError
 from app.domain.videos.exceptions import (
     VideoAccessForbiddenError,
@@ -28,7 +30,7 @@ from app.domain.videos.exceptions import (
 )
 from app.presentation.api.openapi.common import error_response
 from app.presentation.api.v1.di.current_channel_id import CurrentChannelID, OptionalCurrentChannelID
-from app.presentation.api.v1.handlers.common.params import PathVideoId
+from app.presentation.api.v1.handlers.common.params import PathChannelSlug, PathVideoId
 from app.presentation.api.v1.schemas.common import CursorPaginationParams
 from app.presentation.api.v1.schemas.requests.videos import (
     PersonalPreviewVideosFiltersParams,
@@ -36,6 +38,8 @@ from app.presentation.api.v1.schemas.requests.videos import (
     UpdateVideoInSchema,
 )
 from app.presentation.api.v1.schemas.responses.videos import (
+    ChannelPreviewVideoOutSchema,
+    ChannelPreviewVideosCursorResponse,
     DetailedVideoOutSchema,
     PersonalPreviewVideoOutSchema,
     PersonalPreviewVideosCursorResponse,
@@ -43,14 +47,14 @@ from app.presentation.api.v1.schemas.responses.videos import (
 )
 
 router = APIRouter(
-    prefix='/videos',
+    prefix='',
     tags=['Videos'],
     route_class=DishkaRoute,
 )
 
 
 @router.get(
-    path='/personal',
+    path='/videos/personal',
     responses={
         status.HTTP_400_BAD_REQUEST: error_response(InvalidCursorError),
         status.HTTP_401_UNAUTHORIZED: error_response(
@@ -87,8 +91,33 @@ async def get_personal_videos(
     )
 
 
+@router.get(
+    path='/channels/{channel_slug}/videos',
+    responses={
+        status.HTTP_404_NOT_FOUND: error_response(ChannelNotFoundBySlugError),
+    },
+)
+async def get_channel_videos(
+    channel_slug: PathChannelSlug,
+    sorting: Annotated[PreviewVideosSortingParams, Depends()],
+    pagination: Annotated[CursorPaginationParams, Depends()],
+    use_case: FromDishka[GetChannelVideosUseCase],
+    request: Request,
+) -> ChannelPreviewVideosCursorResponse:
+    query = GetChannelVideosQuery(
+        channel_slug=channel_slug,
+        sorting=PreviewVideosSorting(**sorting.model_dump()),
+        pagination=CursorPagination(**pagination.model_dump(exclude_none=True)),
+    )
+    videos, cursor = await use_case.execute(query=query)
+    return ChannelPreviewVideosCursorResponse(
+        next_page=str(request.url.include_query_params(cursor=cursor)) if cursor else None,
+        results=[ChannelPreviewVideoOutSchema.from_dto(dto=video) for video in videos],
+    )
+
+
 @router.delete(
-    path='/{video_id}',
+    path='/videos/{video_id}',
     status_code=status.HTTP_204_NO_CONTENT,
     responses={
         status.HTTP_401_UNAUTHORIZED: error_response(
@@ -116,7 +145,7 @@ async def delete_video(
 
 
 @router.get(
-    path='/{video_id}',
+    path='/videos/{video_id}',
     responses={
         status.HTTP_401_UNAUTHORIZED: error_response(
             NotAuthenticatedError,
@@ -144,7 +173,7 @@ async def get_video(
 
 
 @router.patch(
-    path='/{video_id}',
+    path='/videos/{video_id}',
     responses={
         status.HTTP_401_UNAUTHORIZED: error_response(
             NotAuthenticatedError,

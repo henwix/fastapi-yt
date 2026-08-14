@@ -22,6 +22,3 @@ class PostCommentReaction(BaseEntity):
             channel_id=channel_id,
             reaction_type=reaction_type,
         )
-
-    def set_reaction_type(self, reaction_type: ReactionTypeEnum) -> None:
-        self.reaction_type = reaction_type

@@ -13,6 +13,7 @@ from app.infrastructure.sqlalchemy.readers.base import SAReader
 
 class SAChannelReader(SAReader, IChannelReader):
     async def try_get_about_info(self, slug: str) -> ChannelAboutInfoDTO:
+        # TODO: query refactor
         subscribers_count_subquery = (
             select(sa.func.count(SubscriptionORM.subscribed_to_id))
             .where(SubscriptionORM.subscribed_to_id == ChannelORM.id)

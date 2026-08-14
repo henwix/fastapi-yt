@@ -35,6 +35,7 @@ class SAPlaylistReader(SAReader, IPlaylistReader):
         sorting: PlaylistsPreviewSorting,
         pagination: CursorPagination,
     ):
+        # TODO: query refactor
         videos_count_subquery = (
             select(sa.func.count(PlaylistItemORM.playlist_id))
             .join(VideoORM, PlaylistItemORM.video_id == VideoORM.id)

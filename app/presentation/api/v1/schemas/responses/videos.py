@@ -2,7 +2,7 @@ from datetime import datetime
 
 from pydantic import HttpUrl
 
-from app.application.videos.dto import DetailedVideoDTO, PersonalPreviewVideoDTO
+from app.application.videos.dto import ChannelPreviewVideoDTO, DetailedVideoDTO, PersonalPreviewVideoDTO
 from app.domain.videos.entities import Video
 from app.domain.videos.enums import VideoPrivacyStatusEnum, VideoUploadStatusEnum
 from app.presentation.api.v1.schemas.base import BaseSchema
@@ -52,12 +52,25 @@ class DetailedVideoOutSchema(BaseSchema):
         )
 
 
-class PreviewVideoOutSchema(BaseSchema):
+class ChannelPreviewVideoOutSchema(BaseSchema):
     id: str
     title: str
+    views_count: int
     created_at: datetime
-    author_name: str
-    author_slug: str
+
+    @staticmethod
+    def from_dto(dto: ChannelPreviewVideoDTO) -> ChannelPreviewVideoOutSchema:
+        return ChannelPreviewVideoOutSchema(
+            id=dto.id,
+            title=dto.title,
+            views_count=dto.views_count,
+            created_at=dto.created_at,
+        )
+
+
+class ChannelPreviewVideosCursorResponse(BaseSchema):
+    next_page: HttpUrl | None
+    results: list[ChannelPreviewVideoOutSchema]
 
 
 class PersonalPreviewVideoOutSchema(BaseSchema):

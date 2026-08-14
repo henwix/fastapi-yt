@@ -5,13 +5,14 @@ from sqlalchemy import select, tuple_
 
 from app.application.common.pagination import CursorPagination
 from app.application.common.sorting import SortingOrderEnum
-from app.application.videos.dto import DetailedVideoDTO, PersonalPreviewVideoDTO
+from app.application.videos.dto import ChannelPreviewVideoDTO, DetailedVideoDTO, PersonalPreviewVideoDTO
 from app.application.videos.interfaces.reader import IVideoReader
 from app.application.videos.queries import PersonalVideosFilters, PreviewVideosSorting, PreviewVideosSortingFieldEnum
 from app.domain.common.constants import Empty
-from app.domain.videos.enums import VideoUploadStatusEnum
+from app.domain.videos.enums import VideoPrivacyStatusEnum, VideoUploadStatusEnum
 from app.domain.videos.exceptions import VideoNotFoundError
 from app.infrastructure.sqlalchemy.converters.videos import (
+    convert_row_to_channel_preview_video_dto,
     convert_row_to_detailed_video_dto,
     convert_row_to_personal_preview_video_dto,
 )
@@ -45,6 +46,49 @@ class SAVideoReader(SAReader, IVideoReader):
             raise VideoNotFoundError(video_id=id)
 
         return convert_row_to_detailed_video_dto(row=video_row)
+
+    async def get_channel_videos(
+        self,
+        channel_id: UUID,
+        cursor_sort_value: datetime | int | None,
+        cursor_id_value: str | None,
+        sorting: PreviewVideosSorting,
+        pagination: CursorPagination,
+    ) -> list[ChannelPreviewVideoDTO]:
+        stmt = select(
+            VideoORM.id,
+            VideoORM.title,
+            VideoORM.views_count,
+            VideoORM.created_at,
+        ).where(
+            VideoORM.channel_id == channel_id,
+            VideoORM.upload_status == VideoUploadStatusEnum.COMPLETED.value,
+            VideoORM.privacy_status == VideoPrivacyStatusEnum.PUBLIC.value,
+        )
+
+        match sorting.sort_by:
+            case PreviewVideosSortingFieldEnum.CREATED_AT:
+                sort_field = VideoORM.created_at
+            case PreviewVideosSortingFieldEnum.POPULAR:
+                sort_field = VideoORM.views_count
+
+        if cursor_sort_value is not None and cursor_id_value is not None:
+            cursor_tuple = tuple_(sort_field, VideoORM.id)
+
+            if sorting.order is SortingOrderEnum.DESC:
+                stmt = stmt.where(cursor_tuple < (cursor_sort_value, cursor_id_value))
+            else:
+                stmt = stmt.where(cursor_tuple > (cursor_sort_value, cursor_id_value))
+
+        stmt = stmt.order_by(
+            sort_field.desc() if sorting.order is SortingOrderEnum.DESC else sort_field,
+            VideoORM.id.desc() if sorting.order is SortingOrderEnum.DESC else VideoORM.id,
+        )
+        stmt = stmt.limit(limit=pagination.per_page + 1)
+
+        result = await self._session.execute(statement=stmt)
+        video_rows = result.mappings().all()
+        return [convert_row_to_channel_preview_video_dto(row=row) for row in video_rows]
 
     async def get_personal_videos(
         self,

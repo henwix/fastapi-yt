@@ -37,3 +37,10 @@ class GetPersonalVideosQuery:
     filters: PersonalVideosFilters
     sorting: PreviewVideosSorting
     pagination: CursorPagination
+
+
+@dataclass(kw_only=True, frozen=True)
+class GetChannelVideosQuery:
+    channel_slug: str
+    sorting: PreviewVideosSorting
+    pagination: CursorPagination

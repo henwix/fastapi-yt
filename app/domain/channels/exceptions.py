@@ -64,3 +64,9 @@ class ChannelAvatarAlreadySetError(AppException):
     message = 'This Channel avatar is already set'
     channel_id: UUID
     avatar_s3_key: str
+
+
+@dataclass(kw_only=True)
+class ChannelActivationFailedError(AppException):
+    message = 'Channel activation failed'
+    channel_id: UUID

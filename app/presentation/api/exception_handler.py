@@ -4,12 +4,15 @@ from logging import getLogger
 from fastapi import Request, status
 
 from app.domain.auth.exceptions import (
+    ChannelActivationInvalidCodeError,
+    ChannelActivationInvalidIdError,
     IncorrectEmailOrPasswordError,
     JWTExpiredTokenError,
     JWTInvalidTokenError,
     NotAuthenticatedError,
 )
 from app.domain.channels.exceptions import (
+    ChannelActivationFailedError,
     ChannelAvatarAlreadySetError,
     ChannelAvatarInvalidFileContentTypeError,
     ChannelAvatarInvalidFileFormatError,
@@ -86,11 +89,14 @@ def get_http_status_code(exc: AppException):
         ChannelAvatarInvalidKeyError: status.HTTP_400_BAD_REQUEST,
         ChannelAvatarInvalidFileContentTypeError: status.HTTP_400_BAD_REQUEST,
         ChannelAvatarAlreadySetError: status.HTTP_400_BAD_REQUEST,
+        ChannelActivationFailedError: status.HTTP_400_BAD_REQUEST,
+        ChannelNotActiveError: status.HTTP_403_FORBIDDEN,
         ChannelNotFoundByIdError: status.HTTP_404_NOT_FOUND,
         ChannelNotFoundBySlugError: status.HTTP_404_NOT_FOUND,
         ChannelAvatarNotFoundError: status.HTTP_404_NOT_FOUND,
-        ChannelNotActiveError: status.HTTP_403_FORBIDDEN,
         # Auth
+        ChannelActivationInvalidIdError: status.HTTP_400_BAD_REQUEST,
+        ChannelActivationInvalidCodeError: status.HTTP_400_BAD_REQUEST,
         IncorrectEmailOrPasswordError: status.HTTP_401_UNAUTHORIZED,
         JWTInvalidTokenError: status.HTTP_401_UNAUTHORIZED,
         JWTExpiredTokenError: status.HTTP_401_UNAUTHORIZED,

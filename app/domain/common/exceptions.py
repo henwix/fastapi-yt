@@ -55,3 +55,9 @@ class S3ObjectAccessForbiddenError(AppException):
 class S3UnavailableError(AppException):
     message = 'S3 unavailable'
     exc_details: str
+
+
+@dataclass(kw_only=True)
+class EmailSendingError(AppException):
+    message = 'Error occured during SMTP email sending'
+    exc_details: str

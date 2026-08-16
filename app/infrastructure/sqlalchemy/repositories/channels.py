@@ -78,6 +78,11 @@ class SAChannelRepository(SARepository, IChannelRepository):
         orm_channel = result.scalar_one_or_none()
         return orm_channel.to_entity() if orm_channel else None
 
+    async def activate(self, id: UUID) -> bool:
+        stmt = update(ChannelORM).where(ChannelORM.id == id, ChannelORM.is_active.is_(False)).values(is_active=True)
+        result = await self._session.execute(statement=stmt)
+        return result.rowcount > 0
+
     async def set_password(self, id: UUID, password_hash: str) -> bool:
         stmt = update(ChannelORM).where(ChannelORM.id == id).values(password_hash=password_hash)
         result = await self._session.execute(statement=stmt)

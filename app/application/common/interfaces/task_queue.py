@@ -7,3 +7,6 @@ class ITaskQueue(ABC):
 
     @abstractmethod
     async def abort_multipart_upload(self, bucket: str, key: str, upload_id: str) -> None: ...
+
+    @abstractmethod
+    async def send_activation_email(self, recipients: list[str], template_context: dict | None = None) -> None: ...

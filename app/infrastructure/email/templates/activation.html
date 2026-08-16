@@ -1,0 +1,311 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="color-scheme" content="dark">
+    <meta name="supported-color-schemes" content="dark">
+
+    <title>Verify your account</title>
+</head>
+
+<body style="
+    margin: 0;
+    padding: 0;
+    width: 100%;
+    min-width: 100%;
+    background-color: #09090b;
+    color: #fafafa;
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+    -webkit-font-smoothing: antialiased;
+">
+
+    <!-- Preheader -->
+    <div style="
+        display: none;
+        max-height: 0;
+        overflow: hidden;
+        opacity: 0;
+        color: transparent;
+        visibility: hidden;
+    ">
+        Verify your fastapi-yt account using the confirmation code.
+    </div>
+
+    <table
+        role="presentation"
+        width="100%"
+        cellpadding="0"
+        cellspacing="0"
+        border="0"
+        style="
+            width: 100%;
+            margin: 0;
+            padding: 0;
+            background-color: #09090b;
+        "
+    >
+        <tr>
+            <td
+                align="center"
+                style="
+                    padding: 48px 16px;
+                    background-color: #09090b;
+                "
+            >
+
+                <!-- Main container -->
+                <table
+                    role="presentation"
+                    width="100%"
+                    cellpadding="0"
+                    cellspacing="0"
+                    border="0"
+                    style="
+                        width: 100%;
+                        max-width: 560px;
+                        margin: 0 auto;
+                        background-color: #18181b;
+                        border: 1px solid #27272a;
+                        border-radius: 16px;
+                        overflow: hidden;
+                    "
+                >
+
+                    <!-- Header -->
+                    <tr>
+                        <td
+                            style="
+                                padding: 28px 32px;
+                                border-bottom: 1px solid #27272a;
+                            "
+                        >
+                            <table
+                                role="presentation"
+                                width="100%"
+                                cellpadding="0"
+                                cellspacing="0"
+                                border="0"
+                            >
+                                <tr>
+                                    <td>
+                                        <span style="
+                                            font-size: 18px;
+                                            line-height: 24px;
+                                            font-weight: 700;
+                                            color: #fafafa;
+                                            letter-spacing: -0.2px;
+                                        ">
+                                            fastapi-yt
+                                        </span>
+                                    </td>
+                                </tr>
+                            </table>
+                        </td>
+                    </tr>
+
+                    <!-- Content -->
+                    <tr>
+                        <td style="padding: 40px 32px 44px;">
+
+                            <h1 style="
+                                margin: 0 0 20px;
+                                padding: 0;
+                                font-size: 28px;
+                                line-height: 36px;
+                                font-weight: 700;
+                                letter-spacing: -0.5px;
+                                color: #fafafa;
+                            ">
+                                Verify your account
+                            </h1>
+
+                            <p style="
+                                margin: 0 0 20px;
+                                padding: 0;
+                                font-size: 16px;
+                                line-height: 26px;
+                                color: #d4d4d8;
+                            ">
+                                Hi <strong style="color: #fafafa;">{{ name }}</strong>,
+                            </p>
+
+                            <p style="
+                                margin: 0 0 28px;
+                                padding: 0;
+                                font-size: 16px;
+                                line-height: 26px;
+                                color: #d4d4d8;
+                            ">
+                                Your fastapi-yt account has been registered using
+                                <strong style="color: #fafafa;">{{ email }}</strong>.
+                                Please use the confirmation code below to activate your account.
+                            </p>
+
+                            <!-- Verification data -->
+                            <table
+                                role="presentation"
+                                width="100%"
+                                cellpadding="0"
+                                cellspacing="0"
+                                border="0"
+                                style="
+                                    width: 100%;
+                                    margin: 0 0 28px;
+                                "
+                            >
+                                <tr>
+                                    <td
+                                        style="
+                                            padding: 24px 16px;
+                                            background-color: #09090b;
+                                            border: 1px solid #27272a;
+                                            border-radius: 12px;
+                                        "
+                                    >
+
+                                        <!-- Confirmation code -->
+                                        <p style="
+                                            margin: 0 0 10px;
+                                            padding: 0;
+                                            font-size: 12px;
+                                            line-height: 18px;
+                                            font-weight: 600;
+                                            letter-spacing: 0.8px;
+                                            text-transform: uppercase;
+                                            color: #71717a;
+                                        ">
+                                            Confirmation code
+                                        </p>
+
+                                        <p style="
+                                            margin: 0 0 20px;
+                                            padding: 0;
+                                            font-family: 'SFMono-Regular', Consolas, 'Liberation Mono', Menlo, monospace;
+                                            font-size: 24px;
+                                            line-height: 32px;
+                                            font-weight: 600;
+                                            letter-spacing: 1px;
+                                            color: #fafafa;
+                                            word-break: break-all;
+                                            overflow-wrap: anywhere;
+                                        ">
+                                            {{ code }}
+                                        </p>
+
+                                        <!-- Channel ID -->
+                                        <p style="
+                                            margin: 0 0 10px;
+                                            padding: 0;
+                                            font-size: 12px;
+                                            line-height: 18px;
+                                            font-weight: 600;
+                                            letter-spacing: 0.8px;
+                                            text-transform: uppercase;
+                                            color: #71717a;
+                                        ">
+                                            Channel ID
+                                        </p>
+
+                                        <p style="
+                                            margin: 0;
+                                            padding: 0;
+                                            font-family: 'SFMono-Regular', Consolas, 'Liberation Mono', Menlo, monospace;
+                                            font-size: 14px;
+                                            line-height: 22px;
+                                            color: #a1a1aa;
+                                            word-break: break-all;
+                                            overflow-wrap: anywhere;
+                                        ">
+                                            {{ channel_id }}
+                                        </p>
+
+                                    </td>
+                                </tr>
+                            </table>
+
+                            <p style="
+                                margin: 0 0 12px;
+                                padding: 0;
+                                font-size: 14px;
+                                line-height: 22px;
+                                color: #a1a1aa;
+                            ">
+                                Enter the confirmation code on the account activation page
+                                to complete your registration.
+                            </p>
+
+                            <p style="
+                                margin: 0;
+                                padding: 0;
+                                font-size: 14px;
+                                line-height: 22px;
+                                color: #71717a;
+                            ">
+                                If you didn't create this account, you can safely ignore this email.
+                            </p>
+
+                        </td>
+                    </tr>
+
+                    <!-- Footer -->
+                    <tr>
+                        <td
+                            style="
+                                padding: 22px 32px;
+                                border-top: 1px solid #27272a;
+                                background-color: #18181b;
+                            "
+                        >
+                            <p style="
+                                margin: 0;
+                                padding: 0;
+                                font-size: 12px;
+                                line-height: 18px;
+                                color: #52525b;
+                            ">
+                                This is an automated message from fastapi-yt.
+                                Please do not reply to this email.
+                            </p>
+                        </td>
+                    </tr>
+
+                </table>
+
+                <!-- Outside footer -->
+                <table
+                    role="presentation"
+                    width="100%"
+                    cellpadding="0"
+                    cellspacing="0"
+                    border="0"
+                    style="
+                        width: 100%;
+                        max-width: 560px;
+                        margin: 0 auto;
+                    "
+                >
+                    <tr>
+                        <td
+                            align="center"
+                            style="padding: 20px 16px 0;"
+                        >
+                            <p style="
+                                margin: 0;
+                                padding: 0;
+                                font-size: 11px;
+                                line-height: 18px;
+                                color: #52525b;
+                            ">
+                                © fastapi-yt
+                            </p>
+                        </td>
+                    </tr>
+                </table>
+
+            </td>
+        </tr>
+    </table>
+
+</body>
+</html>

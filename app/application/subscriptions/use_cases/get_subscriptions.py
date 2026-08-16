@@ -22,7 +22,7 @@ class GetSubscriptionsUseCase:
 
         if query.pagination.cursor is not Empty.UNSET:
             try:
-                decoded_cursor = base64url_decode(value=query.pagination.cursor)
+                decoded_cursor: dict[str, str] = base64url_decode(value=query.pagination.cursor)
 
                 cursor_id_value = UUID(decoded_cursor['id'])
 

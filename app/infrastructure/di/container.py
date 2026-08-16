@@ -2,8 +2,10 @@ from collections.abc import AsyncGenerator
 from functools import lru_cache
 
 from dishka import AsyncContainer, Provider, Scope, make_async_container, provide
+from redis.asyncio import Redis
 from sqlalchemy.ext.asyncio import AsyncEngine, AsyncSession, async_sessionmaker
 
+from app.application.auth.use_cases.activate_channel import ActivateChannelUseCase
 from app.application.auth.use_cases.login import LoginUseCase
 from app.application.channels.interfaces.reader import IChannelReader
 from app.application.channels.use_cases.confirm_channel_avatar_upload import ConfirmChannelAvatarUploadUseCase
@@ -15,6 +17,7 @@ from app.application.channels.use_cases.get_channel import GetChannelUseCase
 from app.application.channels.use_cases.get_channel_about_info import GetChannelAboutInfoUseCase
 from app.application.channels.use_cases.set_channel_password import SetChannelPasswordUseCase
 from app.application.channels.use_cases.update_channel import UpdateChannelUseCase
+from app.application.common.interfaces.email_provider import IEmailProvider
 from app.application.common.interfaces.jwt import IJWTService
 from app.application.common.interfaces.password_hasher import IPasswordHasher
 from app.application.common.interfaces.s3_provider import IS3Provider
@@ -86,8 +89,10 @@ from app.application.videos.use_cases.get_channel_videos import GetChannelVideos
 from app.application.videos.use_cases.get_personal_videos import GetPersonalVideosUseCase
 from app.application.videos.use_cases.get_video import GetVideoUseCase
 from app.application.videos.use_cases.update_video import UpdateVideoUseCase
+from app.domain.auth.services import AuthService, IAuthService
 from app.domain.channels.repositories import IChannelRepository
 from app.domain.channels.services import ChannelService, IChannelService
+from app.domain.common.repositories.kv import IKVRepository
 from app.domain.playlists.repositories import IPlaylistItemRepository, IPlaylistRepository
 from app.domain.playlists.services import IPlaylistItemService, IPlaylistService, PlaylistItemService, PlaylistService
 from app.domain.post_comment_reactions.repositories import IPostCommentReactionRepository
@@ -112,6 +117,10 @@ from app.domain.video_views.repositories import IVideoViewRepository
 from app.domain.video_views.services import IVideoViewService, VideoViewService
 from app.domain.videos.repositories import IVideoRepository
 from app.domain.videos.services import IVideoService, VideoService
+from app.infrastructure.email.client import FastMailClient
+from app.infrastructure.email.provider import FastMailProvider
+from app.infrastructure.redis.client import get_redis_client
+from app.infrastructure.redis.repository import RedisRepository
 from app.infrastructure.s3.client import BotoS3Client
 from app.infrastructure.s3.provider import BotoS3Provider
 from app.infrastructure.security.jwt import JWTService
@@ -147,7 +156,9 @@ class AppProvider(Provider):
     password_hasher = provide(PwdlibPasswordHasher, scope=Scope.APP, provides=IPasswordHasher)
     jwt_service = provide(JWTService, scope=Scope.APP, provides=IJWTService)
     s3_client = provide(BotoS3Client, scope=Scope.APP)
+    smtp_client = provide(FastMailClient, scope=Scope.APP)
     s3_provider = provide(BotoS3Provider, scope=Scope.REQUEST, provides=IS3Provider)
+    email_provider = provide(FastMailProvider, scope=Scope.REQUEST, provides=IEmailProvider)
     task_queue = provide(TaskiqTaskQueue, scope=Scope.REQUEST, provides=ITaskQueue)
 
 
@@ -168,9 +179,17 @@ class DatabaseProvider(Provider):
         yield session
         await session.close()
 
+    @provide(scope=Scope.APP)
+    async def provide_redis_client(self) -> AsyncGenerator[Redis]:
+        redis = get_redis_client()
+        yield redis
+        await redis.aclose()
+
 
 class RepositoriesProvider(Provider):
     scope = Scope.REQUEST
+
+    redis_repository = provide(RedisRepository, provides=IKVRepository)
 
     channel_repository = provide(SAChannelRepository, provides=IChannelRepository)
     video_repository = provide(SAVideoRepository, provides=IVideoRepository)
@@ -206,6 +225,7 @@ class ReadersProvider(Provider):
 class ServicesProvider(Provider):
     scope = Scope.REQUEST
 
+    auth_service = provide(AuthService, provides=IAuthService)
     channel_service = provide(ChannelService, provides=IChannelService)
     video_service = provide(VideoService, provides=IVideoService)
     video_view_service = provide(VideoViewService, provides=IVideoViewService)
@@ -238,6 +258,7 @@ class UseCasesProvider(Provider):
 
     # Auth
     login = provide(LoginUseCase)
+    activate_channel = provide(ActivateChannelUseCase)
 
     # Videos
     delete_video = provide(DeleteVideoUseCase)

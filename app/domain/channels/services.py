@@ -6,6 +6,7 @@ from uuid import UUID
 from app.domain.channels.constants import CHANNEL_AVATAR_FILE_MIME_TYPES
 from app.domain.channels.entities import Channel
 from app.domain.channels.exceptions import (
+    ChannelActivationFailedError,
     ChannelAvatarInvalidFileFormatError,
     ChannelAvatarInvalidKeyError,
     ChannelNotActiveError,
@@ -26,6 +27,9 @@ class IChannelService(ABC):
 
     @abstractmethod
     async def create(self, channel: Channel) -> Channel: ...
+
+    @abstractmethod
+    async def try_activate(self, id: UUID) -> None: ...
 
     @abstractmethod
     async def get_by_email(self, email: str) -> Channel | None: ...
@@ -66,6 +70,11 @@ class ChannelService(IChannelService):
 
     async def create(self, channel: Channel) -> Channel:
         return await self._channel_repo.create(channel=channel)
+
+    async def try_activate(self, id: UUID) -> None:
+        is_activated = await self._channel_repo.activate(id=id)
+        if not is_activated:
+            raise ChannelActivationFailedError(channel_id=id)
 
     async def get_by_email(self, email: str) -> Channel | None:
         return await self._channel_repo.get_by_email(email=email)

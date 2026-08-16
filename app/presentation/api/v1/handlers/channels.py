@@ -52,6 +52,7 @@ from app.presentation.api.v1.schemas.requests.channels import (
 from app.presentation.api.v1.schemas.responses.channels import (
     ChannelAboutInfoOutSchema,
     ChannelOutSchema,
+    CreateChannelOutSchema,
     GenerateChannelAvatarUploadUrlOutSchema,
 )
 
@@ -75,10 +76,13 @@ router = APIRouter(
 async def create_channel(
     schema: CreateChannelInSchema,
     use_case: FromDishka[CreateChannelUseCase],
-) -> ChannelOutSchema:
+) -> CreateChannelOutSchema:
     command = CreateChannelCommand(**schema.model_dump())
-    channel = await use_case.execute(command=command)
-    return ChannelOutSchema.from_entity(entity=channel)
+    channel, activation_required = await use_case.execute(command=command)
+    return CreateChannelOutSchema(
+        channel=ChannelOutSchema.from_entity(entity=channel),
+        activation_required=activation_required,
+    )
 
 
 @router.get(

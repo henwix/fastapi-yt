@@ -35,6 +35,7 @@ class Channel(BaseEntity):
         password_hash: str,
         description: str = '',
         country: str = '',
+        is_active: bool = True,
     ) -> Channel:
         return Channel(
             email=email,
@@ -43,6 +44,7 @@ class Channel(BaseEntity):
             password_hash=password_hash,
             description=description,
             country=country,
+            is_active=is_active,
         )
 
     def update(

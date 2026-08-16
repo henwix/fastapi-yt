@@ -64,3 +64,8 @@ class GenerateChannelAvatarUploadUrlOutSchema(BaseSchema):
     upload_url: HttpUrl
     key: str
     channel_id: UUID
+
+
+class CreateChannelOutSchema(BaseSchema):
+    channel: ChannelOutSchema
+    activation_required: bool

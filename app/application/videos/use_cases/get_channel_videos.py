@@ -6,6 +6,7 @@ from app.application.videos.interfaces.reader import IVideoReader
 from app.application.videos.queries import GetChannelVideosQuery, PreviewVideosSortingFieldEnum
 from app.domain.channels.services import IChannelService
 from app.domain.common.constants import Empty
+from app.domain.common.exceptions import InvalidCursorError
 from app.utils.base64url import base64url_decode, base64url_encode
 
 
@@ -19,16 +20,19 @@ class GetChannelVideosUseCase:
         cursor_id_value = None
 
         if query.pagination.cursor is not Empty.UNSET:
-            decoded_cursor = base64url_decode(value=query.pagination.cursor)
-            cursor_id_value = decoded_cursor['id']
+            try:
+                decoded_cursor: dict[str, str] = base64url_decode(value=query.pagination.cursor)
+                cursor_id_value = decoded_cursor['id']
 
-            match query.sorting.sort_by:
-                case PreviewVideosSortingFieldEnum.CREATED_AT:
-                    cursor_sort_value = datetime.fromisoformat(
-                        decoded_cursor[PreviewVideosSortingFieldEnum.CREATED_AT.value]
-                    )
-                case PreviewVideosSortingFieldEnum.POPULAR:
-                    cursor_sort_value = int(decoded_cursor[PreviewVideosSortingFieldEnum.POPULAR.value])
+                match query.sorting.sort_by:
+                    case PreviewVideosSortingFieldEnum.CREATED_AT:
+                        cursor_sort_value = datetime.fromisoformat(
+                            decoded_cursor[PreviewVideosSortingFieldEnum.CREATED_AT.value]
+                        )
+                    case PreviewVideosSortingFieldEnum.POPULAR:
+                        cursor_sort_value = int(decoded_cursor[PreviewVideosSortingFieldEnum.POPULAR.value])
+            except Exception as e:
+                raise InvalidCursorError(cursor=query.pagination.cursor, exc_details=str(e)) from e
 
         channel = await self._channel_service.try_get_by_slug(slug=query.channel_slug)
         videos = await self._video_reader.get_channel_videos(

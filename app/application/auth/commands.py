@@ -5,3 +5,9 @@ from dataclasses import dataclass
 class LoginCommand:
     email: str
     password: str
+
+
+@dataclass(kw_only=True, frozen=True)
+class ActivateChannelCommand:
+    code: str
+    channel_id: str

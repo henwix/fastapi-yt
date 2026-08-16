@@ -21,6 +21,9 @@ class IChannelRepository(ABC):
     async def update(self, channel: Channel) -> Channel | None: ...
 
     @abstractmethod
+    async def activate(self, id: UUID) -> bool: ...
+
+    @abstractmethod
     async def set_password(self, id: UUID, password_hash: str) -> bool: ...
 
     @abstractmethod

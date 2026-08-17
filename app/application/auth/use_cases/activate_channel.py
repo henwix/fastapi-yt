@@ -17,10 +17,10 @@ class ActivateChannelUseCase:
 
     async def execute(self, command: ActivateChannelCommand) -> None:
         try:
-            decoded_channel_id = base64url_decode(value=command.channel_id)
+            decoded_channel_id = base64url_decode(value=command.uid)
             channel_id = UUID(decoded_channel_id)
         except Exception as e:
-            raise ChannelActivationInvalidIdError(channel_id=command.channel_id, exc_details=str(e)) from e
+            raise ChannelActivationInvalidIdError(uid=command.uid, exc_details=str(e)) from e
 
         await self._auth_service.validate_activation_code(channel_id=channel_id, code=command.code)
 

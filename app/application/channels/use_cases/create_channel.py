@@ -29,7 +29,7 @@ class CreateChannelUseCase:
         async with password_hash_semaphore:
             password_hash = await asyncio.to_thread(self._password_hasher.get_password_hash, command.password)
 
-        activation_required = settings.email_send_activation_email
+        activation_required = settings.auth_send_activation_email
 
         channel_entity = Channel.create(
             email=command.email,
@@ -46,13 +46,16 @@ class CreateChannelUseCase:
 
         if activation_required:
             code = await self._auth_service.create_activation_code(channel_id=channel.id)
+            uid = base64url_encode(value=str(channel.id))
+            activation_url = self._auth_service.build_activation_url(code=code, uid=uid)
             await self._task_queue.send_activation_email(
                 recipients=[channel.email],
                 template_context={
                     'name': channel.name,
                     'email': channel.email,
+                    'activation_url': activation_url,
                     'code': code,
-                    'channel_id': base64url_encode(value=str(channel.id)),
+                    'uid': uid,
                 },
             )
         return channel, activation_required

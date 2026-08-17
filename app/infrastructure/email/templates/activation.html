@@ -29,7 +29,7 @@
         color: transparent;
         visibility: hidden;
     ">
-        Verify your fastapi-yt account using the confirmation code.
+        Verify your fastapi-yt account to complete registration.
     </div>
 
     <table
@@ -49,7 +49,7 @@
             <td
                 align="center"
                 style="
-                    padding: 48px 16px;
+                    padding: 40px 16px;
                     background-color: #09090b;
                 "
             >
@@ -63,11 +63,11 @@
                     border="0"
                     style="
                         width: 100%;
-                        max-width: 560px;
+                        max-width: 1060px;
                         margin: 0 auto;
                         background-color: #18181b;
                         border: 1px solid #27272a;
-                        border-radius: 16px;
+                        border-radius: 18px;
                         overflow: hidden;
                     "
                 >
@@ -76,7 +76,7 @@
                     <tr>
                         <td
                             style="
-                                padding: 28px 32px;
+                                padding: 24px 32px;
                                 border-bottom: 1px solid #27272a;
                             "
                         >
@@ -93,38 +93,50 @@
                                             font-size: 18px;
                                             line-height: 24px;
                                             font-weight: 700;
-                                            color: #fafafa;
                                             letter-spacing: -0.2px;
+                                            color: #fafafa;
                                         ">
                                             fastapi-yt
                                         </span>
+                                    </td>
+
+                                    <td
+                                        align="right"
+                                        style="
+                                            font-size: 12px;
+                                            line-height: 18px;
+                                            color: #71717a;
+                                        "
+                                    >
+                                        Account verification
                                     </td>
                                 </tr>
                             </table>
                         </td>
                     </tr>
 
-                    <!-- Content -->
+                    <!-- Main content -->
                     <tr>
-                        <td style="padding: 40px 32px 44px;">
+                        <td style="padding: 36px 32px 32px;">
 
+                            <!-- Introduction -->
                             <h1 style="
-                                margin: 0 0 20px;
+                                margin: 0 0 14px;
                                 padding: 0;
                                 font-size: 28px;
                                 line-height: 36px;
                                 font-weight: 700;
-                                letter-spacing: -0.5px;
+                                letter-spacing: -0.6px;
                                 color: #fafafa;
                             ">
                                 Verify your account
                             </h1>
 
                             <p style="
-                                margin: 0 0 20px;
+                                margin: 0 0 8px;
                                 padding: 0;
                                 font-size: 16px;
-                                line-height: 26px;
+                                line-height: 25px;
                                 color: #d4d4d8;
                             ">
                                 Hi <strong style="color: #fafafa;">{{ name }}</strong>,
@@ -133,16 +145,16 @@
                             <p style="
                                 margin: 0 0 28px;
                                 padding: 0;
-                                font-size: 16px;
-                                line-height: 26px;
-                                color: #d4d4d8;
+                                font-size: 15px;
+                                line-height: 24px;
+                                color: #a1a1aa;
                             ">
                                 Your fastapi-yt account has been registered using
-                                <strong style="color: #fafafa;">{{ email }}</strong>.
-                                Please use the confirmation code below to activate your account.
+                                <strong style="color: #d4d4d8;">{{ email }}</strong>.
+                                Choose one of the options below to activate your account.
                             </p>
 
-                            <!-- Verification data -->
+                            <!-- Activation options -->
                             <table
                                 role="presentation"
                                 width="100%"
@@ -151,96 +163,289 @@
                                 border="0"
                                 style="
                                     width: 100%;
-                                    margin: 0 0 28px;
+                                "
+                            >
+                                <tr>
+
+                                    <!-- Manual activation -->
+                                    <td
+                                        width="50%"
+                                        valign="top"
+                                        style="
+                                            width: 50%;
+                                            padding-right: 7px;
+                                        "
+                                    >
+                                        <table
+                                            role="presentation"
+                                            width="100%"
+                                            cellpadding="0"
+                                            cellspacing="0"
+                                            border="0"
+                                            style="
+                                                width: 100%;
+                                                height: 100%;
+                                                background-color: #09090b;
+                                                border: 1px solid #27272a;
+                                                border-radius: 14px;
+                                            "
+                                        >
+                                            <tr>
+                                                <td style="padding: 22px 20px 20px;">
+
+                                                    <p style="
+                                                        margin: 0 0 7px;
+                                                        padding: 0;
+                                                        font-size: 12px;
+                                                        line-height: 18px;
+                                                        font-weight: 600;
+                                                        letter-spacing: 0.7px;
+                                                        text-transform: uppercase;
+                                                        color: #71717a;
+                                                    ">
+                                                        Option 01
+                                                    </p>
+
+                                                    <p style="
+                                                        margin: 0 0 18px;
+                                                        padding: 0;
+                                                        font-size: 16px;
+                                                        line-height: 22px;
+                                                        font-weight: 600;
+                                                        color: #fafafa;
+                                                    ">
+                                                        Enter the code
+                                                    </p>
+
+                                                    <p style="
+                                                        margin: 0 0 8px;
+                                                        padding: 0;
+                                                        font-size: 11px;
+                                                        line-height: 17px;
+                                                        font-weight: 600;
+                                                        letter-spacing: 0.7px;
+                                                        text-transform: uppercase;
+                                                        color: #52525b;
+                                                    ">
+                                                        Confirmation code
+                                                    </p>
+
+                                                    <p style="
+                                                        margin: 0 0 18px;
+                                                        padding: 0;
+                                                        font-family: 'SFMono-Regular', Consolas, 'Liberation Mono', Menlo, monospace;
+                                                        font-size: 20px;
+                                                        line-height: 28px;
+                                                        font-weight: 600;
+                                                        letter-spacing: 0.5px;
+                                                        color: #fafafa;
+                                                        white-space: nowrap;
+                                                    ">
+                                                        {{ code }}
+                                                    </p>
+
+                                                    <p style="
+                                                        margin: 0 0 8px;
+                                                        padding: 0;
+                                                        font-size: 11px;
+                                                        line-height: 17px;
+                                                        font-weight: 600;
+                                                        letter-spacing: 0.7px;
+                                                        text-transform: uppercase;
+                                                        color: #52525b;
+                                                    ">
+                                                        UID
+                                                    </p>
+
+                                                    <p style="
+                                                        margin: 0;
+                                                        padding: 0;
+                                                        font-family: 'SFMono-Regular', Consolas, 'Liberation Mono', Menlo, monospace;
+                                                        font-size: 13px;
+                                                        line-height: 20px;
+                                                        color: #a1a1aa;
+                                                        word-break: break-all;
+                                                    ">
+                                                        {{ uid }}
+                                                    </p>
+
+                                                </td>
+                                            </tr>
+                                        </table>
+                                    </td>
+
+                                    <!-- Link activation -->
+                                    <td
+                                        width="50%"
+                                        valign="top"
+                                        style="
+                                            width: 50%;
+                                            padding-left: 7px;
+                                        "
+                                    >
+                                        <table
+                                            role="presentation"
+                                            width="100%"
+                                            cellpadding="0"
+                                            cellspacing="0"
+                                            border="0"
+                                            style="
+                                                width: 100%;
+                                                height: 100%;
+                                                background-color: #09090b;
+                                                border: 1px solid #27272a;
+                                                border-radius: 14px;
+                                            "
+                                        >
+                                            <tr>
+                                                <td style="padding: 22px 20px 20px;">
+
+                                                    <p style="
+                                                        margin: 0 0 7px;
+                                                        padding: 0;
+                                                        font-size: 12px;
+                                                        line-height: 18px;
+                                                        font-weight: 600;
+                                                        letter-spacing: 0.7px;
+                                                        text-transform: uppercase;
+                                                        color: #71717a;
+                                                    ">
+                                                        Option 02
+                                                    </p>
+
+                                                    <p style="
+                                                        margin: 0 0 18px;
+                                                        padding: 0;
+                                                        font-size: 16px;
+                                                        line-height: 22px;
+                                                        font-weight: 600;
+                                                        color: #fafafa;
+                                                    ">
+                                                        Use the activation link
+                                                    </p>
+
+                                                    <p style="
+                                                        margin: 0 0 20px;
+                                                        padding: 0;
+                                                        font-size: 14px;
+                                                        line-height: 22px;
+                                                        color: #a1a1aa;
+                                                    ">
+                                                        Open the link below and your account
+                                                        will be activated automatically.
+                                                    </p>
+
+                                                    <!-- Button -->
+                                                    <table
+                                                        role="presentation"
+                                                        cellpadding="0"
+                                                        cellspacing="0"
+                                                        border="0"
+                                                    >
+                                                        <tr>
+                                                            <td
+                                                                align="center"
+                                                                style="
+                                                                    border-radius: 9px;
+                                                                    background-color: #fafafa;
+                                                                "
+                                                            >
+                                                                <a
+                                                                    href="{{ activation_url }}"
+                                                                    style="
+                                                                        display: inline-block;
+                                                                        padding: 11px 18px;
+                                                                        border-radius: 9px;
+                                                                        color: #18181b;
+                                                                        background-color: #fafafa;
+                                                                        font-size: 14px;
+                                                                        line-height: 20px;
+                                                                        font-weight: 600;
+                                                                        text-decoration: none;
+                                                                    "
+                                                                >
+                                                                    Activate account
+                                                                </a>
+                                                            </td>
+                                                        </tr>
+                                                    </table>
+
+                                                    <!-- Generated activation URL -->
+                                                    <p style="
+                                                        margin: 14px 0 0;
+                                                        padding: 0;
+                                                        font-size: 11px;
+                                                        line-height: 17px;
+                                                        color: #52525b;
+                                                    ">
+                                                        Activation link:
+                                                    </p>
+
+                                                    <p style="
+                                                        margin: 4px 0 0;
+                                                        padding: 0;
+                                                        font-family: 'SFMono-Regular', Consolas, 'Liberation Mono', Menlo, monospace;
+                                                        font-size: 11px;
+                                                        line-height: 17px;
+                                                        color: #71717a;
+                                                        word-break: break-all;
+                                                    ">
+                                                        {{ activation_url }}
+                                                    </p>
+
+                                                </td>
+                                            </tr>
+                                        </table>
+                                    </td>
+
+                                </tr>
+                            </table>
+
+                            <!-- Expiration notice -->
+                            <table
+                                role="presentation"
+                                width="100%"
+                                cellpadding="0"
+                                cellspacing="0"
+                                border="0"
+                                style="
+                                    width: 100%;
+                                    margin-top: 20px;
                                 "
                             >
                                 <tr>
                                     <td
                                         style="
-                                            padding: 24px 16px;
-                                            background-color: #09090b;
+                                            padding: 14px 16px;
+                                            background-color: #121214;
                                             border: 1px solid #27272a;
-                                            border-radius: 12px;
+                                            border-radius: 10px;
                                         "
                                     >
-
-                                        <!-- Confirmation code -->
-                                        <p style="
-                                            margin: 0 0 10px;
-                                            padding: 0;
-                                            font-size: 12px;
-                                            line-height: 18px;
-                                            font-weight: 600;
-                                            letter-spacing: 0.8px;
-                                            text-transform: uppercase;
-                                            color: #71717a;
-                                        ">
-                                            Confirmation code
-                                        </p>
-
-                                        <p style="
-                                            margin: 0 0 20px;
-                                            padding: 0;
-                                            font-family: 'SFMono-Regular', Consolas, 'Liberation Mono', Menlo, monospace;
-                                            font-size: 24px;
-                                            line-height: 32px;
-                                            font-weight: 600;
-                                            letter-spacing: 1px;
-                                            color: #fafafa;
-                                            word-break: break-all;
-                                            overflow-wrap: anywhere;
-                                        ">
-                                            {{ code }}
-                                        </p>
-
-                                        <!-- Channel ID -->
-                                        <p style="
-                                            margin: 0 0 10px;
-                                            padding: 0;
-                                            font-size: 12px;
-                                            line-height: 18px;
-                                            font-weight: 600;
-                                            letter-spacing: 0.8px;
-                                            text-transform: uppercase;
-                                            color: #71717a;
-                                        ">
-                                            Channel ID
-                                        </p>
-
                                         <p style="
                                             margin: 0;
                                             padding: 0;
-                                            font-family: 'SFMono-Regular', Consolas, 'Liberation Mono', Menlo, monospace;
-                                            font-size: 14px;
-                                            line-height: 22px;
+                                            font-size: 13px;
+                                            line-height: 20px;
                                             color: #a1a1aa;
-                                            word-break: break-all;
-                                            overflow-wrap: anywhere;
                                         ">
-                                            {{ channel_id }}
+                                            <strong style="color: #d4d4d8;">
+                                                This activation code is valid for 5 minutes.
+                                            </strong>
+                                            After it expires, you'll need to request a new
+                                            activation code to complete your registration.
                                         </p>
-
                                     </td>
                                 </tr>
                             </table>
 
+                            <!-- Security note -->
                             <p style="
-                                margin: 0 0 12px;
+                                margin: 22px 0 0;
                                 padding: 0;
-                                font-size: 14px;
-                                line-height: 22px;
-                                color: #a1a1aa;
-                            ">
-                                Enter the confirmation code on the account activation page
-                                to complete your registration.
-                            </p>
-
-                            <p style="
-                                margin: 0;
-                                padding: 0;
-                                font-size: 14px;
-                                line-height: 22px;
-                                color: #71717a;
+                                font-size: 13px;
+                                line-height: 21px;
+                                color: #52525b;
                             ">
                                 If you didn't create this account, you can safely ignore this email.
                             </p>
@@ -252,55 +457,43 @@
                     <tr>
                         <td
                             style="
-                                padding: 22px 32px;
+                                padding: 20px 32px;
                                 border-top: 1px solid #27272a;
-                                background-color: #18181b;
                             "
                         >
-                            <p style="
-                                margin: 0;
-                                padding: 0;
-                                font-size: 12px;
-                                line-height: 18px;
-                                color: #52525b;
-                            ">
-                                This is an automated message from fastapi-yt.
-                                Please do not reply to this email.
-                            </p>
+                            <table
+                                role="presentation"
+                                width="100%"
+                                cellpadding="0"
+                                cellspacing="0"
+                                border="0"
+                            >
+                                <tr>
+                                    <td
+                                        style="
+                                            font-size: 11px;
+                                            line-height: 18px;
+                                            color: #52525b;
+                                        "
+                                    >
+                                        This is an automated message from fastapi-yt.
+                                    </td>
+
+                                    <td
+                                        align="right"
+                                        style="
+                                            font-size: 11px;
+                                            line-height: 18px;
+                                            color: #3f3f46;
+                                        "
+                                    >
+                                        © fastapi-yt
+                                    </td>
+                                </tr>
+                            </table>
                         </td>
                     </tr>
 
-                </table>
-
-                <!-- Outside footer -->
-                <table
-                    role="presentation"
-                    width="100%"
-                    cellpadding="0"
-                    cellspacing="0"
-                    border="0"
-                    style="
-                        width: 100%;
-                        max-width: 560px;
-                        margin: 0 auto;
-                    "
-                >
-                    <tr>
-                        <td
-                            align="center"
-                            style="padding: 20px 16px 0;"
-                        >
-                            <p style="
-                                margin: 0;
-                                padding: 0;
-                                font-size: 11px;
-                                line-height: 18px;
-                                color: #52525b;
-                            ">
-                                © fastapi-yt
-                            </p>
-                        </td>
-                    </tr>
                 </table>
 
             </td>

@@ -7,3 +7,5 @@ class AuthSettings(BaseSettings):
     jwt_algorithm: str
     jwt_access_exp_days: int
     jwt_refresh_exp_days: int
+    auth_send_activation_email: bool
+    frontend_activation_uri: str

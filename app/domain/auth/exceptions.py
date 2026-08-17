@@ -27,8 +27,8 @@ class NotAuthenticatedError(AppException):
 
 @dataclass(kw_only=True)
 class ChannelActivationInvalidIdError(AppException):
-    message = 'Invalid channel_id value'
-    channel_id: str
+    message = 'Invalid uid value'
+    uid: str
     exc_details: str
 
 

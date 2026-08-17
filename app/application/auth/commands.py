@@ -10,4 +10,4 @@ class LoginCommand:
 @dataclass(kw_only=True, frozen=True)
 class ActivateChannelCommand:
     code: str
-    channel_id: str
+    uid: str

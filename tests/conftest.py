@@ -2,7 +2,7 @@ from collections.abc import AsyncGenerator, Generator
 
 import pytest
 import pytest_asyncio
-from dishka import AsyncContainer, Provider, Scope, make_async_container, provide
+from dishka import AsyncContainer, Scope, make_async_container, provide
 from sqlalchemy.ext.asyncio import AsyncEngine, AsyncSession, async_sessionmaker, create_async_engine
 from testcontainers.postgres import PostgresContainer
 
@@ -11,6 +11,7 @@ from app.core.configs import settings
 from app.domain.videos.services import IVideoService
 from app.infrastructure.di.container import (
     AppProvider,
+    DatabaseProvider,
     ReadersProvider,
     RepositoriesProvider,
     ServicesProvider,
@@ -59,18 +60,18 @@ async def container(postgres_url: str) -> AsyncGenerator[AsyncContainer]:
     class MockServicesProvider(ServicesProvider):
         mock_video_service = provide(MockVideoService, provides=IVideoService, override=True)
 
-    class DatabaseProvider(Provider):
-        @provide(scope=Scope.APP, provides=AsyncEngine)
+    class MockDatabaseProvider(DatabaseProvider):
+        @provide(scope=Scope.APP, provides=AsyncEngine, override=True)
         async def engine(self) -> AsyncGenerator[AsyncEngine]:
             engine = create_engine(db_url=postgres_url, echo=False)
             yield engine
             await engine.dispose()
 
-        @provide(scope=Scope.APP, provides=async_sessionmaker)
+        @provide(scope=Scope.APP, provides=async_sessionmaker, override=True)
         def session_factory(self, engine: AsyncEngine) -> async_sessionmaker:
             return create_session_factory(engine=engine)
 
-        @provide(scope=Scope.REQUEST, provides=AsyncSession)
+        @provide(scope=Scope.REQUEST, provides=AsyncSession, override=True)
         async def provide_async_session(self, session_factory: async_sessionmaker) -> AsyncGenerator[AsyncSession]:
             session = session_factory()
             yield session
@@ -78,7 +79,7 @@ async def container(postgres_url: str) -> AsyncGenerator[AsyncContainer]:
 
     container = make_async_container(
         MockAppProvider(),
-        DatabaseProvider(),
+        MockDatabaseProvider(),
         RepositoriesProvider(),
         ReadersProvider(),
         MockServicesProvider(),

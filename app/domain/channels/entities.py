@@ -27,6 +27,9 @@ class Channel(BaseEntity):
     def set_avatar_s3_key(self, key: str | None) -> None:
         self.avatar_s3_key = key
 
+    def set_email(self, email: str) -> None:
+        self.email = email
+
     @staticmethod
     def create(
         email: str,

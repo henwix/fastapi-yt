@@ -20,10 +20,10 @@ from app.domain.channels.repositories import IChannelRepository
 
 class IChannelService(ABC):
     @abstractmethod
-    async def check_email_exists(self, email: str) -> None: ...
+    async def try_check_email_exists(self, email: str) -> None: ...
 
     @abstractmethod
-    async def check_slug_exists(self, slug: str) -> None: ...
+    async def try_check_slug_exists(self, slug: str) -> None: ...
 
     @abstractmethod
     async def create(self, channel: Channel) -> Channel: ...
@@ -60,11 +60,11 @@ class IChannelService(ABC):
 class ChannelService(IChannelService):
     _channel_repo: IChannelRepository
 
-    async def check_email_exists(self, email: str) -> None:
+    async def try_check_email_exists(self, email: str) -> None:
         if await self._channel_repo.check_channel_exists_by_email(email=email):
             raise ChannelWithEmailAlreadyExistsError(channel_email=email)
 
-    async def check_slug_exists(self, slug: str) -> None:
+    async def try_check_slug_exists(self, slug: str) -> None:
         if await self._channel_repo.check_channel_exists_by_slug(slug=slug):
             raise ChannelWithSlugAlreadyExistsError(channel_slug=slug)
 

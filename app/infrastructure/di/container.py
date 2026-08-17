@@ -7,6 +7,11 @@ from sqlalchemy.ext.asyncio import AsyncEngine, AsyncSession, async_sessionmaker
 
 from app.application.auth.use_cases.activate_channel import ActivateChannelUseCase
 from app.application.auth.use_cases.login import LoginUseCase
+from app.application.auth.use_cases.resend_channel_activation import ResendChannelActivationCodeUseCase
+from app.application.auth.use_cases.reset_channel_password import ResetChannelPasswordUseCase
+from app.application.auth.use_cases.reset_channel_password_confirm import ResetChannelPasswordConfirmUseCase
+from app.application.auth.use_cases.set_channel_email import SetChannelEmailUseCase
+from app.application.auth.use_cases.set_channel_email_confirm import SetChannelEmailConfirmUseCase
 from app.application.channels.interfaces.reader import IChannelReader
 from app.application.channels.use_cases.confirm_channel_avatar_upload import ConfirmChannelAvatarUploadUseCase
 from app.application.channels.use_cases.create_channel import CreateChannelUseCase
@@ -259,6 +264,11 @@ class UseCasesProvider(Provider):
     # Auth
     login = provide(LoginUseCase)
     activate_channel = provide(ActivateChannelUseCase)
+    resend_channel_activation_code = provide(ResendChannelActivationCodeUseCase)
+    set_channel_email = provide(SetChannelEmailUseCase)
+    set_channel_email_confirm = provide(SetChannelEmailConfirmUseCase)
+    reset_channel_password = provide(ResetChannelPasswordUseCase)
+    reset_channel_password_confirm = provide(ResetChannelPasswordConfirmUseCase)
 
     # Videos
     delete_video = provide(DeleteVideoUseCase)

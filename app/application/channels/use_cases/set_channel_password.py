@@ -21,10 +21,8 @@ class SetChannelPasswordUseCase:
         async with password_hash_semaphore:
             new_password_hash = await asyncio.to_thread(self._password_hasher.get_password_hash, command.new_password)
 
-        channel.set_password(password_hash=new_password_hash)
-
         async with self._transaction_manager:
             await self._channel_service.try_set_password(
                 id=channel.id,
-                password_hash=channel.password_hash,
+                password_hash=new_password_hash,
             )

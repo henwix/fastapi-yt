@@ -3,7 +3,8 @@ from uuid import UUID
 
 from app.application.auth.commands import ActivateChannelCommand
 from app.application.common.interfaces.transaction_manager import ITransactionManager
-from app.domain.auth.exceptions import ChannelActivationInvalidIdError
+from app.core.configs import settings
+from app.domain.auth.exceptions import ChannelActivationDisabledError, ChannelActivationInvalidIdError
 from app.domain.auth.services import IAuthService
 from app.domain.channels.services import IChannelService
 from app.utils.base64url import base64url_decode
@@ -16,6 +17,9 @@ class ActivateChannelUseCase:
     _transaction_manager: ITransactionManager
 
     async def execute(self, command: ActivateChannelCommand) -> None:
+        if not settings.auth_send_activation_email:
+            raise ChannelActivationDisabledError
+
         try:
             decoded_channel_id = base64url_decode(value=command.uid)
             channel_id = UUID(decoded_channel_id)

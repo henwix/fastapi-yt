@@ -9,3 +9,5 @@ class AuthSettings(BaseSettings):
     jwt_refresh_exp_days: int
     auth_send_activation_email: bool
     frontend_activation_uri: str
+    frontend_set_email_confirm_uri: str
+    frontend_reset_password_confirm_uri: str

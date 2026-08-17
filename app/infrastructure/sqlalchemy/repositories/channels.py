@@ -62,6 +62,7 @@ class SAChannelRepository(SARepository, IChannelRepository):
             update(ChannelORM)
             .where(ChannelORM.id == channel.id)
             .values(
+                email=channel.email,
                 name=channel.name,
                 slug=channel.slug,
                 description=channel.description,

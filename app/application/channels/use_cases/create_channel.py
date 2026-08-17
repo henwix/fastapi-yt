@@ -23,8 +23,8 @@ class CreateChannelUseCase:
     _transaction_manager: ITransactionManager
 
     async def execute(self, command: CreateChannelCommand) -> tuple[Channel, bool]:
-        await self._channel_service.check_email_exists(email=command.email)
-        await self._channel_service.check_slug_exists(slug=command.slug)
+        await self._channel_service.try_check_email_exists(email=command.email)
+        await self._channel_service.try_check_slug_exists(slug=command.slug)
 
         async with password_hash_semaphore:
             password_hash = await asyncio.to_thread(self._password_hasher.get_password_hash, command.password)
@@ -48,7 +48,7 @@ class CreateChannelUseCase:
             code = await self._auth_service.create_activation_code(channel_id=channel.id)
             uid = base64url_encode(value=str(channel.id))
             activation_url = self._auth_service.build_activation_url(code=code, uid=uid)
-            await self._task_queue.send_activation_email(
+            await self._task_queue.send_channel_activation_code(
                 recipients=[channel.email],
                 template_context={
                     'name': channel.name,

@@ -8,14 +8,38 @@ from app.infrastructure.email.client import FastMailClient
 class FastMailProvider(IEmailProvider):
     _smtp_client: FastMailClient
 
-    async def send_activation_email(
+    async def send_channel_activation_code(
         self,
         recipients: list[str],
         template_context: dict | None = None,
     ) -> None:
         await self._smtp_client.send_email(
-            subject='Account activation',
+            subject='Confirm channel activation',
             recipients=recipients,
             template_name='activation.html',
+            template_context=template_context,
+        )
+
+    async def send_channel_set_email_code(
+        self,
+        recipients: list[str],
+        template_context: dict | None = None,
+    ) -> None:
+        await self._smtp_client.send_email(
+            subject='Confirm the email address you want to set',
+            recipients=recipients,
+            template_name='channel_set_email_confirmation.html',
+            template_context=template_context,
+        )
+
+    async def send_channel_reset_password_code(
+        self,
+        recipients: list[str],
+        template_context: dict | None = None,
+    ) -> None:
+        await self._smtp_client.send_email(
+            subject='Confirm the password you want to set',
+            recipients=recipients,
+            template_name='channel_reset_password_confirmation.html',
             template_context=template_context,
         )

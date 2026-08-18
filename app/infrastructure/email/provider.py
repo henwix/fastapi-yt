@@ -16,7 +16,7 @@ class FastMailProvider(IEmailProvider):
         await self._smtp_client.send_email(
             subject='Confirm channel activation',
             recipients=recipients,
-            template_name='activation.html',
+            template_name='channel_activation.html',
             template_context=template_context,
         )
 

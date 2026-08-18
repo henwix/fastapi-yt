@@ -15,7 +15,7 @@ class ResetChannelPasswordUseCase:
 
     async def execute(self, command: ResetChannelPasswordCommand) -> None:
         channel = await self._channel_service.get_by_email(email=command.email)
-        if channel is None or not channel.is_active:
+        if channel is None:
             return
 
         code = await self._auth_service.create_reset_password_code(channel_id=channel.id)

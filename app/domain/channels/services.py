@@ -38,6 +38,9 @@ class IChannelService(ABC):
     async def try_get_by_slug(self, slug: str) -> Channel: ...
 
     @abstractmethod
+    async def try_get_by_id(self, id: UUID) -> Channel: ...
+
+    @abstractmethod
     async def try_get_active_by_id(self, id: UUID) -> Channel: ...
 
     @abstractmethod
@@ -83,6 +86,12 @@ class ChannelService(IChannelService):
         channel = await self._channel_repo.get_by_slug(slug=slug)
         if not channel:
             raise ChannelNotFoundBySlugError(channel_slug=slug)
+        return channel
+
+    async def try_get_by_id(self, id: UUID) -> Channel:
+        channel = await self._channel_repo.get_by_id(id=id)
+        if not channel:
+            raise ChannelNotFoundByIdError(channel_id=id)
         return channel
 
     async def try_get_active_by_id(self, id: UUID) -> Channel:

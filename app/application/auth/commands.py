@@ -10,13 +10,13 @@ class LoginCommand:
 
 @dataclass(kw_only=True, frozen=True)
 class ActivateChannelCommand:
+    current_channel_id: UUID
     code: str
-    uid: str
 
 
 @dataclass(kw_only=True, frozen=True)
 class ResendChannelActivationCodeCommand:
-    email: str
+    current_channel_id: UUID
 
 
 @dataclass(kw_only=True, frozen=True)
@@ -29,6 +29,12 @@ class SetChannelEmailCommand:
 class SetChannelEmailConfirmCommand:
     current_channel_id: UUID
     code: str
+
+
+@dataclass(kw_only=True, frozen=True)
+class SetChannelPasswordCommand:
+    current_channel_id: UUID
+    new_password: str
 
 
 @dataclass(kw_only=True, frozen=True)

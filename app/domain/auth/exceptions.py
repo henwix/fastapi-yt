@@ -26,43 +26,26 @@ class NotAuthenticatedError(AppException):
 
 
 @dataclass(kw_only=True)
-class ChannelActivationDisabledError(AppException):
-    message = 'Channel activation currently disabled'
+class ChannelAlreadyActivatedError(AppException):
+    message = 'Channel already activated'
 
 
 @dataclass(kw_only=True)
-class ChannelActivationInvalidIdError(AppException):
-    message = 'Invalid uid value'
+class ChannelEmailAlreadyAssociatedWithThisAcccountError(AppException):
+    message = 'Email already associated with this account'
+    channel_id: UUID
+
+
+@dataclass(kw_only=True)
+class ChannelInvalidEmailUIDError(AppException):
+    message = 'Invalid uid'
     uid: str
     exc_details: str
 
 
 @dataclass(kw_only=True)
-class ChannelActivationInvalidCodeError(AppException):
-    message = 'Invalid activation code'
-    channel_id: UUID
-    code: str
-    reason: str
-
-
-@dataclass(kw_only=True)
-class ChannelSetEmailInvalidCodeError(AppException):
-    message = 'Invalid set email code'
-    channel_id: UUID
-    code: str
-    reason: str
-
-
-@dataclass(kw_only=True)
-class ChannelResetPasswordInvalidIdError(AppException):
-    message = 'Invalid uid value'
-    uid: str
-    exc_details: str
-
-
-@dataclass(kw_only=True)
-class ChannelResetPasswordInvalidCodeError(AppException):
-    message = 'Invalid reset password code'
+class ChannelInvalidEmailCodeError(AppException):
+    message = 'Invalid code'
     channel_id: UUID
     code: str
     reason: str

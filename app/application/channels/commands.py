@@ -29,12 +29,6 @@ class DeleteChannelCommand:
 
 
 @dataclass(kw_only=True, frozen=True)
-class SetChannelPasswordCommand:
-    current_channel_id: UUID
-    new_password: str
-
-
-@dataclass(kw_only=True, frozen=True)
 class GenerateChannelAvatarUploadUrlCommand:
     current_channel_id: UUID
     filename: str

@@ -10,6 +10,7 @@ from app.application.auth.commands import (
     ResetChannelPasswordConfirmCommand,
     SetChannelEmailCommand,
     SetChannelEmailConfirmCommand,
+    SetChannelPasswordCommand,
 )
 from app.application.auth.use_cases.activate_channel import ActivateChannelUseCase
 from app.application.auth.use_cases.login import LoginUseCase
@@ -18,13 +19,12 @@ from app.application.auth.use_cases.reset_channel_password import ResetChannelPa
 from app.application.auth.use_cases.reset_channel_password_confirm import ResetChannelPasswordConfirmUseCase
 from app.application.auth.use_cases.set_channel_email import SetChannelEmailUseCase
 from app.application.auth.use_cases.set_channel_email_confirm import SetChannelEmailConfirmUseCase
+from app.application.auth.use_cases.set_channel_password import SetChannelPasswordUseCase
 from app.domain.auth.exceptions import (
-    ChannelActivationDisabledError,
-    ChannelActivationInvalidCodeError,
-    ChannelActivationInvalidIdError,
-    ChannelResetPasswordInvalidCodeError,
-    ChannelResetPasswordInvalidIdError,
-    ChannelSetEmailInvalidCodeError,
+    ChannelAlreadyActivatedError,
+    ChannelEmailAlreadyAssociatedWithThisAcccountError,
+    ChannelInvalidEmailCodeError,
+    ChannelInvalidEmailUIDError,
     IncorrectEmailOrPasswordError,
     JWTExpiredTokenError,
     JWTInvalidTokenError,
@@ -41,11 +41,11 @@ from app.presentation.api.v1.di.current_channel_id import CurrentChannelID
 from app.presentation.api.v1.schemas.requests.auth import (
     ActivateChannelInSchema,
     LoginInSchema,
-    ResendChannelActivationCodeInSchema,
     ResetChannelPasswordConfirmInSchema,
     ResetChannelPasswordInSchema,
     SetChannelEmailConfirmInSchema,
     SetChannelEmailInSchema,
+    SetChannelPasswordInSchema,
 )
 from app.presentation.api.v1.schemas.responses.auth import JWTOutSchema
 
@@ -77,18 +77,29 @@ async def login(
     status_code=status.HTTP_204_NO_CONTENT,
     responses={
         status.HTTP_400_BAD_REQUEST: error_response(
-            ChannelActivationInvalidIdError,
-            ChannelActivationInvalidCodeError,
+            ChannelAlreadyActivatedError,
+            ChannelInvalidEmailCodeError,
             ChannelActivationFailedError,
         ),
-        status.HTTP_403_FORBIDDEN: error_response(ChannelActivationDisabledError),
+        status.HTTP_401_UNAUTHORIZED: error_response(
+            NotAuthenticatedError,
+            JWTExpiredTokenError,
+            JWTInvalidTokenError,
+        ),
+        status.HTTP_404_NOT_FOUND: error_response(
+            ChannelNotFoundByIdError,
+        ),
     },
 )
 async def activate_channel(
+    current_channel_id: CurrentChannelID,
     schema: ActivateChannelInSchema,
     use_case: FromDishka[ActivateChannelUseCase],
 ) -> None:
-    command = ActivateChannelCommand(**schema.model_dump())
+    command = ActivateChannelCommand(
+        current_channel_id=current_channel_id,
+        **schema.model_dump(),
+    )
     await use_case.execute(command=command)
 
 
@@ -96,17 +107,24 @@ async def activate_channel(
     path='/resend_activation',
     status_code=status.HTTP_204_NO_CONTENT,
     responses={
-        status.HTTP_204_NO_CONTENT: {
-            'description': 'If an channel with this email requires activation, a new activation email has been sent'
-        },
-        status.HTTP_403_FORBIDDEN: error_response(ChannelActivationDisabledError),
+        status.HTTP_400_BAD_REQUEST: error_response(
+            ChannelAlreadyActivatedError,
+        ),
+        status.HTTP_401_UNAUTHORIZED: error_response(
+            NotAuthenticatedError,
+            JWTExpiredTokenError,
+            JWTInvalidTokenError,
+        ),
+        status.HTTP_404_NOT_FOUND: error_response(
+            ChannelNotFoundByIdError,
+        ),
     },
 )
 async def resend_channel_activation_code(
-    schema: ResendChannelActivationCodeInSchema,
+    current_channel_id: CurrentChannelID,
     use_case: FromDishka[ResendChannelActivationCodeUseCase],
 ) -> None:
-    command = ResendChannelActivationCodeCommand(**schema.model_dump())
+    command = ResendChannelActivationCodeCommand(current_channel_id=current_channel_id)
     await use_case.execute(command=command)
 
 
@@ -115,6 +133,7 @@ async def resend_channel_activation_code(
     status_code=status.HTTP_204_NO_CONTENT,
     responses={
         status.HTTP_400_BAD_REQUEST: error_response(
+            ChannelEmailAlreadyAssociatedWithThisAcccountError,
             ChannelWithEmailAlreadyExistsError,
         ),
         status.HTTP_401_UNAUTHORIZED: error_response(
@@ -144,7 +163,7 @@ async def set_channel_email(
     status_code=status.HTTP_204_NO_CONTENT,
     responses={
         status.HTTP_400_BAD_REQUEST: error_response(
-            ChannelSetEmailInvalidCodeError,
+            ChannelInvalidEmailCodeError,
             ChannelWithEmailAlreadyExistsError,
         ),
         status.HTTP_401_UNAUTHORIZED: error_response(
@@ -170,6 +189,28 @@ async def set_channel_email_confirm(
 
 
 @router.post(
+    path='/set_password',
+    status_code=status.HTTP_204_NO_CONTENT,
+    responses={
+        status.HTTP_401_UNAUTHORIZED: error_response(
+            NotAuthenticatedError,
+            JWTExpiredTokenError,
+            JWTInvalidTokenError,
+        ),
+        status.HTTP_403_FORBIDDEN: error_response(ChannelNotActiveError),
+        status.HTTP_404_NOT_FOUND: error_response(ChannelNotFoundByIdError),
+    },
+)
+async def set_channel_password(
+    schema: SetChannelPasswordInSchema,
+    current_channel_id: CurrentChannelID,
+    use_case: FromDishka[SetChannelPasswordUseCase],
+) -> None:
+    command = SetChannelPasswordCommand(current_channel_id=current_channel_id, **schema.model_dump())
+    await use_case.execute(command=command)
+
+
+@router.post(
     path='/reset_password',
     status_code=status.HTTP_204_NO_CONTENT,
     responses={
@@ -189,8 +230,8 @@ async def reset_channel_password(
     status_code=status.HTTP_204_NO_CONTENT,
     responses={
         status.HTTP_400_BAD_REQUEST: error_response(
-            ChannelResetPasswordInvalidIdError,
-            ChannelResetPasswordInvalidCodeError,
+            ChannelInvalidEmailUIDError,
+            ChannelInvalidEmailCodeError,
         ),
         status.HTTP_404_NOT_FOUND: error_response(
             ChannelNotFoundByIdError,

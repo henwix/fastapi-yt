@@ -9,7 +9,6 @@ from app.core.configs import settings
 from app.domain.auth.services import IAuthService
 from app.domain.channels.entities import Channel
 from app.domain.channels.services import IChannelService
-from app.utils.base64url import base64url_encode
 
 password_hash_semaphore = asyncio.Semaphore(2)
 
@@ -46,8 +45,7 @@ class CreateChannelUseCase:
 
         if activation_required:
             code = await self._auth_service.create_activation_code(channel_id=channel.id)
-            uid = base64url_encode(value=str(channel.id))
-            activation_url = self._auth_service.build_activation_url(code=code, uid=uid)
+            activation_url = self._auth_service.build_activation_url(code=code)
             await self._task_queue.send_channel_activation_code(
                 recipients=[channel.email],
                 template_context={
@@ -55,7 +53,6 @@ class CreateChannelUseCase:
                     'email': channel.email,
                     'activation_url': activation_url,
                     'code': code,
-                    'uid': uid,
                 },
             )
         return channel, activation_required

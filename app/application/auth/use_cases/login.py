@@ -18,7 +18,7 @@ class LoginUseCase:
 
     async def execute(self, command: LoginCommand) -> dict[str, str]:
         channel = await self._channel_service.get_by_email(email=command.email)
-        if not channel or not channel.is_active:
+        if not channel:
             async with password_hash_semaphore:
                 await asyncio.to_thread(self._password_hasher.verify_password_hash, password=command.password)
             raise IncorrectEmailOrPasswordError

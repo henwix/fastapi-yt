@@ -4,12 +4,10 @@ from logging import getLogger
 from fastapi import Request, status
 
 from app.domain.auth.exceptions import (
-    ChannelActivationDisabledError,
-    ChannelActivationInvalidCodeError,
-    ChannelActivationInvalidIdError,
-    ChannelResetPasswordInvalidCodeError,
-    ChannelResetPasswordInvalidIdError,
-    ChannelSetEmailInvalidCodeError,
+    ChannelAlreadyActivatedError,
+    ChannelEmailAlreadyAssociatedWithThisAcccountError,
+    ChannelInvalidEmailCodeError,
+    ChannelInvalidEmailUIDError,
     IncorrectEmailOrPasswordError,
     JWTExpiredTokenError,
     JWTInvalidTokenError,
@@ -99,12 +97,10 @@ def get_http_status_code(exc: AppException):
         ChannelNotFoundBySlugError: status.HTTP_404_NOT_FOUND,
         ChannelAvatarNotFoundError: status.HTTP_404_NOT_FOUND,
         # Auth
-        ChannelActivationInvalidIdError: status.HTTP_400_BAD_REQUEST,
-        ChannelResetPasswordInvalidIdError: status.HTTP_400_BAD_REQUEST,
-        ChannelActivationInvalidCodeError: status.HTTP_400_BAD_REQUEST,
-        ChannelSetEmailInvalidCodeError: status.HTTP_400_BAD_REQUEST,
-        ChannelResetPasswordInvalidCodeError: status.HTTP_400_BAD_REQUEST,
-        ChannelActivationDisabledError: status.HTTP_403_FORBIDDEN,
+        ChannelAlreadyActivatedError: status.HTTP_400_BAD_REQUEST,
+        ChannelInvalidEmailUIDError: status.HTTP_400_BAD_REQUEST,
+        ChannelInvalidEmailCodeError: status.HTTP_400_BAD_REQUEST,
+        ChannelEmailAlreadyAssociatedWithThisAcccountError: status.HTTP_400_BAD_REQUEST,
         IncorrectEmailOrPasswordError: status.HTTP_401_UNAUTHORIZED,
         JWTInvalidTokenError: status.HTTP_401_UNAUTHORIZED,
         JWTExpiredTokenError: status.HTTP_401_UNAUTHORIZED,

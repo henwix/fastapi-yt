@@ -52,10 +52,6 @@ class UpdateChannelInSchema(BaseUpdateSchema):
         return v
 
 
-class SetChannelPasswordInSchema(BaseModel):
-    new_password: str
-
-
 class GenerateChannelAvatarUploadUrlInSchema(BaseSchema):
     filename: str = Field(max_length=FILENAME_MAX_LENGTH, pattern=FILENAME_PATTERN, examples=['avatar_image.png'])
 

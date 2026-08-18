@@ -12,6 +12,7 @@ from app.application.auth.use_cases.reset_channel_password import ResetChannelPa
 from app.application.auth.use_cases.reset_channel_password_confirm import ResetChannelPasswordConfirmUseCase
 from app.application.auth.use_cases.set_channel_email import SetChannelEmailUseCase
 from app.application.auth.use_cases.set_channel_email_confirm import SetChannelEmailConfirmUseCase
+from app.application.auth.use_cases.set_channel_password import SetChannelPasswordUseCase
 from app.application.channels.interfaces.reader import IChannelReader
 from app.application.channels.use_cases.confirm_channel_avatar_upload import ConfirmChannelAvatarUploadUseCase
 from app.application.channels.use_cases.create_channel import CreateChannelUseCase
@@ -20,7 +21,6 @@ from app.application.channels.use_cases.delete_channel_avatar import DeleteChann
 from app.application.channels.use_cases.generate_channel_avatar_upload_url import GenerateChannelAvatarUploadUrlUseCase
 from app.application.channels.use_cases.get_channel import GetChannelUseCase
 from app.application.channels.use_cases.get_channel_about_info import GetChannelAboutInfoUseCase
-from app.application.channels.use_cases.set_channel_password import SetChannelPasswordUseCase
 from app.application.channels.use_cases.update_channel import UpdateChannelUseCase
 from app.application.common.interfaces.email_provider import IEmailProvider
 from app.application.common.interfaces.jwt import IJWTService
@@ -256,7 +256,6 @@ class UseCasesProvider(Provider):
     get_channel_about_info = provide(GetChannelAboutInfoUseCase)
     update_channel = provide(UpdateChannelUseCase)
     delete_channel = provide(DeleteChannelUseCase)
-    set_channel_password = provide(SetChannelPasswordUseCase)
     generate_channel_avatar_upload_url = provide(GenerateChannelAvatarUploadUrlUseCase)
     confirm_channel_avatar_upload = provide(ConfirmChannelAvatarUploadUseCase)
     delete_channel_avatar = provide(DeleteChannelAvatarUseCase)
@@ -267,6 +266,7 @@ class UseCasesProvider(Provider):
     resend_channel_activation_code = provide(ResendChannelActivationCodeUseCase)
     set_channel_email = provide(SetChannelEmailUseCase)
     set_channel_email_confirm = provide(SetChannelEmailConfirmUseCase)
+    set_channel_password = provide(SetChannelPasswordUseCase)
     reset_channel_password = provide(ResetChannelPasswordUseCase)
     reset_channel_password_confirm = provide(ResetChannelPasswordConfirmUseCase)
 

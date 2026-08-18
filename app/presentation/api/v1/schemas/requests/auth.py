@@ -8,11 +8,6 @@ class LoginInSchema(BaseModel):
 
 class ActivateChannelInSchema(BaseModel):
     code: str = Field(min_length=32, max_length=32)
-    uid: str = Field(min_length=51, max_length=51)
-
-
-class ResendChannelActivationCodeInSchema(BaseModel):
-    email: EmailStr
 
 
 class SetChannelEmailInSchema(BaseModel):
@@ -21,6 +16,10 @@ class SetChannelEmailInSchema(BaseModel):
 
 class SetChannelEmailConfirmInSchema(BaseModel):
     code: str = Field(min_length=32, max_length=32)
+
+
+class SetChannelPasswordInSchema(BaseModel):
+    new_password: str
 
 
 class ResetChannelPasswordInSchema(BaseModel):

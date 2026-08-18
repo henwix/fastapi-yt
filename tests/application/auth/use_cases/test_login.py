@@ -36,20 +36,10 @@ async def test_login_returns_tokens_if_credentials_are_correct(container: AsyncC
 
 
 @pytest.mark.asyncio
-async def test_login_raises_error_if_email_not_found(container: AsyncContainer):
+async def test_login_returns_tokens_if_credentials_are_correct_and_channel_not_active(container: AsyncContainer):
     async with container() as di:
         use_case = await di.get(LoginUseCase)
-
-        command = LoginCommandFactory.build()
-
-        with pytest.raises(IncorrectEmailOrPasswordError):
-            await use_case.execute(command=command)
-
-
-@pytest.mark.asyncio
-async def test_login_raises_error_if_channel_not_active(container: AsyncContainer):
-    async with container() as di:
-        use_case = await di.get(LoginUseCase)
+        jwt_service = await di.get(IJWTService)
         session = await di.get(AsyncSession)
         password_hasher = await di.get(IPasswordHasher)
 
@@ -65,6 +55,18 @@ async def test_login_raises_error_if_channel_not_active(container: AsyncContaine
             email=db_channel.email,
             password=password,
         )
+
+        tokens = await use_case.execute(command=command)
+
+        assert tokens == jwt_service.create_tokens(sub=db_channel.id)
+
+
+@pytest.mark.asyncio
+async def test_login_raises_error_if_email_not_found(container: AsyncContainer):
+    async with container() as di:
+        use_case = await di.get(LoginUseCase)
+
+        command = LoginCommandFactory.build()
 
         with pytest.raises(IncorrectEmailOrPasswordError):
             await use_case.execute(command=command)

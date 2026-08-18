@@ -5,7 +5,7 @@ from uuid import UUID
 from app.application.auth.commands import ResetChannelPasswordConfirmCommand
 from app.application.common.interfaces.password_hasher import IPasswordHasher
 from app.application.common.interfaces.transaction_manager import ITransactionManager
-from app.domain.auth.exceptions import ChannelResetPasswordInvalidIdError
+from app.domain.auth.exceptions import ChannelInvalidEmailUIDError
 from app.domain.auth.services import IAuthService
 from app.domain.channels.services import IChannelService
 from app.utils.base64url import base64url_decode
@@ -25,7 +25,7 @@ class ResetChannelPasswordConfirmUseCase:
             decoded_channel_id = base64url_decode(value=command.uid)
             channel_id = UUID(decoded_channel_id)
         except Exception as e:
-            raise ChannelResetPasswordInvalidIdError(uid=command.uid, exc_details=str(e)) from e
+            raise ChannelInvalidEmailUIDError(uid=command.uid, exc_details=str(e)) from e
 
         await self._auth_service.validate_reset_password_code(channel_id=channel_id, code=command.code)
 

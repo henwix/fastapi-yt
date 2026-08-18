@@ -7,7 +7,6 @@ from app.application.channels.commands import (
     DeleteChannelAvatarCommand,
     DeleteChannelCommand,
     GenerateChannelAvatarUploadUrlCommand,
-    SetChannelPasswordCommand,
     UpdateChannelCommand,
 )
 from app.application.channels.queries import GetChannelAboutInfoQuery, GetChannelQuery
@@ -18,7 +17,6 @@ from app.application.channels.use_cases.delete_channel_avatar import DeleteChann
 from app.application.channels.use_cases.generate_channel_avatar_upload_url import GenerateChannelAvatarUploadUrlUseCase
 from app.application.channels.use_cases.get_channel import GetChannelUseCase
 from app.application.channels.use_cases.get_channel_about_info import GetChannelAboutInfoUseCase
-from app.application.channels.use_cases.set_channel_password import SetChannelPasswordUseCase
 from app.application.channels.use_cases.update_channel import UpdateChannelUseCase
 from app.domain.auth.exceptions import JWTExpiredTokenError, JWTInvalidTokenError, NotAuthenticatedError
 from app.domain.channels.exceptions import (
@@ -46,7 +44,6 @@ from app.presentation.api.v1.schemas.requests.channels import (
     ChannelAvatarUploadConfirmInSchema,
     CreateChannelInSchema,
     GenerateChannelAvatarUploadUrlInSchema,
-    SetChannelPasswordInSchema,
     UpdateChannelInSchema,
 )
 from app.presentation.api.v1.schemas.responses.channels import (
@@ -93,7 +90,6 @@ async def create_channel(
             JWTExpiredTokenError,
             JWTInvalidTokenError,
         ),
-        status.HTTP_403_FORBIDDEN: error_response(ChannelNotActiveError),
         status.HTTP_404_NOT_FOUND: error_response(ChannelNotFoundByIdError),
     },
 )
@@ -163,28 +159,6 @@ async def get_channel_about_info(
     query = GetChannelAboutInfoQuery(channel_slug=channel_slug)
     channel_about_info_dto = await use_case.execute(query=query)
     return ChannelAboutInfoOutSchema.from_dto(dto=channel_about_info_dto)
-
-
-@router.post(
-    path='/set_password',
-    status_code=status.HTTP_204_NO_CONTENT,
-    responses={
-        status.HTTP_401_UNAUTHORIZED: error_response(
-            NotAuthenticatedError,
-            JWTExpiredTokenError,
-            JWTInvalidTokenError,
-        ),
-        status.HTTP_403_FORBIDDEN: error_response(ChannelNotActiveError),
-        status.HTTP_404_NOT_FOUND: error_response(ChannelNotFoundByIdError),
-    },
-)
-async def set_password(
-    schema: SetChannelPasswordInSchema,
-    current_channel_id: CurrentChannelID,
-    use_case: FromDishka[SetChannelPasswordUseCase],
-) -> None:
-    command = SetChannelPasswordCommand(current_channel_id=current_channel_id, **schema.model_dump())
-    await use_case.execute(command=command)
 
 
 @router.post(

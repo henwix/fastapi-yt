@@ -28,6 +28,9 @@ from app.application.common.interfaces.password_hasher import IPasswordHasher
 from app.application.common.interfaces.s3_provider import IS3Provider
 from app.application.common.interfaces.task_queue import ITaskQueue
 from app.application.common.interfaces.transaction_manager import ITransactionManager
+from app.application.common.use_cases.email.send_channel_activation_code import SendChannelActivationCodeUseCase
+from app.application.common.use_cases.email.send_channel_reset_password_code import SendChannelResetPasswordCodeUseCase
+from app.application.common.use_cases.email.send_channel_set_email_code import SendChannelSetEmailCodeUseCase
 from app.application.playlists.interfaces.reader import IPlaylistReader
 from app.application.playlists.use_cases.add_video_to_playlist import AddVideoToPlaylistUseCase
 from app.application.playlists.use_cases.create_playlist import CreatePlaylistUseCase
@@ -345,6 +348,11 @@ class UseCasesProvider(Provider):
     unsubscribe = provide(UnsubscribeUseCase)
     get_subscribers = provide(GetSubscribersUseCase)
     get_subscriptions = provide(GetSubscriptionsUseCase)
+
+    # Common/Email
+    send_channel_activation_code = provide(SendChannelActivationCodeUseCase)
+    send_channel_set_email_code = provide(SendChannelSetEmailCodeUseCase)
+    send_channel_reset_password_code = provide(SendChannelResetPasswordCodeUseCase)
 
 
 @lru_cache(1)

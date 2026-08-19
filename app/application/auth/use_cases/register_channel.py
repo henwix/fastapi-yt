@@ -2,6 +2,7 @@ import asyncio
 from dataclasses import dataclass
 
 from app.application.auth.commands import RegisterChannelCommand
+from app.application.common.commands.email import SendChannelActivationCodeCommand
 from app.application.common.interfaces.password_hasher import IPasswordHasher
 from app.application.common.interfaces.task_queue import ITaskQueue
 from app.application.common.interfaces.transaction_manager import ITransactionManager
@@ -46,13 +47,11 @@ class RegisterChannelUseCase:
         if activation_required:
             code = await self._auth_service.create_activation_code(channel_id=channel.id)
             activation_url = self._auth_service.build_activation_url(code=code)
-            await self._task_queue.send_channel_activation_code(
-                recipients=[channel.email],
-                template_context={
-                    'name': channel.name,
-                    'email': channel.email,
-                    'activation_url': activation_url,
-                    'code': code,
-                },
+            send_channel_activation_code_command = SendChannelActivationCodeCommand(
+                email=channel.email,
+                name=channel.name,
+                activation_url=activation_url,
+                code=code,
             )
+            await self._task_queue.send_channel_activation_code(command=send_channel_activation_code_command)
         return channel, activation_required

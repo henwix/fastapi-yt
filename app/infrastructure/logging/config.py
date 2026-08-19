@@ -1,7 +1,7 @@
 import logging
 from logging.config import dictConfig
 
-from msgspec import json
+import msgspec
 
 from app.core.configs import settings
 from app.utils.datetime import get_current_utc_datetime
@@ -24,7 +24,7 @@ class JSONFormatter(logging.Formatter):
         if hasattr(record, 'log_meta') and record.log_meta:
             log_record['log_meta'] = record.log_meta
 
-        return json.encode(log_record).decode()
+        return msgspec.json.encode(log_record).decode()
 
 
 class StringFormatter(logging.Formatter):
@@ -38,7 +38,7 @@ class StringFormatter(logging.Formatter):
         ]
 
         if hasattr(record, 'log_meta') and record.log_meta:
-            log_record.append(f'\nlog_meta:{json.encode(record.log_meta).decode()}')
+            log_record.append(f'\nlog_meta:{msgspec.json.encode(record.log_meta).decode()}')
 
         if record.exc_info:
             log_record.append(self.formatException(record.exc_info))

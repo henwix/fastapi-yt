@@ -1,6 +1,7 @@
 from dataclasses import dataclass
 
 from app.application.auth.commands import SetChannelEmailCommand
+from app.application.common.commands.email import SendChannelSetEmailCodeCommand
 from app.application.common.interfaces.task_queue import ITaskQueue
 from app.domain.auth.exceptions import ChannelEmailAlreadyAssociatedWithThisAcccountError
 from app.domain.auth.services import IAuthService
@@ -22,12 +23,10 @@ class SetChannelEmailUseCase:
 
         code = await self._auth_service.create_set_email_code(channel_id=channel.id, new_email=command.new_email)
         confirmation_url = self._auth_service.build_set_email_confirm_url(code=code)
-        await self._task_queue.send_channel_set_email_code(
-            recipients=[command.new_email],
-            template_context={
-                'name': channel.name,
-                'email': command.new_email,
-                'confirmation_url': confirmation_url,
-                'code': code,
-            },
+        send_channel_set_email_code_command = SendChannelSetEmailCodeCommand(
+            email=command.new_email,
+            name=channel.name,
+            confirmation_url=confirmation_url,
+            code=code,
         )
+        await self._task_queue.send_channel_set_email_code(command=send_channel_set_email_code_command)

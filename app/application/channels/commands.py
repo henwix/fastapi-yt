@@ -5,16 +5,6 @@ from app.domain.common.constants import Empty
 
 
 @dataclass(kw_only=True, frozen=True)
-class CreateChannelCommand:
-    email: str
-    name: str
-    slug: str
-    description: str
-    country: str
-    password: str
-
-
-@dataclass(kw_only=True, frozen=True)
 class UpdateChannelCommand:
     current_channel_id: UUID
     name: str | Empty = Empty.UNSET

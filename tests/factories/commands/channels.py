@@ -5,26 +5,12 @@ from polyfactory.factories import DataclassFactory
 
 from app.application.channels.commands import (
     ConfirmChannelAvatarUploadCommand,
-    CreateChannelCommand,
     DeleteChannelAvatarCommand,
     DeleteChannelCommand,
     GenerateChannelAvatarUploadUrlCommand,
     UpdateChannelCommand,
 )
 from app.domain.common.constants import Empty
-
-
-class CreateChannelCommandFactory(DataclassFactory[CreateChannelCommand]):
-    __model__ = CreateChannelCommand
-    __faker__ = Faker()
-
-    @classmethod
-    def email(cls) -> str:
-        return cls.__faker__.email()
-
-    @classmethod
-    def slug(cls) -> str:
-        return cls.__faker__.slug()
 
 
 class UpdateChannelCommandFactory(DataclassFactory[UpdateChannelCommand]):

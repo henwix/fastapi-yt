@@ -6,7 +6,8 @@ from redis.asyncio import Redis
 from sqlalchemy.ext.asyncio import AsyncEngine, AsyncSession, async_sessionmaker
 
 from app.application.auth.use_cases.activate_channel import ActivateChannelUseCase
-from app.application.auth.use_cases.login import LoginUseCase
+from app.application.auth.use_cases.login_channel import LoginChannelUseCase
+from app.application.auth.use_cases.register_channel import RegisterChannelUseCase
 from app.application.auth.use_cases.resend_channel_activation import ResendChannelActivationCodeUseCase
 from app.application.auth.use_cases.reset_channel_password import ResetChannelPasswordUseCase
 from app.application.auth.use_cases.reset_channel_password_confirm import ResetChannelPasswordConfirmUseCase
@@ -15,7 +16,6 @@ from app.application.auth.use_cases.set_channel_email_confirm import SetChannelE
 from app.application.auth.use_cases.set_channel_password import SetChannelPasswordUseCase
 from app.application.channels.interfaces.reader import IChannelReader
 from app.application.channels.use_cases.confirm_channel_avatar_upload import ConfirmChannelAvatarUploadUseCase
-from app.application.channels.use_cases.create_channel import CreateChannelUseCase
 from app.application.channels.use_cases.delete_channel import DeleteChannelUseCase
 from app.application.channels.use_cases.delete_channel_avatar import DeleteChannelAvatarUseCase
 from app.application.channels.use_cases.generate_channel_avatar_upload_url import GenerateChannelAvatarUploadUrlUseCase
@@ -251,7 +251,6 @@ class UseCasesProvider(Provider):
     scope = Scope.REQUEST
 
     # Channels
-    create_channel = provide(CreateChannelUseCase)
     get_channel = provide(GetChannelUseCase)
     get_channel_about_info = provide(GetChannelAboutInfoUseCase)
     update_channel = provide(UpdateChannelUseCase)
@@ -261,7 +260,8 @@ class UseCasesProvider(Provider):
     delete_channel_avatar = provide(DeleteChannelAvatarUseCase)
 
     # Auth
-    login = provide(LoginUseCase)
+    register_channel = provide(RegisterChannelUseCase)
+    login = provide(LoginChannelUseCase)
     activate_channel = provide(ActivateChannelUseCase)
     resend_channel_activation_code = provide(ResendChannelActivationCodeUseCase)
     set_channel_email = provide(SetChannelEmailUseCase)

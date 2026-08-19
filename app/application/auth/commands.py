@@ -3,7 +3,17 @@ from uuid import UUID
 
 
 @dataclass(kw_only=True, frozen=True)
-class LoginCommand:
+class RegisterChannelCommand:
+    email: str
+    name: str
+    slug: str
+    description: str
+    country: str
+    password: str
+
+
+@dataclass(kw_only=True, frozen=True)
+class LoginChannelCommand:
     email: str
     password: str
 

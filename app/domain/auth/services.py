@@ -52,9 +52,9 @@ class AuthService(IAuthService):
     def _build_reset_password_key(self, channel_id: UUID) -> str:
         return f'auth:reset_password:code:{channel_id}'
 
-    async def _create_code(self, key: str) -> str:
+    async def _create_code(self, key: str, ttl: int) -> str:
         code = uuid4().hex
-        await self._kv_repo.set(key=key, value=code, ttl=60 * 5)
+        await self._kv_repo.set(key=key, value=code, ttl=ttl)
         return code
 
     async def _validate_code(self, key: str, channel_id: UUID, code: str) -> None:
@@ -90,11 +90,11 @@ class AuthService(IAuthService):
 
     async def create_activation_code(self, channel_id: UUID) -> str:
         key = self._build_activation_key(channel_id=channel_id)
-        return await self._create_code(key=key)
+        return await self._create_code(key=key, ttl=60 * 5)
 
     async def create_reset_password_code(self, channel_id: UUID) -> str:
         key = self._build_reset_password_key(channel_id=channel_id)
-        return await self._create_code(key=key)
+        return await self._create_code(key=key, ttl=60 * 5)
 
     async def create_set_email_code(self, channel_id: UUID, new_email: str) -> str:
         key = self._build_set_email_key(channel_id=channel_id)

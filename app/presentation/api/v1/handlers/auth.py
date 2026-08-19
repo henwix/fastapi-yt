@@ -4,7 +4,8 @@ from fastapi import APIRouter, status
 
 from app.application.auth.commands import (
     ActivateChannelCommand,
-    LoginCommand,
+    LoginChannelCommand,
+    RegisterChannelCommand,
     ResendChannelActivationCodeCommand,
     ResetChannelPasswordCommand,
     ResetChannelPasswordConfirmCommand,
@@ -13,7 +14,8 @@ from app.application.auth.commands import (
     SetChannelPasswordCommand,
 )
 from app.application.auth.use_cases.activate_channel import ActivateChannelUseCase
-from app.application.auth.use_cases.login import LoginUseCase
+from app.application.auth.use_cases.login_channel import LoginChannelUseCase
+from app.application.auth.use_cases.register_channel import RegisterChannelUseCase
 from app.application.auth.use_cases.resend_channel_activation import ResendChannelActivationCodeUseCase
 from app.application.auth.use_cases.reset_channel_password import ResetChannelPasswordUseCase
 from app.application.auth.use_cases.reset_channel_password_confirm import ResetChannelPasswordConfirmUseCase
@@ -35,19 +37,22 @@ from app.domain.channels.exceptions import (
     ChannelNotActiveError,
     ChannelNotFoundByIdError,
     ChannelWithEmailAlreadyExistsError,
+    ChannelWithSlugAlreadyExistsError,
 )
 from app.presentation.api.openapi.common import error_response
 from app.presentation.api.v1.di.current_channel_id import CurrentChannelID
 from app.presentation.api.v1.schemas.requests.auth import (
     ActivateChannelInSchema,
     LoginInSchema,
+    RegisterChannelInSchema,
     ResetChannelPasswordConfirmInSchema,
     ResetChannelPasswordInSchema,
     SetChannelEmailConfirmInSchema,
     SetChannelEmailInSchema,
     SetChannelPasswordInSchema,
 )
-from app.presentation.api.v1.schemas.responses.auth import JWTOutSchema
+from app.presentation.api.v1.schemas.responses.auth import JWTOutSchema, RegisterChannelOutSchema
+from app.presentation.api.v1.schemas.responses.channels import ChannelOutSchema
 
 router = APIRouter(
     prefix='/auth',
@@ -57,17 +62,39 @@ router = APIRouter(
 
 
 @router.post(
+    path='/register',
+    status_code=status.HTTP_201_CREATED,
+    responses={
+        status.HTTP_400_BAD_REQUEST: error_response(
+            ChannelWithEmailAlreadyExistsError,
+            ChannelWithSlugAlreadyExistsError,
+        )
+    },
+)
+async def register_channel(
+    schema: RegisterChannelInSchema,
+    use_case: FromDishka[RegisterChannelUseCase],
+) -> RegisterChannelOutSchema:
+    command = RegisterChannelCommand(**schema.model_dump())
+    channel, activation_required = await use_case.execute(command=command)
+    return RegisterChannelOutSchema(
+        channel=ChannelOutSchema.from_entity(entity=channel),
+        activation_required=activation_required,
+    )
+
+
+@router.post(
     path='/login',
     status_code=status.HTTP_201_CREATED,
     responses={
         status.HTTP_401_UNAUTHORIZED: error_response(IncorrectEmailOrPasswordError),
     },
 )
-async def login(
+async def login_channel(
     schema: LoginInSchema,
-    use_case: FromDishka[LoginUseCase],
+    use_case: FromDishka[LoginChannelUseCase],
 ) -> JWTOutSchema:
-    command = LoginCommand(**schema.model_dump())
+    command = LoginChannelCommand(**schema.model_dump())
     tokens = await use_case.execute(command=command)
     return JWTOutSchema(**tokens)
 

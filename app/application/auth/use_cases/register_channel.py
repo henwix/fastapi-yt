@@ -1,7 +1,7 @@
 import asyncio
 from dataclasses import dataclass
 
-from app.application.channels.commands import CreateChannelCommand
+from app.application.auth.commands import RegisterChannelCommand
 from app.application.common.interfaces.password_hasher import IPasswordHasher
 from app.application.common.interfaces.task_queue import ITaskQueue
 from app.application.common.interfaces.transaction_manager import ITransactionManager
@@ -14,14 +14,14 @@ password_hash_semaphore = asyncio.Semaphore(2)
 
 
 @dataclass
-class CreateChannelUseCase:
+class RegisterChannelUseCase:
     _password_hasher: IPasswordHasher
     _channel_service: IChannelService
     _auth_service: IAuthService
     _task_queue: ITaskQueue
     _transaction_manager: ITransactionManager
 
-    async def execute(self, command: CreateChannelCommand) -> tuple[Channel, bool]:
+    async def execute(self, command: RegisterChannelCommand) -> tuple[Channel, bool]:
         await self._channel_service.try_check_email_exists(email=command.email)
         await self._channel_service.try_check_slug_exists(slug=command.slug)
 

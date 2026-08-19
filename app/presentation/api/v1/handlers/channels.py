@@ -3,7 +3,6 @@ from fastapi import APIRouter, status
 
 from app.application.channels.commands import (
     ConfirmChannelAvatarUploadCommand,
-    CreateChannelCommand,
     DeleteChannelAvatarCommand,
     DeleteChannelCommand,
     GenerateChannelAvatarUploadUrlCommand,
@@ -11,7 +10,6 @@ from app.application.channels.commands import (
 )
 from app.application.channels.queries import GetChannelAboutInfoQuery, GetChannelQuery
 from app.application.channels.use_cases.confirm_channel_avatar_upload import ConfirmChannelAvatarUploadUseCase
-from app.application.channels.use_cases.create_channel import CreateChannelUseCase
 from app.application.channels.use_cases.delete_channel import DeleteChannelUseCase
 from app.application.channels.use_cases.delete_channel_avatar import DeleteChannelAvatarUseCase
 from app.application.channels.use_cases.generate_channel_avatar_upload_url import GenerateChannelAvatarUploadUrlUseCase
@@ -28,7 +26,6 @@ from app.domain.channels.exceptions import (
     ChannelNotActiveError,
     ChannelNotFoundByIdError,
     ChannelNotFoundBySlugError,
-    ChannelWithEmailAlreadyExistsError,
     ChannelWithSlugAlreadyExistsError,
 )
 from app.domain.common.exceptions import (
@@ -42,14 +39,12 @@ from app.presentation.api.v1.di.current_channel_id import CurrentChannelID
 from app.presentation.api.v1.handlers.common.params import PathChannelSlug
 from app.presentation.api.v1.schemas.requests.channels import (
     ChannelAvatarUploadConfirmInSchema,
-    CreateChannelInSchema,
     GenerateChannelAvatarUploadUrlInSchema,
     UpdateChannelInSchema,
 )
 from app.presentation.api.v1.schemas.responses.channels import (
     ChannelAboutInfoOutSchema,
     ChannelOutSchema,
-    CreateChannelOutSchema,
     GenerateChannelAvatarUploadUrlOutSchema,
 )
 
@@ -58,28 +53,6 @@ router = APIRouter(
     tags=['Channels'],
     route_class=DishkaRoute,
 )
-
-
-@router.post(
-    path='',
-    status_code=status.HTTP_201_CREATED,
-    responses={
-        status.HTTP_400_BAD_REQUEST: error_response(
-            ChannelWithEmailAlreadyExistsError,
-            ChannelWithSlugAlreadyExistsError,
-        )
-    },
-)
-async def create_channel(
-    schema: CreateChannelInSchema,
-    use_case: FromDishka[CreateChannelUseCase],
-) -> CreateChannelOutSchema:
-    command = CreateChannelCommand(**schema.model_dump())
-    channel, activation_required = await use_case.execute(command=command)
-    return CreateChannelOutSchema(
-        channel=ChannelOutSchema.from_entity(entity=channel),
-        activation_required=activation_required,
-    )
 
 
 @router.get(

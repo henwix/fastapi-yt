@@ -3,22 +3,22 @@ from dishka import AsyncContainer
 from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from app.application.channels.use_cases.create_channel import CreateChannelUseCase
+from app.application.auth.use_cases.register_channel import RegisterChannelUseCase
 from app.application.common.interfaces.password_hasher import IPasswordHasher
 from app.domain.channels.entities import Channel
 from app.domain.channels.exceptions import ChannelWithEmailAlreadyExistsError, ChannelWithSlugAlreadyExistsError
 from app.infrastructure.sqlalchemy.models.channels import ChannelORM
-from tests.factories.commands.channels import CreateChannelCommandFactory
+from tests.factories.commands.auth import RegisterChannelCommandFactory
 from tests.factories.models.channels import ChannelORMFactory
 
 
 @pytest.mark.skip(reason='new logic with email sending')
-async def test_create_channel_returns_correct_entity_if_created(container: AsyncContainer):
+async def test_register_channel_returns_correct_entity_if_created(container: AsyncContainer):
     async with container() as di:
-        use_case = await di.get(CreateChannelUseCase)
+        use_case = await di.get(RegisterChannelUseCase)
         session = await di.get(AsyncSession)
         pwd_hasher = await di.get(IPasswordHasher)
-        command = CreateChannelCommandFactory.build()
+        command = RegisterChannelCommandFactory.build()
 
         created_channel = await use_case.execute(command=command)
 
@@ -43,24 +43,24 @@ async def test_create_channel_returns_correct_entity_if_created(container: Async
 
 
 @pytest.mark.skip(reason='new logic with email sending')
-async def test_create_channel_raises_error_if_email_exists(container: AsyncContainer):
+async def test_register_channel_raises_error_if_email_exists(container: AsyncContainer):
     async with container() as di:
-        use_case = await di.get(CreateChannelUseCase)
+        use_case = await di.get(RegisterChannelUseCase)
         session = await di.get(AsyncSession)
         db_channel = await ChannelORMFactory.create(session=session)
-        command = CreateChannelCommandFactory.build(email=db_channel.email)
+        command = RegisterChannelCommandFactory.build(email=db_channel.email)
 
         with pytest.raises(ChannelWithEmailAlreadyExistsError):
             await use_case.execute(command=command)
 
 
 @pytest.mark.skip(reason='new logic with email sending')
-async def test_create_channel_raises_error_if_slug_exists(container: AsyncContainer):
+async def test_register_channel_raises_error_if_slug_exists(container: AsyncContainer):
     async with container() as di:
-        use_case = await di.get(CreateChannelUseCase)
+        use_case = await di.get(RegisterChannelUseCase)
         session = await di.get(AsyncSession)
         db_channel = await ChannelORMFactory.create(session=session)
-        command = CreateChannelCommandFactory.build(slug=db_channel.slug)
+        command = RegisterChannelCommandFactory.build(slug=db_channel.slug)
 
         with pytest.raises(ChannelWithSlugAlreadyExistsError):
             await use_case.execute(command=command)

@@ -3,6 +3,7 @@ from dataclasses import dataclass
 
 from app.application.auth.commands import RegisterChannelCommand
 from app.application.common.commands.email import SendChannelActivationCodeCommand
+from app.application.common.interfaces.jwt import IJWTService
 from app.application.common.interfaces.password_hasher import IPasswordHasher
 from app.application.common.interfaces.task_queue import ITaskQueue
 from app.application.common.interfaces.transaction_manager import ITransactionManager
@@ -19,10 +20,11 @@ class RegisterChannelUseCase:
     _password_hasher: IPasswordHasher
     _channel_service: IChannelService
     _auth_service: IAuthService
+    _jwt_service: IJWTService
     _task_queue: ITaskQueue
     _transaction_manager: ITransactionManager
 
-    async def execute(self, command: RegisterChannelCommand) -> tuple[Channel, bool]:
+    async def execute(self, command: RegisterChannelCommand) -> tuple[Channel, dict[str, str], bool]:
         await self._channel_service.try_check_email_exists(email=command.email)
         await self._channel_service.try_check_slug_exists(slug=command.slug)
 
@@ -44,6 +46,8 @@ class RegisterChannelUseCase:
         async with self._transaction_manager:
             channel = await self._channel_service.create(channel=channel_entity)
 
+        tokens = self._jwt_service.create_tokens(sub=channel.id)
+
         if activation_required:
             code = await self._auth_service.create_activation_code(channel_id=channel.id)
             activation_url = self._auth_service.build_activation_url(code=code)
@@ -54,4 +58,4 @@ class RegisterChannelUseCase:
                 code=code,
             )
             await self._task_queue.send_channel_activation_code(command=send_channel_activation_code_command)
-        return channel, activation_required
+        return channel, tokens, activation_required

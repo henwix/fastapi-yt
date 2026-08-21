@@ -264,7 +264,7 @@ class UseCasesProvider(Provider):
 
     # Auth
     register_channel = provide(RegisterChannelUseCase)
-    login = provide(LoginChannelUseCase)
+    login_channel = provide(LoginChannelUseCase)
     activate_channel = provide(ActivateChannelUseCase)
     resend_channel_activation_code = provide(ResendChannelActivationCodeUseCase)
     set_channel_email = provide(SetChannelEmailUseCase)

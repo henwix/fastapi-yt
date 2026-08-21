@@ -9,4 +9,5 @@ class JWTOutSchema(BaseSchema):
 
 class RegisterChannelOutSchema(BaseSchema):
     channel: ChannelOutSchema
+    tokens: JWTOutSchema
     activation_required: bool

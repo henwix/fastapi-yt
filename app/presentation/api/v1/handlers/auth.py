@@ -76,9 +76,10 @@ async def register_channel(
     use_case: FromDishka[RegisterChannelUseCase],
 ) -> RegisterChannelOutSchema:
     command = RegisterChannelCommand(**schema.model_dump())
-    channel, activation_required = await use_case.execute(command=command)
+    channel, tokens, activation_required = await use_case.execute(command=command)
     return RegisterChannelOutSchema(
         channel=ChannelOutSchema.from_entity(entity=channel),
+        tokens=JWTOutSchema(**tokens),
         activation_required=activation_required,
     )
 

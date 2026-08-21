@@ -2,7 +2,7 @@ from dataclasses import dataclass
 
 from app.application.auth.commands import ResendChannelActivationCodeCommand
 from app.application.common.commands.email import SendChannelActivationCodeCommand
-from app.application.common.interfaces.task_queue import ITaskQueue
+from app.application.common.interfaces.task_queues.email import IEmailTaskQueue
 from app.domain.auth.exceptions import ChannelAlreadyActivatedError
 from app.domain.auth.services import IAuthService
 from app.domain.channels.services import IChannelService
@@ -12,7 +12,7 @@ from app.domain.channels.services import IChannelService
 class ResendChannelActivationCodeUseCase:
     _channel_service: IChannelService
     _auth_service: IAuthService
-    _task_queue: ITaskQueue
+    _email_task_queue: IEmailTaskQueue
 
     async def execute(self, command: ResendChannelActivationCodeCommand) -> None:
         channel = await self._channel_service.try_get_by_id(id=command.current_channel_id)
@@ -27,4 +27,4 @@ class ResendChannelActivationCodeUseCase:
             activation_url=activation_url,
             code=code,
         )
-        await self._task_queue.send_channel_activation_code(command=send_channel_activation_code_command)
+        await self._email_task_queue.send_channel_activation_code(command=send_channel_activation_code_command)

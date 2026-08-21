@@ -23,7 +23,7 @@ async def test_delete_channel_avatar_returns_none_if_deleted(container: AsyncCon
 
         assert channel.avatar_s3_key == expected_avatar_s3_key
 
-        with patch.object(use_case._task_queue, 'delete_s3_object') as mock_task_queue:
+        with patch.object(use_case._s3_task_queue, 'delete_s3_object') as mock_task_queue:
             result = await use_case.execute(command=command)
 
         mock_task_queue.assert_called_once()

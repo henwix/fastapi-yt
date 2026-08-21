@@ -26,11 +26,14 @@ from app.application.common.interfaces.email_provider import IEmailProvider
 from app.application.common.interfaces.jwt import IJWTService
 from app.application.common.interfaces.password_hasher import IPasswordHasher
 from app.application.common.interfaces.s3_provider import IS3Provider
-from app.application.common.interfaces.task_queue import ITaskQueue
+from app.application.common.interfaces.task_queues.email import IEmailTaskQueue
+from app.application.common.interfaces.task_queues.s3 import IS3TaskQueue
 from app.application.common.interfaces.transaction_manager import ITransactionManager
 from app.application.common.use_cases.email.send_channel_activation_code import SendChannelActivationCodeUseCase
 from app.application.common.use_cases.email.send_channel_reset_password_code import SendChannelResetPasswordCodeUseCase
 from app.application.common.use_cases.email.send_channel_set_email_code import SendChannelSetEmailCodeUseCase
+from app.application.common.use_cases.s3.abort_multipart_upload import AbortMultipartUploadUseCase
+from app.application.common.use_cases.s3.delete_s3_object import DeleteS3ObjectUseCase
 from app.application.playlists.interfaces.reader import IPlaylistReader
 from app.application.playlists.use_cases.add_video_to_playlist import AddVideoToPlaylistUseCase
 from app.application.playlists.use_cases.create_playlist import CreatePlaylistUseCase
@@ -156,7 +159,8 @@ from app.infrastructure.sqlalchemy.repositories.video_reactions import SAVideoRe
 from app.infrastructure.sqlalchemy.repositories.video_views import SAVideoViewRepository
 from app.infrastructure.sqlalchemy.repositories.videos import SAVideoRepository
 from app.infrastructure.sqlalchemy.transaction_manager import SATransactionManager
-from app.infrastructure.taskiq.task_queue import TaskiqTaskQueue
+from app.infrastructure.taskiq.task_queues.email import TaskiqEmailTaskQueue
+from app.infrastructure.taskiq.task_queues.s3 import TaskiqS3TaskQueue
 
 
 class AppProvider(Provider):
@@ -167,7 +171,8 @@ class AppProvider(Provider):
     smtp_client = provide(FastMailClient, scope=Scope.APP)
     s3_provider = provide(BotoS3Provider, scope=Scope.REQUEST, provides=IS3Provider)
     email_provider = provide(FastMailProvider, scope=Scope.REQUEST, provides=IEmailProvider)
-    task_queue = provide(TaskiqTaskQueue, scope=Scope.REQUEST, provides=ITaskQueue)
+    s3_task_queue = provide(TaskiqS3TaskQueue, scope=Scope.REQUEST, provides=IS3TaskQueue)
+    email_task_queue = provide(TaskiqEmailTaskQueue, scope=Scope.REQUEST, provides=IEmailTaskQueue)
 
 
 class DatabaseProvider(Provider):
@@ -353,6 +358,10 @@ class UseCasesProvider(Provider):
     send_channel_activation_code = provide(SendChannelActivationCodeUseCase)
     send_channel_set_email_code = provide(SendChannelSetEmailCodeUseCase)
     send_channel_reset_password_code = provide(SendChannelResetPasswordCodeUseCase)
+
+    # Common/S3
+    delete_s3_object = provide(DeleteS3ObjectUseCase)
+    abort_multipart_upload = provide(AbortMultipartUploadUseCase)
 
 
 @lru_cache(1)

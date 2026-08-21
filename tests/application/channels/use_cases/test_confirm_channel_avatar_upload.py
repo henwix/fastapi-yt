@@ -69,7 +69,7 @@ async def test_confirm_channel_avatar_upload_returns_none_if_avatar_updated_with
 
         assert channel.avatar_s3_key == expected_old_avatar_s3_key
 
-        with patch.object(use_case._task_queue, 'delete_s3_object') as mock_task_queue:
+        with patch.object(use_case._s3_task_queue, 'delete_s3_object') as mock_task_queue:
             result = await use_case.execute(command)
         mock_task_queue.assert_called_once()
 
@@ -209,7 +209,7 @@ async def test_confirm_channel_avatar_upload_raises_error_if_s3_object_invalid_c
         use_case._s3_provider.METADATA_CHANNEL_ID = channel.id
         use_case._s3_provider.CONTENT_TYPE = expected_content_type
 
-        with patch.object(use_case._task_queue, 'delete_s3_object') as mock_task_queue:
+        with patch.object(use_case._s3_task_queue, 'delete_s3_object') as mock_task_queue:
             with pytest.raises(ChannelAvatarInvalidFileContentTypeError):
                 await use_case.execute(command)
         mock_task_queue.assert_called_once()

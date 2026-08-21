@@ -122,7 +122,7 @@ class ChannelService(IChannelService):
         content_type = Path(value).suffix.lower()
         if content_type not in CHANNEL_AVATAR_FILE_MIME_TYPES:
             raise ChannelAvatarInvalidFileFormatError(file=value)
-        return content_type
+        return CHANNEL_AVATAR_FILE_MIME_TYPES[content_type]
 
     def validate_channel_avatar_key(self, key: str, key_prefix: str) -> None:
         if not key.startswith(key_prefix):

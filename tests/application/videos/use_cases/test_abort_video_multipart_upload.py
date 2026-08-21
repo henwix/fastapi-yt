@@ -35,7 +35,7 @@ async def test_abort_video_multipart_upload_returns_none_if_upload_aborted(conta
             video_id=video.id,
         )
 
-        with patch.object(use_case._task_queue, 'abort_multipart_upload') as mock_task_queue:
+        with patch.object(use_case._s3_task_queue, 'abort_multipart_upload') as mock_task_queue:
             result = await use_case.execute(command=command)
 
         stmt = select(exists().where(VideoORM.id == video.id))

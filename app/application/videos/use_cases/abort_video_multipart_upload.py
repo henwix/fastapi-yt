@@ -1,6 +1,7 @@
 from dataclasses import dataclass
 
-from app.application.common.interfaces.task_queue import ITaskQueue
+from app.application.common.commands.s3 import AbortMultipartUploadCommand
+from app.application.common.interfaces.task_queues.s3 import IS3TaskQueue
 from app.application.common.interfaces.transaction_manager import ITransactionManager
 from app.application.videos.commands import AbortVideoMultipartUploadCommand
 from app.core.configs import settings
@@ -12,7 +13,7 @@ from app.domain.videos.services import IVideoService
 class AbortVideoMultipartUploadUseCase:
     _channel_service: IChannelService
     _video_service: IVideoService
-    _task_queue: ITaskQueue
+    _s3_task_queue: IS3TaskQueue
     _transaction_manager: ITransactionManager
 
     async def execute(self, command: AbortVideoMultipartUploadCommand) -> None:
@@ -24,8 +25,10 @@ class AbortVideoMultipartUploadUseCase:
         async with self._transaction_manager:
             await self._video_service.try_delete_by_id(id=video.id)
 
-        await self._task_queue.abort_multipart_upload(
-            bucket=settings.s3_private_bucket_name,
-            key=video.s3_key,
-            upload_id=video.upload_id,
-        )
+        if video.upload_id is not None:
+            abort_multipart_upload_command = AbortMultipartUploadCommand(
+                bucket=settings.s3_private_bucket_name,
+                key=video.s3_key,
+                upload_id=video.upload_id,
+            )
+            await self._s3_task_queue.abort_multipart_upload(command=abort_multipart_upload_command)

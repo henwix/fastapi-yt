@@ -1,5 +1,3 @@
-from logging import getLogger
-
 from dishka.integrations.taskiq import FromDishka, inject
 
 from app.application.common.commands.email import (
@@ -13,7 +11,6 @@ from app.application.common.use_cases.email.send_channel_set_email_code import S
 from app.infrastructure.taskiq.broker import get_broker
 
 broker = get_broker()
-logger = getLogger(__name__)
 
 
 @broker.task(task_name='send_channel_activation_code_task', retry_on_error=True, max_retries=10, delay=60)

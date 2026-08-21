@@ -5,7 +5,7 @@ from app.application.auth.commands import RegisterChannelCommand
 from app.application.common.commands.email import SendChannelActivationCodeCommand
 from app.application.common.interfaces.jwt import IJWTService
 from app.application.common.interfaces.password_hasher import IPasswordHasher
-from app.application.common.interfaces.task_queue import ITaskQueue
+from app.application.common.interfaces.task_queues.email import IEmailTaskQueue
 from app.application.common.interfaces.transaction_manager import ITransactionManager
 from app.core.configs import settings
 from app.domain.auth.services import IAuthService
@@ -21,7 +21,7 @@ class RegisterChannelUseCase:
     _channel_service: IChannelService
     _auth_service: IAuthService
     _jwt_service: IJWTService
-    _task_queue: ITaskQueue
+    _email_task_queue: IEmailTaskQueue
     _transaction_manager: ITransactionManager
 
     async def execute(self, command: RegisterChannelCommand) -> tuple[Channel, dict[str, str], bool]:
@@ -57,5 +57,5 @@ class RegisterChannelUseCase:
                 activation_url=activation_url,
                 code=code,
             )
-            await self._task_queue.send_channel_activation_code(command=send_channel_activation_code_command)
+            await self._email_task_queue.send_channel_activation_code(command=send_channel_activation_code_command)
         return channel, tokens, activation_required

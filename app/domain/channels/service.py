@@ -1,7 +1,7 @@
 from abc import ABC, abstractmethod
 from dataclasses import dataclass
 from pathlib import Path
-from uuid import UUID
+from uuid import UUID, uuid4
 
 from app.domain.channels.constants import CHANNEL_AVATAR_FILE_MIME_TYPES
 from app.domain.channels.entities import Channel
@@ -15,7 +15,7 @@ from app.domain.channels.exceptions import (
     ChannelWithEmailAlreadyExistsError,
     ChannelWithSlugAlreadyExistsError,
 )
-from app.domain.channels.repositories import IChannelRepository
+from app.domain.channels.repository import IChannelRepository
 
 
 class IChannelService(ABC):
@@ -24,6 +24,12 @@ class IChannelService(ABC):
 
     @abstractmethod
     async def try_check_slug_exists(self, slug: str) -> None: ...
+
+    @abstractmethod
+    async def check_slug_exists(self, slug: str) -> bool: ...
+
+    @abstractmethod
+    def build_unique_slug(self, slug: str) -> str: ...
 
     @abstractmethod
     async def create(self, channel: Channel) -> Channel: ...
@@ -70,6 +76,14 @@ class ChannelService(IChannelService):
     async def try_check_slug_exists(self, slug: str) -> None:
         if await self._channel_repo.check_channel_exists_by_slug(slug=slug):
             raise ChannelWithSlugAlreadyExistsError(channel_slug=slug)
+
+    async def check_slug_exists(self, slug: str) -> bool:
+        return await self._channel_repo.check_channel_exists_by_slug(slug=slug)
+
+    def build_unique_slug(self, slug: str) -> str:
+        base_slug = slug[:29]
+        unique_slug = f'{base_slug}-{uuid4().hex[:10]}'
+        return unique_slug
 
     async def create(self, channel: Channel) -> Channel:
         return await self._channel_repo.create(channel=channel)

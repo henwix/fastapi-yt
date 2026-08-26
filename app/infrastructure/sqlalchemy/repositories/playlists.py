@@ -7,7 +7,7 @@ from sqlalchemy.exc import DBAPIError, IntegrityError
 from app.domain.channels.exceptions import ChannelNotFoundByIdError
 from app.domain.playlists.entities import Playlist, PlaylistItem
 from app.domain.playlists.exceptions import PlaylistNotFoundError, VideoAlreadyAddedToPlaylistError
-from app.domain.playlists.repositories import IPlaylistItemRepository, IPlaylistRepository
+from app.domain.playlists.repository import IPlaylistItemRepository, IPlaylistRepository
 from app.domain.videos.exceptions import VideoNotFoundError
 from app.infrastructure.sqlalchemy.models.videos import PlaylistItemORM, PlaylistORM
 from app.infrastructure.sqlalchemy.repositories.base import SARepository

@@ -8,9 +8,9 @@ from app.application.common.interfaces.password_hasher import IPasswordHasher
 from app.application.common.interfaces.task_queues.email import IEmailTaskQueue
 from app.application.common.interfaces.transaction_manager import ITransactionManager
 from app.core.configs import settings
-from app.domain.auth.services import IAuthService
+from app.domain.auth.service import IAuthService
 from app.domain.channels.entities import Channel
-from app.domain.channels.services import IChannelService
+from app.domain.channels.service import IChannelService
 
 password_hash_semaphore = asyncio.Semaphore(2)
 
@@ -52,8 +52,8 @@ class RegisterChannelUseCase:
             code = await self._auth_service.create_activation_code(channel_id=channel.id)
             activation_url = self._auth_service.build_activation_url(code=code)
             send_channel_activation_code_command = SendChannelActivationCodeCommand(
-                email=channel.email,
-                name=channel.name,
+                email=channel.email.value,
+                name=channel.name.value,
                 activation_url=activation_url,
                 code=code,
             )

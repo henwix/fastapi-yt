@@ -4,12 +4,12 @@ from datetime import datetime
 from app.application.playlists.dto import PlaylistPreviewVideoDTO
 from app.application.playlists.interfaces.reader import IPlaylistReader
 from app.application.playlists.queries import GetPlaylistVideosQuery, PlaylistVideosSortingFieldsEnum
-from app.domain.channels.services import IChannelService
+from app.domain.channels.service import IChannelService
 from app.domain.common.constants import Empty
 from app.domain.common.exceptions import InvalidCursorError
 from app.domain.playlists.enums import PlaylistPrivacyStatusEnum
 from app.domain.playlists.exceptions import PlaylistAccessForbiddenError
-from app.domain.playlists.services import IPlaylistService
+from app.domain.playlists.service import IPlaylistService
 from app.utils.base64url import base64url_decode, base64url_encode
 
 

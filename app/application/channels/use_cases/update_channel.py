@@ -3,7 +3,7 @@ from dataclasses import dataclass
 from app.application.channels.commands import UpdateChannelCommand
 from app.application.common.interfaces.transaction_manager import ITransactionManager
 from app.domain.channels.entities import Channel
-from app.domain.channels.services import IChannelService
+from app.domain.channels.service import IChannelService
 from app.domain.common.constants import Empty
 
 

@@ -2,9 +2,9 @@ from dataclasses import dataclass
 
 from app.application.common.interfaces.transaction_manager import ITransactionManager
 from app.application.videos.commands import UpdateVideoCommand
-from app.domain.channels.services import IChannelService
+from app.domain.channels.service import IChannelService
 from app.domain.videos.entities import Video
-from app.domain.videos.services import IVideoService
+from app.domain.videos.service import IVideoService
 
 
 @dataclass

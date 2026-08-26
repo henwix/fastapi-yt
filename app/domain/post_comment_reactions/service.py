@@ -4,7 +4,7 @@ from uuid import UUID
 
 from app.domain.post_comment_reactions.entities import PostCommentReaction
 from app.domain.post_comment_reactions.exceptions import PostCommentReactionNotFoundError
-from app.domain.post_comment_reactions.repositories import IPostCommentReactionRepository
+from app.domain.post_comment_reactions.repository import IPostCommentReactionRepository
 
 
 class IPostCommentReactionService(ABC):

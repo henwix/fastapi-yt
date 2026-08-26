@@ -17,19 +17,18 @@
 
 - [x] Set password endpoint
 
-- [ ] Add account activation logic with email when creating a new channel
-- [ ] Account activation endpoint to verify code from email
-- [ ] Resend account activation email endpoint
+- [x] Add account activation logic with email when creating a new channel
+- [x] Account activation endpoint to verify code from email
+- [x] Resend account activation email endpoint
 
-- [ ] Reset password endpoint
-- [ ] Reset password confirm endpoint
+- [x] Reset password endpoint
+- [x] Reset password confirm endpoint
 
-- [ ] Set email endpoint
-- [ ] Set email confirm endpoint
+- [x] Set email endpoint
+- [x] Set email confirm endpoint
 
 - [x] Channel subscribers endpoint
 
-- [ ] Get channel main page by slug endpoint
 - [ ] Get channel about info endpoint
 
 

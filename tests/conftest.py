@@ -8,10 +8,11 @@ from testcontainers.postgres import PostgresContainer
 
 from app.application.common.interfaces.s3_provider import IS3Provider
 from app.core.configs import settings
-from app.domain.videos.services import IVideoService
+from app.domain.videos.service import IVideoService
 from app.infrastructure.di.container import (
     AppProvider,
     DatabaseProvider,
+    OAuthProvider,
     ReadersProvider,
     RepositoriesProvider,
     ServicesProvider,
@@ -79,6 +80,7 @@ async def container(postgres_url: str) -> AsyncGenerator[AsyncContainer]:
 
     container = make_async_container(
         MockAppProvider(),
+        OAuthProvider(),
         MockDatabaseProvider(),
         RepositoriesProvider(),
         ReadersProvider(),

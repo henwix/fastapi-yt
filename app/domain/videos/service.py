@@ -12,7 +12,7 @@ from app.domain.videos.exceptions import (
     VideoNotFoundError,
     VideoUploadAlreadyCompletedError,
 )
-from app.domain.videos.repositories import IVideoRepository
+from app.domain.videos.repository import IVideoRepository
 
 
 class IVideoService(ABC):

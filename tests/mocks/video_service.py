@@ -1,6 +1,6 @@
 from app.domain.videos.exceptions import VideoNotFoundError
-from app.domain.videos.repositories import IVideoRepository
-from app.domain.videos.services import VideoService
+from app.domain.videos.repository import IVideoRepository
+from app.domain.videos.service import VideoService
 
 
 class MockVideoService(VideoService):

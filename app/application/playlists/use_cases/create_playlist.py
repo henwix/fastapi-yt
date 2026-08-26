@@ -2,9 +2,9 @@ from dataclasses import dataclass
 
 from app.application.common.interfaces.transaction_manager import ITransactionManager
 from app.application.playlists.commands import CreatePlaylistCommand
-from app.domain.channels.services import IChannelService
+from app.domain.channels.service import IChannelService
 from app.domain.playlists.entities import Playlist
-from app.domain.playlists.services import IPlaylistService
+from app.domain.playlists.service import IPlaylistService
 
 
 @dataclass

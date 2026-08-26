@@ -17,6 +17,34 @@ class ChannelWithEmailAlreadyExistsError(AppException):
 
 
 @dataclass(kw_only=True)
+class ChannelInvalidEmailFormatError(AppException):
+    message = 'Invalid email format'
+    pattern: str
+    email: str
+
+
+@dataclass(kw_only=True)
+class ChannelEmailTooLongError(AppException):
+    message = 'Email too long'
+    email: str
+    email_max_length: int
+
+
+@dataclass(kw_only=True)
+class ChannelInvalidSlugFormatError(AppException):
+    message = 'Invalid slug format'
+    pattern: str
+    slug: str
+
+
+@dataclass(kw_only=True)
+class ChannelSlugTooLongError(AppException):
+    message = 'Slug too long'
+    slug: str
+    slug_max_length: int
+
+
+@dataclass(kw_only=True)
 class ChannelNotFoundByIdError(AppException):
     message = 'Channel not found by id'
     channel_id: UUID

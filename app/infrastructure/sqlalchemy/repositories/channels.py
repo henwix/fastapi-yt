@@ -6,7 +6,7 @@ from sqlalchemy.exc import DBAPIError, IntegrityError
 
 from app.domain.channels.entities import Channel
 from app.domain.channels.exceptions import ChannelWithEmailAlreadyExistsError, ChannelWithSlugAlreadyExistsError
-from app.domain.channels.repositories import IChannelRepository
+from app.domain.channels.repository import IChannelRepository
 from app.infrastructure.sqlalchemy.models.channels import ChannelORM
 from app.infrastructure.sqlalchemy.repositories.base import SARepository
 
@@ -20,9 +20,9 @@ class SAChannelRepository(SARepository, IChannelRepository):
 
         match constraint_name:
             case 'channels_email_key':
-                raise ChannelWithEmailAlreadyExistsError(channel_email=channel.email) from error
+                raise ChannelWithEmailAlreadyExistsError(channel_email=channel.email.value) from error
             case 'channels_slug_key':
-                raise ChannelWithSlugAlreadyExistsError(channel_slug=channel.slug) from error
+                raise ChannelWithSlugAlreadyExistsError(channel_slug=channel.slug.value) from error
             case _:
                 raise error
 
@@ -62,9 +62,9 @@ class SAChannelRepository(SARepository, IChannelRepository):
             update(ChannelORM)
             .where(ChannelORM.id == channel.id)
             .values(
-                email=channel.email,
-                name=channel.name,
-                slug=channel.slug,
+                email=channel.email.value,
+                name=channel.name.value,
+                slug=channel.slug.value,
                 description=channel.description,
                 country=channel.country,
                 avatar_s3_key=channel.avatar_s3_key,

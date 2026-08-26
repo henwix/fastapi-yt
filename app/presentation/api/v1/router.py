@@ -2,6 +2,7 @@ from fastapi import APIRouter
 
 from app.presentation.api.v1.handlers.auth import router as auth_router
 from app.presentation.api.v1.handlers.channels import router as channels_router
+from app.presentation.api.v1.handlers.oauth import router as oauth_router
 from app.presentation.api.v1.handlers.playlists import router as playlists_router
 from app.presentation.api.v1.handlers.post_comment_reactions import router as post_comment_reactions_router
 from app.presentation.api.v1.handlers.post_comments import router as post_comments_router
@@ -18,6 +19,7 @@ from app.presentation.api.v1.handlers.videos import router as videos_router
 
 v1_router = APIRouter()
 v1_router.include_router(router=auth_router)
+v1_router.include_router(router=oauth_router)
 v1_router.include_router(router=channels_router)
 v1_router.include_router(router=subscriptions_router)
 v1_router.include_router(router=video_uploads_router)

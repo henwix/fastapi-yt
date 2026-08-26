@@ -20,9 +20,13 @@ from app.domain.channels.exceptions import (
     ChannelAvatarInvalidFileFormatError,
     ChannelAvatarInvalidKeyError,
     ChannelAvatarNotFoundError,
+    ChannelEmailTooLongError,
+    ChannelInvalidEmailFormatError,
+    ChannelInvalidSlugFormatError,
     ChannelNotActiveError,
     ChannelNotFoundByIdError,
     ChannelNotFoundBySlugError,
+    ChannelSlugTooLongError,
     ChannelWithEmailAlreadyExistsError,
     ChannelWithSlugAlreadyExistsError,
 )
@@ -35,6 +39,14 @@ from app.domain.common.exceptions import (
     S3ObjectNotFoundError,
     S3RequestError,
     S3UnavailableError,
+)
+from app.domain.oauth.exceptions import (
+    OAuthInvalidCodeError,
+    OAuthInvalidStateError,
+    OAuthProviderAlreadyConnectedError,
+    OAuthProviderEmailNotFoundError,
+    OAuthProviderEmailNotVerifiedError,
+    OAuthProviderUidNotFoundError,
 )
 from app.domain.playlists.exceptions import (
     PlaylistAccessForbiddenError,
@@ -87,6 +99,10 @@ def get_http_status_code(exc: AppException):
         # Channels
         ChannelWithEmailAlreadyExistsError: status.HTTP_400_BAD_REQUEST,
         ChannelWithSlugAlreadyExistsError: status.HTTP_400_BAD_REQUEST,
+        ChannelInvalidEmailFormatError: status.HTTP_400_BAD_REQUEST,
+        ChannelEmailTooLongError: status.HTTP_400_BAD_REQUEST,
+        ChannelInvalidSlugFormatError: status.HTTP_400_BAD_REQUEST,
+        ChannelSlugTooLongError: status.HTTP_400_BAD_REQUEST,
         ChannelAvatarInvalidFileFormatError: status.HTTP_400_BAD_REQUEST,
         ChannelAvatarInvalidKeyError: status.HTTP_400_BAD_REQUEST,
         ChannelAvatarInvalidFileContentTypeError: status.HTTP_400_BAD_REQUEST,
@@ -105,6 +121,13 @@ def get_http_status_code(exc: AppException):
         JWTInvalidTokenError: status.HTTP_401_UNAUTHORIZED,
         JWTExpiredTokenError: status.HTTP_401_UNAUTHORIZED,
         NotAuthenticatedError: status.HTTP_401_UNAUTHORIZED,
+        # OAuth
+        OAuthInvalidStateError: status.HTTP_400_BAD_REQUEST,
+        OAuthInvalidCodeError: status.HTTP_400_BAD_REQUEST,
+        OAuthProviderEmailNotVerifiedError: status.HTTP_400_BAD_REQUEST,
+        OAuthProviderEmailNotFoundError: status.HTTP_400_BAD_REQUEST,
+        OAuthProviderUidNotFoundError: status.HTTP_400_BAD_REQUEST,
+        OAuthProviderAlreadyConnectedError: status.HTTP_400_BAD_REQUEST,
         # Videos
         VideoInvalidFileFormatError: status.HTTP_400_BAD_REQUEST,
         VideoUploadAlreadyCompletedError: status.HTTP_400_BAD_REQUEST,

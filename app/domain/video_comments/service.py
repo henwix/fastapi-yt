@@ -5,7 +5,7 @@ from uuid import UUID
 from app.domain.channels.entities import Channel
 from app.domain.video_comments.entities import VideoComment
 from app.domain.video_comments.exceptions import VideoCommentAccessForbiddenError, VideoCommentNotFoundError
-from app.domain.video_comments.repositories import IVideoCommentRepository
+from app.domain.video_comments.repository import IVideoCommentRepository
 
 
 class IVideoCommentService(ABC):

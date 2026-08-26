@@ -2,10 +2,10 @@ from dataclasses import dataclass
 
 from app.application.common.interfaces.transaction_manager import ITransactionManager
 from app.application.video_reactions.commands import DeleteVideoReactionCommand
-from app.domain.channels.services import IChannelService
-from app.domain.video_reactions.services import IVideoReactionService
+from app.domain.channels.service import IChannelService
+from app.domain.video_reactions.service import IVideoReactionService
 from app.domain.videos.enums import VideoPrivacyStatusEnum
-from app.domain.videos.services import IVideoService
+from app.domain.videos.service import IVideoService
 
 
 @dataclass

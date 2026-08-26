@@ -4,7 +4,7 @@ from uuid import UUID
 
 from app.domain.video_comment_reactions.entities import VideoCommentReaction
 from app.domain.video_comment_reactions.exceptions import VideoCommentReactionNotFoundError
-from app.domain.video_comment_reactions.repositories import IVideoCommentReactionRepository
+from app.domain.video_comment_reactions.repository import IVideoCommentReactionRepository
 
 
 class IVideoCommentReactionService(ABC):

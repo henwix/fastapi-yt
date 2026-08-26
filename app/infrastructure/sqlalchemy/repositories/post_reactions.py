@@ -7,7 +7,7 @@ from sqlalchemy.exc import DBAPIError, IntegrityError
 
 from app.domain.channels.exceptions import ChannelNotFoundByIdError
 from app.domain.post_reactions.entities import PostReaction
-from app.domain.post_reactions.repositories import IPostReactionRepository
+from app.domain.post_reactions.repository import IPostReactionRepository
 from app.domain.posts.exceptions import PostNotFoundError
 from app.infrastructure.sqlalchemy.models.posts import PostReactionORM
 from app.infrastructure.sqlalchemy.repositories.base import SARepository

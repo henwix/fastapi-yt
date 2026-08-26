@@ -6,7 +6,7 @@ from sqlalchemy.exc import DBAPIError
 
 from app.domain.channels.exceptions import ChannelNotFoundByIdError
 from app.domain.posts.entities import Post
-from app.domain.posts.repositories import IPostRepository
+from app.domain.posts.repository import IPostRepository
 from app.infrastructure.sqlalchemy.models.posts import PostORM
 from app.infrastructure.sqlalchemy.repositories.base import SARepository
 

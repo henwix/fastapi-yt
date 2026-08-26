@@ -4,7 +4,7 @@ from uuid import UUID
 
 from app.domain.video_history.entities import VideoHistoryItem
 from app.domain.video_history.exceptions import VideoHistoryEmptyError, VideoNotFoundInHistoryError
-from app.domain.video_history.repositories import IVideoHistoryRepository
+from app.domain.video_history.repository import IVideoHistoryRepository
 
 
 class IVideoHistoryService(ABC):

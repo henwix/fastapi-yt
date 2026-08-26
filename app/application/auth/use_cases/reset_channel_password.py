@@ -3,8 +3,8 @@ from dataclasses import dataclass
 from app.application.auth.commands import ResetChannelPasswordCommand
 from app.application.common.commands.email import SendChannelResetPasswordCodeCommand
 from app.application.common.interfaces.task_queues.email import IEmailTaskQueue
-from app.domain.auth.services import IAuthService
-from app.domain.channels.services import IChannelService
+from app.domain.auth.service import IAuthService
+from app.domain.channels.service import IChannelService
 from app.utils.base64url import base64url_encode
 
 
@@ -23,8 +23,8 @@ class ResetChannelPasswordUseCase:
         uid = base64url_encode(value=str(channel.id))
         confirmation_url = self._auth_service.build_reset_password_confirm_url(code=code, uid=uid)
         send_channel_reset_password_code_command = SendChannelResetPasswordCodeCommand(
-            email=channel.email,
-            name=channel.name,
+            email=channel.email.value,
+            name=channel.name.value,
             confirmation_url=confirmation_url,
             code=code,
             uid=uid,

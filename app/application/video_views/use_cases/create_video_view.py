@@ -2,12 +2,12 @@ from dataclasses import dataclass
 
 from app.application.common.interfaces.transaction_manager import ITransactionManager
 from app.application.video_views.commands import CreateVideoViewCommand
-from app.domain.channels.services import IChannelService
+from app.domain.channels.service import IChannelService
 from app.domain.video_views.entities import VideoView
-from app.domain.video_views.services import IVideoViewService
+from app.domain.video_views.service import IVideoViewService
 from app.domain.videos.enums import VideoPrivacyStatusEnum
 from app.domain.videos.exceptions import VideoAccessForbiddenError
-from app.domain.videos.services import IVideoService
+from app.domain.videos.service import IVideoService
 
 
 @dataclass

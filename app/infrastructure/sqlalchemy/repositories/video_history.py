@@ -7,7 +7,7 @@ from sqlalchemy.exc import DBAPIError, IntegrityError
 
 from app.domain.channels.exceptions import ChannelNotFoundByIdError
 from app.domain.video_history.entities import VideoHistoryItem
-from app.domain.video_history.repositories import IVideoHistoryRepository
+from app.domain.video_history.repository import IVideoHistoryRepository
 from app.domain.videos.exceptions import VideoNotFoundError
 from app.infrastructure.sqlalchemy.models.videos import VideoHistoryItemORM
 from app.infrastructure.sqlalchemy.repositories.base import SARepository

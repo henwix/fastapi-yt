@@ -2,7 +2,7 @@ from sqlalchemy import delete, select, update
 
 from app.domain.videos.entities import Video
 from app.domain.videos.enums import VideoUploadStatusEnum
-from app.domain.videos.repositories import IVideoRepository
+from app.domain.videos.repository import IVideoRepository
 from app.infrastructure.sqlalchemy.models.videos import VideoORM
 from app.infrastructure.sqlalchemy.repositories.base import SARepository
 

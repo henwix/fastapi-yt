@@ -4,7 +4,7 @@ from uuid import UUID
 
 from app.domain.video_reactions.entities import VideoReaction
 from app.domain.video_reactions.exceptions import VideoReactionNotFoundError
-from app.domain.video_reactions.repositories import IVideoReactionRepository
+from app.domain.video_reactions.repository import IVideoReactionRepository
 
 
 class IVideoReactionService(ABC):

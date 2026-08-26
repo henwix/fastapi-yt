@@ -2,8 +2,8 @@ from dataclasses import dataclass
 
 from app.application.common.interfaces.transaction_manager import ITransactionManager
 from app.application.video_history.commands import ClearVideoHistoryCommand
-from app.domain.channels.services import IChannelService
-from app.domain.video_history.services import IVideoHistoryService
+from app.domain.channels.service import IChannelService
+from app.domain.video_history.service import IVideoHistoryService
 
 
 @dataclass

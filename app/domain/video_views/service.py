@@ -3,7 +3,7 @@ from dataclasses import dataclass
 
 from app.domain.video_views.entities import VideoView
 from app.domain.video_views.exceptions import VideoViewsLimitReached
-from app.domain.video_views.repositories import IVideoViewRepository
+from app.domain.video_views.repository import IVideoViewRepository
 
 
 class IVideoViewService(ABC):

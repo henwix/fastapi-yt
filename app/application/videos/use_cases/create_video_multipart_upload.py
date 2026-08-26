@@ -4,9 +4,9 @@ from app.application.common.interfaces.s3_provider import IS3Provider
 from app.application.common.interfaces.transaction_manager import ITransactionManager
 from app.application.videos.commands import CreateVideoMultipartUploadCommand
 from app.core.configs import settings
-from app.domain.channels.services import IChannelService
+from app.domain.channels.service import IChannelService
 from app.domain.videos.entities import Video
-from app.domain.videos.services import IVideoService
+from app.domain.videos.service import IVideoService
 
 
 @dataclass

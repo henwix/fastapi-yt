@@ -2,6 +2,7 @@ from collections.abc import AsyncGenerator
 from functools import lru_cache
 
 from dishka import AsyncContainer, Provider, Scope, make_async_container, provide
+from httpx import AsyncClient
 from redis.asyncio import Redis
 from sqlalchemy.ext.asyncio import AsyncEngine, AsyncSession, async_sessionmaker
 
@@ -34,6 +35,10 @@ from app.application.common.use_cases.email.send_channel_reset_password_code imp
 from app.application.common.use_cases.email.send_channel_set_email_code import SendChannelSetEmailCodeUseCase
 from app.application.common.use_cases.s3.abort_multipart_upload import AbortMultipartUploadUseCase
 from app.application.common.use_cases.s3.delete_s3_object import DeleteS3ObjectUseCase
+from app.application.oauth.interfaces.provider import IOAuthProviderFactory
+from app.application.oauth.interfaces.service import IOAuthServiceFactory
+from app.application.oauth.use_cases.convert_code import OAuthConvertCodeUseCase
+from app.application.oauth.use_cases.get_login_url import OAuthGetLoginUrlUseCase
 from app.application.playlists.interfaces.reader import IPlaylistReader
 from app.application.playlists.use_cases.add_video_to_playlist import AddVideoToPlaylistUseCase
 from app.application.playlists.use_cases.create_playlist import CreatePlaylistUseCase
@@ -100,36 +105,44 @@ from app.application.videos.use_cases.get_channel_videos import GetChannelVideos
 from app.application.videos.use_cases.get_personal_videos import GetPersonalVideosUseCase
 from app.application.videos.use_cases.get_video import GetVideoUseCase
 from app.application.videos.use_cases.update_video import UpdateVideoUseCase
-from app.domain.auth.services import AuthService, IAuthService
-from app.domain.channels.repositories import IChannelRepository
-from app.domain.channels.services import ChannelService, IChannelService
+from app.domain.auth.service import AuthService, IAuthService
+from app.domain.channels.repository import IChannelRepository
+from app.domain.channels.service import ChannelService, IChannelService
 from app.domain.common.repositories.kv import IKVRepository
-from app.domain.playlists.repositories import IPlaylistItemRepository, IPlaylistRepository
-from app.domain.playlists.services import IPlaylistItemService, IPlaylistService, PlaylistItemService, PlaylistService
-from app.domain.post_comment_reactions.repositories import IPostCommentReactionRepository
-from app.domain.post_comment_reactions.services import IPostCommentReactionService, PostCommentReactionService
-from app.domain.post_comments.repositories import IPostCommentRepository
-from app.domain.post_comments.services import IPostCommentService, PostCommentService
-from app.domain.post_reactions.repositories import IPostReactionRepository
-from app.domain.post_reactions.services import IPostReactionService, PostReactionService
-from app.domain.posts.repositories import IPostRepository
-from app.domain.posts.services import IPostService, PostService
-from app.domain.subscriptions.repositories import ISubscriptionRepository
-from app.domain.subscriptions.services import ISubscriptionService, SubscriptionService
-from app.domain.video_comment_reactions.repositories import IVideoCommentReactionRepository
-from app.domain.video_comment_reactions.services import IVideoCommentReactionService, VideoCommentReactionService
-from app.domain.video_comments.repositories import IVideoCommentRepository
-from app.domain.video_comments.services import IVideoCommentService, VideoCommentService
-from app.domain.video_history.repositories import IVideoHistoryRepository
-from app.domain.video_history.services import IVideoHistoryService, VideoHistoryService
-from app.domain.video_reactions.repositories import IVideoReactionRepository
-from app.domain.video_reactions.services import IVideoReactionService, VideoReactionService
-from app.domain.video_views.repositories import IVideoViewRepository
-from app.domain.video_views.services import IVideoViewService, VideoViewService
-from app.domain.videos.repositories import IVideoRepository
-from app.domain.videos.services import IVideoService, VideoService
+from app.domain.oauth.repository import IOAuthAccountRepo
+from app.domain.oauth.service import IOAuthAccountService, OAuthAccountService
+from app.domain.playlists.repository import IPlaylistItemRepository, IPlaylistRepository
+from app.domain.playlists.service import IPlaylistItemService, IPlaylistService, PlaylistItemService, PlaylistService
+from app.domain.post_comment_reactions.repository import IPostCommentReactionRepository
+from app.domain.post_comment_reactions.service import IPostCommentReactionService, PostCommentReactionService
+from app.domain.post_comments.repository import IPostCommentRepository
+from app.domain.post_comments.service import IPostCommentService, PostCommentService
+from app.domain.post_reactions.repository import IPostReactionRepository
+from app.domain.post_reactions.service import IPostReactionService, PostReactionService
+from app.domain.posts.repository import IPostRepository
+from app.domain.posts.service import IPostService, PostService
+from app.domain.subscriptions.repository import ISubscriptionRepository
+from app.domain.subscriptions.service import ISubscriptionService, SubscriptionService
+from app.domain.video_comment_reactions.repository import IVideoCommentReactionRepository
+from app.domain.video_comment_reactions.service import IVideoCommentReactionService, VideoCommentReactionService
+from app.domain.video_comments.repository import IVideoCommentRepository
+from app.domain.video_comments.service import IVideoCommentService, VideoCommentService
+from app.domain.video_history.repository import IVideoHistoryRepository
+from app.domain.video_history.service import IVideoHistoryService, VideoHistoryService
+from app.domain.video_reactions.repository import IVideoReactionRepository
+from app.domain.video_reactions.service import IVideoReactionService, VideoReactionService
+from app.domain.video_views.repository import IVideoViewRepository
+from app.domain.video_views.service import IVideoViewService, VideoViewService
+from app.domain.videos.repository import IVideoRepository
+from app.domain.videos.service import IVideoService, VideoService
 from app.infrastructure.email.client import FastMailClient
 from app.infrastructure.email.provider import FastMailProvider
+from app.infrastructure.http.base import IHttpClient
+from app.infrastructure.http.httpx_client import HttpxHttpClient
+from app.infrastructure.http.httpx_config import get_httpx_client
+from app.infrastructure.oauth.provides.factory import OAuthProviderFactory
+from app.infrastructure.oauth.provides.github import GitHubOAuthProvider
+from app.infrastructure.oauth.service import OAuthServiceFactory
 from app.infrastructure.redis.client import get_redis_client
 from app.infrastructure.redis.repository import RedisRepository
 from app.infrastructure.s3.client import BotoS3Client
@@ -146,6 +159,7 @@ from app.infrastructure.sqlalchemy.readers.video_comments import SAVideoCommentR
 from app.infrastructure.sqlalchemy.readers.video_history import SAVideoHistoryReader
 from app.infrastructure.sqlalchemy.readers.videos import SAVideoReader
 from app.infrastructure.sqlalchemy.repositories.channels import SAChannelRepository
+from app.infrastructure.sqlalchemy.repositories.oauth import SAOAuthAccountRepo
 from app.infrastructure.sqlalchemy.repositories.playlists import SAPlaylistItemRepository, SAPlaylistRepository
 from app.infrastructure.sqlalchemy.repositories.post_comment_reactions import SAPostCommentReactionRepository
 from app.infrastructure.sqlalchemy.repositories.post_comments import SAPostCommentRepository
@@ -164,6 +178,13 @@ from app.infrastructure.taskiq.task_queues.s3 import TaskiqS3TaskQueue
 
 
 class AppProvider(Provider):
+    @provide(scope=Scope.APP)
+    async def provide_httpx_async_client(self) -> AsyncGenerator[AsyncClient]:
+        client = get_httpx_client()
+        yield client
+        await client.aclose()
+
+    httpx_client = provide(HttpxHttpClient, scope=Scope.REQUEST, provides=IHttpClient)
     transaction_manager = provide(SATransactionManager, scope=Scope.REQUEST, provides=ITransactionManager)
     password_hasher = provide(PwdlibPasswordHasher, scope=Scope.APP, provides=IPasswordHasher)
     jwt_service = provide(JWTService, scope=Scope.APP, provides=IJWTService)
@@ -173,6 +194,25 @@ class AppProvider(Provider):
     email_provider = provide(FastMailProvider, scope=Scope.REQUEST, provides=IEmailProvider)
     s3_task_queue = provide(TaskiqS3TaskQueue, scope=Scope.REQUEST, provides=IS3TaskQueue)
     email_task_queue = provide(TaskiqEmailTaskQueue, scope=Scope.REQUEST, provides=IEmailTaskQueue)
+
+
+class OAuthProvider(Provider):
+    scope = Scope.REQUEST
+
+    @provide(provides=IOAuthProviderFactory)
+    def provide_oauth_provider_factory(
+        self,
+        github_provider: GitHubOAuthProvider,
+    ) -> IOAuthProviderFactory:
+        return OAuthProviderFactory(
+            providers=[
+                github_provider,
+            ]
+        )
+
+    github_oauth_provider = provide(GitHubOAuthProvider)
+    oauth_service_factory = provide(OAuthServiceFactory, provides=IOAuthServiceFactory)
+    oauth_account_service = provide(OAuthAccountService, provides=IOAuthAccountService)
 
 
 class DatabaseProvider(Provider):
@@ -204,6 +244,7 @@ class RepositoriesProvider(Provider):
 
     redis_repository = provide(RedisRepository, provides=IKVRepository)
 
+    oauth_repository = provide(SAOAuthAccountRepo, provides=IOAuthAccountRepo)
     channel_repository = provide(SAChannelRepository, provides=IChannelRepository)
     video_repository = provide(SAVideoRepository, provides=IVideoRepository)
     video_reaction_repository = provide(SAVideoReactionRepository, provides=IVideoReactionRepository)
@@ -277,6 +318,10 @@ class UseCasesProvider(Provider):
     set_channel_password = provide(SetChannelPasswordUseCase)
     reset_channel_password = provide(ResetChannelPasswordUseCase)
     reset_channel_password_confirm = provide(ResetChannelPasswordConfirmUseCase)
+
+    # OAuth
+    get_login_url = provide(OAuthGetLoginUrlUseCase)
+    convert_code = provide(OAuthConvertCodeUseCase)
 
     # Videos
     delete_video = provide(DeleteVideoUseCase)
@@ -368,6 +413,7 @@ class UseCasesProvider(Provider):
 def get_container() -> AsyncContainer:
     return make_async_container(
         AppProvider(),
+        OAuthProvider(),
         DatabaseProvider(),
         RepositoriesProvider(),
         ReadersProvider(),

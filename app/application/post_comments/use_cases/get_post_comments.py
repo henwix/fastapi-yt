@@ -7,7 +7,7 @@ from app.application.post_comments.interfaces.reader import IPostCommentReader
 from app.application.post_comments.queries import GetPostCommentsQuery, PostCommentsSortingFieldsEnum
 from app.domain.common.constants import Empty
 from app.domain.common.exceptions import InvalidCursorError
-from app.domain.posts.services import IPostService
+from app.domain.posts.service import IPostService
 from app.utils.base64url import base64url_decode, base64url_encode
 
 

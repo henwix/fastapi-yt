@@ -4,8 +4,8 @@ from app.application.auth.commands import ResendChannelActivationCodeCommand
 from app.application.common.commands.email import SendChannelActivationCodeCommand
 from app.application.common.interfaces.task_queues.email import IEmailTaskQueue
 from app.domain.auth.exceptions import ChannelAlreadyActivatedError
-from app.domain.auth.services import IAuthService
-from app.domain.channels.services import IChannelService
+from app.domain.auth.service import IAuthService
+from app.domain.channels.service import IChannelService
 
 
 @dataclass
@@ -22,8 +22,8 @@ class ResendChannelActivationCodeUseCase:
         code = await self._auth_service.create_activation_code(channel_id=channel.id)
         activation_url = self._auth_service.build_activation_url(code=code)
         send_channel_activation_code_command = SendChannelActivationCodeCommand(
-            email=channel.email,
-            name=channel.name,
+            email=channel.email.value,
+            name=channel.name.value,
             activation_url=activation_url,
             code=code,
         )

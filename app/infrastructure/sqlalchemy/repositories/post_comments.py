@@ -7,7 +7,7 @@ from sqlalchemy.exc import DBAPIError, IntegrityError
 from app.domain.channels.exceptions import ChannelNotFoundByIdError
 from app.domain.post_comments.entities import PostComment
 from app.domain.post_comments.exceptions import PostCommentNotFoundError
-from app.domain.post_comments.repositories import IPostCommentRepository
+from app.domain.post_comments.repository import IPostCommentRepository
 from app.domain.posts.exceptions import PostNotFoundError
 from app.infrastructure.sqlalchemy.models.posts import PostCommentORM
 from app.infrastructure.sqlalchemy.repositories.base import SARepository

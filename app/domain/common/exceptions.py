@@ -61,3 +61,17 @@ class S3UnavailableError(AppException):
 class EmailSendingError(AppException):
     message = 'Error occured during SMTP email sending'
     exc_details: str
+
+
+@dataclass(kw_only=True)
+class HttpRequestError(AppException):
+    message = 'Error occured during HTTP request'
+    url: str
+    method: str
+    exc_details: str
+
+
+@dataclass(kw_only=True)
+class HttpResponseError(HttpRequestError):
+    message = 'Error occured in HTTP response'
+    status_code: int

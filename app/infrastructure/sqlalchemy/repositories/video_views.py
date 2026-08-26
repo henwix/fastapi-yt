@@ -6,7 +6,7 @@ from sqlalchemy.exc import DBAPIError, IntegrityError
 from app.domain.channels.exceptions import ChannelNotFoundByIdError
 from app.domain.video_views.constants import VIDEO_VIEWS_LIMIT_PER_DAY
 from app.domain.video_views.entities import VideoView
-from app.domain.video_views.repositories import IVideoViewRepository
+from app.domain.video_views.repository import IVideoViewRepository
 from app.domain.videos.exceptions import VideoNotFoundError
 from app.infrastructure.sqlalchemy.models.videos import VideoViewORM
 from app.infrastructure.sqlalchemy.repositories.base import SARepository

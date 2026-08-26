@@ -11,7 +11,7 @@ from app.domain.channels.exceptions import (
     ChannelAvatarAlreadySetError,
     ChannelAvatarInvalidFileContentTypeError,
 )
-from app.domain.channels.services import IChannelService
+from app.domain.channels.service import IChannelService
 from app.domain.common.exceptions import S3ObjectAccessForbiddenError
 
 
@@ -34,7 +34,6 @@ class ConfirmChannelAvatarUploadUseCase:
         avatar_info = await self._s3_provider.head_object(bucket=settings.s3_public_bucket_name, key=command.key)
         avatar_metadata_channel_id = avatar_info['Metadata'].get('channel_id')
         avatar_metadata_content_type = avatar_info['ContentType']
-        print(avatar_info['ContentLength'])
 
         if avatar_metadata_channel_id != str(channel.id):
             raise S3ObjectAccessForbiddenError(channel_id=channel.id, key=command.key)

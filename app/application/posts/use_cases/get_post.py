@@ -2,7 +2,7 @@ from dataclasses import dataclass
 
 from app.application.posts.queries import GetPostQuery
 from app.domain.posts.entities import Post
-from app.domain.posts.services import IPostService
+from app.domain.posts.service import IPostService
 
 
 @dataclass

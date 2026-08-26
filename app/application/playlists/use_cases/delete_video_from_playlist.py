@@ -2,9 +2,9 @@ from dataclasses import dataclass
 
 from app.application.common.interfaces.transaction_manager import ITransactionManager
 from app.application.playlists.commands import DeleteVideoFromPlaylistCommand
-from app.domain.channels.services import IChannelService
-from app.domain.playlists.services import IPlaylistItemService, IPlaylistService
-from app.domain.videos.services import IVideoService
+from app.domain.channels.service import IChannelService
+from app.domain.playlists.service import IPlaylistItemService, IPlaylistService
+from app.domain.videos.service import IVideoService
 
 
 @dataclass

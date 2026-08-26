@@ -2,7 +2,7 @@ from dataclasses import dataclass
 
 from app.application.channels.commands import DeleteChannelCommand
 from app.application.common.interfaces.transaction_manager import ITransactionManager
-from app.domain.channels.services import IChannelService
+from app.domain.channels.service import IChannelService
 
 
 @dataclass

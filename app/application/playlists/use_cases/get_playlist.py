@@ -3,7 +3,7 @@ from dataclasses import dataclass
 from app.application.playlists.dto import DetailedPlaylistDTO
 from app.application.playlists.interfaces.reader import IPlaylistReader
 from app.application.playlists.queries import GetPlaylistQuery
-from app.domain.channels.services import IChannelService
+from app.domain.channels.service import IChannelService
 from app.domain.playlists.enums import PlaylistPrivacyStatusEnum
 from app.domain.playlists.exceptions import PlaylistAccessForbiddenError
 

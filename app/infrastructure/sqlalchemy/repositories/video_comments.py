@@ -7,7 +7,7 @@ from sqlalchemy.exc import DBAPIError, IntegrityError
 from app.domain.channels.exceptions import ChannelNotFoundByIdError
 from app.domain.video_comments.entities import VideoComment
 from app.domain.video_comments.exceptions import VideoCommentNotFoundError
-from app.domain.video_comments.repositories import IVideoCommentRepository
+from app.domain.video_comments.repository import IVideoCommentRepository
 from app.domain.videos.exceptions import VideoNotFoundError
 from app.infrastructure.sqlalchemy.models.videos import VideoCommentORM
 from app.infrastructure.sqlalchemy.repositories.base import SARepository

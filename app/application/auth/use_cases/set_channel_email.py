@@ -4,8 +4,8 @@ from app.application.auth.commands import SetChannelEmailCommand
 from app.application.common.commands.email import SendChannelSetEmailCodeCommand
 from app.application.common.interfaces.task_queues.email import IEmailTaskQueue
 from app.domain.auth.exceptions import ChannelEmailAlreadyAssociatedWithThisAcccountError
-from app.domain.auth.services import IAuthService
-from app.domain.channels.services import IChannelService
+from app.domain.auth.service import IAuthService
+from app.domain.channels.service import IChannelService
 
 
 @dataclass
@@ -25,7 +25,7 @@ class SetChannelEmailUseCase:
         confirmation_url = self._auth_service.build_set_email_confirm_url(code=code)
         send_channel_set_email_code_command = SendChannelSetEmailCodeCommand(
             email=command.new_email,
-            name=channel.name,
+            name=channel.name.value,
             confirmation_url=confirmation_url,
             code=code,
         )

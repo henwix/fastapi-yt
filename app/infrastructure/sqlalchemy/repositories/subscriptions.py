@@ -7,7 +7,7 @@ from sqlalchemy.exc import DBAPIError, IntegrityError
 from app.domain.channels.exceptions import ChannelNotFoundByIdError
 from app.domain.subscriptions.entities import Subscription
 from app.domain.subscriptions.exceptions import SubscriptionAlreadyExistsError
-from app.domain.subscriptions.repositories import ISubscriptionRepository
+from app.domain.subscriptions.repository import ISubscriptionRepository
 from app.infrastructure.sqlalchemy.models.channels import SubscriptionORM
 from app.infrastructure.sqlalchemy.repositories.base import SARepository
 

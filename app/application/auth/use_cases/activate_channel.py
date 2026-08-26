@@ -3,8 +3,8 @@ from dataclasses import dataclass
 from app.application.auth.commands import ActivateChannelCommand
 from app.application.common.interfaces.transaction_manager import ITransactionManager
 from app.domain.auth.exceptions import ChannelAlreadyActivatedError
-from app.domain.auth.services import IAuthService
-from app.domain.channels.services import IChannelService
+from app.domain.auth.service import IAuthService
+from app.domain.channels.service import IChannelService
 
 
 @dataclass

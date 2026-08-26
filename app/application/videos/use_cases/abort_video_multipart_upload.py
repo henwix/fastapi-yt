@@ -5,8 +5,8 @@ from app.application.common.interfaces.task_queues.s3 import IS3TaskQueue
 from app.application.common.interfaces.transaction_manager import ITransactionManager
 from app.application.videos.commands import AbortVideoMultipartUploadCommand
 from app.core.configs import settings
-from app.domain.channels.services import IChannelService
-from app.domain.videos.services import IVideoService
+from app.domain.channels.service import IChannelService
+from app.domain.videos.service import IVideoService
 
 
 @dataclass

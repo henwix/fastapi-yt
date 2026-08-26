@@ -9,7 +9,7 @@ from app.domain.playlists.exceptions import (
     PlaylistNotFoundError,
     VideoNotFoundInPlaylistError,
 )
-from app.domain.playlists.repositories import IPlaylistItemRepository, IPlaylistRepository
+from app.domain.playlists.repository import IPlaylistItemRepository, IPlaylistRepository
 
 
 class IPlaylistService(ABC):

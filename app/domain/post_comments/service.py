@@ -5,7 +5,7 @@ from uuid import UUID
 from app.domain.channels.entities import Channel
 from app.domain.post_comments.entities import PostComment
 from app.domain.post_comments.exceptions import PostCommentAccessForbiddenError, PostCommentNotFoundError
-from app.domain.post_comments.repositories import IPostCommentRepository
+from app.domain.post_comments.repository import IPostCommentRepository
 
 
 class IPostCommentService(ABC):

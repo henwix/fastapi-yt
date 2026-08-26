@@ -4,7 +4,7 @@ from uuid import UUID
 from app.application.channels.commands import GenerateChannelAvatarUploadUrlCommand
 from app.application.common.interfaces.s3_provider import IS3Provider
 from app.core.configs import settings
-from app.domain.channels.services import IChannelService
+from app.domain.channels.service import IChannelService
 
 
 @dataclass

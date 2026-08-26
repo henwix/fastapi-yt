@@ -7,5 +7,7 @@ class Empty(Enum):
 
 SLUG_PATTERN = r'^[a-z0-9]+(?:-[a-z0-9]+)*$'
 
+EMAIL_PATTERN = r'[a-z0-9._%+-]+@(?:[a-z0-9-]+\.)+[a-z]{2,}'
+
 FILENAME_PATTERN = r'^[A-Za-z0-9_-]+\.[A-Za-z0-9]+$'
 FILENAME_MAX_LENGTH = 100

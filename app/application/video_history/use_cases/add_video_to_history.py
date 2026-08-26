@@ -2,12 +2,12 @@ from dataclasses import dataclass
 
 from app.application.common.interfaces.transaction_manager import ITransactionManager
 from app.application.video_history.commands import AddVideoToHistoryCommand
-from app.domain.channels.services import IChannelService
+from app.domain.channels.service import IChannelService
 from app.domain.video_history.entities import VideoHistoryItem
-from app.domain.video_history.services import IVideoHistoryService
+from app.domain.video_history.service import IVideoHistoryService
 from app.domain.videos.enums import VideoPrivacyStatusEnum
 from app.domain.videos.exceptions import VideoAccessForbiddenError
-from app.domain.videos.services import IVideoService
+from app.domain.videos.service import IVideoService
 
 
 @dataclass

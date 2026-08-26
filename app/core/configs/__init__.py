@@ -6,6 +6,7 @@ from app.core.configs.auth import AuthSettings
 from app.core.configs.database import DatabaseSettings
 from app.core.configs.email import EmailSettings
 from app.core.configs.general import GeneralSettings
+from app.core.configs.oauth import OAuthSettings
 from app.core.configs.s3 import S3Settings
 
 BASE_DIR = Path(__name__).resolve().parent
@@ -15,6 +16,7 @@ class Settings(
     GeneralSettings,
     DatabaseSettings,
     AuthSettings,
+    OAuthSettings,
     S3Settings,
     EmailSettings,
 ):

@@ -4,7 +4,7 @@ from uuid import UUID
 
 from app.domain.subscriptions.entities import Subscription
 from app.domain.subscriptions.exceptions import SubscriptionAlreadyExistsError, SubscriptionNotFoundError
-from app.domain.subscriptions.repositories import ISubscriptionRepository
+from app.domain.subscriptions.repository import ISubscriptionRepository
 
 
 class ISubscriptionService(ABC):

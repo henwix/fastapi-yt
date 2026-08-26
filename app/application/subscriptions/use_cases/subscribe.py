@@ -2,10 +2,10 @@ from dataclasses import dataclass
 
 from app.application.common.interfaces.transaction_manager import ITransactionManager
 from app.application.subscriptions.commands import SubscribeCommand
-from app.domain.channels.services import IChannelService
+from app.domain.channels.service import IChannelService
 from app.domain.subscriptions.entities import Subscription
 from app.domain.subscriptions.exceptions import SelfSubscriptionError
-from app.domain.subscriptions.services import ISubscriptionService
+from app.domain.subscriptions.service import ISubscriptionService
 
 
 @dataclass

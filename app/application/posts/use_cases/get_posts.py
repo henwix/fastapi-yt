@@ -5,7 +5,7 @@ from uuid import UUID
 from app.application.posts.dto import DetailedPostDTO
 from app.application.posts.interfaces.reader import IPostReader
 from app.application.posts.queries import GetPostsQuery, PostsSortingFieldsEnum
-from app.domain.channels.services import IChannelService
+from app.domain.channels.service import IChannelService
 from app.domain.common.constants import Empty
 from app.domain.common.exceptions import InvalidCursorError
 from app.utils.base64url import base64url_decode, base64url_encode

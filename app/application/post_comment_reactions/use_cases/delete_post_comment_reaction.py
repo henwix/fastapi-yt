@@ -2,9 +2,9 @@ from dataclasses import dataclass
 
 from app.application.common.interfaces.transaction_manager import ITransactionManager
 from app.application.post_comment_reactions.commands import DeletePostCommentReactionCommand
-from app.domain.channels.services import IChannelService
-from app.domain.post_comment_reactions.services import IPostCommentReactionService
-from app.domain.post_comments.services import IPostCommentService
+from app.domain.channels.service import IChannelService
+from app.domain.post_comment_reactions.service import IPostCommentReactionService
+from app.domain.post_comments.service import IPostCommentService
 
 
 @dataclass

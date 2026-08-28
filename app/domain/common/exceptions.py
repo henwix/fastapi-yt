@@ -72,6 +72,9 @@ class HttpRequestError(AppException):
 
 
 @dataclass(kw_only=True)
-class HttpResponseError(HttpRequestError):
+class HttpResponseError(AppException):
     message = 'Error occured in HTTP response'
     status_code: int
+    url: str
+    method: str
+    exc_details: str

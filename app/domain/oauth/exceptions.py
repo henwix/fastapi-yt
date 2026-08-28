@@ -45,6 +45,11 @@ class OAuthProviderAlreadyConnectedError(AppException):
 
 
 @dataclass(kw_only=True)
+class OAuthProviderNotSupportedError(AppException):
+    message = 'OAuth provider not supported'
+
+
+@dataclass(kw_only=True)
 class OAuthProviderRequestError(AppException):
     message = 'Exception occured during OAuth provider request'
     provider: OAuthProviderEnum

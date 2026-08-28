@@ -37,7 +37,7 @@ class HttpxHttpClient(IHttpClient):
                 method=method,
                 exc_details=str(e),
                 status_code=response.status_code,
-            )
+            ) from e
 
     async def get(
         self,

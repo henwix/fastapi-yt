@@ -23,7 +23,7 @@ class SAOAuthAccountRepo(SARepo, IOAuthAccountRepo):
                 raise OAuthProviderAlreadyConnectedError(
                     current_channel_id=oauth_account.channel_id,
                     provider=oauth_account.provider,
-                )
+                ) from error
             case _:
                 raise
 

@@ -3,13 +3,13 @@ from datetime import datetime
 from uuid import UUID
 
 from app.application.common.pagination import CursorPagination
-from app.application.videos.dto import ChannelPreviewVideoDTO, DetailedVideoDTO, PersonalPreviewVideoDTO
+from app.application.videos.dto import ChannelPreviewVideo, DetailedVideo, PersonalPreviewVideo
 from app.application.videos.queries import PersonalVideosFilters, PreviewVideosSorting
 
 
 class IVideoReader(ABC):
     @abstractmethod
-    async def try_get_detailed_video_by_id(self, id: str) -> DetailedVideoDTO: ...
+    async def try_get_detailed_video_by_id(self, id: str) -> DetailedVideo: ...
 
     @abstractmethod
     async def get_channel_videos(
@@ -19,7 +19,7 @@ class IVideoReader(ABC):
         cursor_id_value: str | None,
         sorting: PreviewVideosSorting,
         pagination: CursorPagination,
-    ) -> list[ChannelPreviewVideoDTO]: ...
+    ) -> list[ChannelPreviewVideo]: ...
 
     @abstractmethod
     async def get_personal_videos(
@@ -30,4 +30,4 @@ class IVideoReader(ABC):
         filters: PersonalVideosFilters,
         sorting: PreviewVideosSorting,
         pagination: CursorPagination,
-    ) -> list[PersonalPreviewVideoDTO]: ...
+    ) -> list[PersonalPreviewVideo]: ...

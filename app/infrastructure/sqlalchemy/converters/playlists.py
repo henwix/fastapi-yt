@@ -1,12 +1,12 @@
 from sqlalchemy import RowMapping
 
-from app.application.playlists.dto import DetailedPlaylistDTO, PlaylistPreviewVideoDTO, PreviewPlaylistDTO
+from app.application.playlists.dto import DetailedPlaylist, PlaylistPreviewVideo, PreviewPlaylist
 from app.domain.playlists.enums import PlaylistPrivacyStatusEnum
 from app.domain.videos.enums import VideoPrivacyStatusEnum
 
 
-def convert_row_to_detailed_playlist_dto(row: RowMapping) -> DetailedPlaylistDTO:
-    return DetailedPlaylistDTO(
+def convert_row_to_detailed_playlist_dto(row: RowMapping) -> DetailedPlaylist:
+    return DetailedPlaylist(
         id=row.id,
         title=row.title,
         description=row.description,
@@ -18,8 +18,8 @@ def convert_row_to_detailed_playlist_dto(row: RowMapping) -> DetailedPlaylistDTO
     )
 
 
-def convert_row_to_preview_playlist_dto(row: RowMapping) -> PreviewPlaylistDTO:
-    return PreviewPlaylistDTO(
+def convert_row_to_preview_playlist_dto(row: RowMapping) -> PreviewPlaylist:
+    return PreviewPlaylist(
         id=row.id,
         title=row.title,
         privacy_status=PlaylistPrivacyStatusEnum(row.privacy_status),
@@ -28,8 +28,8 @@ def convert_row_to_preview_playlist_dto(row: RowMapping) -> PreviewPlaylistDTO:
     )
 
 
-def convert_row_to_playlist_preview_video_dto(row: RowMapping) -> PlaylistPreviewVideoDTO:
-    return PlaylistPreviewVideoDTO(
+def convert_row_to_playlist_preview_video_dto(row: RowMapping) -> PlaylistPreviewVideo:
+    return PlaylistPreviewVideo(
         id=row.id,
         title=row.title,
         privacy_status=VideoPrivacyStatusEnum(row.privacy_status),

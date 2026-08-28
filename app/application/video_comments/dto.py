@@ -6,7 +6,7 @@ from app.application.common.dto import DTO
 
 
 @dataclass(kw_only=True, frozen=True)
-class DetailedVideoCommentDTO(DTO):
+class DetailedVideoComment(DTO):
     id: UUID
     text: str
     reply_level: int

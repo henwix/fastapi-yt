@@ -16,6 +16,6 @@ class SetChannelEmailConfirmUseCase:
         channel = await self._channel_service.try_get_active_by_id(id=command.current_channel_id)
         new_email = await self._auth_service.validate_set_email_code(channel_id=channel.id, code=command.code)
 
-        channel.set_email(email=new_email)
+        channel.set_email(value=new_email)
         async with self._transaction_manager:
             await self._channel_service.try_update(channel=channel)

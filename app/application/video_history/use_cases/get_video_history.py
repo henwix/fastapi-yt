@@ -1,7 +1,7 @@
 from dataclasses import dataclass
 from datetime import datetime
 
-from app.application.video_history.dto import PreviewVideoHistoryDTO
+from app.application.video_history.dto import PreviewVideoHistory
 from app.application.video_history.interfaces.reader import IVideoHistoryReader
 from app.application.video_history.queries import GetVideoHistoryQuery, VideoHistorySortingFieldsEnum
 from app.domain.channels.service import IChannelService
@@ -15,7 +15,7 @@ class GetVideoHistoryUseCase:
     _channel_service: IChannelService
     _video_history_reader: IVideoHistoryReader
 
-    async def execute(self, query: GetVideoHistoryQuery) -> tuple[list[PreviewVideoHistoryDTO], str | None]:
+    async def execute(self, query: GetVideoHistoryQuery) -> tuple[list[PreviewVideoHistory], str | None]:
         cursor_sort_value = None
         cursor_id_value = None
 

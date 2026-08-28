@@ -18,10 +18,8 @@ class UpdateVideoUseCase:
         video = await self._video_service.try_get_by_id(id=command.video_id)
         self._video_service.ensure_video_access(video=video, channel=channel)
 
-        video.update(
-            title=command.title,
-            description=command.description,
-            privacy_status=command.privacy_status,
-        )
+        video.set_title(value=command.title)
+        video.set_description(value=command.description)
+        video.set_privacy_status(value=command.privacy_status)
         async with self._transaction_manager:
             return await self._video_service.try_update(video=video)

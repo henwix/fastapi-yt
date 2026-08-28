@@ -4,15 +4,15 @@ from uuid import uuid4
 from app.application.oauth.dto import OAuthProviderUserData
 from app.application.oauth.interfaces.provider import IOAuthProvider, IOAuthProviderFactory
 from app.application.oauth.interfaces.service import IOAuthService, IOAuthServiceFactory
-from app.domain.common.repositories.kv import IKVRepository
-from app.domain.oauth.enums import OAuthProvidersEnum
+from app.domain.common.repos.kv import IKVRepo
+from app.domain.oauth.enums import OAuthProviderEnum
 from app.domain.oauth.exceptions import OAuthInvalidStateError
 
 
 @dataclass
 class OAuthService(IOAuthService):
-    _kv_repo: IKVRepository
     _oauth_provider: IOAuthProvider
+    _kv_repo: IKVRepo
 
     def _build_state_key(self, state: str) -> str:
         return f'oauth:state:{self._oauth_provider.provider_name}:{state}'
@@ -43,9 +43,9 @@ class OAuthService(IOAuthService):
 
 @dataclass
 class OAuthServiceFactory(IOAuthServiceFactory):
-    _kv_repo: IKVRepository
+    _kv_repo: IKVRepo
     _oauth_provider_factory: IOAuthProviderFactory
 
-    def get(self, provider_name: OAuthProvidersEnum) -> IOAuthService:
+    def get(self, provider_name: OAuthProviderEnum) -> IOAuthService:
         provider = self._oauth_provider_factory.get(provider_name=provider_name)
         return OAuthService(_kv_repo=self._kv_repo, _oauth_provider=provider)

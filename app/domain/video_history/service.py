@@ -4,7 +4,7 @@ from uuid import UUID
 
 from app.domain.video_history.entities import VideoHistoryItem
 from app.domain.video_history.exceptions import VideoHistoryEmptyError, VideoNotFoundInHistoryError
-from app.domain.video_history.repository import IVideoHistoryRepository
+from app.domain.video_history.repo import IVideoHistoryRepo
 
 
 class IVideoHistoryService(ABC):
@@ -20,7 +20,7 @@ class IVideoHistoryService(ABC):
 
 @dataclass
 class VideoHistoryService(IVideoHistoryService):
-    _repo: IVideoHistoryRepository
+    _repo: IVideoHistoryRepo
 
     async def upsert(self, video_history_item: VideoHistoryItem) -> VideoHistoryItem:
         return await self._repo.upsert(video_history_item=video_history_item)

@@ -1,10 +1,10 @@
 from sqlalchemy import RowMapping
 
-from app.application.video_comments.dto import DetailedVideoCommentDTO
+from app.application.video_comments.dto import DetailedVideoComment
 
 
-def convert_row_to_detailed_video_comment_dto(row: RowMapping) -> DetailedVideoCommentDTO:
-    return DetailedVideoCommentDTO(
+def convert_row_to_detailed_video_comment_dto(row: RowMapping) -> DetailedVideoComment:
+    return DetailedVideoComment(
         id=row.id,
         text=row.text,
         reply_level=row.reply_level,

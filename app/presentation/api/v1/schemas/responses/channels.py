@@ -3,7 +3,7 @@ from uuid import UUID
 
 from pydantic import EmailStr, HttpUrl
 
-from app.application.channels.dto import ChannelAboutInfoDTO
+from app.application.channels.dto import ChannelAboutInfo
 from app.domain.channels.entities import Channel
 from app.presentation.api.v1.schemas.base import BaseSchema
 
@@ -48,7 +48,7 @@ class ChannelAboutInfoOutSchema(BaseSchema):
     views_count: int
 
     @staticmethod
-    def from_dto(dto: ChannelAboutInfoDTO) -> ChannelAboutInfoOutSchema:
+    def from_dto(dto: ChannelAboutInfo) -> ChannelAboutInfoOutSchema:
         return ChannelAboutInfoOutSchema(
             id=dto.id,
             name=dto.name,

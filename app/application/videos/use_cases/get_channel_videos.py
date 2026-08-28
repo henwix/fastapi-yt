@@ -1,7 +1,7 @@
 from dataclasses import dataclass
 from datetime import datetime
 
-from app.application.videos.dto import ChannelPreviewVideoDTO
+from app.application.videos.dto import ChannelPreviewVideo
 from app.application.videos.interfaces.reader import IVideoReader
 from app.application.videos.queries import GetChannelVideosQuery, PreviewVideosSortingFieldEnum
 from app.domain.channels.service import IChannelService
@@ -15,7 +15,7 @@ class GetChannelVideosUseCase:
     _channel_service: IChannelService
     _video_reader: IVideoReader
 
-    async def execute(self, query: GetChannelVideosQuery) -> tuple[list[ChannelPreviewVideoDTO], str | None]:
+    async def execute(self, query: GetChannelVideosQuery) -> tuple[list[ChannelPreviewVideo], str | None]:
         cursor_sort_value = None
         cursor_id_value = None
 

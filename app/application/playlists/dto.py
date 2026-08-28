@@ -8,7 +8,7 @@ from app.domain.videos.enums import VideoPrivacyStatusEnum
 
 
 @dataclass
-class DetailedPlaylistDTO(DTO):
+class DetailedPlaylist(DTO):
     id: UUID
     title: str
     description: str
@@ -20,7 +20,7 @@ class DetailedPlaylistDTO(DTO):
 
 
 @dataclass
-class PreviewPlaylistDTO(DTO):
+class PreviewPlaylist(DTO):
     id: UUID
     title: str
     privacy_status: PlaylistPrivacyStatusEnum
@@ -29,7 +29,7 @@ class PreviewPlaylistDTO(DTO):
 
 
 @dataclass
-class PlaylistPreviewVideoDTO(DTO):
+class PlaylistPreviewVideo(DTO):
     id: str
     title: str
     privacy_status: VideoPrivacyStatusEnum

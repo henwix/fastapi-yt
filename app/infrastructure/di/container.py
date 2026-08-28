@@ -106,45 +106,45 @@ from app.application.videos.use_cases.get_personal_videos import GetPersonalVide
 from app.application.videos.use_cases.get_video import GetVideoUseCase
 from app.application.videos.use_cases.update_video import UpdateVideoUseCase
 from app.domain.auth.service import AuthService, IAuthService
-from app.domain.channels.repository import IChannelRepository
+from app.domain.channels.repo import IChannelRepo
 from app.domain.channels.service import ChannelService, IChannelService
-from app.domain.common.repositories.kv import IKVRepository
-from app.domain.oauth.repository import IOAuthAccountRepo
+from app.domain.common.repos.kv import IKVRepo
+from app.domain.oauth.repo import IOAuthAccountRepo
 from app.domain.oauth.service import IOAuthAccountService, OAuthAccountService
-from app.domain.playlists.repository import IPlaylistItemRepository, IPlaylistRepository
+from app.domain.playlists.repo import IPlaylistItemRepo, IPlaylistRepo
 from app.domain.playlists.service import IPlaylistItemService, IPlaylistService, PlaylistItemService, PlaylistService
-from app.domain.post_comment_reactions.repository import IPostCommentReactionRepository
+from app.domain.post_comment_reactions.repo import IPostCommentReactionRepo
 from app.domain.post_comment_reactions.service import IPostCommentReactionService, PostCommentReactionService
-from app.domain.post_comments.repository import IPostCommentRepository
+from app.domain.post_comments.repo import IPostCommentRepo
 from app.domain.post_comments.service import IPostCommentService, PostCommentService
-from app.domain.post_reactions.repository import IPostReactionRepository
+from app.domain.post_reactions.repo import IPostReactionRepo
 from app.domain.post_reactions.service import IPostReactionService, PostReactionService
-from app.domain.posts.repository import IPostRepository
+from app.domain.posts.repo import IPostRepo
 from app.domain.posts.service import IPostService, PostService
-from app.domain.subscriptions.repository import ISubscriptionRepository
+from app.domain.subscriptions.repo import ISubscriptionRepo
 from app.domain.subscriptions.service import ISubscriptionService, SubscriptionService
-from app.domain.video_comment_reactions.repository import IVideoCommentReactionRepository
+from app.domain.video_comment_reactions.repo import IVideoCommentReactionRepo
 from app.domain.video_comment_reactions.service import IVideoCommentReactionService, VideoCommentReactionService
-from app.domain.video_comments.repository import IVideoCommentRepository
+from app.domain.video_comments.repo import IVideoCommentRepo
 from app.domain.video_comments.service import IVideoCommentService, VideoCommentService
-from app.domain.video_history.repository import IVideoHistoryRepository
+from app.domain.video_history.repo import IVideoHistoryRepo
 from app.domain.video_history.service import IVideoHistoryService, VideoHistoryService
-from app.domain.video_reactions.repository import IVideoReactionRepository
+from app.domain.video_reactions.repo import IVideoReactionRepo
 from app.domain.video_reactions.service import IVideoReactionService, VideoReactionService
-from app.domain.video_views.repository import IVideoViewRepository
+from app.domain.video_views.repo import IVideoViewRepo
 from app.domain.video_views.service import IVideoViewService, VideoViewService
-from app.domain.videos.repository import IVideoRepository
+from app.domain.videos.repo import IVideoRepo
 from app.domain.videos.service import IVideoService, VideoService
 from app.infrastructure.email.client import FastMailClient
 from app.infrastructure.email.provider import FastMailProvider
 from app.infrastructure.http.base import IHttpClient
 from app.infrastructure.http.httpx_client import HttpxHttpClient
 from app.infrastructure.http.httpx_config import get_httpx_client
-from app.infrastructure.oauth.provides.factory import OAuthProviderFactory
-from app.infrastructure.oauth.provides.github import GitHubOAuthProvider
+from app.infrastructure.oauth.providers.factory import OAuthProviderFactory
+from app.infrastructure.oauth.providers.github import GitHubOAuthProvider
 from app.infrastructure.oauth.service import OAuthServiceFactory
 from app.infrastructure.redis.client import get_redis_client
-from app.infrastructure.redis.repository import RedisRepository
+from app.infrastructure.redis.repo import RedisRepo
 from app.infrastructure.s3.client import BotoS3Client
 from app.infrastructure.s3.provider import BotoS3Provider
 from app.infrastructure.security.jwt import JWTService
@@ -158,20 +158,20 @@ from app.infrastructure.sqlalchemy.readers.subscriptions import SASubscriptionRe
 from app.infrastructure.sqlalchemy.readers.video_comments import SAVideoCommentReader
 from app.infrastructure.sqlalchemy.readers.video_history import SAVideoHistoryReader
 from app.infrastructure.sqlalchemy.readers.videos import SAVideoReader
-from app.infrastructure.sqlalchemy.repositories.channels import SAChannelRepository
-from app.infrastructure.sqlalchemy.repositories.oauth import SAOAuthAccountRepo
-from app.infrastructure.sqlalchemy.repositories.playlists import SAPlaylistItemRepository, SAPlaylistRepository
-from app.infrastructure.sqlalchemy.repositories.post_comment_reactions import SAPostCommentReactionRepository
-from app.infrastructure.sqlalchemy.repositories.post_comments import SAPostCommentRepository
-from app.infrastructure.sqlalchemy.repositories.post_reactions import SAPostReactionRepository
-from app.infrastructure.sqlalchemy.repositories.posts import SAPostRepository
-from app.infrastructure.sqlalchemy.repositories.subscriptions import SASubscriptionRepository
-from app.infrastructure.sqlalchemy.repositories.video_comment_reactions import SAVideoCommentReactionRepository
-from app.infrastructure.sqlalchemy.repositories.video_comments import SAVideoCommentRepository
-from app.infrastructure.sqlalchemy.repositories.video_history import SAVideoHistoryRepository
-from app.infrastructure.sqlalchemy.repositories.video_reactions import SAVideoReactionRepository
-from app.infrastructure.sqlalchemy.repositories.video_views import SAVideoViewRepository
-from app.infrastructure.sqlalchemy.repositories.videos import SAVideoRepository
+from app.infrastructure.sqlalchemy.repos.channels import SAChannelRepo
+from app.infrastructure.sqlalchemy.repos.oauth import SAOAuthAccountRepo
+from app.infrastructure.sqlalchemy.repos.playlists import SAPlaylistItemRepo, SAPlaylistRepo
+from app.infrastructure.sqlalchemy.repos.post_comment_reactions import SAPostCommentReactionRepo
+from app.infrastructure.sqlalchemy.repos.post_comments import SAPostCommentRepo
+from app.infrastructure.sqlalchemy.repos.post_reactions import SAPostReactionRepo
+from app.infrastructure.sqlalchemy.repos.posts import SAPostRepo
+from app.infrastructure.sqlalchemy.repos.subscriptions import SASubscriptionRepo
+from app.infrastructure.sqlalchemy.repos.video_comment_reactions import SAVideoCommentReactionRepo
+from app.infrastructure.sqlalchemy.repos.video_comments import SAVideoCommentRepo
+from app.infrastructure.sqlalchemy.repos.video_history import SAVideoHistoryRepo
+from app.infrastructure.sqlalchemy.repos.video_reactions import SAVideoReactionRepo
+from app.infrastructure.sqlalchemy.repos.video_views import SAVideoViewRepo
+from app.infrastructure.sqlalchemy.repos.videos import SAVideoRepo
 from app.infrastructure.sqlalchemy.transaction_manager import SATransactionManager
 from app.infrastructure.taskiq.task_queues.email import TaskiqEmailTaskQueue
 from app.infrastructure.taskiq.task_queues.s3 import TaskiqS3TaskQueue
@@ -184,7 +184,7 @@ class AppProvider(Provider):
         yield client
         await client.aclose()
 
-    httpx_client = provide(HttpxHttpClient, scope=Scope.REQUEST, provides=IHttpClient)
+    http_client = provide(HttpxHttpClient, scope=Scope.REQUEST, provides=IHttpClient)
     transaction_manager = provide(SATransactionManager, scope=Scope.REQUEST, provides=ITransactionManager)
     password_hasher = provide(PwdlibPasswordHasher, scope=Scope.APP, provides=IPasswordHasher)
     jwt_service = provide(JWTService, scope=Scope.APP, provides=IJWTService)
@@ -239,28 +239,26 @@ class DatabaseProvider(Provider):
         await redis.aclose()
 
 
-class RepositoriesProvider(Provider):
+class ReposProvider(Provider):
     scope = Scope.REQUEST
 
-    redis_repository = provide(RedisRepository, provides=IKVRepository)
+    redis_repo = provide(RedisRepo, provides=IKVRepo)
 
-    oauth_repository = provide(SAOAuthAccountRepo, provides=IOAuthAccountRepo)
-    channel_repository = provide(SAChannelRepository, provides=IChannelRepository)
-    video_repository = provide(SAVideoRepository, provides=IVideoRepository)
-    video_reaction_repository = provide(SAVideoReactionRepository, provides=IVideoReactionRepository)
-    video_history_repository = provide(SAVideoHistoryRepository, provides=IVideoHistoryRepository)
-    video_view_repository = provide(SAVideoViewRepository, provides=IVideoViewRepository)
-    video_comment_repository = provide(SAVideoCommentRepository, provides=IVideoCommentRepository)
-    video_comment_reaction_repository = provide(
-        SAVideoCommentReactionRepository, provides=IVideoCommentReactionRepository
-    )
-    playlist_repository = provide(SAPlaylistRepository, provides=IPlaylistRepository)
-    playlist_item_repository = provide(SAPlaylistItemRepository, provides=IPlaylistItemRepository)
-    post_repository = provide(SAPostRepository, provides=IPostRepository)
-    post_reaction_repository = provide(SAPostReactionRepository, provides=IPostReactionRepository)
-    post_comment_repository = provide(SAPostCommentRepository, provides=IPostCommentRepository)
-    post_comment_reaction_repository = provide(SAPostCommentReactionRepository, provides=IPostCommentReactionRepository)
-    subscription_repository = provide(SASubscriptionRepository, provides=ISubscriptionRepository)
+    oauth_repo = provide(SAOAuthAccountRepo, provides=IOAuthAccountRepo)
+    channel_repo = provide(SAChannelRepo, provides=IChannelRepo)
+    video_repo = provide(SAVideoRepo, provides=IVideoRepo)
+    video_reaction_repo = provide(SAVideoReactionRepo, provides=IVideoReactionRepo)
+    video_history_repo = provide(SAVideoHistoryRepo, provides=IVideoHistoryRepo)
+    video_view_repo = provide(SAVideoViewRepo, provides=IVideoViewRepo)
+    video_comment_repo = provide(SAVideoCommentRepo, provides=IVideoCommentRepo)
+    video_comment_reaction_repo = provide(SAVideoCommentReactionRepo, provides=IVideoCommentReactionRepo)
+    playlist_repo = provide(SAPlaylistRepo, provides=IPlaylistRepo)
+    playlist_item_repo = provide(SAPlaylistItemRepo, provides=IPlaylistItemRepo)
+    post_repo = provide(SAPostRepo, provides=IPostRepo)
+    post_reaction_repo = provide(SAPostReactionRepo, provides=IPostReactionRepo)
+    post_comment_repo = provide(SAPostCommentRepo, provides=IPostCommentRepo)
+    post_comment_reaction_repo = provide(SAPostCommentReactionRepo, provides=IPostCommentReactionRepo)
+    subscription_repo = provide(SASubscriptionRepo, provides=ISubscriptionRepo)
 
 
 class ReadersProvider(Provider):
@@ -415,7 +413,7 @@ def get_container() -> AsyncContainer:
         AppProvider(),
         OAuthProvider(),
         DatabaseProvider(),
-        RepositoriesProvider(),
+        ReposProvider(),
         ReadersProvider(),
         ServicesProvider(),
         UseCasesProvider(),

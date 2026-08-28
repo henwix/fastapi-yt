@@ -1,7 +1,7 @@
 import sqlalchemy as sa
 from sqlalchemy import select
 
-from app.application.channels.dto import ChannelAboutInfoDTO
+from app.application.channels.dto import ChannelAboutInfo
 from app.application.channels.interfaces.reader import IChannelReader
 from app.domain.channels.exceptions import ChannelNotFoundBySlugError
 from app.domain.videos.enums import VideoPrivacyStatusEnum, VideoUploadStatusEnum
@@ -12,7 +12,7 @@ from app.infrastructure.sqlalchemy.readers.base import SAReader
 
 
 class SAChannelReader(SAReader, IChannelReader):
-    async def try_get_about_info(self, slug: str) -> ChannelAboutInfoDTO:
+    async def try_get_about_info(self, slug: str) -> ChannelAboutInfo:
         # TODO: query refactor
         subscribers_count_subquery = (
             select(sa.func.count(SubscriptionORM.subscribed_to_id))

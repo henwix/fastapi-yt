@@ -6,7 +6,7 @@ from dishka import AsyncContainer
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.application.common.sorting import SortingOrderEnum
-from app.application.posts.dto import DetailedPostDTO
+from app.application.posts.dto import DetailedPost
 from app.application.posts.queries import (
     PostsSorting,
     PostsSortingFieldsEnum,
@@ -47,7 +47,7 @@ async def test_get_posts_returns_posts_without_next_cursor_if_last_page(containe
         result, next_cursor = await use_case.execute(query=query)
 
         assert len(result) == 2
-        assert all(isinstance(x, DetailedPostDTO) for x in result)
+        assert all(isinstance(x, DetailedPost) for x in result)
         assert next_cursor is None
 
 

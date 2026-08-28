@@ -18,6 +18,10 @@ class UpdatePostCommentUseCase:
         post_comment = await self._post_comment_service.try_get_by_id(id=command.post_comment_id)
         self._post_comment_service.ensure_post_comment_access(post_comment=post_comment, channel=channel)
 
-        post_comment.update(text=command.text)
+        post_comment.set_text(value=command.text)
+
+        if not post_comment.is_edited:
+            post_comment.set_is_edited(value=True)
+
         async with self._transaction_manager:
             return await self._post_comment_service.try_update(post_comment=post_comment)

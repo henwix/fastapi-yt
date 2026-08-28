@@ -5,7 +5,7 @@ from sqlalchemy import select, tuple_
 
 from app.application.common.pagination import CursorPagination
 from app.application.common.sorting import SortingOrderEnum
-from app.application.videos.dto import ChannelPreviewVideoDTO, DetailedVideoDTO, PersonalPreviewVideoDTO
+from app.application.videos.dto import ChannelPreviewVideo, DetailedVideo, PersonalPreviewVideo
 from app.application.videos.interfaces.reader import IVideoReader
 from app.application.videos.queries import PersonalVideosFilters, PreviewVideosSorting, PreviewVideosSortingFieldEnum
 from app.domain.common.constants import Empty
@@ -22,7 +22,7 @@ from app.infrastructure.sqlalchemy.readers.base import SAReader
 
 
 class SAVideoReader(SAReader, IVideoReader):
-    async def try_get_detailed_video_by_id(self, id: str) -> DetailedVideoDTO:
+    async def try_get_detailed_video_by_id(self, id: str) -> DetailedVideo:
         stmt = (
             select(
                 VideoORM.id,
@@ -54,7 +54,7 @@ class SAVideoReader(SAReader, IVideoReader):
         cursor_id_value: str | None,
         sorting: PreviewVideosSorting,
         pagination: CursorPagination,
-    ) -> list[ChannelPreviewVideoDTO]:
+    ) -> list[ChannelPreviewVideo]:
         stmt = select(
             VideoORM.id,
             VideoORM.title,
@@ -98,7 +98,7 @@ class SAVideoReader(SAReader, IVideoReader):
         filters: PersonalVideosFilters,
         sorting: PreviewVideosSorting,
         pagination: CursorPagination,
-    ) -> list[PersonalPreviewVideoDTO]:
+    ) -> list[PersonalPreviewVideo]:
         stmt = select(
             VideoORM.id,
             VideoORM.title,

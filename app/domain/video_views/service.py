@@ -3,7 +3,7 @@ from dataclasses import dataclass
 
 from app.domain.video_views.entities import VideoView
 from app.domain.video_views.exceptions import VideoViewsLimitReached
-from app.domain.video_views.repository import IVideoViewRepository
+from app.domain.video_views.repo import IVideoViewRepo
 
 
 class IVideoViewService(ABC):
@@ -13,7 +13,7 @@ class IVideoViewService(ABC):
 
 @dataclass
 class VideoViewService(IVideoViewService):
-    _repo: IVideoViewRepository
+    _repo: IVideoViewRepo
 
     async def try_upsert(self, video_view: VideoView) -> None:
         is_view_created = await self._repo.upsert(video_view=video_view)

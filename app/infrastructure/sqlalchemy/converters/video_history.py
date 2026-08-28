@@ -1,11 +1,11 @@
 from sqlalchemy import RowMapping
 
-from app.application.video_history.dto import PreviewVideoHistoryDTO
+from app.application.video_history.dto import PreviewVideoHistory
 from app.domain.videos.enums import VideoPrivacyStatusEnum
 
 
-def convert_row_to_preview_video_history_dto(row: RowMapping) -> PreviewVideoHistoryDTO:
-    return PreviewVideoHistoryDTO(
+def convert_row_to_preview_video_history_dto(row: RowMapping) -> PreviewVideoHistory:
+    return PreviewVideoHistory(
         id=row.id,
         title=row.title,
         privacy_status=VideoPrivacyStatusEnum(row.privacy_status),

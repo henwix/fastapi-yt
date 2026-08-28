@@ -9,9 +9,8 @@ from app.domain.channels.exceptions import (
     ChannelNotActiveError,
     ChannelNotFoundByIdError,
     ChannelWithEmailAlreadyExistsError,
-    ChannelWithSlugAlreadyExistsError,
 )
-from app.domain.oauth.enums import OAuthProvidersEnum
+from app.domain.oauth.enums import OAuthProviderEnum
 from app.domain.oauth.exceptions import (
     OAuthInvalidCodeError,
     OAuthInvalidStateError,
@@ -34,7 +33,7 @@ router = APIRouter(
 
 @router.get(path='/login_url/{provider}')
 async def get_login_url(
-    provider: OAuthProvidersEnum,
+    provider: OAuthProviderEnum,
     use_case: FromDishka[OAuthGetLoginUrlUseCase],
 ) -> OAuthLoginUrlOutSchema:
     query = OAuthGetLoginUrlQuery(provider=provider)
@@ -59,7 +58,6 @@ async def get_login_url(
             OAuthProviderEmailNotVerifiedError,
             OAuthProviderAlreadyConnectedError,
             ChannelWithEmailAlreadyExistsError,
-            ChannelWithSlugAlreadyExistsError,
         ),
         status.HTTP_403_FORBIDDEN: error_response(
             ChannelNotActiveError,
@@ -74,7 +72,7 @@ async def get_login_url(
 )
 async def convert_code(
     current_channel_id: OptionalCurrentChannelID,
-    provider: OAuthProvidersEnum,
+    provider: OAuthProviderEnum,
     schema: OAuthConvertCodeInSchema,
     use_case: FromDishka[OAuthConvertCodeUseCase],
     response: Response,

@@ -3,7 +3,7 @@ from uuid import UUID
 
 from pydantic import HttpUrl
 
-from app.application.posts.dto import DetailedPostDTO
+from app.application.posts.dto import DetailedPost
 from app.domain.posts.entities import Post
 from app.presentation.api.v1.schemas.base import BaseSchema
 
@@ -30,7 +30,7 @@ class DetailedPostOutSchema(BaseSchema):
     channel_slug: str
 
     @staticmethod
-    def from_dto(dto: DetailedPostDTO) -> DetailedPostOutSchema:
+    def from_dto(dto: DetailedPost) -> DetailedPostOutSchema:
         return DetailedPostOutSchema(
             id=dto.id,
             text=dto.text,

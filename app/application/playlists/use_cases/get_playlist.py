@@ -1,6 +1,6 @@
 from dataclasses import dataclass
 
-from app.application.playlists.dto import DetailedPlaylistDTO
+from app.application.playlists.dto import DetailedPlaylist
 from app.application.playlists.interfaces.reader import IPlaylistReader
 from app.application.playlists.queries import GetPlaylistQuery
 from app.domain.channels.service import IChannelService
@@ -13,7 +13,7 @@ class GetPlaylistUseCase:
     _playlist_reader: IPlaylistReader
     _channel_service: IChannelService
 
-    async def execute(self, query: GetPlaylistQuery) -> DetailedPlaylistDTO:
+    async def execute(self, query: GetPlaylistQuery) -> DetailedPlaylist:
         playlist = await self._playlist_reader.try_get_detailed_playlist_by_id(id=query.playlist_id)
 
         if playlist.privacy_status is PlaylistPrivacyStatusEnum.PRIVATE:

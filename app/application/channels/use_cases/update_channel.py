@@ -17,12 +17,10 @@ class UpdateChannelUseCase:
         if command.slug is not Empty.UNSET:
             await self._channel_service.try_check_slug_exists(slug=command.slug)
 
-        channel.update(
-            name=command.name,
-            slug=command.slug,
-            description=command.description,
-            country=command.country,
-        )
+        channel.set_name(value=command.name)
+        channel.set_slug(value=command.slug)
+        channel.set_description(value=command.description)
+        channel.set_country(value=command.country)
 
         async with self._transaction_manager:
             return await self._channel_service.try_update(channel=channel)

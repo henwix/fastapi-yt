@@ -6,7 +6,7 @@ from dishka import AsyncContainer
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.application.common.sorting import SortingOrderEnum
-from app.application.subscriptions.dto import DetailedSubscriptionDTO
+from app.application.subscriptions.dto import DetailedSubscription
 from app.application.subscriptions.queries import (
     SubscriptionsSorting,
     SubscriptionsSortingFieldsEnum,
@@ -55,7 +55,7 @@ async def test_get_subscriptions_returns_subscriptions_without_next_cursor_if_la
         result, next_cursor = await use_case.execute(query=query)
 
         assert len(result) == 2
-        assert all(isinstance(x, DetailedSubscriptionDTO) for x in result)
+        assert all(isinstance(x, DetailedSubscription) for x in result)
         assert next_cursor is None
 
 

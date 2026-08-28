@@ -22,7 +22,7 @@ class DeleteChannelAvatarUseCase:
 
         channel_avatar_s3_key = channel.avatar_s3_key
 
-        channel.set_avatar_s3_key(key=None)
+        channel.set_avatar_s3_key(value=None)
         async with self._transaction_manager:
             await self._channel_service.try_update(channel=channel)
 

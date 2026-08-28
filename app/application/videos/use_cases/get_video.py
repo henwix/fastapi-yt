@@ -1,6 +1,6 @@
 from dataclasses import dataclass
 
-from app.application.videos.dto import DetailedVideoDTO
+from app.application.videos.dto import DetailedVideo
 from app.application.videos.interfaces.reader import IVideoReader
 from app.application.videos.queries import GetVideoQuery
 from app.domain.channels.service import IChannelService
@@ -15,7 +15,7 @@ class GetVideoUseCase:
     _video_reader: IVideoReader
     _channel_service: IChannelService
 
-    async def execute(self, query: GetVideoQuery) -> DetailedVideoDTO:
+    async def execute(self, query: GetVideoQuery) -> DetailedVideo:
         video = await self._video_reader.try_get_detailed_video_by_id(id=query.video_id)
 
         if video.privacy_status is VideoPrivacyStatusEnum.PRIVATE:

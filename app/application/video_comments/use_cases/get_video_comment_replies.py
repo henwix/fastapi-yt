@@ -2,7 +2,7 @@ from dataclasses import dataclass
 from datetime import datetime
 from uuid import UUID
 
-from app.application.video_comments.dto import DetailedVideoCommentDTO
+from app.application.video_comments.dto import DetailedVideoComment
 from app.application.video_comments.interfaces.reader import IVideoCommentReader
 from app.application.video_comments.queries import GetVideoCommentRepliesQuery, VideoCommentsSortingFieldsEnum
 from app.domain.common.constants import Empty
@@ -16,7 +16,7 @@ class GetVideoCommentRepliesUseCase:
     _video_comment_service: IVideoCommentService
     _video_comment_reader: IVideoCommentReader
 
-    async def execute(self, query: GetVideoCommentRepliesQuery) -> tuple[list[DetailedVideoCommentDTO], str | None]:
+    async def execute(self, query: GetVideoCommentRepliesQuery) -> tuple[list[DetailedVideoComment], str | None]:
         cursor_sort_value = None
         cursor_id_value = None
 

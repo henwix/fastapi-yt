@@ -4,7 +4,7 @@ from uuid import UUID
 
 from app.domain.video_comment_reactions.entities import VideoCommentReaction
 from app.domain.video_comment_reactions.exceptions import VideoCommentReactionNotFoundError
-from app.domain.video_comment_reactions.repository import IVideoCommentReactionRepository
+from app.domain.video_comment_reactions.repo import IVideoCommentReactionRepo
 
 
 class IVideoCommentReactionService(ABC):
@@ -34,7 +34,7 @@ class IVideoCommentReactionService(ABC):
 
 @dataclass
 class VideoCommentReactionService(IVideoCommentReactionService):
-    _repo: IVideoCommentReactionRepository
+    _repo: IVideoCommentReactionRepo
 
     async def upsert(self, video_comment_reaction: VideoCommentReaction) -> VideoCommentReaction | None:
         return await self._repo.upsert(video_comment_reaction=video_comment_reaction)

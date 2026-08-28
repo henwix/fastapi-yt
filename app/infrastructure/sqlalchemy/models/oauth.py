@@ -4,7 +4,7 @@ import sqlalchemy as sa
 from sqlalchemy.orm import Mapped, mapped_column
 
 from app.domain.oauth.entities import OAuthAccount
-from app.domain.oauth.enums import OAuthProvidersEnum
+from app.domain.oauth.enums import OAuthProviderEnum
 from app.infrastructure.sqlalchemy.models.base import BaseORM
 from app.infrastructure.sqlalchemy.models.mixins import CreatedAtDatetimeMixin, UUIDIdMixin
 
@@ -36,6 +36,6 @@ class OAuthAccountORM(CreatedAtDatetimeMixin, UUIDIdMixin, BaseORM):
             id=self.id,
             channel_id=self.channel_id,
             provider_uid=self.provider_uid,
-            provider=OAuthProvidersEnum(self.provider),
+            provider=OAuthProviderEnum(self.provider),
             created_at=self.created_at,
         )

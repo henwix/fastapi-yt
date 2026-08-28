@@ -5,7 +5,7 @@ from sqlalchemy import select, tuple_
 
 from app.application.common.pagination import CursorPagination
 from app.application.common.sorting import SortingOrderEnum
-from app.application.post_comments.dto import DetailedPostCommentDTO
+from app.application.post_comments.dto import DetailedPostComment
 from app.application.post_comments.interfaces.reader import IPostCommentReader
 from app.application.post_comments.queries import PostCommentsSorting
 from app.infrastructure.sqlalchemy.converters.post_comments import convert_row_to_detailed_post_comment_dto
@@ -22,7 +22,7 @@ class SAPostCommentReader(SAReader, IPostCommentReader):
         cursor_id_value: UUID | None,
         sorting: PostCommentsSorting,
         pagination: CursorPagination,
-    ) -> list[DetailedPostCommentDTO]:
+    ) -> list[DetailedPostComment]:
         stmt = (
             select(
                 PostCommentORM.id,
@@ -64,7 +64,7 @@ class SAPostCommentReader(SAReader, IPostCommentReader):
         cursor_id_value: UUID | None,
         sorting: PostCommentsSorting,
         pagination: CursorPagination,
-    ) -> list[DetailedPostCommentDTO]:
+    ) -> list[DetailedPostComment]:
         return await self._get_many_by_filters(
             PostCommentORM.post_id == post_id,
             PostCommentORM.reply_level == 0,
@@ -81,7 +81,7 @@ class SAPostCommentReader(SAReader, IPostCommentReader):
         cursor_id_value: UUID | None,
         sorting: PostCommentsSorting,
         pagination: CursorPagination,
-    ) -> list[DetailedPostCommentDTO]:
+    ) -> list[DetailedPostComment]:
         return await self._get_many_by_filters(
             PostCommentORM.reply_comment_id == post_comment_id,
             cursor_sort_value=cursor_sort_value,

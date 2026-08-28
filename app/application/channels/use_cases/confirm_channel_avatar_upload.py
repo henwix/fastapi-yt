@@ -45,7 +45,7 @@ class ConfirmChannelAvatarUploadUseCase:
 
         old_channel_avatar_s3_key = channel.avatar_s3_key
 
-        channel.set_avatar_s3_key(key=command.key)
+        channel.set_avatar_s3_key(value=command.key)
         async with self._transaction_manager:
             await self._channel_service.try_update(channel=channel)
 

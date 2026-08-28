@@ -5,7 +5,7 @@ from uuid import UUID
 from app.domain.channels.entities import Channel
 from app.domain.video_comments.entities import VideoComment
 from app.domain.video_comments.exceptions import VideoCommentAccessForbiddenError, VideoCommentNotFoundError
-from app.domain.video_comments.repository import IVideoCommentRepository
+from app.domain.video_comments.repo import IVideoCommentRepo
 
 
 class IVideoCommentService(ABC):
@@ -30,7 +30,7 @@ class IVideoCommentService(ABC):
 
 @dataclass
 class VideoCommentService(IVideoCommentService):
-    _repo: IVideoCommentRepository
+    _repo: IVideoCommentRepo
 
     async def create(self, video_comment: VideoComment) -> VideoComment:
         return await self._repo.create(video_comment=video_comment)

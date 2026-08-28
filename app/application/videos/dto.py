@@ -7,7 +7,7 @@ from app.domain.videos.enums import VideoPrivacyStatusEnum, VideoUploadStatusEnu
 
 
 @dataclass(frozen=True)
-class DetailedVideoDTO(DTO):
+class DetailedVideo(DTO):
     id: str
     title: str
     description: str
@@ -21,7 +21,7 @@ class DetailedVideoDTO(DTO):
 
 
 @dataclass(frozen=True)
-class ChannelPreviewVideoDTO(DTO):
+class ChannelPreviewVideo(DTO):
     id: str
     title: str
     views_count: int
@@ -29,7 +29,7 @@ class ChannelPreviewVideoDTO(DTO):
 
 
 @dataclass(frozen=True)
-class PersonalPreviewVideoDTO(DTO):
+class PersonalPreviewVideo(DTO):
     id: str
     title: str
     privacy_status: VideoPrivacyStatusEnum

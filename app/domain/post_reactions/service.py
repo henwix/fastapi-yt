@@ -4,7 +4,7 @@ from uuid import UUID
 
 from app.domain.post_reactions.entities import PostReaction
 from app.domain.post_reactions.exceptions import PostReactionNotFoundError
-from app.domain.post_reactions.repository import IPostReactionRepository
+from app.domain.post_reactions.repo import IPostReactionRepo
 
 
 class IPostReactionService(ABC):
@@ -17,7 +17,7 @@ class IPostReactionService(ABC):
 
 @dataclass
 class PostReactionService(IPostReactionService):
-    _repo: IPostReactionRepository
+    _repo: IPostReactionRepo
 
     async def upsert(self, post_reaction: PostReaction) -> PostReaction | None:
         return await self._repo.upsert(post_reaction=post_reaction)

@@ -3,7 +3,7 @@ from uuid import UUID
 
 from pydantic import HttpUrl
 
-from app.application.video_comments.dto import DetailedVideoCommentDTO
+from app.application.video_comments.dto import DetailedVideoComment
 from app.domain.video_comments.entities import VideoComment
 from app.presentation.api.v1.schemas.base import BaseSchema
 
@@ -38,7 +38,7 @@ class DetailedVideoCommentOutSchema(BaseSchema):
     author_slug: str
 
     @staticmethod
-    def from_dto(dto: DetailedVideoCommentDTO) -> DetailedVideoCommentOutSchema:
+    def from_dto(dto: DetailedVideoComment) -> DetailedVideoCommentOutSchema:
         return DetailedVideoCommentOutSchema(
             id=dto.id,
             text=dto.text,

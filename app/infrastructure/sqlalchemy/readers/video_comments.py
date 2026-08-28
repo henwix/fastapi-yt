@@ -5,7 +5,7 @@ from sqlalchemy import select, tuple_
 
 from app.application.common.pagination import CursorPagination
 from app.application.common.sorting import SortingOrderEnum
-from app.application.video_comments.dto import DetailedVideoCommentDTO
+from app.application.video_comments.dto import DetailedVideoComment
 from app.application.video_comments.interfaces.reader import IVideoCommentReader
 from app.application.video_comments.queries import VideoCommentsSorting
 from app.infrastructure.sqlalchemy.converters.video_comments import convert_row_to_detailed_video_comment_dto
@@ -22,7 +22,7 @@ class SAVideoCommentReader(SAReader, IVideoCommentReader):
         cursor_id_value: UUID | None,
         sorting: VideoCommentsSorting,
         pagination: CursorPagination,
-    ) -> list[DetailedVideoCommentDTO]:
+    ) -> list[DetailedVideoComment]:
         stmt = (
             select(
                 VideoCommentORM.id,
@@ -64,7 +64,7 @@ class SAVideoCommentReader(SAReader, IVideoCommentReader):
         cursor_id_value: UUID | None,
         sorting: VideoCommentsSorting,
         pagination: CursorPagination,
-    ) -> list[DetailedVideoCommentDTO]:
+    ) -> list[DetailedVideoComment]:
         return await self._get_many_by_filters(
             VideoCommentORM.video_id == video_id,
             VideoCommentORM.reply_level == 0,
@@ -81,7 +81,7 @@ class SAVideoCommentReader(SAReader, IVideoCommentReader):
         cursor_id_value: UUID | None,
         sorting: VideoCommentsSorting,
         pagination: CursorPagination,
-    ) -> list[DetailedVideoCommentDTO]:
+    ) -> list[DetailedVideoComment]:
         return await self._get_many_by_filters(
             VideoCommentORM.reply_comment_id == video_comment_id,
             cursor_sort_value=cursor_sort_value,

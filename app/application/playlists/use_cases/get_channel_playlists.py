@@ -2,7 +2,7 @@ from dataclasses import dataclass
 from datetime import datetime
 from uuid import UUID
 
-from app.application.playlists.dto import PreviewPlaylistDTO
+from app.application.playlists.dto import PreviewPlaylist
 from app.application.playlists.interfaces.reader import IPlaylistReader
 from app.application.playlists.queries import GetChannelPlaylistsQuery, PlaylistsPreviewSortingFieldsEnum
 from app.domain.channels.service import IChannelService
@@ -16,7 +16,7 @@ class GetChannelPlaylistsUseCase:
     _channel_service: IChannelService
     _playlist_reader: IPlaylistReader
 
-    async def execute(self, query: GetChannelPlaylistsQuery) -> tuple[list[PreviewPlaylistDTO], str | None]:
+    async def execute(self, query: GetChannelPlaylistsQuery) -> tuple[list[PreviewPlaylist], str | None]:
         cursor_sort_value = None
         cursor_id_value = None
 

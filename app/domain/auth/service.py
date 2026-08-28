@@ -7,7 +7,7 @@ import msgspec
 
 from app.core.configs import settings
 from app.domain.auth.exceptions import ChannelInvalidEmailCodeError
-from app.domain.common.repositories.kv import IKVRepository
+from app.domain.common.repos.kv import IKVRepo
 
 
 class IAuthService(ABC):
@@ -41,7 +41,7 @@ class IAuthService(ABC):
 
 @dataclass
 class AuthService(IAuthService):
-    _kv_repo: IKVRepository
+    _kv_repo: IKVRepo
 
     def _build_activation_key(self, channel_id: UUID) -> str:
         return f'auth:activation:code:{channel_id}'

@@ -18,10 +18,8 @@ class UpdatePlaylistUseCase:
         playlist = await self._playlist_service.try_get_by_id(id=command.playlist_id)
         self._playlist_service.ensure_playlist_access(playlist=playlist, channel=channel)
 
-        playlist.update(
-            title=command.title,
-            description=command.description,
-            privacy_status=command.privacy_status,
-        )
+        playlist.set_title(value=command.title)
+        playlist.set_description(value=command.description)
+        playlist.set_privacy_status(value=command.privacy_status)
         async with self._transaction_manager:
             return await self._playlist_service.try_update(playlist=playlist)

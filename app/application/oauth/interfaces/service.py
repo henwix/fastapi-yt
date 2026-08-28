@@ -1,7 +1,7 @@
 from abc import ABC, abstractmethod
 
 from app.application.oauth.dto import OAuthProviderUserData
-from app.domain.oauth.enums import OAuthProvidersEnum
+from app.domain.oauth.enums import OAuthProviderEnum
 
 
 class IOAuthService(ABC):
@@ -23,4 +23,4 @@ class IOAuthService(ABC):
 
 class IOAuthServiceFactory(ABC):
     @abstractmethod
-    def get(self, provider_name: OAuthProvidersEnum) -> IOAuthService: ...
+    def get(self, provider_name: OAuthProviderEnum) -> IOAuthService: ...

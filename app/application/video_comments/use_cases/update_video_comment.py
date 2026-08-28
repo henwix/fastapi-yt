@@ -18,6 +18,9 @@ class UpdateVideoCommentUseCase:
         video_comment = await self._video_comment_service.try_get_by_id(id=command.video_comment_id)
         self._video_comment_service.ensure_video_comment_access(video_comment=video_comment, channel=channel)
 
-        video_comment.update(text=command.text)
+        video_comment.set_text(value=command.text)
+        if not video_comment.is_edited:
+            video_comment.set_is_edited(value=True)
+
         async with self._transaction_manager:
             return await self._video_comment_service.try_update(video_comment=video_comment)

@@ -14,7 +14,7 @@ from app.infrastructure.di.container import (
     DatabaseProvider,
     OAuthProvider,
     ReadersProvider,
-    RepositoriesProvider,
+    ReposProvider,
     ServicesProvider,
     UseCasesProvider,
 )
@@ -82,7 +82,7 @@ async def container(postgres_url: str) -> AsyncGenerator[AsyncContainer]:
         MockAppProvider(),
         OAuthProvider(),
         MockDatabaseProvider(),
-        RepositoriesProvider(),
+        ReposProvider(),
         ReadersProvider(),
         MockServicesProvider(),
         UseCasesProvider(),

@@ -3,7 +3,7 @@ from uuid import UUID
 
 from pydantic import HttpUrl
 
-from app.application.post_comments.dto import DetailedPostCommentDTO
+from app.application.post_comments.dto import DetailedPostComment
 from app.domain.post_comments.entities import PostComment
 from app.presentation.api.v1.schemas.base import BaseSchema
 
@@ -38,7 +38,7 @@ class DetailedPostCommentOutSchema(BaseSchema):
     author_slug: str
 
     @staticmethod
-    def from_dto(dto: DetailedPostCommentDTO) -> DetailedPostCommentOutSchema:
+    def from_dto(dto: DetailedPostComment) -> DetailedPostCommentOutSchema:
         return DetailedPostCommentOutSchema(
             id=dto.id,
             text=dto.text,

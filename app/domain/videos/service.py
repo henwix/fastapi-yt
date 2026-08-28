@@ -12,7 +12,7 @@ from app.domain.videos.exceptions import (
     VideoNotFoundError,
     VideoUploadAlreadyCompletedError,
 )
-from app.domain.videos.repository import IVideoRepository
+from app.domain.videos.repo import IVideoRepo
 
 
 class IVideoService(ABC):
@@ -46,7 +46,7 @@ class IVideoService(ABC):
 
 @dataclass
 class VideoService(IVideoService):
-    _repo: IVideoRepository
+    _repo: IVideoRepo
 
     async def create(self, video: Video) -> Video:
         return await self._repo.create(video=video)

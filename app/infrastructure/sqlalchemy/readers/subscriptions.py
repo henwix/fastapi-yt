@@ -5,7 +5,7 @@ from sqlalchemy import select, tuple_
 
 from app.application.common.pagination import CursorPagination
 from app.application.common.sorting import SortingOrderEnum
-from app.application.subscriptions.dto import DetailedSubscriptionDTO
+from app.application.subscriptions.dto import DetailedSubscription
 from app.application.subscriptions.interfaces.reader import ISubscriptionReader
 from app.application.subscriptions.queries import SubscriptionsSorting
 from app.infrastructure.sqlalchemy.models.channels import ChannelORM, SubscriptionORM
@@ -20,7 +20,7 @@ class SASubscriptionReader(SAReader, ISubscriptionReader):
         cursor_id_value: UUID | None,
         sorting: SubscriptionsSorting,
         pagination: CursorPagination,
-    ) -> list[DetailedSubscriptionDTO]:
+    ) -> list[DetailedSubscription]:
         stmt = (
             select(SubscriptionORM.id, SubscriptionORM.created_at, ChannelORM.slug)
             .where(SubscriptionORM.subscribed_to_id == subscribed_to_id)
@@ -43,7 +43,7 @@ class SASubscriptionReader(SAReader, ISubscriptionReader):
 
         result = await self._session.execute(statement=stmt)
         return [
-            DetailedSubscriptionDTO(subscription_id=id, created_at=created_at, channel_slug=slug)
+            DetailedSubscription(subscription_id=id, created_at=created_at, channel_slug=slug)
             for id, created_at, slug in result.all()
         ]
 
@@ -54,7 +54,7 @@ class SASubscriptionReader(SAReader, ISubscriptionReader):
         cursor_id_value: UUID | None,
         sorting: SubscriptionsSorting,
         pagination: CursorPagination,
-    ) -> list[DetailedSubscriptionDTO]:
+    ) -> list[DetailedSubscription]:
         stmt = (
             select(SubscriptionORM.id, SubscriptionORM.created_at, ChannelORM.slug)
             .where(SubscriptionORM.subscriber_id == subscriber_id)
@@ -78,6 +78,6 @@ class SASubscriptionReader(SAReader, ISubscriptionReader):
 
         result = await self._session.execute(statement=stmt)
         return [
-            DetailedSubscriptionDTO(subscription_id=id, channel_slug=slug, created_at=created_at)
+            DetailedSubscription(subscription_id=id, channel_slug=slug, created_at=created_at)
             for id, created_at, slug in result.all()
         ]

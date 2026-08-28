@@ -2,7 +2,7 @@ from dataclasses import dataclass
 from datetime import datetime
 from uuid import UUID
 
-from app.application.post_comments.dto import DetailedPostCommentDTO
+from app.application.post_comments.dto import DetailedPostComment
 from app.application.post_comments.interfaces.reader import IPostCommentReader
 from app.application.post_comments.queries import GetPostCommentsQuery, PostCommentsSortingFieldsEnum
 from app.domain.common.constants import Empty
@@ -16,7 +16,7 @@ class GetPostCommentsUseCase:
     _post_service: IPostService
     _post_comment_reader: IPostCommentReader
 
-    async def execute(self, query: GetPostCommentsQuery) -> tuple[list[DetailedPostCommentDTO], str | None]:
+    async def execute(self, query: GetPostCommentsQuery) -> tuple[list[DetailedPostComment], str | None]:
         cursor_sort_value = None
         cursor_id_value = None
 

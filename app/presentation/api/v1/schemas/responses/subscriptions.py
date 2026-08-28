@@ -3,7 +3,7 @@ from uuid import UUID
 
 from pydantic import HttpUrl
 
-from app.application.subscriptions.dto import DetailedSubscriptionDTO
+from app.application.subscriptions.dto import DetailedSubscription
 from app.domain.subscriptions.entities import Subscription
 from app.presentation.api.v1.schemas.base import BaseSchema
 
@@ -30,7 +30,7 @@ class DetailedSubscriptionOutSchema(BaseSchema):
     created_at: datetime
 
     @staticmethod
-    def from_dto(dto: DetailedSubscriptionDTO) -> DetailedSubscriptionOutSchema:
+    def from_dto(dto: DetailedSubscription) -> DetailedSubscriptionOutSchema:
         return DetailedSubscriptionOutSchema(
             subscription_id=dto.subscription_id,
             channel_slug=dto.channel_slug,

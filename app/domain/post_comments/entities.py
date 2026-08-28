@@ -34,9 +34,10 @@ class PostComment(BaseEntity):
             reply_level=reply_level,
         )
 
-    def update(self, text: str | Empty) -> None:
-        if text is not Empty.UNSET:
-            self.text = text
+    def set_text(self, value: str | Empty) -> None:
+        if value is not Empty.UNSET:
+            self.text = value
 
-        if not self.is_edited:
-            self.is_edited = True
+    def set_is_edited(self, value: bool | Empty) -> None:
+        if value is not Empty.UNSET:
+            self.is_edited = value

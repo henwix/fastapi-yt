@@ -3,7 +3,7 @@ from datetime import datetime
 from uuid import UUID
 
 from app.application.common.pagination import CursorPagination
-from app.application.post_comments.dto import DetailedPostCommentDTO
+from app.application.post_comments.dto import DetailedPostComment
 from app.application.post_comments.queries import PostCommentsSorting
 
 
@@ -16,7 +16,7 @@ class IPostCommentReader(ABC):
         cursor_id_value: UUID | None,
         sorting: PostCommentsSorting,
         pagination: CursorPagination,
-    ) -> list[DetailedPostCommentDTO]: ...
+    ) -> list[DetailedPostComment]: ...
 
     @abstractmethod
     async def get_replies(
@@ -26,4 +26,4 @@ class IPostCommentReader(ABC):
         cursor_id_value: UUID | None,
         sorting: PostCommentsSorting,
         pagination: CursorPagination,
-    ) -> list[DetailedPostCommentDTO]: ...
+    ) -> list[DetailedPostComment]: ...

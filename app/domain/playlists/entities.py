@@ -31,18 +31,17 @@ class Playlist(BaseEntity):
             channel_id=channel_id,
         )
 
-    def update(
-        self,
-        title: str | Empty,
-        description: str | Empty,
-        privacy_status: PlaylistPrivacyStatusEnum | Empty,
-    ):
-        if title is not Empty.UNSET:
-            self.title = title
-        if description is not Empty.UNSET:
-            self.description = description
-        if privacy_status is not Empty.UNSET:
-            self.privacy_status = privacy_status
+    def set_title(self, value: str | Empty) -> None:
+        if value is not Empty.UNSET:
+            self.title = value
+
+    def set_description(self, value: str | Empty) -> None:
+        if value is not Empty.UNSET:
+            self.description = value
+
+    def set_privacy_status(self, value: PlaylistPrivacyStatusEnum | Empty) -> None:
+        if value is not Empty.UNSET:
+            self.privacy_status = value
 
 
 @dataclass(kw_only=True)

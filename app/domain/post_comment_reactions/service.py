@@ -4,7 +4,7 @@ from uuid import UUID
 
 from app.domain.post_comment_reactions.entities import PostCommentReaction
 from app.domain.post_comment_reactions.exceptions import PostCommentReactionNotFoundError
-from app.domain.post_comment_reactions.repository import IPostCommentReactionRepository
+from app.domain.post_comment_reactions.repo import IPostCommentReactionRepo
 
 
 class IPostCommentReactionService(ABC):
@@ -21,7 +21,7 @@ class IPostCommentReactionService(ABC):
 
 @dataclass
 class PostCommentReactionService(IPostCommentReactionService):
-    _repo: IPostCommentReactionRepository
+    _repo: IPostCommentReactionRepo
 
     async def upsert(self, post_comment_reaction: PostCommentReaction) -> PostCommentReaction | None:
         return await self._repo.upsert(post_comment_reaction=post_comment_reaction)

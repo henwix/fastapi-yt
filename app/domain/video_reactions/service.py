@@ -4,7 +4,7 @@ from uuid import UUID
 
 from app.domain.video_reactions.entities import VideoReaction
 from app.domain.video_reactions.exceptions import VideoReactionNotFoundError
-from app.domain.video_reactions.repository import IVideoReactionRepository
+from app.domain.video_reactions.repo import IVideoReactionRepo
 
 
 class IVideoReactionService(ABC):
@@ -21,7 +21,7 @@ class IVideoReactionService(ABC):
 
 @dataclass
 class VideoReactionService(IVideoReactionService):
-    _repo: IVideoReactionRepository
+    _repo: IVideoReactionRepo
 
     async def upsert(self, video_reaction: VideoReaction) -> VideoReaction | None:
         return await self._repo.upsert(video_reaction=video_reaction)

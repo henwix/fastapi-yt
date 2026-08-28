@@ -1,5 +1,5 @@
 from enum import StrEnum
 
 
-class OAuthProvidersEnum(StrEnum):
+class OAuthProviderEnum(StrEnum):
     GITHUB = 'github'

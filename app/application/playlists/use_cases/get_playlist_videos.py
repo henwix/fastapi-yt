@@ -1,7 +1,7 @@
 from dataclasses import dataclass
 from datetime import datetime
 
-from app.application.playlists.dto import PlaylistPreviewVideoDTO
+from app.application.playlists.dto import PlaylistPreviewVideo
 from app.application.playlists.interfaces.reader import IPlaylistReader
 from app.application.playlists.queries import GetPlaylistVideosQuery, PlaylistVideosSortingFieldsEnum
 from app.domain.channels.service import IChannelService
@@ -19,7 +19,7 @@ class GetPlaylistVideosUseCase:
     _playlist_service: IPlaylistService
     _playlist_reader: IPlaylistReader
 
-    async def execute(self, query: GetPlaylistVideosQuery) -> tuple[list[PlaylistPreviewVideoDTO], str | None]:
+    async def execute(self, query: GetPlaylistVideosQuery) -> tuple[list[PlaylistPreviewVideo], str | None]:
         cursor_sort_value = None
         cursor_id_value = None
 

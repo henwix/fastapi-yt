@@ -6,7 +6,7 @@ from app.application.common.dto import DTO
 
 
 @dataclass(kw_only=True, frozen=True)
-class DetailedPostDTO(DTO):
+class DetailedPost(DTO):
     id: UUID
     text: str
     created_at: datetime

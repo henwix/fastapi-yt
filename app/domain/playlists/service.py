@@ -9,7 +9,7 @@ from app.domain.playlists.exceptions import (
     PlaylistNotFoundError,
     VideoNotFoundInPlaylistError,
 )
-from app.domain.playlists.repository import IPlaylistItemRepository, IPlaylistRepository
+from app.domain.playlists.repo import IPlaylistItemRepo, IPlaylistRepo
 
 
 class IPlaylistService(ABC):
@@ -39,7 +39,7 @@ class IPlaylistItemService(ABC):
 
 @dataclass
 class PlaylistService(IPlaylistService):
-    _repo: IPlaylistRepository
+    _repo: IPlaylistRepo
 
     async def create(self, playlist: Playlist) -> Playlist:
         return await self._repo.create(playlist=playlist)
@@ -68,7 +68,7 @@ class PlaylistService(IPlaylistService):
 
 @dataclass
 class PlaylistItemService(IPlaylistItemService):
-    _repo: IPlaylistItemRepository
+    _repo: IPlaylistItemRepo
 
     async def create(self, playlist_item: PlaylistItem) -> PlaylistItem:
         return await self._repo.create(playlist_item=playlist_item)

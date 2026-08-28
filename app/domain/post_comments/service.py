@@ -5,7 +5,7 @@ from uuid import UUID
 from app.domain.channels.entities import Channel
 from app.domain.post_comments.entities import PostComment
 from app.domain.post_comments.exceptions import PostCommentAccessForbiddenError, PostCommentNotFoundError
-from app.domain.post_comments.repository import IPostCommentRepository
+from app.domain.post_comments.repo import IPostCommentRepo
 
 
 class IPostCommentService(ABC):
@@ -30,7 +30,7 @@ class IPostCommentService(ABC):
 
 @dataclass
 class PostCommentService(IPostCommentService):
-    _repo: IPostCommentRepository
+    _repo: IPostCommentRepo
 
     async def create(self, post_comment: PostComment) -> PostComment:
         return await self._repo.create(post_comment=post_comment)

@@ -64,7 +64,7 @@ class OAuthConvertCodeUseCase:
         await self._channel_service.try_check_email_exists(email=new_channel_entity.email.value)
         if self._channel_service.check_slug_exists(slug=new_channel_entity.slug.value):
             unique_slug = self._channel_service.build_unique_slug(slug=new_channel_entity.slug.value)
-            new_channel_entity.set_slug(slug=unique_slug)
+            new_channel_entity.set_slug(value=unique_slug)
 
         async with self._transaction_manager:
             channel = await self._channel_service.create(channel=new_channel_entity)

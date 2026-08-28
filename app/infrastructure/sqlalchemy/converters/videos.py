@@ -1,11 +1,11 @@
 from sqlalchemy import RowMapping
 
-from app.application.videos.dto import ChannelPreviewVideoDTO, DetailedVideoDTO, PersonalPreviewVideoDTO
+from app.application.videos.dto import ChannelPreviewVideo, DetailedVideo, PersonalPreviewVideo
 from app.domain.videos.enums import VideoPrivacyStatusEnum, VideoUploadStatusEnum
 
 
-def convert_row_to_detailed_video_dto(row: RowMapping) -> DetailedVideoDTO:
-    return DetailedVideoDTO(
+def convert_row_to_detailed_video_dto(row: RowMapping) -> DetailedVideo:
+    return DetailedVideo(
         id=row.id,
         title=row.title,
         description=row.description,
@@ -19,8 +19,8 @@ def convert_row_to_detailed_video_dto(row: RowMapping) -> DetailedVideoDTO:
     )
 
 
-def convert_row_to_channel_preview_video_dto(row: RowMapping) -> ChannelPreviewVideoDTO:
-    return ChannelPreviewVideoDTO(
+def convert_row_to_channel_preview_video_dto(row: RowMapping) -> ChannelPreviewVideo:
+    return ChannelPreviewVideo(
         id=row.id,
         title=row.title,
         views_count=row.views_count,
@@ -28,8 +28,8 @@ def convert_row_to_channel_preview_video_dto(row: RowMapping) -> ChannelPreviewV
     )
 
 
-def convert_row_to_personal_preview_video_dto(row: RowMapping) -> PersonalPreviewVideoDTO:
-    return PersonalPreviewVideoDTO(
+def convert_row_to_personal_preview_video_dto(row: RowMapping) -> PersonalPreviewVideo:
+    return PersonalPreviewVideo(
         id=row.id,
         title=row.title,
         privacy_status=VideoPrivacyStatusEnum(row.privacy_status),

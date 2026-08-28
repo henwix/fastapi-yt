@@ -1,10 +1,10 @@
 from sqlalchemy import RowMapping
 
-from app.application.post_comments.dto import DetailedPostCommentDTO
+from app.application.post_comments.dto import DetailedPostComment
 
 
-def convert_row_to_detailed_post_comment_dto(row: RowMapping) -> DetailedPostCommentDTO:
-    return DetailedPostCommentDTO(
+def convert_row_to_detailed_post_comment_dto(row: RowMapping) -> DetailedPostComment:
+    return DetailedPostComment(
         id=row.id,
         text=row.text,
         reply_level=row.reply_level,

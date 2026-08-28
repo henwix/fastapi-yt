@@ -5,7 +5,7 @@ from sqlalchemy import select, tuple_
 
 from app.application.common.pagination import CursorPagination
 from app.application.common.sorting import SortingOrderEnum
-from app.application.video_history.dto import PreviewVideoHistoryDTO
+from app.application.video_history.dto import PreviewVideoHistory
 from app.application.video_history.interfaces.reader import IVideoHistoryReader
 from app.application.video_history.queries import VideoHistorySorting, VideoHistorySortingFieldsEnum
 from app.infrastructure.sqlalchemy.converters.video_history import convert_row_to_preview_video_history_dto
@@ -22,7 +22,7 @@ class SAVideoHistoryReader(SAReader, IVideoHistoryReader):
         cursor_id_value: str | None,
         sorting: VideoHistorySorting,
         pagination: CursorPagination,
-    ) -> list[PreviewVideoHistoryDTO]:
+    ) -> list[PreviewVideoHistory]:
         stmt = (
             select(
                 VideoORM.id,

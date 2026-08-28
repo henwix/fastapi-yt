@@ -6,7 +6,7 @@ from app.application.common.dto import DTO
 
 
 @dataclass(kw_only=True)
-class ChannelAboutInfoDTO(DTO):
+class ChannelAboutInfo(DTO):
     id: UUID
     name: str
     slug: str

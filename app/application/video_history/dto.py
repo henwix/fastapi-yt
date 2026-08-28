@@ -6,7 +6,7 @@ from app.domain.videos.enums import VideoPrivacyStatusEnum
 
 
 @dataclass
-class PreviewVideoHistoryDTO(DTO):
+class PreviewVideoHistory(DTO):
     id: str
     title: str
     privacy_status: VideoPrivacyStatusEnum

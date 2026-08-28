@@ -5,7 +5,7 @@ from uuid import UUID
 from app.domain.channels.entities import Channel
 from app.domain.posts.entities import Post
 from app.domain.posts.exceptions import PostAccessForbiddenError, PostNotFoundError
-from app.domain.posts.repository import IPostRepository
+from app.domain.posts.repo import IPostRepo
 
 
 class IPostService(ABC):
@@ -27,25 +27,25 @@ class IPostService(ABC):
 
 @dataclass
 class PostService(IPostService):
-    _post_repo: IPostRepository
+    _repo: IPostRepo
 
     async def create(self, post: Post) -> Post:
-        return await self._post_repo.create(post=post)
+        return await self._repo.create(post=post)
 
     async def try_update(self, post: Post) -> Post:
-        updated_post = await self._post_repo.update(post=post)
+        updated_post = await self._repo.update(post=post)
         if not updated_post:
             raise PostNotFoundError(id=post.id)
         return updated_post
 
     async def try_get_by_id(self, id: UUID) -> Post:
-        post = await self._post_repo.get_by_id(id=id)
+        post = await self._repo.get_by_id(id=id)
         if not post:
             raise PostNotFoundError(id=id)
         return post
 
     async def try_delete_by_id(self, id: UUID) -> None:
-        is_deleted = await self._post_repo.delete_by_id(id=id)
+        is_deleted = await self._repo.delete_by_id(id=id)
         if not is_deleted:
             raise PostNotFoundError(id=id)
 

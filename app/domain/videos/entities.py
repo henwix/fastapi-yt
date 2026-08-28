@@ -23,23 +23,6 @@ class Video(BaseEntity):
     s3_key: str
     upload_status: VideoUploadStatusEnum = VideoUploadStatusEnum.UPLOADING
 
-    def update(
-        self,
-        title: str | Empty,
-        description: str | Empty,
-        privacy_status: VideoPrivacyStatusEnum | Empty,
-    ) -> None:
-        if title is not Empty.UNSET:
-            self.title = title
-        if description is not Empty.UNSET:
-            self.description = description
-        if privacy_status is not Empty.UNSET:
-            self.privacy_status = privacy_status
-
-    def update_after_completed_upload(self) -> None:
-        self.upload_id = None
-        self.upload_status = VideoUploadStatusEnum.COMPLETED
-
     @staticmethod
     def create(
         channel_id: UUID,
@@ -57,3 +40,19 @@ class Video(BaseEntity):
             upload_id=upload_id,
             s3_key=s3_key,
         )
+
+    def set_title(self, value: str | Empty) -> None:
+        if value is not Empty.UNSET:
+            self.title = value
+
+    def set_description(self, value: str | Empty) -> None:
+        if value is not Empty.UNSET:
+            self.description = value
+
+    def set_privacy_status(self, value: VideoPrivacyStatusEnum | Empty) -> None:
+        if value is not Empty.UNSET:
+            self.privacy_status = value
+
+    def update_after_completed_upload(self) -> None:
+        self.upload_id = None
+        self.upload_status = VideoUploadStatusEnum.COMPLETED

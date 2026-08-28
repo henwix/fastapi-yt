@@ -2,7 +2,7 @@ from dataclasses import dataclass
 from typing import Any
 
 
-@dataclass
+@dataclass(eq=False)
 class BaseValueObject:
     value: Any
 

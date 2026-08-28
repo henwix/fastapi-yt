@@ -2,7 +2,7 @@ from datetime import datetime
 
 from pydantic import HttpUrl
 
-from app.application.video_history.dto import PreviewVideoHistoryDTO
+from app.application.video_history.dto import PreviewVideoHistory
 from app.domain.videos.enums import VideoPrivacyStatusEnum
 from app.presentation.api.v1.schemas.base import BaseSchema
 
@@ -18,7 +18,7 @@ class PreviewVideoHistoryOutSchema(BaseSchema):
     author_slug: str
 
     @staticmethod
-    def from_dto(dto: PreviewVideoHistoryDTO) -> PreviewVideoHistoryOutSchema:
+    def from_dto(dto: PreviewVideoHistory) -> PreviewVideoHistoryOutSchema:
         return PreviewVideoHistoryOutSchema(
             id=dto.id,
             title=dto.title,

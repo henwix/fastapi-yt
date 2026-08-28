@@ -1,10 +1,10 @@
 from sqlalchemy import RowMapping
 
-from app.application.channels.dto import ChannelAboutInfoDTO
+from app.application.channels.dto import ChannelAboutInfo
 
 
-def convert_row_to_channel_about_info_dto(row: RowMapping) -> ChannelAboutInfoDTO:
-    return ChannelAboutInfoDTO(
+def convert_row_to_channel_about_info_dto(row: RowMapping) -> ChannelAboutInfo:
+    return ChannelAboutInfo(
         id=row.id,
         name=row.name,
         slug=row.slug,

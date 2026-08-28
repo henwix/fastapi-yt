@@ -3,7 +3,7 @@ from uuid import UUID
 
 from pydantic import Field, HttpUrl
 
-from app.application.playlists.dto import DetailedPlaylistDTO, PlaylistPreviewVideoDTO, PreviewPlaylistDTO
+from app.application.playlists.dto import DetailedPlaylist, PlaylistPreviewVideo, PreviewPlaylist
 from app.domain.playlists.entities import Playlist
 from app.domain.playlists.enums import PlaylistPrivacyStatusEnum
 from app.domain.videos.enums import VideoPrivacyStatusEnum
@@ -39,7 +39,7 @@ class DetailedPlaylistOutSchema(BaseSchema):
     videos_count: int = Field(ge=0)
 
     @staticmethod
-    def from_dto(dto: DetailedPlaylistDTO) -> DetailedPlaylistOutSchema:
+    def from_dto(dto: DetailedPlaylist) -> DetailedPlaylistOutSchema:
         return DetailedPlaylistOutSchema(
             id=dto.id,
             title=dto.title,
@@ -60,7 +60,7 @@ class PreviewPlaylistOutSchema(BaseSchema):
     videos_count: int = Field(ge=0)
 
     @staticmethod
-    def from_dto(dto: PreviewPlaylistDTO) -> PreviewPlaylistOutSchema:
+    def from_dto(dto: PreviewPlaylist) -> PreviewPlaylistOutSchema:
         return PreviewPlaylistOutSchema(
             id=dto.id,
             title=dto.title,
@@ -86,7 +86,7 @@ class PlaylistPreviewVideoOutSchema(BaseSchema):
     author_slug: str
 
     @staticmethod
-    def from_dto(dto: PlaylistPreviewVideoDTO) -> PlaylistPreviewVideoOutSchema:
+    def from_dto(dto: PlaylistPreviewVideo) -> PlaylistPreviewVideoOutSchema:
         return PlaylistPreviewVideoOutSchema(
             id=dto.id,
             title=dto.title,

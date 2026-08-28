@@ -7,7 +7,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.application.common.pagination import CursorPagination
 from app.application.common.sorting import SortingOrderEnum
-from app.application.subscriptions.dto import DetailedSubscriptionDTO
+from app.application.subscriptions.dto import DetailedSubscription
 from app.application.subscriptions.queries import (
     SubscriptionsSorting,
     SubscriptionsSortingFieldsEnum,
@@ -53,7 +53,7 @@ async def test_get_subscribers_returns_subscribers_without_next_cursor_if_last_p
 
         result, next_cursor = await use_case.execute(query=query)
 
-        assert all(isinstance(sub, DetailedSubscriptionDTO) for sub in result)
+        assert all(isinstance(sub, DetailedSubscription) for sub in result)
         assert len(result) == 2
         assert next_cursor is None
 

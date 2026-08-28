@@ -3,7 +3,7 @@ from datetime import datetime
 from uuid import UUID
 
 from app.application.common.pagination import CursorPagination
-from app.application.video_comments.dto import DetailedVideoCommentDTO
+from app.application.video_comments.dto import DetailedVideoComment
 from app.application.video_comments.queries import VideoCommentsSorting
 
 
@@ -16,7 +16,7 @@ class IVideoCommentReader(ABC):
         cursor_id_value: UUID | None,
         sorting: VideoCommentsSorting,
         pagination: CursorPagination,
-    ) -> list[DetailedVideoCommentDTO]: ...
+    ) -> list[DetailedVideoComment]: ...
 
     @abstractmethod
     async def get_replies(
@@ -26,4 +26,4 @@ class IVideoCommentReader(ABC):
         cursor_id_value: UUID | None,
         sorting: VideoCommentsSorting,
         pagination: CursorPagination,
-    ) -> list[DetailedVideoCommentDTO]: ...
+    ) -> list[DetailedVideoComment]: ...

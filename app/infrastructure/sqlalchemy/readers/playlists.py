@@ -6,7 +6,7 @@ from sqlalchemy import select, tuple_
 
 from app.application.common.pagination import CursorPagination
 from app.application.common.sorting import SortingOrderEnum
-from app.application.playlists.dto import DetailedPlaylistDTO, PlaylistPreviewVideoDTO, PreviewPlaylistDTO
+from app.application.playlists.dto import DetailedPlaylist, PlaylistPreviewVideo, PreviewPlaylist
 from app.application.playlists.interfaces.reader import IPlaylistReader
 from app.application.playlists.queries import (
     PlaylistsPreviewSorting,
@@ -80,7 +80,7 @@ class SAPlaylistReader(SAReader, IPlaylistReader):
         playlist_rows = result.mappings().all()
         return [convert_row_to_preview_playlist_dto(row=row) for row in playlist_rows]
 
-    async def try_get_detailed_playlist_by_id(self, id: UUID) -> DetailedPlaylistDTO:
+    async def try_get_detailed_playlist_by_id(self, id: UUID) -> DetailedPlaylist:
         videos_count_subquery = (
             select(sa.func.count(PlaylistItemORM.playlist_id))
             .join(VideoORM, PlaylistItemORM.video_id == VideoORM.id)
@@ -125,7 +125,7 @@ class SAPlaylistReader(SAReader, IPlaylistReader):
         cursor_id_value: UUID | None,
         sorting: PlaylistsPreviewSorting,
         pagination: CursorPagination,
-    ) -> list[PreviewPlaylistDTO]:
+    ) -> list[PreviewPlaylist]:
         return await self._get_playlists_preview(
             PlaylistORM.channel_id == channel_id,
             cursor_sort_value=cursor_sort_value,
@@ -141,7 +141,7 @@ class SAPlaylistReader(SAReader, IPlaylistReader):
         cursor_id_value: UUID | None,
         sorting: PlaylistsPreviewSorting,
         pagination: CursorPagination,
-    ) -> list[PreviewPlaylistDTO]:
+    ) -> list[PreviewPlaylist]:
         return await self._get_playlists_preview(
             PlaylistORM.channel_id == channel_id,
             PlaylistORM.privacy_status == PlaylistPrivacyStatusEnum.PUBLIC.value,
@@ -158,7 +158,7 @@ class SAPlaylistReader(SAReader, IPlaylistReader):
         cursor_id_value: str | None,
         sorting: PlaylistVideosSorting,
         pagination: CursorPagination,
-    ) -> list[PlaylistPreviewVideoDTO]:
+    ) -> list[PlaylistPreviewVideo]:
         stmt = (
             select(
                 PlaylistItemORM.video_id.label('id'),

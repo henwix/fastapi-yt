@@ -18,6 +18,6 @@ class UpdatePostUseCase:
         post = await self._post_service.try_get_by_id(id=command.post_id)
         self._post_service.ensure_post_access(post=post, channel=channel)
 
-        post.update(text=command.text)
+        post.set_text(value=command.text)
         async with self._transaction_manager:
             return await self._post_service.try_update(post=post)

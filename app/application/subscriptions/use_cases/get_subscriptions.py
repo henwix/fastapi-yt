@@ -2,7 +2,7 @@ from dataclasses import dataclass
 from datetime import datetime
 from uuid import UUID
 
-from app.application.subscriptions.dto import DetailedSubscriptionDTO
+from app.application.subscriptions.dto import DetailedSubscription
 from app.application.subscriptions.interfaces.reader import ISubscriptionReader
 from app.application.subscriptions.queries import GetSubscriptionsQuery, SubscriptionsSortingFieldsEnum
 from app.domain.channels.service import IChannelService
@@ -16,7 +16,7 @@ class GetSubscriptionsUseCase:
     _channel_service: IChannelService
     _subscription_reader: ISubscriptionReader
 
-    async def execute(self, query: GetSubscriptionsQuery) -> tuple[list[DetailedSubscriptionDTO], str | None]:
+    async def execute(self, query: GetSubscriptionsQuery) -> tuple[list[DetailedSubscription], str | None]:
         cursor_sort_value = None
         cursor_id_value = None
 

@@ -29,17 +29,32 @@ class GitHubOAuthProvider(IOAuthProvider):
         try:
             return await self._http_client.get(url=url, headers=headers)
         except HttpRequestError as e:
-            raise OAuthProviderRequestError(provider=self.provider_name, error='provider_unavailable') from e
+            raise OAuthProviderRequestError(
+                provider=self.provider_name,
+                error='provider_unavailable',
+            ) from e
         except HttpResponseError as e:
             match e.status_code:
                 case 401:
-                    raise OAuthProviderRequestError(provider=self.provider_name, error='requires_authentication') from e
+                    raise OAuthProviderRequestError(
+                        provider=self.provider_name,
+                        error='requires_authentication',
+                    ) from e
                 case 403:
-                    raise OAuthProviderRequestError(provider=self.provider_name, error='forbidden') from e
+                    raise OAuthProviderRequestError(
+                        provider=self.provider_name,
+                        error='forbidden',
+                    ) from e
                 case 404:
-                    raise OAuthProviderRequestError(provider=self.provider_name, error='resource_not_found') from e
+                    raise OAuthProviderRequestError(
+                        provider=self.provider_name,
+                        error='resource_not_found',
+                    ) from e
                 case _:
-                    raise OAuthProviderRequestError(provider=self.provider_name, error='provider_response_error') from e
+                    raise OAuthProviderRequestError(
+                        provider=self.provider_name,
+                        error='provider_response_error',
+                    ) from e
 
     @property
     def provider_name(self) -> OAuthProviderEnum:
@@ -85,7 +100,7 @@ class GitHubOAuthProvider(IOAuthProvider):
 
     async def get_user_data(self, token: str) -> OAuthProviderUserData:
         user_data_url = f'{self._github_api_url}user'
-        headers = {'Authorization': f'Bearer {token}123'}
+        headers = {'Authorization': f'Bearer {token}'}
         response_user_data = await self._provider_get_request(url=user_data_url, headers=headers)
 
         provider_uid = response_user_data.get('id')

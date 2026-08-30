@@ -36,8 +36,11 @@ from app.application.common.use_cases.email.send_channel_set_email_code import S
 from app.application.common.use_cases.s3.abort_multipart_upload import AbortMultipartUploadUseCase
 from app.application.common.use_cases.s3.delete_s3_object import DeleteS3ObjectUseCase
 from app.application.oauth.interfaces.provider import IOAuthProviderFactory
+from app.application.oauth.interfaces.reader import IOAuthAccountReader
 from app.application.oauth.interfaces.service import IOAuthServiceFactory
 from app.application.oauth.use_cases.convert_code import OAuthConvertCodeUseCase
+from app.application.oauth.use_cases.disconnect_account import OAuthDisconnectAccountUseCase
+from app.application.oauth.use_cases.get_connected_accounts import OAuthGetConnectedAccountsUseCase
 from app.application.oauth.use_cases.get_login_url import OAuthGetLoginUrlUseCase
 from app.application.playlists.interfaces.reader import IPlaylistReader
 from app.application.playlists.use_cases.add_video_to_playlist import AddVideoToPlaylistUseCase
@@ -151,6 +154,7 @@ from app.infrastructure.security.jwt import JWTService
 from app.infrastructure.security.password_hasher import PwdlibPasswordHasher
 from app.infrastructure.sqlalchemy.database import create_engine, create_session_factory
 from app.infrastructure.sqlalchemy.readers.channels import SAChannelReader
+from app.infrastructure.sqlalchemy.readers.oauth import SAOAuthAccountReader
 from app.infrastructure.sqlalchemy.readers.playlists import SAPlaylistReader
 from app.infrastructure.sqlalchemy.readers.post_comments import SAPostCommentReader
 from app.infrastructure.sqlalchemy.readers.posts import SAPostReader
@@ -265,6 +269,7 @@ class ReadersProvider(Provider):
     scope = Scope.REQUEST
 
     channel_reader = provide(SAChannelReader, provides=IChannelReader)
+    oauth_account_reader = provide(SAOAuthAccountReader, provides=IOAuthAccountReader)
     post_reader = provide(SAPostReader, provides=IPostReader)
     post_comment_reader = provide(SAPostCommentReader, provides=IPostCommentReader)
     subscription_reader = provide(SASubscriptionReader, provides=ISubscriptionReader)
@@ -320,6 +325,8 @@ class UseCasesProvider(Provider):
     # OAuth
     get_login_url = provide(OAuthGetLoginUrlUseCase)
     convert_code = provide(OAuthConvertCodeUseCase)
+    get_connected_accounts = provide(OAuthGetConnectedAccountsUseCase)
+    disconnect_account = provide(OAuthDisconnectAccountUseCase)
 
     # Videos
     delete_video = provide(DeleteVideoUseCase)

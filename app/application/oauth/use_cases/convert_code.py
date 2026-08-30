@@ -33,7 +33,7 @@ class OAuthConvertCodeUseCase:
         if command.current_channel_id is not None:
             if oauth_account is not None:
                 raise OAuthProviderAlreadyConnectedError(
-                    current_channel_id=command.current_channel_id,
+                    channel_id=command.current_channel_id,
                     provider=oauth_account.provider,
                 )
             channel = await self._channel_service.try_get_active_by_id(id=command.current_channel_id)

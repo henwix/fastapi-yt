@@ -40,13 +40,33 @@ class OAuthProviderEmailNotFoundError(AppException):
 @dataclass(kw_only=True)
 class OAuthProviderAlreadyConnectedError(AppException):
     message = 'OAuth provider already connected'
-    current_channel_id: UUID
+    channel_id: UUID
     provider: OAuthProviderEnum
 
 
 @dataclass(kw_only=True)
 class OAuthProviderNotSupportedError(AppException):
     message = 'OAuth provider not supported'
+
+
+@dataclass(kw_only=True)
+class OAuthNoAccountsConnectedError(AppException):
+    message = 'No connected OAuth accounts were found'
+    channel_id: UUID
+
+
+@dataclass(kw_only=True)
+class OAuthAccountNotConnectedError(AppException):
+    message = 'OAuth account not connected'
+    channel_id: UUID
+    provider: OAuthProviderEnum
+
+
+@dataclass(kw_only=True)
+class OAuthAccountUnableToDisconnectError(AppException):
+    message = 'OAuth account cannot be disconnected'
+    channel_id: UUID
+    provider: OAuthProviderEnum
 
 
 @dataclass(kw_only=True)

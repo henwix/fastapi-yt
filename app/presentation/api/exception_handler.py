@@ -41,8 +41,11 @@ from app.domain.common.exceptions import (
     S3UnavailableError,
 )
 from app.domain.oauth.exceptions import (
+    OAuthAccountNotConnectedError,
+    OAuthAccountUnableToDisconnectError,
     OAuthInvalidCodeError,
     OAuthInvalidStateError,
+    OAuthNoAccountsConnectedError,
     OAuthProviderAlreadyConnectedError,
     OAuthProviderEmailNotFoundError,
     OAuthProviderEmailNotVerifiedError,
@@ -128,6 +131,9 @@ def get_http_status_code(exc: AppException):
         OAuthProviderEmailNotFoundError: status.HTTP_400_BAD_REQUEST,
         OAuthProviderUidNotFoundError: status.HTTP_400_BAD_REQUEST,
         OAuthProviderAlreadyConnectedError: status.HTTP_400_BAD_REQUEST,
+        OAuthNoAccountsConnectedError: status.HTTP_404_NOT_FOUND,
+        OAuthAccountNotConnectedError: status.HTTP_404_NOT_FOUND,
+        OAuthAccountUnableToDisconnectError: status.HTTP_400_BAD_REQUEST,
         # Videos
         VideoInvalidFileFormatError: status.HTTP_400_BAD_REQUEST,
         VideoUploadAlreadyCompletedError: status.HTTP_400_BAD_REQUEST,

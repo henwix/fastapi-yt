@@ -1,6 +1,7 @@
 from typing import NoReturn
+from uuid import UUID
 
-from sqlalchemy import select
+from sqlalchemy import delete, select
 from sqlalchemy.exc import DBAPIError, IntegrityError
 
 from app.domain.oauth.entities import OAuthAccount
@@ -21,7 +22,7 @@ class SAOAuthAccountRepo(SARepo, IOAuthAccountRepo):
         match constraint_name:
             case 'uq_channel_provider' | 'uq_provider_uid':
                 raise OAuthProviderAlreadyConnectedError(
-                    current_channel_id=oauth_account.channel_id,
+                    channel_id=oauth_account.channel_id,
                     provider=oauth_account.provider,
                 ) from error
             case _:
@@ -47,3 +48,27 @@ class SAOAuthAccountRepo(SARepo, IOAuthAccountRepo):
         result = await self._session.execute(statement=stmt)
         oauth_account = result.scalar_one_or_none()
         return oauth_account.to_entity() if oauth_account is not None else None
+
+    async def get_connected_for_update(self, channel_id: UUID) -> list[OAuthAccount]:
+        stmt = (
+            select(OAuthAccountORM)
+            .with_for_update()
+            .where(
+                OAuthAccountORM.channel_id == channel_id,
+            )
+        )
+        result = await self._session.execute(statement=stmt)
+        connected_accounts = result.scalars()
+        return [account.to_entity() for account in connected_accounts]
+
+    async def delete_by_channel_id_and_provider(
+        self,
+        channel_id: UUID,
+        provider: OAuthProviderEnum,
+    ) -> bool:
+        stmt = delete(OAuthAccountORM).where(
+            OAuthAccountORM.channel_id == channel_id,
+            OAuthAccountORM.provider == provider.value,
+        )
+        result = await self._session.execute(statement=stmt)
+        return result.rowcount > 0

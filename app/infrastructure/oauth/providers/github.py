@@ -1,3 +1,4 @@
+from typing import Any
 from urllib.parse import urlencode
 
 from app.application.oauth.dto import OAuthProviderUserData
@@ -7,10 +8,9 @@ from app.domain.common.exceptions import HttpRequestError, HttpResponseError
 from app.domain.oauth.enums import OAuthProviderEnum
 from app.domain.oauth.exceptions import (
     OAuthInvalidCodeError,
-    OAuthProviderEmailNotFoundError,
     OAuthProviderEmailNotVerifiedError,
     OAuthProviderRequestError,
-    OAuthProviderUidNotFoundError,
+    OAuthProviderResponseError,
 )
 from app.infrastructure.http.base import IHttpClient
 
@@ -21,11 +21,11 @@ class GitHubOAuthProvider(IOAuthProvider):
         self._github_oauth_url = 'https://github.com/login/oauth/'
         self._github_api_url = 'https://api.github.com/'
         self._scope = 'read:user user:email'
-        self._redirect_uri = f'{settings.frontend_origin}{settings.oauth_github_redirect_path}'
+        self._redirect_uri = f'{settings.frontend_origin}{settings.oauth_redirect_path}'
         self._client_id = settings.oauth_github_client_id
         self._client_secret = settings.oauth_github_client_secret
 
-    async def _provider_get_request(self, url: str, headers: dict) -> dict:
+    async def _provider_get_request(self, url: str, headers: dict) -> Any:
         try:
             return await self._http_client.get(url=url, headers=headers)
         except HttpRequestError as e:
@@ -36,22 +36,22 @@ class GitHubOAuthProvider(IOAuthProvider):
         except HttpResponseError as e:
             match e.status_code:
                 case 401:
-                    raise OAuthProviderRequestError(
+                    raise OAuthProviderResponseError(
                         provider=self.provider_name,
                         error='requires_authentication',
                     ) from e
                 case 403:
-                    raise OAuthProviderRequestError(
+                    raise OAuthProviderResponseError(
                         provider=self.provider_name,
                         error='forbidden',
                     ) from e
                 case 404:
-                    raise OAuthProviderRequestError(
+                    raise OAuthProviderResponseError(
                         provider=self.provider_name,
                         error='resource_not_found',
                     ) from e
                 case _:
-                    raise OAuthProviderRequestError(
+                    raise OAuthProviderResponseError(
                         provider=self.provider_name,
                         error='provider_response_error',
                     ) from e
@@ -78,7 +78,7 @@ class GitHubOAuthProvider(IOAuthProvider):
         }
         headers = {'Accept': 'application/json'}
         token_url = f'{self._github_oauth_url}access_token'
-        response_data = await self._http_client.post(url=token_url, headers=headers, data=request_body)
+        response_data: dict = await self._http_client.post(url=token_url, headers=headers, data=request_body)
 
         error = response_data.get('error')
 
@@ -89,45 +89,48 @@ class GitHubOAuthProvider(IOAuthProvider):
                 case 'unverified_user_email':
                     raise OAuthProviderEmailNotVerifiedError(provider=self.provider_name)
                 case _:
-                    raise OAuthProviderRequestError(provider=self.provider_name, error=error)
+                    raise OAuthProviderResponseError(provider=self.provider_name, error=error)
 
-        access_token = response_data.get('access_token')
+        if 'access_token' not in response_data:
+            raise OAuthProviderResponseError(provider=self.provider_name, error='access_token_not_found_in_response')
 
-        if access_token is None:
-            raise OAuthProviderRequestError(provider=self.provider_name, error='access_token_not_found_in_response')
-
-        return access_token
+        return response_data['access_token']
 
     async def get_user_data(self, token: str) -> OAuthProviderUserData:
         user_data_url = f'{self._github_api_url}user'
         headers = {'Authorization': f'Bearer {token}'}
-        response_user_data = await self._provider_get_request(url=user_data_url, headers=headers)
+        response_user_data: dict = await self._provider_get_request(url=user_data_url, headers=headers)
 
-        provider_uid = response_user_data.get('id')
-        if provider_uid is None:
-            raise OAuthProviderUidNotFoundError(provider=self.provider_name)
+        user_id = response_user_data.get('id')
+        if user_id is None:
+            raise OAuthProviderResponseError(provider=self.provider_name, error='uid_not_found_in_response')
 
-        provider_email = response_user_data.get('email')
-        if provider_email is None:
-            user_email_url = f'{user_data_url}/emails'
-            user_emails = await self._provider_get_request(url=user_email_url, headers=headers)
-            primary_emails: list[str] = [
-                email['email'] for email in user_emails if email['primary'] and email['verified']
+        user_login = response_user_data.get('login')
+        if user_login is None:
+            raise OAuthProviderResponseError(provider=self.provider_name, error='login_not_found_in_response')
+
+        user_name = response_user_data.get('name')
+        if user_name is None:
+            user_name = user_login
+
+        user_email = response_user_data.get('email')
+        if user_email is None:
+            user_emails_url = f'{user_data_url}/emails'
+            user_emails: list = await self._provider_get_request(url=user_emails_url, headers=headers)
+            primary_emails = [
+                email.get('email') for email in user_emails if email.get('primary') and email.get('verified')
             ]
-            if not primary_emails:
-                raise OAuthProviderEmailNotFoundError(provider=self.provider_name)
-            provider_email = primary_emails
-
-        provider_login = response_user_data['login']
-
-        provider_name = response_user_data.get('name')
-        if provider_name is None:
-            provider_name = provider_login
+            if not any(primary_emails):
+                raise OAuthProviderResponseError(
+                    provider=self.provider_name,
+                    error='verified_email_not_found_in_response',
+                )
+            user_email = primary_emails[0]
 
         return OAuthProviderUserData(
-            uid=str(provider_uid),
-            email=provider_email[0],
-            login=provider_login,
-            name=provider_name,
+            uid=str(response_user_data['id']),
+            email=user_email,
+            login=user_login,
+            name=user_name,
             provider=self.provider_name,
         )

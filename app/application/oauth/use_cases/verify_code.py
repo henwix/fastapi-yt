@@ -2,7 +2,7 @@ from dataclasses import dataclass
 
 from app.application.common.interfaces.jwt import IJWTService
 from app.application.common.interfaces.transaction_manager import ITransactionManager
-from app.application.oauth.commands import OAuthConvertCodeCommand
+from app.application.oauth.commands import OAuthVerifyCodeCommand
 from app.application.oauth.interfaces.service import IOAuthServiceFactory
 from app.domain.channels.entities import Channel
 from app.domain.channels.service import IChannelService
@@ -12,14 +12,14 @@ from app.domain.oauth.service import IOAuthAccountService
 
 
 @dataclass
-class OAuthConvertCodeUseCase:
+class OAuthVerifyCodeUseCase:
     _oauth_service_factory: IOAuthServiceFactory
     _oauth_account_service: IOAuthAccountService
     _channel_service: IChannelService
     _jwt_service: IJWTService
     _transaction_manager: ITransactionManager
 
-    async def execute(self, command: OAuthConvertCodeCommand) -> None | dict[str, str]:
+    async def execute(self, command: OAuthVerifyCodeCommand) -> None | dict[str, str]:
         oauth_service = self._oauth_service_factory.get(provider_name=command.provider)
         await oauth_service.validate_state(state=command.state)
         token = await oauth_service.exchange_code(code=command.code)
@@ -53,7 +53,7 @@ class OAuthConvertCodeUseCase:
         new_channel_entity = Channel.create(
             email=provider_user_data.email,
             name=provider_user_data.name,
-            slug=provider_user_data.login,
+            slug=self._channel_service.slugify(value=provider_user_data.login),
         )
         new_oauth_account_entity = OAuthAccount.create(
             channel_id=new_channel_entity.id,
@@ -62,7 +62,7 @@ class OAuthConvertCodeUseCase:
         )
 
         await self._channel_service.try_check_email_exists(email=new_channel_entity.email.value)
-        if self._channel_service.check_slug_exists(slug=new_channel_entity.slug.value):
+        if await self._channel_service.check_slug_exists(slug=new_channel_entity.slug.value):
             unique_slug = self._channel_service.build_unique_slug(slug=new_channel_entity.slug.value)
             new_channel_entity.set_slug(value=unique_slug)
 

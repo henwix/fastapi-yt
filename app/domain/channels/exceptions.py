@@ -38,13 +38,6 @@ class ChannelInvalidSlugFormatError(AppException):
 
 
 @dataclass(kw_only=True)
-class ChannelSlugTooLongError(AppException):
-    message = 'Slug too long'
-    slug: str
-    slug_max_length: int
-
-
-@dataclass(kw_only=True)
 class ChannelNotFoundByIdError(AppException):
     message = 'Channel not found by id'
     channel_id: UUID

@@ -1,14 +1,16 @@
 from dishka.integrations.fastapi import DishkaRoute, FromDishka
 from fastapi import APIRouter, Response, status
 
-from app.application.oauth.commands import OAuthConvertCodeCommand, OAuthDisconnectAccountCommand
+from app.application.oauth.commands import OAuthDisconnectAccountCommand, OAuthVerifyCodeCommand
 from app.application.oauth.queries import OAuthGetConnectedAccountsQuery, OAuthGetLoginUrlQuery
-from app.application.oauth.use_cases.convert_code import OAuthConvertCodeUseCase
 from app.application.oauth.use_cases.disconnect_account import OAuthDisconnectAccountUseCase
 from app.application.oauth.use_cases.get_connected_accounts import OAuthGetConnectedAccountsUseCase
 from app.application.oauth.use_cases.get_login_url import OAuthGetLoginUrlUseCase
+from app.application.oauth.use_cases.verify_code import OAuthVerifyCodeUseCase
 from app.domain.auth.exceptions import JWTExpiredTokenError, JWTInvalidTokenError, NotAuthenticatedError
 from app.domain.channels.exceptions import (
+    ChannelEmailTooLongError,
+    ChannelInvalidEmailFormatError,
     ChannelNotActiveError,
     ChannelNotFoundByIdError,
     ChannelWithEmailAlreadyExistsError,
@@ -23,10 +25,11 @@ from app.domain.oauth.exceptions import (
     OAuthProviderAlreadyConnectedError,
     OAuthProviderEmailNotVerifiedError,
     OAuthProviderRequestError,
+    OAuthProviderResponseError,
 )
 from app.presentation.api.openapi.common import error_response
 from app.presentation.api.v1.di.current_channel_id import CurrentChannelID, OptionalCurrentChannelID
-from app.presentation.api.v1.schemas.requests.oauth import OAuthConvertCodeInSchema
+from app.presentation.api.v1.schemas.requests.oauth import OAuthVerifyCodeInSchema
 from app.presentation.api.v1.schemas.responses.auth import JWTOutSchema
 from app.presentation.api.v1.schemas.responses.oauth import OAuthAccountOutSchema, OAuthLoginUrlOutSchema
 
@@ -51,7 +54,7 @@ async def get_login_url(
 
 
 @router.post(
-    path='/{provider}/code',
+    path='/{provider}/verify_code',
     status_code=status.HTTP_201_CREATED,
     responses={
         status.HTTP_201_CREATED: {
@@ -67,6 +70,8 @@ async def get_login_url(
             OAuthProviderEmailNotVerifiedError,
             OAuthProviderAlreadyConnectedError,
             ChannelWithEmailAlreadyExistsError,
+            ChannelInvalidEmailFormatError,
+            ChannelEmailTooLongError,
         ),
         status.HTTP_403_FORBIDDEN: error_response(
             ChannelNotActiveError,
@@ -76,18 +81,19 @@ async def get_login_url(
         ),
         status.HTTP_500_INTERNAL_SERVER_ERROR: error_response(
             OAuthProviderRequestError,
+            OAuthProviderResponseError,
         ),
     },
-    summary='Convert OAuth Code',
+    summary='Verify OAuth Code',
 )
-async def convert_code(
+async def verify_code(
     current_channel_id: OptionalCurrentChannelID,
     provider: OAuthProviderEnum,
-    schema: OAuthConvertCodeInSchema,
-    use_case: FromDishka[OAuthConvertCodeUseCase],
+    schema: OAuthVerifyCodeInSchema,
+    use_case: FromDishka[OAuthVerifyCodeUseCase],
     response: Response,
 ) -> None | JWTOutSchema:
-    command = OAuthConvertCodeCommand(
+    command = OAuthVerifyCodeCommand(
         current_channel_id=current_channel_id,
         provider=provider,
         **schema.model_dump(),
@@ -146,7 +152,7 @@ async def disconnect_oauth_account(
     current_channel_id: CurrentChannelID,
     provider: OAuthProviderEnum,
     use_case: FromDishka[OAuthDisconnectAccountUseCase],
-):
+) -> None:
     command = OAuthDisconnectAccountCommand(
         current_channel_id=current_channel_id,
         provider=provider,

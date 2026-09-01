@@ -1,12 +1,9 @@
 from dataclasses import dataclass
-from logging import getLogger
 
 from app.application.oauth.dto import OAuthAccount
 from app.application.oauth.interfaces.reader import IOAuthAccountReader
 from app.application.oauth.queries import OAuthGetConnectedAccountsQuery
 from app.domain.channels.service import IChannelService
-
-logger = getLogger(__name__)
 
 
 @dataclass

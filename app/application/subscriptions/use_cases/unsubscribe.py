@@ -15,7 +15,7 @@ class UnsubscribeUseCase:
 
     async def execute(self, command: UnsubscribeCommand) -> None:
         current_channel = await self._channel_service.try_get_active_by_id(id=command.current_channel_id)
-        if current_channel.slug == command.channel_slug:
+        if current_channel.slug.value == command.channel_slug:
             raise SubscriptionNotFoundError(subscriber_id=current_channel.id, subscribed_to_id=current_channel.id)
 
         subscribe_to_channel = await self._channel_service.try_get_by_slug(slug=command.channel_slug)

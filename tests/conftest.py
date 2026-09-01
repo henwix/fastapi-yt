@@ -3,11 +3,13 @@ from collections.abc import AsyncGenerator, Generator
 import pytest
 import pytest_asyncio
 from dishka import AsyncContainer, Scope, make_async_container, provide
+from redis.asyncio import Redis
 from sqlalchemy.ext.asyncio import AsyncEngine, AsyncSession, async_sessionmaker, create_async_engine
 from testcontainers.postgres import PostgresContainer
+from testcontainers.redis import RedisContainer
 
 from app.application.common.interfaces.s3_provider import IS3Provider
-from app.core.configs import settings
+from app.core.configs import Settings, settings
 from app.domain.videos.service import IVideoService
 from app.infrastructure.di.container import (
     AppProvider,
@@ -18,11 +20,24 @@ from app.infrastructure.di.container import (
     ServicesProvider,
     UseCasesProvider,
 )
+from app.infrastructure.redis.client import get_redis_client
 from app.infrastructure.sqlalchemy.database import create_engine, create_session_factory
 from app.infrastructure.sqlalchemy.models import *  # noqa F403
 from app.infrastructure.sqlalchemy.models.base import BaseORM
 from tests.mocks.s3_provider import MockS3Provider
 from tests.mocks.video_service import MockVideoService
+
+
+@pytest.fixture(scope='session')
+def redis_url() -> Generator[str]:
+    redis = RedisContainer(image='redis:8.8-alpine')
+    try:
+        redis.start()
+        host = redis.get_container_host_ip()
+        port = redis.get_exposed_port(6379)
+        yield f'redis://{host}:{port}'
+    finally:
+        redis.stop()
 
 
 @pytest.fixture(scope='session')
@@ -54,7 +69,7 @@ async def setup_db(postgres_url: str):
 
 
 @pytest_asyncio.fixture
-async def container(postgres_url: str) -> AsyncGenerator[AsyncContainer]:
+async def container(postgres_url: str, redis_url: str) -> AsyncGenerator[AsyncContainer]:
     class MockAppProvider(AppProvider):
         mock_s3_provider = provide(MockS3Provider, scope=Scope.REQUEST, provides=IS3Provider, override=True)
 
@@ -78,6 +93,12 @@ async def container(postgres_url: str) -> AsyncGenerator[AsyncContainer]:
             yield session
             await session.close()
 
+        @provide(scope=Scope.APP)
+        async def provide_redis_client(self) -> AsyncGenerator[Redis]:
+            redis = get_redis_client(redis_url=redis_url)
+            yield redis
+            await redis.aclose()
+
     container = make_async_container(
         MockAppProvider(),
         OAuthProvider(),
@@ -93,7 +114,7 @@ async def container(postgres_url: str) -> AsyncGenerator[AsyncContainer]:
 
 
 @pytest.fixture(scope='session', autouse=True)
-def test_settings() -> None:
+def test_override_settings() -> None:
     settings.s3_avatars_key_prefix = 'test-avatar-prefix'
     settings.s3_videos_key_prefix = 'test-video-prefix'
     settings.s3_private_bucket_name = 'test-private-bucket'
@@ -102,3 +123,8 @@ def test_settings() -> None:
     settings.s3_endpoint = 'https://test-s3-endpoint.com'
     settings.s3_access_key = '123'
     settings.s3_secret_key = '123'
+
+
+@pytest.fixture
+def test_settings() -> Settings:
+    return settings

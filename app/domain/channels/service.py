@@ -3,6 +3,8 @@ from dataclasses import dataclass
 from pathlib import Path
 from uuid import UUID, uuid4
 
+from slugify import slugify
+
 from app.domain.channels.constants import CHANNEL_AVATAR_FILE_MIME_TYPES
 from app.domain.channels.entities import Channel
 from app.domain.channels.exceptions import (
@@ -27,6 +29,9 @@ class IChannelService(ABC):
 
     @abstractmethod
     async def check_slug_exists(self, slug: str) -> bool: ...
+
+    @abstractmethod
+    def slugify(self, value: str) -> str: ...
 
     @abstractmethod
     def build_unique_slug(self, slug: str) -> str: ...
@@ -79,6 +84,9 @@ class ChannelService(IChannelService):
 
     async def check_slug_exists(self, slug: str) -> bool:
         return await self._repo.check_channel_exists_by_slug(slug=slug)
+
+    def slugify(self, value: str) -> str:
+        return slugify(text=value)
 
     def build_unique_slug(self, slug: str) -> str:
         base_slug = slug[:29]

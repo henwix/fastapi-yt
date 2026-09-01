@@ -18,7 +18,7 @@ class OAuthDisconnectAccountUseCase:
 
         connected_accounts = await self._oauth_account_service.try_get_connected_for_update(channel_id=channel.id)
 
-        if not [account.provider is command.provider for account in connected_accounts]:
+        if not [account for account in connected_accounts if account.provider is command.provider]:
             raise OAuthAccountNotConnectedError(channel_id=channel.id, provider=command.provider)
         if channel.password_hash is None and len(connected_accounts) == 1:
             raise OAuthAccountUnableToDisconnectError(channel_id=channel.id, provider=command.provider)

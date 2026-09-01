@@ -1,4 +1,5 @@
 from abc import ABC, abstractmethod
+from typing import Any
 
 
 class IHttpClient(ABC):
@@ -8,7 +9,7 @@ class IHttpClient(ABC):
         url: str,
         params: dict | None = None,
         headers: dict | None = None,
-    ) -> dict: ...
+    ) -> Any: ...
 
     @abstractmethod
     async def post(
@@ -17,4 +18,4 @@ class IHttpClient(ABC):
         params: dict | None = None,
         headers: dict | None = None,
         data: dict | None = None,
-    ) -> dict: ...
+    ) -> Any: ...

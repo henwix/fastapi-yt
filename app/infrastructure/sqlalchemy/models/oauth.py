@@ -19,6 +19,7 @@ class OAuthAccountORM(CreatedAtDatetimeMixin, UUIDIdMixin, BaseORM):
     __table_args__ = (
         sa.UniqueConstraint('channel_id', 'provider', name='uq_channel_provider'),
         sa.UniqueConstraint('provider_uid', 'provider', name='uq_provider_uid'),
+        sa.CheckConstraint("provider IN ('google', 'github')", 'ck_provider'),
     )
 
     @staticmethod

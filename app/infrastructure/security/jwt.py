@@ -28,10 +28,6 @@ class JWTService(IJWTService):
         }
         return jwt.encode(payload=payload, key=key, algorithm=self._ALGORITHM)
 
-    def _validate_payload(self, payload: dict[str, Any], token_type: str) -> None:
-        if payload['token_type'] != token_type:
-            raise JWTInvalidTokenError(error_detail='invalid_token_type')
-
     def _decode_token(self, token: str, key: str, token_type: str) -> dict[str, Any]:
         try:
             payload = jwt.decode(
@@ -40,7 +36,8 @@ class JWTService(IJWTService):
                 algorithms=[self._ALGORITHM],
                 options={'require': self._REQUIRED_CLAIMS},
             )
-            self._validate_payload(payload=payload, token_type=token_type)
+            if payload['token_type'] != token_type:
+                raise JWTInvalidTokenError(error_detail='invalid_token_type')
 
         except jwt.ExpiredSignatureError as e:
             raise JWTExpiredTokenError from e
@@ -90,3 +87,10 @@ class JWTService(IJWTService):
 
     def decode_refresh_token(self, token: str) -> dict[str, Any]:
         return self._decode_token(token=token, key=self._REFRESH_SECRET, token_type=self._REFRESH_TOKEN_TYPE)
+
+    def decode_unverified_token(self, token: str) -> dict:
+        try:
+            payload = jwt.decode(jwt=token, options={'verify_signature': False})
+            return payload
+        except jwt.InvalidTokenError as e:
+            raise JWTInvalidTokenError(error_detail='invalid_token') from e

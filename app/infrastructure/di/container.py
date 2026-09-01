@@ -38,10 +38,10 @@ from app.application.common.use_cases.s3.delete_s3_object import DeleteS3ObjectU
 from app.application.oauth.interfaces.provider import IOAuthProviderFactory
 from app.application.oauth.interfaces.reader import IOAuthAccountReader
 from app.application.oauth.interfaces.service import IOAuthServiceFactory
-from app.application.oauth.use_cases.convert_code import OAuthConvertCodeUseCase
 from app.application.oauth.use_cases.disconnect_account import OAuthDisconnectAccountUseCase
 from app.application.oauth.use_cases.get_connected_accounts import OAuthGetConnectedAccountsUseCase
 from app.application.oauth.use_cases.get_login_url import OAuthGetLoginUrlUseCase
+from app.application.oauth.use_cases.verify_code import OAuthVerifyCodeUseCase
 from app.application.playlists.interfaces.reader import IPlaylistReader
 from app.application.playlists.use_cases.add_video_to_playlist import AddVideoToPlaylistUseCase
 from app.application.playlists.use_cases.create_playlist import CreatePlaylistUseCase
@@ -145,6 +145,7 @@ from app.infrastructure.http.httpx_client import HttpxHttpClient
 from app.infrastructure.http.httpx_config import get_httpx_client
 from app.infrastructure.oauth.providers.factory import OAuthProviderFactory
 from app.infrastructure.oauth.providers.github import GitHubOAuthProvider
+from app.infrastructure.oauth.providers.google import GoogleOAuthProvider
 from app.infrastructure.oauth.service import OAuthServiceFactory
 from app.infrastructure.redis.client import get_redis_client
 from app.infrastructure.redis.repo import RedisRepo
@@ -207,14 +208,17 @@ class OAuthProvider(Provider):
     def provide_oauth_provider_factory(
         self,
         github_provider: GitHubOAuthProvider,
+        google_provider: GoogleOAuthProvider,
     ) -> IOAuthProviderFactory:
         return OAuthProviderFactory(
             providers=[
                 github_provider,
+                google_provider,
             ]
         )
 
     github_oauth_provider = provide(GitHubOAuthProvider)
+    google_oauth_provider = provide(GoogleOAuthProvider)
     oauth_service_factory = provide(OAuthServiceFactory, provides=IOAuthServiceFactory)
     oauth_account_service = provide(OAuthAccountService, provides=IOAuthAccountService)
 
@@ -324,7 +328,7 @@ class UseCasesProvider(Provider):
 
     # OAuth
     get_login_url = provide(OAuthGetLoginUrlUseCase)
-    convert_code = provide(OAuthConvertCodeUseCase)
+    verify_code = provide(OAuthVerifyCodeUseCase)
     get_connected_accounts = provide(OAuthGetConnectedAccountsUseCase)
     disconnect_account = provide(OAuthDisconnectAccountUseCase)
 

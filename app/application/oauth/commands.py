@@ -5,7 +5,7 @@ from app.domain.oauth.enums import OAuthProviderEnum
 
 
 @dataclass(kw_only=True)
-class OAuthConvertCodeCommand:
+class OAuthVerifyCodeCommand:
     current_channel_id: UUID | None
     provider: OAuthProviderEnum
     code: str

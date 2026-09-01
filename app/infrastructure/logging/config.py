@@ -23,6 +23,8 @@ class JSONFormatter(logging.Formatter):
 
         if hasattr(record, 'log_meta') and record.log_meta:
             log_record['log_meta'] = record.log_meta
+        if hasattr(record, 'exceptions') and record.exceptions:
+            log_record['exceptions'] = record.exceptions
 
         return msgspec.json.encode(log_record).decode()
 
@@ -39,6 +41,8 @@ class StringFormatter(logging.Formatter):
 
         if hasattr(record, 'log_meta') and record.log_meta:
             log_record.append(f'\nlog_meta:{msgspec.json.encode(record.log_meta).decode()}')
+        if hasattr(record, 'exceptions') and record.exceptions:
+            log_record.append(f'\nexceptions:{msgspec.json.encode(record.exceptions).decode()}')
 
         if record.exc_info:
             log_record.append(self.formatException(record.exc_info))

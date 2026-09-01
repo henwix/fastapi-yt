@@ -17,3 +17,6 @@ class IJWTService(ABC):
 
     @abstractmethod
     def decode_refresh_token(self, token: str) -> dict: ...
+
+    @abstractmethod
+    def decode_unverified_token(self, token: str) -> dict: ...

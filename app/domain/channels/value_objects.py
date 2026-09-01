@@ -6,13 +6,12 @@ from app.domain.channels.exceptions import (
     ChannelEmailTooLongError,
     ChannelInvalidEmailFormatError,
     ChannelInvalidSlugFormatError,
-    ChannelSlugTooLongError,
 )
 from app.domain.common.constants import EMAIL_PATTERN, SLUG_PATTERN
 from app.domain.common.value_objects import BaseValueObject
 
 
-@dataclass(eq=False)
+@dataclass
 class Email(BaseValueObject):
     value: str
 
@@ -25,25 +24,25 @@ class Email(BaseValueObject):
         self.value = value
 
 
-@dataclass(eq=False)
+@dataclass
 class Slug(BaseValueObject):
     value: str
 
     def _validate(self) -> None:
-        value = self.value.strip().lower()
+        value = self.value.strip().lower().replace(' ', '')
         if not re.fullmatch(pattern=SLUG_PATTERN, string=value):
             raise ChannelInvalidSlugFormatError(pattern=SLUG_PATTERN, slug=value)
         if len(value) > CHANNEL_SLUG_MAX_LENGTH:
-            raise ChannelSlugTooLongError(slug=value, slug_max_length=CHANNEL_SLUG_MAX_LENGTH)
+            value = value[:CHANNEL_SLUG_MAX_LENGTH]
         self.value = value
 
 
-@dataclass(eq=False)
+@dataclass
 class Name(BaseValueObject):
     value: str
 
     def _validate(self) -> None:
         value = self.value.strip()
         if len(value) > CHANNEL_NAME_MAX_LENGTH:
-            value = value[:100]
+            value = value[:CHANNEL_NAME_MAX_LENGTH]
         self.value = value

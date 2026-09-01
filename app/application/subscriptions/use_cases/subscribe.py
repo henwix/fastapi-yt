@@ -16,7 +16,7 @@ class SubscribeUseCase:
 
     async def execute(self, command: SubscribeCommand) -> Subscription:
         current_channel = await self._channel_service.try_get_active_by_id(id=command.current_channel_id)
-        if current_channel.slug == command.channel_slug:
+        if current_channel.slug.value == command.channel_slug:
             raise SelfSubscriptionError(subscriber_id=current_channel.id)
 
         subscribe_to_channel = await self._channel_service.try_get_by_slug(slug=command.channel_slug)

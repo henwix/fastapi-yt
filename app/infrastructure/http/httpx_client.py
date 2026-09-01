@@ -1,4 +1,5 @@
 from dataclasses import dataclass
+from typing import Any
 
 import httpx
 
@@ -17,7 +18,7 @@ class HttpxHttpClient(IHttpClient):
         params: dict | None = None,
         data: dict | None = None,
         headers: dict | None = None,
-    ) -> dict:
+    ) -> Any:
         try:
             response = await self._httpx_client.request(
                 method=method,
@@ -44,7 +45,7 @@ class HttpxHttpClient(IHttpClient):
         url: str,
         params: dict | None = None,
         headers: dict | None = None,
-    ) -> dict:
+    ) -> Any:
         return await self._request(method='get', url=url, params=params, headers=headers)
 
     async def post(
@@ -53,5 +54,5 @@ class HttpxHttpClient(IHttpClient):
         params: dict | None = None,
         headers: dict | None = None,
         data: dict | None = None,
-    ) -> dict:
+    ) -> Any:
         return await self._request(method='post', url=url, params=params, headers=headers, data=data)

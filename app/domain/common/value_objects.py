@@ -2,7 +2,7 @@ from dataclasses import dataclass
 from typing import Any
 
 
-@dataclass(eq=False)
+@dataclass
 class BaseValueObject:
     value: Any
 
@@ -10,6 +10,3 @@ class BaseValueObject:
         self._validate()
 
     def _validate(self) -> None: ...
-
-    def __eq__(self, value: object) -> bool:
-        return self.value == value

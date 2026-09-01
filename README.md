@@ -27,9 +27,9 @@
 - [x] Set email endpoint
 - [x] Set email confirm endpoint
 
-- [x] Channel subscribers endpoint
+- [x] Channel subscribers & subscriptions endpoints
 
-- [ ] Get channel about info endpoint
+- [x] Get channel about info endpoint
 
 
 #### Channel avatars

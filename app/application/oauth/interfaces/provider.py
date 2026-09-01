@@ -5,12 +5,12 @@ from app.domain.oauth.enums import OAuthProviderEnum
 
 
 class IOAuthProvider(ABC):
-    @abstractmethod
-    def get_login_url(self, state: str) -> str: ...
-
     @property
     @abstractmethod
     def provider_name(self) -> OAuthProviderEnum: ...
+
+    @abstractmethod
+    def get_login_url(self, state: str) -> str: ...
 
     @abstractmethod
     async def exchange_code(self, code: str) -> str: ...

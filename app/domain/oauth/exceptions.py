@@ -26,18 +26,6 @@ class OAuthProviderEmailNotVerifiedError(AppException):
 
 
 @dataclass(kw_only=True)
-class OAuthProviderUidNotFoundError(AppException):
-    message = 'OAuth provider uid not found'
-    provider: OAuthProviderEnum
-
-
-@dataclass(kw_only=True)
-class OAuthProviderEmailNotFoundError(AppException):
-    message = 'OAuth provider email not found'
-    provider: OAuthProviderEnum
-
-
-@dataclass(kw_only=True)
 class OAuthProviderAlreadyConnectedError(AppException):
     message = 'OAuth provider already connected'
     channel_id: UUID
@@ -72,5 +60,12 @@ class OAuthAccountUnableToDisconnectError(AppException):
 @dataclass(kw_only=True)
 class OAuthProviderRequestError(AppException):
     message = 'Exception occured during OAuth provider request'
+    provider: OAuthProviderEnum
+    error: str
+
+
+@dataclass(kw_only=True)
+class OAuthProviderResponseError(AppException):
+    message = 'Invalid response received from OAuth provider'
     provider: OAuthProviderEnum
     error: str

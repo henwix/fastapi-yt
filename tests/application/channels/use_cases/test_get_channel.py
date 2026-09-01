@@ -21,9 +21,9 @@ async def test_get_channel_returns_correct_channel_entity(container: AsyncContai
 
         assert isinstance(retrieved_channel, Channel)
         assert retrieved_channel.id == db_channel.id
-        assert retrieved_channel.email == db_channel.email
-        assert retrieved_channel.name == db_channel.name
-        assert retrieved_channel.slug == db_channel.slug
+        assert retrieved_channel.email.value == db_channel.email
+        assert retrieved_channel.name.value == db_channel.name
+        assert retrieved_channel.slug.value == db_channel.slug
         assert retrieved_channel.description == db_channel.description
         assert retrieved_channel.country == db_channel.country
         assert retrieved_channel.password_hash == db_channel.password_hash
@@ -44,9 +44,9 @@ async def test_get_channel_returns_correct_channel_entity_if_not_active(containe
 
         assert isinstance(retrieved_channel, Channel)
         assert retrieved_channel.id == db_channel.id
-        assert retrieved_channel.email == db_channel.email
-        assert retrieved_channel.name == db_channel.name
-        assert retrieved_channel.slug == db_channel.slug
+        assert retrieved_channel.email.value == db_channel.email
+        assert retrieved_channel.name.value == db_channel.name
+        assert retrieved_channel.slug.value == db_channel.slug
         assert retrieved_channel.description == db_channel.description
         assert retrieved_channel.country == db_channel.country
         assert retrieved_channel.password_hash == db_channel.password_hash

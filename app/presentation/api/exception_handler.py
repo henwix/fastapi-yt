@@ -26,7 +26,6 @@ from app.domain.channels.exceptions import (
     ChannelNotActiveError,
     ChannelNotFoundByIdError,
     ChannelNotFoundBySlugError,
-    ChannelSlugTooLongError,
     ChannelWithEmailAlreadyExistsError,
     ChannelWithSlugAlreadyExistsError,
 )
@@ -47,9 +46,7 @@ from app.domain.oauth.exceptions import (
     OAuthInvalidStateError,
     OAuthNoAccountsConnectedError,
     OAuthProviderAlreadyConnectedError,
-    OAuthProviderEmailNotFoundError,
     OAuthProviderEmailNotVerifiedError,
-    OAuthProviderUidNotFoundError,
 )
 from app.domain.playlists.exceptions import (
     PlaylistAccessForbiddenError,
@@ -105,7 +102,6 @@ def get_http_status_code(exc: AppException):
         ChannelInvalidEmailFormatError: status.HTTP_400_BAD_REQUEST,
         ChannelEmailTooLongError: status.HTTP_400_BAD_REQUEST,
         ChannelInvalidSlugFormatError: status.HTTP_400_BAD_REQUEST,
-        ChannelSlugTooLongError: status.HTTP_400_BAD_REQUEST,
         ChannelAvatarInvalidFileFormatError: status.HTTP_400_BAD_REQUEST,
         ChannelAvatarInvalidKeyError: status.HTTP_400_BAD_REQUEST,
         ChannelAvatarInvalidFileContentTypeError: status.HTTP_400_BAD_REQUEST,
@@ -128,8 +124,6 @@ def get_http_status_code(exc: AppException):
         OAuthInvalidStateError: status.HTTP_400_BAD_REQUEST,
         OAuthInvalidCodeError: status.HTTP_400_BAD_REQUEST,
         OAuthProviderEmailNotVerifiedError: status.HTTP_400_BAD_REQUEST,
-        OAuthProviderEmailNotFoundError: status.HTTP_400_BAD_REQUEST,
-        OAuthProviderUidNotFoundError: status.HTTP_400_BAD_REQUEST,
         OAuthProviderAlreadyConnectedError: status.HTTP_400_BAD_REQUEST,
         OAuthNoAccountsConnectedError: status.HTTP_404_NOT_FOUND,
         OAuthAccountNotConnectedError: status.HTTP_404_NOT_FOUND,
@@ -174,11 +168,37 @@ def get_http_status_code(exc: AppException):
     return exception_codes.get(type(exc), status.HTTP_500_INTERNAL_SERVER_ERROR)
 
 
+def get_exeptions_chain(exc: AppException) -> list:
+    exceptions = []
+
+    current_exc: BaseException | None = exc.__cause__
+
+    while current_exc is not None:
+        if not isinstance(current_exc, AppException):
+            break
+
+        exc_data = {
+            'name': type(current_exc).__name__,
+            'message': current_exc.message,
+            'meta': asdict(current_exc),
+        }
+        exceptions.append(exc_data)
+        current_exc = current_exc.__cause__
+
+    return exceptions
+
+
 async def exception_handler(
     _: Request,
     exc: AppException,
 ) -> MsgSpecJSONResponse:
-    logger.error(msg=exc.message, extra={'log_meta': asdict(exc)})
+    logger.error(
+        msg=exc.message,
+        extra={
+            'log_meta': asdict(exc),
+            'exceptions': get_exeptions_chain(exc=exc),
+        },
+    )
     return MsgSpecJSONResponse(
         content={'detail': exc.message},
         status_code=get_http_status_code(exc=exc),

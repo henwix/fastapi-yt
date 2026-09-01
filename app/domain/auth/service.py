@@ -47,7 +47,7 @@ class AuthService(IAuthService):
         return f'auth:activation:code:{channel_id}'
 
     def _build_set_email_key(self, channel_id: UUID) -> str:
-        return f'auth:set_email:code:{channel_id}'
+        return f'auth:set_email:code_and_email:{channel_id}'
 
     def _build_reset_password_key(self, channel_id: UUID) -> str:
         return f'auth:reset_password:code:{channel_id}'

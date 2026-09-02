@@ -18,10 +18,10 @@ from tests.factories.models.channels import ChannelORMFactory
     'expected_filename', ['test.png', 'test.jpg', 'test.jpeg', 'test.PNG', 'test.JPG', 'test.JPEG']
 )
 async def test_generate_channel_avatar_upload_url_returns_correct_data(
-    container: AsyncContainer,
+    mock_container: AsyncContainer,
     expected_filename: str,
 ):
-    async with container() as di:
+    async with mock_container() as di:
         use_case = await di.get(GenerateChannelAvatarUploadUrlUseCase)
         session = await di.get(AsyncSession)
 
@@ -46,10 +46,10 @@ async def test_generate_channel_avatar_upload_url_returns_correct_data(
     'expected_filename', ['test', 'test.mp4', 'test.mov', 'test.gif', 'test.test', 'test.MP4', 'test.GIF']
 )
 async def test_generate_channel_avatar_upload_url_raises_error_if_filename_invalid(
-    container: AsyncContainer,
+    mock_container: AsyncContainer,
     expected_filename: str,
 ):
-    async with container() as di:
+    async with mock_container() as di:
         use_case = await di.get(GenerateChannelAvatarUploadUrlUseCase)
         session = await di.get(AsyncSession)
 
@@ -64,8 +64,8 @@ async def test_generate_channel_avatar_upload_url_raises_error_if_filename_inval
 
 
 @pytest.mark.asyncio
-async def test_generate_channel_avatar_upload_url_raises_error_if_channel_not_found(container: AsyncContainer):
-    async with container() as di:
+async def test_generate_channel_avatar_upload_url_raises_error_if_channel_not_found(mock_container: AsyncContainer):
+    async with mock_container() as di:
         use_case = await di.get(GenerateChannelAvatarUploadUrlUseCase)
 
         command = GenerateChannelAvatarUploadUrlCommandFactory.build(filename='test.png')
@@ -75,8 +75,8 @@ async def test_generate_channel_avatar_upload_url_raises_error_if_channel_not_fo
 
 
 @pytest.mark.asyncio
-async def test_generate_channel_avatar_upload_url_raises_error_if_channel_not_active(container: AsyncContainer):
-    async with container() as di:
+async def test_generate_channel_avatar_upload_url_raises_error_if_channel_not_active(mock_container: AsyncContainer):
+    async with mock_container() as di:
         use_case = await di.get(GenerateChannelAvatarUploadUrlUseCase)
         session = await di.get(AsyncSession)
 

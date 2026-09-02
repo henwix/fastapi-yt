@@ -16,8 +16,8 @@ from tests.factories.models.videos import VideoORMFactory
 
 
 @pytest.mark.asyncio
-async def test_generate_video_part_upload_url_returns_correct_url(container: AsyncContainer):
-    async with container() as di:
+async def test_generate_video_part_upload_url_returns_correct_url(mock_container: AsyncContainer):
+    async with mock_container() as di:
         use_case = await di.get(GenerateVideoPartUploadUrlUseCase)
         session = await di.get(AsyncSession)
 
@@ -40,8 +40,8 @@ async def test_generate_video_part_upload_url_returns_correct_url(container: Asy
 
 
 @pytest.mark.asyncio
-async def test_generate_video_part_upload_url_raises_error_if_channel_not_active(container: AsyncContainer):
-    async with container() as di:
+async def test_generate_video_part_upload_url_raises_error_if_channel_not_active(mock_container: AsyncContainer):
+    async with mock_container() as di:
         use_case = await di.get(GenerateVideoPartUploadUrlUseCase)
         session = await di.get(AsyncSession)
 
@@ -53,8 +53,8 @@ async def test_generate_video_part_upload_url_raises_error_if_channel_not_active
 
 
 @pytest.mark.asyncio
-async def test_generate_video_part_upload_url_raises_error_if_channel_not_found(container: AsyncContainer):
-    async with container() as di:
+async def test_generate_video_part_upload_url_raises_error_if_channel_not_found(mock_container: AsyncContainer):
+    async with mock_container() as di:
         use_case = await di.get(GenerateVideoPartUploadUrlUseCase)
 
         command = GenerateVideoPartUploadUrlCommandFactory.build()
@@ -64,8 +64,8 @@ async def test_generate_video_part_upload_url_raises_error_if_channel_not_found(
 
 
 @pytest.mark.asyncio
-async def test_generate_video_part_upload_url_raises_error_if_video_not_found(container: AsyncContainer):
-    async with container() as di:
+async def test_generate_video_part_upload_url_raises_error_if_video_not_found(mock_container: AsyncContainer):
+    async with mock_container() as di:
         use_case = await di.get(GenerateVideoPartUploadUrlUseCase)
         session = await di.get(AsyncSession)
 
@@ -80,8 +80,8 @@ async def test_generate_video_part_upload_url_raises_error_if_video_not_found(co
 
 
 @pytest.mark.asyncio
-async def test_generate_video_part_upload_url_raises_error_if_access_forbidden(container: AsyncContainer):
-    async with container() as di:
+async def test_generate_video_part_upload_url_raises_error_if_access_forbidden(mock_container: AsyncContainer):
+    async with mock_container() as di:
         use_case = await di.get(GenerateVideoPartUploadUrlUseCase)
         session = await di.get(AsyncSession)
 
@@ -102,8 +102,8 @@ async def test_generate_video_part_upload_url_raises_error_if_access_forbidden(c
 
 
 @pytest.mark.asyncio
-async def test_generate_video_part_upload_url_raises_error_if_video_already_uploaded(container: AsyncContainer):
-    async with container() as di:
+async def test_generate_video_part_upload_url_raises_error_if_video_already_uploaded(mock_container: AsyncContainer):
+    async with mock_container() as di:
         use_case = await di.get(GenerateVideoPartUploadUrlUseCase)
         session = await di.get(AsyncSession)
 
@@ -121,8 +121,8 @@ async def test_generate_video_part_upload_url_raises_error_if_video_already_uplo
 
 
 @pytest.mark.asyncio
-async def test_generate_video_part_upload_url_raises_error_if_video_upload_id_is_none(container: AsyncContainer):
-    async with container() as di:
+async def test_generate_video_part_upload_url_raises_error_if_video_upload_id_is_none(mock_container: AsyncContainer):
+    async with mock_container() as di:
         use_case = await di.get(GenerateVideoPartUploadUrlUseCase)
         session = await di.get(AsyncSession)
 

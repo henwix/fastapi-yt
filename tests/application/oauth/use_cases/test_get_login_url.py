@@ -70,10 +70,7 @@ async def test_oauth_get_login_url_returns_correct_google_provider_login_url(
 
 
 @pytest.mark.asyncio
-async def test_oauth_get_login_url_raises_error_if_invalid_provider(
-    container: AsyncContainer,
-    test_settings: Settings,
-):
+async def test_oauth_get_login_url_raises_error_if_invalid_provider(container: AsyncContainer):
     async with container() as di:
         use_case = await di.get(OAuthGetLoginUrlUseCase)
 

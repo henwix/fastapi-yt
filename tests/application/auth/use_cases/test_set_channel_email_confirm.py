@@ -11,8 +11,8 @@ from tests.factories.models.channels import ChannelORMFactory
 
 
 @pytest.mark.asyncio
-async def test_set_channel_email_confirm_returns_none_if_email_confirmed(container: AsyncContainer):
-    async with container() as di:
+async def test_set_channel_email_confirm_returns_none_if_email_confirmed(mock_container: AsyncContainer):
+    async with mock_container() as di:
         expected_new_email = 'testnewemail@test.com'
         use_case = await di.get(SetChannelEmailConfirmUseCase)
         session = await di.get(AsyncSession)
@@ -30,8 +30,8 @@ async def test_set_channel_email_confirm_returns_none_if_email_confirmed(contain
 
 
 @pytest.mark.asyncio
-async def test_set_channel_email_confirm_raises_error_if_channel_not_active(container: AsyncContainer):
-    async with container() as di:
+async def test_set_channel_email_confirm_raises_error_if_channel_not_active(mock_container: AsyncContainer):
+    async with mock_container() as di:
         use_case = await di.get(SetChannelEmailConfirmUseCase)
         session = await di.get(AsyncSession)
 
@@ -44,8 +44,8 @@ async def test_set_channel_email_confirm_raises_error_if_channel_not_active(cont
 
 
 @pytest.mark.asyncio
-async def test_set_channel_email_confirm_raises_error_if_channel_not_found(container: AsyncContainer):
-    async with container() as di:
+async def test_set_channel_email_confirm_raises_error_if_channel_not_found(mock_container: AsyncContainer):
+    async with mock_container() as di:
         use_case = await di.get(SetChannelEmailConfirmUseCase)
 
         command = SetChannelEmailConfirmCommandFactory.build()
@@ -55,8 +55,8 @@ async def test_set_channel_email_confirm_raises_error_if_channel_not_found(conta
 
 
 @pytest.mark.asyncio
-async def test_set_channel_email_confirm_raises_error_if_code_not_found(container: AsyncContainer):
-    async with container() as di:
+async def test_set_channel_email_confirm_raises_error_if_code_not_found(mock_container: AsyncContainer):
+    async with mock_container() as di:
         use_case = await di.get(SetChannelEmailConfirmUseCase)
         session = await di.get(AsyncSession)
 
@@ -73,8 +73,8 @@ async def test_set_channel_email_confirm_raises_error_if_code_not_found(containe
 
 
 @pytest.mark.asyncio
-async def test_set_channel_email_confirm_raises_error_if_code_mismatch(container: AsyncContainer):
-    async with container() as di:
+async def test_set_channel_email_confirm_raises_error_if_code_mismatch(mock_container: AsyncContainer):
+    async with mock_container() as di:
         use_case = await di.get(SetChannelEmailConfirmUseCase)
         session = await di.get(AsyncSession)
         auth_service = await di.get(IAuthService)

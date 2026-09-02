@@ -17,9 +17,9 @@ from tests.factories.models.videos import VideoORMFactory
 
 @pytest.mark.asyncio
 async def test_generate_video_download_url_returns_correct_url_if_video_public_and_channel_not_authenticated(
-    container: AsyncContainer,
+    mock_container: AsyncContainer,
 ):
-    async with container() as di:
+    async with mock_container() as di:
         use_case = await di.get(GenerateVideoDownloadUrlUseCase)
         session = await di.get(AsyncSession)
 
@@ -44,9 +44,9 @@ async def test_generate_video_download_url_returns_correct_url_if_video_public_a
 
 @pytest.mark.asyncio
 async def test_generate_video_download_url_returns_correct_url_if_video_unlisted_and_channel_not_authenticated(
-    container: AsyncContainer,
+    mock_container: AsyncContainer,
 ):
-    async with container() as di:
+    async with mock_container() as di:
         use_case = await di.get(GenerateVideoDownloadUrlUseCase)
         session = await di.get(AsyncSession)
 
@@ -71,9 +71,9 @@ async def test_generate_video_download_url_returns_correct_url_if_video_unlisted
 
 @pytest.mark.asyncio
 async def test_generate_video_download_url_returns_correct_url_if_video_private_and_channel_is_author(
-    container: AsyncContainer,
+    mock_container: AsyncContainer,
 ):
-    async with container() as di:
+    async with mock_container() as di:
         use_case = await di.get(GenerateVideoDownloadUrlUseCase)
         session = await di.get(AsyncSession)
 
@@ -98,9 +98,9 @@ async def test_generate_video_download_url_returns_correct_url_if_video_private_
 
 @pytest.mark.asyncio
 async def test_generate_video_download_url_raises_error_if_video_private_and_channel_not_authenticated(
-    container: AsyncContainer,
+    mock_container: AsyncContainer,
 ):
-    async with container() as di:
+    async with mock_container() as di:
         use_case = await di.get(GenerateVideoDownloadUrlUseCase)
         session = await di.get(AsyncSession)
 
@@ -123,9 +123,9 @@ async def test_generate_video_download_url_raises_error_if_video_private_and_cha
 
 @pytest.mark.asyncio
 async def test_generate_video_download_url_raises_error_if_video_private_and_channel_not_author(
-    container: AsyncContainer,
+    mock_container: AsyncContainer,
 ):
-    async with container() as di:
+    async with mock_container() as di:
         use_case = await di.get(GenerateVideoDownloadUrlUseCase)
         session = await di.get(AsyncSession)
 
@@ -149,9 +149,9 @@ async def test_generate_video_download_url_raises_error_if_video_private_and_cha
 
 @pytest.mark.asyncio
 async def test_generate_video_download_url_raises_error_if_video_private_and_channel_not_active(
-    container: AsyncContainer,
+    mock_container: AsyncContainer,
 ):
-    async with container() as di:
+    async with mock_container() as di:
         use_case = await di.get(GenerateVideoDownloadUrlUseCase)
         session = await di.get(AsyncSession)
 
@@ -174,9 +174,9 @@ async def test_generate_video_download_url_raises_error_if_video_private_and_cha
 
 @pytest.mark.asyncio
 async def test_generate_video_download_url_raises_error_if_video_private_and_channel_not_found(
-    container: AsyncContainer,
+    mock_container: AsyncContainer,
 ):
-    async with container() as di:
+    async with mock_container() as di:
         use_case = await di.get(GenerateVideoDownloadUrlUseCase)
         session = await di.get(AsyncSession)
 
@@ -199,9 +199,9 @@ async def test_generate_video_download_url_raises_error_if_video_private_and_cha
 
 @pytest.mark.asyncio
 async def test_generate_video_download_url_raises_error_if_video_not_found(
-    container: AsyncContainer,
+    mock_container: AsyncContainer,
 ):
-    async with container() as di:
+    async with mock_container() as di:
         use_case = await di.get(GenerateVideoDownloadUrlUseCase)
 
         command = GenerateVideoDownloadUrlCommandFactory.build(
@@ -215,9 +215,9 @@ async def test_generate_video_download_url_raises_error_if_video_not_found(
 
 @pytest.mark.asyncio
 async def test_generate_video_download_url_raises_error_if_video_not_uploaded(
-    container: AsyncContainer,
+    mock_container: AsyncContainer,
 ):
-    async with container() as di:
+    async with mock_container() as di:
         use_case = await di.get(GenerateVideoDownloadUrlUseCase)
         session = await di.get(AsyncSession)
 

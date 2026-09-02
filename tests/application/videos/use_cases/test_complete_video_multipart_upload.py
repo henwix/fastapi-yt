@@ -15,8 +15,8 @@ from tests.factories.models.videos import VideoORMFactory
 
 
 @pytest.mark.asyncio
-async def test_complete_video_multipart_upload_returns_none_if_completed(container: AsyncContainer):
-    async with container() as di:
+async def test_complete_video_multipart_upload_returns_none_if_completed(mock_container: AsyncContainer):
+    async with mock_container() as di:
         use_case = await di.get(CompleteVideoMultipartUploadUseCase)
         session = await di.get(AsyncSession)
 
@@ -40,8 +40,8 @@ async def test_complete_video_multipart_upload_returns_none_if_completed(contain
 
 
 @pytest.mark.asyncio
-async def test_complete_video_multipart_upload_raises_error_if_channel_not_active(container: AsyncContainer):
-    async with container() as di:
+async def test_complete_video_multipart_upload_raises_error_if_channel_not_active(mock_container: AsyncContainer):
+    async with mock_container() as di:
         use_case = await di.get(CompleteVideoMultipartUploadUseCase)
         session = await di.get(AsyncSession)
 
@@ -56,8 +56,8 @@ async def test_complete_video_multipart_upload_raises_error_if_channel_not_activ
 
 
 @pytest.mark.asyncio
-async def test_complete_video_multipart_upload_raises_error_if_channel_not_found(container: AsyncContainer):
-    async with container() as di:
+async def test_complete_video_multipart_upload_raises_error_if_channel_not_found(mock_container: AsyncContainer):
+    async with mock_container() as di:
         use_case = await di.get(CompleteVideoMultipartUploadUseCase)
 
         command = CompleteVideoMultipartUploadCommandFactory.build(
@@ -70,8 +70,8 @@ async def test_complete_video_multipart_upload_raises_error_if_channel_not_found
 
 
 @pytest.mark.asyncio
-async def test_complete_video_multipart_upload_raises_error_if_video_not_found(container: AsyncContainer):
-    async with container() as di:
+async def test_complete_video_multipart_upload_raises_error_if_video_not_found(mock_container: AsyncContainer):
+    async with mock_container() as di:
         use_case = await di.get(CompleteVideoMultipartUploadUseCase)
         session = await di.get(AsyncSession)
 
@@ -86,8 +86,8 @@ async def test_complete_video_multipart_upload_raises_error_if_video_not_found(c
 
 
 @pytest.mark.asyncio
-async def test_complete_video_multipart_upload_raises_error_if_access_forbidden(container: AsyncContainer):
-    async with container() as di:
+async def test_complete_video_multipart_upload_raises_error_if_access_forbidden(mock_container: AsyncContainer):
+    async with mock_container() as di:
         use_case = await di.get(CompleteVideoMultipartUploadUseCase)
         session = await di.get(AsyncSession)
 
@@ -109,8 +109,8 @@ async def test_complete_video_multipart_upload_raises_error_if_access_forbidden(
 
 
 @pytest.mark.asyncio
-async def test_complete_video_multipart_upload_raises_error_if_video_already_uploaded(container: AsyncContainer):
-    async with container() as di:
+async def test_complete_video_multipart_upload_raises_error_if_video_already_uploaded(mock_container: AsyncContainer):
+    async with mock_container() as di:
         use_case = await di.get(CompleteVideoMultipartUploadUseCase)
         session = await di.get(AsyncSession)
 
@@ -131,8 +131,10 @@ async def test_complete_video_multipart_upload_raises_error_if_video_already_upl
 
 
 @pytest.mark.asyncio
-async def test_complete_video_multipart_upload_raises_error_if_video_upload_id_not_found(container: AsyncContainer):
-    async with container() as di:
+async def test_complete_video_multipart_upload_raises_error_if_video_upload_id_not_found(
+    mock_container: AsyncContainer,
+):
+    async with mock_container() as di:
         use_case = await di.get(CompleteVideoMultipartUploadUseCase)
         session = await di.get(AsyncSession)
 

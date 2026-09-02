@@ -9,6 +9,7 @@ from testcontainers.postgres import PostgresContainer
 from testcontainers.redis import RedisContainer
 
 from app.application.common.interfaces.s3_provider import IS3Provider
+from app.application.oauth.interfaces.service import IOAuthServiceFactory
 from app.core.configs import Settings, settings
 from app.domain.videos.service import IVideoService
 from app.infrastructure.di.container import (
@@ -24,6 +25,7 @@ from app.infrastructure.redis.client import get_redis_client
 from app.infrastructure.sqlalchemy.database import create_engine, create_session_factory
 from app.infrastructure.sqlalchemy.models import *  # noqa F403
 from app.infrastructure.sqlalchemy.models.base import BaseORM
+from tests.mocks.oauth.service import MockOAuthServiceFactory
 from tests.mocks.s3_provider import MockS3Provider
 from tests.mocks.video_service import MockVideoService
 
@@ -68,14 +70,8 @@ async def setup_db(postgres_url: str):
     await engine.dispose()
 
 
-@pytest_asyncio.fixture(scope='session')
-async def container(postgres_url: str, redis_url: str) -> AsyncGenerator[AsyncContainer]:
-    class MockAppProvider(AppProvider):
-        mock_s3_provider = provide(MockS3Provider, scope=Scope.REQUEST, provides=IS3Provider, override=True)
-
-    class MockServicesProvider(ServicesProvider):
-        mock_video_service = provide(MockVideoService, provides=IVideoService, override=True)
-
+@pytest.fixture(scope='session')
+def mock_database_dishka_provider(postgres_url: str, redis_url: str) -> DatabaseProvider:
     class MockDatabaseProvider(DatabaseProvider):
         @provide(scope=Scope.APP, provides=AsyncEngine, override=True)
         async def engine(self) -> AsyncGenerator[AsyncEngine]:
@@ -99,10 +95,42 @@ async def container(postgres_url: str, redis_url: str) -> AsyncGenerator[AsyncCo
             yield redis
             await redis.aclose()
 
+    return MockDatabaseProvider()
+
+
+@pytest_asyncio.fixture(scope='session')
+async def container(mock_database_dishka_provider: DatabaseProvider) -> AsyncGenerator[AsyncContainer]:
+    container = make_async_container(
+        AppProvider(),
+        OAuthProvider(),
+        mock_database_dishka_provider,
+        ReposProvider(),
+        ReadersProvider(),
+        ServicesProvider(),
+        UseCasesProvider(),
+    )
+
+    try:
+        yield container
+    finally:
+        await container.close()
+
+
+@pytest_asyncio.fixture(scope='session')
+async def mock_container(mock_database_dishka_provider: DatabaseProvider) -> AsyncGenerator[AsyncContainer]:
+    class MockAppProvider(AppProvider):
+        mock_s3_provider = provide(MockS3Provider, scope=Scope.REQUEST, provides=IS3Provider, override=True)
+
+    class MockOAuthProvider(OAuthProvider):
+        mock_oauth_service_factory = provide(MockOAuthServiceFactory, provides=IOAuthServiceFactory, override=True)
+
+    class MockServicesProvider(ServicesProvider):
+        mock_video_service = provide(MockVideoService, provides=IVideoService, override=True)
+
     container = make_async_container(
         MockAppProvider(),
-        OAuthProvider(),
-        MockDatabaseProvider(),
+        MockOAuthProvider(),
+        mock_database_dishka_provider,
         ReposProvider(),
         ReadersProvider(),
         MockServicesProvider(),

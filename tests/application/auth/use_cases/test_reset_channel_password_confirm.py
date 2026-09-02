@@ -17,8 +17,8 @@ _password_hasher = PasswordHash.recommended()
 
 
 @pytest.mark.asyncio
-async def test_reset_channel_password_confirm_returns_none_if_password_updated(container: AsyncContainer):
-    async with container() as di:
+async def test_reset_channel_password_confirm_returns_none_if_password_updated(mock_container: AsyncContainer):
+    async with mock_container() as di:
         use_case = await di.get(ResetChannelPasswordConfirmUseCase)
         auth_service = await di.get(IAuthService)
         session = await di.get(AsyncSession)
@@ -40,10 +40,10 @@ async def test_reset_channel_password_confirm_returns_none_if_password_updated(c
 @pytest.mark.asyncio
 @pytest.mark.parametrize('expected_uid', ['InRlc3Rfc3RyaW5nIg', '123123', 'aaaaa', 'sjlfkahf', 'IjExMjMxMjMxMjMi'])
 async def test_reset_channel_password_confirm_raises_error_if_invalid_channel_uid(
-    container: AsyncContainer,
+    mock_container: AsyncContainer,
     expected_uid: str,
 ):
-    async with container() as di:
+    async with mock_container() as di:
         use_case = await di.get(ResetChannelPasswordConfirmUseCase)
 
         command = ResetChannelPasswordConfirmCommandFactory.build(uid=expected_uid)
@@ -53,8 +53,8 @@ async def test_reset_channel_password_confirm_raises_error_if_invalid_channel_ui
 
 
 @pytest.mark.asyncio
-async def test_reset_channel_password_confirm_raises_error_if_code_not_found(container: AsyncContainer):
-    async with container() as di:
+async def test_reset_channel_password_confirm_raises_error_if_code_not_found(mock_container: AsyncContainer):
+    async with mock_container() as di:
         use_case = await di.get(ResetChannelPasswordConfirmUseCase)
 
         channel_id = uuid7()
@@ -72,8 +72,8 @@ async def test_reset_channel_password_confirm_raises_error_if_code_not_found(con
 
 
 @pytest.mark.asyncio
-async def test_reset_channel_password_confirm_raises_error_if_code_mismatch(container: AsyncContainer):
-    async with container() as di:
+async def test_reset_channel_password_confirm_raises_error_if_code_mismatch(mock_container: AsyncContainer):
+    async with mock_container() as di:
         use_case = await di.get(ResetChannelPasswordConfirmUseCase)
         auth_service = await di.get(IAuthService)
 
@@ -93,8 +93,8 @@ async def test_reset_channel_password_confirm_raises_error_if_code_mismatch(cont
 
 
 @pytest.mark.asyncio
-async def test_reset_channel_password_confirm_raises_error_if_channel_not_found(container: AsyncContainer):
-    async with container() as di:
+async def test_reset_channel_password_confirm_raises_error_if_channel_not_found(mock_container: AsyncContainer):
+    async with mock_container() as di:
         use_case = await di.get(ResetChannelPasswordConfirmUseCase)
         auth_service = await di.get(IAuthService)
 

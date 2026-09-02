@@ -13,8 +13,8 @@ from tests.factories.models.channels import ChannelORMFactory
 
 
 @pytest.mark.asyncio
-async def test_resend_activation_code_returns_none_if_email_sent(container: AsyncContainer):
-    async with container() as di:
+async def test_resend_activation_code_returns_none_if_email_sent(mock_container: AsyncContainer):
+    async with mock_container() as di:
         use_case = await di.get(ResendChannelActivationCodeUseCase)
         session = await di.get(AsyncSession)
         kv_repo = await di.get(IKVRepo)
@@ -34,8 +34,8 @@ async def test_resend_activation_code_returns_none_if_email_sent(container: Asyn
 
 
 @pytest.mark.asyncio
-async def test_resend_activation_code_raises_error_if_channel_not_found(container: AsyncContainer):
-    async with container() as di:
+async def test_resend_activation_code_raises_error_if_channel_not_found(mock_container: AsyncContainer):
+    async with mock_container() as di:
         use_case = await di.get(ResendChannelActivationCodeUseCase)
 
         command = ResendChannelActivationCodeCommandFactory.build()
@@ -45,8 +45,8 @@ async def test_resend_activation_code_raises_error_if_channel_not_found(containe
 
 
 @pytest.mark.asyncio
-async def test_resend_activation_code_raises_error_if_channel_already_active(container: AsyncContainer):
-    async with container() as di:
+async def test_resend_activation_code_raises_error_if_channel_already_active(mock_container: AsyncContainer):
+    async with mock_container() as di:
         use_case = await di.get(ResendChannelActivationCodeUseCase)
         session = await di.get(AsyncSession)
 

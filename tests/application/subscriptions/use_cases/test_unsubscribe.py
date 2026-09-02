@@ -16,8 +16,8 @@ from tests.factories.models.channels import ChannelORMFactory, SubscriptionORMFa
 
 
 @pytest.mark.asyncio
-async def test_unsubscribe_returns_none_if_deleted(container: AsyncContainer):
-    async with container() as di:
+async def test_unsubscribe_returns_none_if_deleted(mock_container: AsyncContainer):
+    async with mock_container() as di:
         use_case = await di.get(UnsubscribeUseCase)
         session = await di.get(AsyncSession)
 
@@ -45,8 +45,8 @@ async def test_unsubscribe_returns_none_if_deleted(container: AsyncContainer):
 
 
 @pytest.mark.asyncio
-async def test_unsubscribe_raises_error_if_current_channel_not_found(container: AsyncContainer):
-    async with container() as di:
+async def test_unsubscribe_raises_error_if_current_channel_not_found(mock_container: AsyncContainer):
+    async with mock_container() as di:
         use_case = await di.get(UnsubscribeUseCase)
         session = await di.get(AsyncSession)
 
@@ -59,8 +59,8 @@ async def test_unsubscribe_raises_error_if_current_channel_not_found(container: 
 
 
 @pytest.mark.asyncio
-async def test_unsubscribe_raises_error_if_current_channel_not_active(container: AsyncContainer):
-    async with container() as di:
+async def test_unsubscribe_raises_error_if_current_channel_not_active(mock_container: AsyncContainer):
+    async with mock_container() as di:
         use_case = await di.get(UnsubscribeUseCase)
         session = await di.get(AsyncSession)
 
@@ -77,8 +77,8 @@ async def test_unsubscribe_raises_error_if_current_channel_not_active(container:
 
 
 @pytest.mark.asyncio
-async def test_unsubscribe_raises_error_if_channel_slug_not_found(container: AsyncContainer):
-    async with container() as di:
+async def test_unsubscribe_raises_error_if_channel_slug_not_found(mock_container: AsyncContainer):
+    async with mock_container() as di:
         use_case = await di.get(UnsubscribeUseCase)
         session = await di.get(AsyncSession)
 
@@ -93,8 +93,8 @@ async def test_unsubscribe_raises_error_if_channel_slug_not_found(container: Asy
 
 
 @pytest.mark.asyncio
-async def test_unsubscribe_raises_error_if_subscription_not_found(container: AsyncContainer):
-    async with container() as di:
+async def test_unsubscribe_raises_error_if_subscription_not_found(mock_container: AsyncContainer):
+    async with mock_container() as di:
         use_case = await di.get(UnsubscribeUseCase)
         session = await di.get(AsyncSession)
 
@@ -111,8 +111,8 @@ async def test_unsubscribe_raises_error_if_subscription_not_found(container: Asy
 
 
 @pytest.mark.asyncio
-async def test_unsubscribe_raises_error_if_try_to_unsubscribe_from_self(container: AsyncContainer):
-    async with container() as di:
+async def test_unsubscribe_raises_error_if_try_to_unsubscribe_from_self(mock_container: AsyncContainer):
+    async with mock_container() as di:
         use_case = await di.get(UnsubscribeUseCase)
         session = await di.get(AsyncSession)
 

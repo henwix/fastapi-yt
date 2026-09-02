@@ -11,8 +11,8 @@ from tests.factories.models.channels import ChannelORMFactory
 
 
 @pytest.mark.asyncio
-async def test_login_channel_returns_tokens_if_credentials_are_correct(container: AsyncContainer):
-    async with container() as di:
+async def test_login_channel_returns_tokens_if_credentials_are_correct(mock_container: AsyncContainer):
+    async with mock_container() as di:
         use_case = await di.get(LoginChannelUseCase)
         session = await di.get(AsyncSession)
         jwt_service = await di.get(IJWTService)
@@ -37,9 +37,9 @@ async def test_login_channel_returns_tokens_if_credentials_are_correct(container
 
 @pytest.mark.asyncio
 async def test_login_channel_returns_tokens_if_credentials_are_correct_and_channel_not_active(
-    container: AsyncContainer,
+    mock_container: AsyncContainer,
 ):
-    async with container() as di:
+    async with mock_container() as di:
         use_case = await di.get(LoginChannelUseCase)
         jwt_service = await di.get(IJWTService)
         session = await di.get(AsyncSession)
@@ -64,8 +64,8 @@ async def test_login_channel_returns_tokens_if_credentials_are_correct_and_chann
 
 
 @pytest.mark.asyncio
-async def test_login_channel_raises_error_if_email_not_found(container: AsyncContainer):
-    async with container() as di:
+async def test_login_channel_raises_error_if_email_not_found(mock_container: AsyncContainer):
+    async with mock_container() as di:
         use_case = await di.get(LoginChannelUseCase)
 
         command = LoginChannelCommandFactory.build()
@@ -75,8 +75,8 @@ async def test_login_channel_raises_error_if_email_not_found(container: AsyncCon
 
 
 @pytest.mark.asyncio
-async def test_login_channel_raises_error_if_password_is_incorrect(container: AsyncContainer):
-    async with container() as di:
+async def test_login_channel_raises_error_if_password_is_incorrect(mock_container: AsyncContainer):
+    async with mock_container() as di:
         use_case = await di.get(LoginChannelUseCase)
         session = await di.get(AsyncSession)
 

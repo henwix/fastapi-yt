@@ -23,8 +23,8 @@ from tests.factories.queries.posts import GetPostsQueryFactory
 
 
 @pytest.mark.asyncio
-async def test_get_posts_returns_posts_without_next_cursor_if_last_page(container: AsyncContainer):
-    async with container() as di:
+async def test_get_posts_returns_posts_without_next_cursor_if_last_page(mock_container: AsyncContainer):
+    async with mock_container() as di:
         use_case = await di.get(GetPostsUseCase)
         session = await di.get(AsyncSession)
 
@@ -54,10 +54,10 @@ async def test_get_posts_returns_posts_without_next_cursor_if_last_page(containe
 @pytest.mark.asyncio
 @pytest.mark.parametrize('expected_order', [SortingOrderEnum.ASC, SortingOrderEnum.DESC])
 async def test_get_posts_returns_next_cursor_if_more_items_exist(
-    container: AsyncContainer,
+    mock_container: AsyncContainer,
     expected_order: SortingOrderEnum,
 ):
-    async with container() as di:
+    async with mock_container() as di:
         use_case = await di.get(GetPostsUseCase)
         session = await di.get(AsyncSession)
 
@@ -95,8 +95,8 @@ async def test_get_posts_returns_next_cursor_if_more_items_exist(
 
 
 @pytest.mark.asyncio
-async def test_get_posts_returns_correct_page_by_cursor(container: AsyncContainer):
-    async with container() as di:
+async def test_get_posts_returns_correct_page_by_cursor(mock_container: AsyncContainer):
+    async with mock_container() as di:
         use_case = await di.get(GetPostsUseCase)
         session = await di.get(AsyncSession)
 
@@ -145,8 +145,8 @@ async def test_get_posts_returns_correct_page_by_cursor(container: AsyncContaine
 
 
 @pytest.mark.asyncio
-async def test_get_posts_raises_error_if_cursor_invalid(container: AsyncContainer):
-    async with container() as di:
+async def test_get_posts_raises_error_if_cursor_invalid(mock_container: AsyncContainer):
+    async with mock_container() as di:
         use_case = await di.get(GetPostsUseCase)
 
         query = GetPostsQueryFactory.build(
@@ -162,9 +162,9 @@ async def test_get_posts_raises_error_if_cursor_invalid(container: AsyncContaine
 
 @pytest.mark.asyncio
 async def test_get_posts_raises_error_if_channel_not_found_by_slug(
-    container: AsyncContainer,
+    mock_container: AsyncContainer,
 ):
-    async with container() as di:
+    async with mock_container() as di:
         use_case = await di.get(GetPostsUseCase)
 
         query = GetPostsQueryFactory.build(

@@ -21,9 +21,9 @@ from tests.factories.models.oauth import OAuthAcccountORMFactory
 
 @pytest.mark.asyncio
 async def test_disconnect_oauth_account_returns_none_if_account_disconnected_and_channel_has_valid_password(
-    container: AsyncContainer,
+    mock_container: AsyncContainer,
 ):
-    async with container() as di:
+    async with mock_container() as di:
         use_case = await di.get(OAuthDisconnectAccountUseCase)
         session = await di.get(AsyncSession)
 
@@ -55,8 +55,8 @@ async def test_disconnect_oauth_account_returns_none_if_account_disconnected_and
 
 
 @pytest.mark.asyncio
-async def test_disconnect_oauth_account_raises_error_if_channel_not_active(container: AsyncContainer):
-    async with container() as di:
+async def test_disconnect_oauth_account_raises_error_if_channel_not_active(mock_container: AsyncContainer):
+    async with mock_container() as di:
         use_case = await di.get(OAuthDisconnectAccountUseCase)
         session = await di.get(AsyncSession)
 
@@ -72,8 +72,8 @@ async def test_disconnect_oauth_account_raises_error_if_channel_not_active(conta
 
 
 @pytest.mark.asyncio
-async def test_disconnect_oauth_account_raises_error_if_channel_not_found(container: AsyncContainer):
-    async with container() as di:
+async def test_disconnect_oauth_account_raises_error_if_channel_not_found(mock_container: AsyncContainer):
+    async with mock_container() as di:
         use_case = await di.get(OAuthDisconnectAccountUseCase)
 
         command = OAuthDisconnectAccountCommandFactory.build(
@@ -87,9 +87,9 @@ async def test_disconnect_oauth_account_raises_error_if_channel_not_found(contai
 
 @pytest.mark.asyncio
 async def test_disconnect_oauth_account_raises_error_if_no_connected_oauth_accounts_were_found(
-    container: AsyncContainer,
+    mock_container: AsyncContainer,
 ):
-    async with container() as di:
+    async with mock_container() as di:
         use_case = await di.get(OAuthDisconnectAccountUseCase)
         session = await di.get(AsyncSession)
 
@@ -113,11 +113,11 @@ async def test_disconnect_oauth_account_raises_error_if_no_connected_oauth_accou
     ],
 )
 async def test_disconnect_oauth_account_raises_error_if_oauth_account_not_connected(
-    container: AsyncContainer,
+    mock_container: AsyncContainer,
     connected_provider: OAuthProviderEnum,
     not_connected_provider: OAuthProviderEnum,
 ):
-    async with container() as di:
+    async with mock_container() as di:
         use_case = await di.get(OAuthDisconnectAccountUseCase)
         session = await di.get(AsyncSession)
 
@@ -155,9 +155,9 @@ async def test_disconnect_oauth_account_raises_error_if_oauth_account_not_connec
 
 @pytest.mark.asyncio
 async def test_disconnect_oauth_account_raises_error_if_channel_has_no_password_and_only_one_oauth_account_connected(
-    container: AsyncContainer,
+    mock_container: AsyncContainer,
 ):
-    async with container() as di:
+    async with mock_container() as di:
         use_case = await di.get(OAuthDisconnectAccountUseCase)
         session = await di.get(AsyncSession)
 
@@ -201,11 +201,11 @@ async def test_disconnect_oauth_account_raises_error_if_channel_has_no_password_
     ],
 )
 async def test_disconnect_oauth_account_disconnected_without_password_if_more_than_one_oauth_account_connected(
-    container: AsyncContainer,
+    mock_container: AsyncContainer,
     first_provider: OAuthProviderEnum,
     second_provider: OAuthProviderEnum,
 ):
-    async with container() as di:
+    async with mock_container() as di:
         use_case = await di.get(OAuthDisconnectAccountUseCase)
         session = await di.get(AsyncSession)
 

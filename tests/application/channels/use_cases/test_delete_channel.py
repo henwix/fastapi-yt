@@ -11,8 +11,8 @@ from tests.factories.models.channels import ChannelORMFactory
 
 
 @pytest.mark.asyncio
-async def test_delete_channel_returns_none_if_deleted(container: AsyncContainer):
-    async with container() as di:
+async def test_delete_channel_returns_none_if_deleted(mock_container: AsyncContainer):
+    async with mock_container() as di:
         use_case = await di.get(DeleteChannelUseCase)
         session = await di.get(AsyncSession)
         db_channel = await ChannelORMFactory.create(session=session)
@@ -31,8 +31,8 @@ async def test_delete_channel_returns_none_if_deleted(container: AsyncContainer)
 
 
 @pytest.mark.asyncio
-async def test_delete_channel_raises_error_if_not_active(container: AsyncContainer):
-    async with container() as di:
+async def test_delete_channel_raises_error_if_not_active(mock_container: AsyncContainer):
+    async with mock_container() as di:
         use_case = await di.get(DeleteChannelUseCase)
         session = await di.get(AsyncSession)
         db_channel = await ChannelORMFactory.create(session=session, is_active=False)
@@ -43,8 +43,8 @@ async def test_delete_channel_raises_error_if_not_active(container: AsyncContain
 
 
 @pytest.mark.asyncio
-async def test_delete_channel_raises_error_if_not_found(container: AsyncContainer):
-    async with container() as di:
+async def test_delete_channel_raises_error_if_not_found(mock_container: AsyncContainer):
+    async with mock_container() as di:
         use_case = await di.get(DeleteChannelUseCase)
         command = DeleteChannelCommandFactory.build()
 

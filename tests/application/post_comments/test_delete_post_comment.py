@@ -18,8 +18,8 @@ from tests.factories.models.posts import PostCommentORMFactory, PostORMFactory
 
 
 @pytest.mark.asyncio
-async def test_delete_post_comment_success(container: AsyncContainer):
-    async with container() as di:
+async def test_delete_post_comment_success(mock_container: AsyncContainer):
+    async with mock_container() as di:
         use_case = await di.get(DeletePostCommentUseCase)
         session = await di.get(AsyncSession)
 
@@ -47,8 +47,8 @@ async def test_delete_post_comment_success(container: AsyncContainer):
 
 
 @pytest.mark.asyncio
-async def test_delete_post_comment_raises_if_channel_not_active(container: AsyncContainer):
-    async with container() as di:
+async def test_delete_post_comment_raises_if_channel_not_active(mock_container: AsyncContainer):
+    async with mock_container() as di:
         use_case = await di.get(DeletePostCommentUseCase)
         session = await di.get(AsyncSession)
 
@@ -72,8 +72,8 @@ async def test_delete_post_comment_raises_if_channel_not_active(container: Async
 
 
 @pytest.mark.asyncio
-async def test_delete_post_comment_raises_if_channel_not_found(container: AsyncContainer):
-    async with container() as di:
+async def test_delete_post_comment_raises_if_channel_not_found(mock_container: AsyncContainer):
+    async with mock_container() as di:
         use_case = await di.get(DeletePostCommentUseCase)
 
         command = DeletePostCommentCommandFactory.build(
@@ -85,8 +85,8 @@ async def test_delete_post_comment_raises_if_channel_not_found(container: AsyncC
 
 
 @pytest.mark.asyncio
-async def test_delete_post_comment_raises_if_post_comment_not_found(container: AsyncContainer):
-    async with container() as di:
+async def test_delete_post_comment_raises_if_post_comment_not_found(mock_container: AsyncContainer):
+    async with mock_container() as di:
         use_case = await di.get(DeletePostCommentUseCase)
         session = await di.get(AsyncSession)
 
@@ -99,8 +99,8 @@ async def test_delete_post_comment_raises_if_post_comment_not_found(container: A
 
 
 @pytest.mark.asyncio
-async def test_delete_post_comment_raises_if_no_access(container: AsyncContainer):
-    async with container() as di:
+async def test_delete_post_comment_raises_if_no_access(mock_container: AsyncContainer):
+    async with mock_container() as di:
         use_case = await di.get(DeletePostCommentUseCase)
         session = await di.get(AsyncSession)
 

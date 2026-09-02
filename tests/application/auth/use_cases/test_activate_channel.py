@@ -11,8 +11,8 @@ from tests.factories.models.channels import ChannelORMFactory
 
 
 @pytest.mark.asyncio
-async def test_activate_channel_returns_none_if_activated(container: AsyncContainer):
-    async with container() as di:
+async def test_activate_channel_returns_none_if_activated(mock_container: AsyncContainer):
+    async with mock_container() as di:
         auth_service = await di.get(IAuthService)
         use_case = await di.get(ActivateChannelUseCase)
         session = await di.get(AsyncSession)
@@ -30,8 +30,8 @@ async def test_activate_channel_returns_none_if_activated(container: AsyncContai
 
 
 @pytest.mark.asyncio
-async def test_activate_channel_raises_error_if_channel_not_found(container: AsyncContainer):
-    async with container() as di:
+async def test_activate_channel_raises_error_if_channel_not_found(mock_container: AsyncContainer):
+    async with mock_container() as di:
         use_case = await di.get(ActivateChannelUseCase)
         command = ActivateChannelCommandFactory.build()
 
@@ -40,8 +40,8 @@ async def test_activate_channel_raises_error_if_channel_not_found(container: Asy
 
 
 @pytest.mark.asyncio
-async def test_activate_channel_raises_error_if_channel_is_active(container: AsyncContainer):
-    async with container() as di:
+async def test_activate_channel_raises_error_if_channel_is_active(mock_container: AsyncContainer):
+    async with mock_container() as di:
         use_case = await di.get(ActivateChannelUseCase)
         session = await di.get(AsyncSession)
 
@@ -53,8 +53,8 @@ async def test_activate_channel_raises_error_if_channel_is_active(container: Asy
 
 
 @pytest.mark.asyncio
-async def test_activate_channel_raises_error_if_activation_code_not_found(container: AsyncContainer):
-    async with container() as di:
+async def test_activate_channel_raises_error_if_activation_code_not_found(mock_container: AsyncContainer):
+    async with mock_container() as di:
         use_case = await di.get(ActivateChannelUseCase)
         session = await di.get(AsyncSession)
 
@@ -70,8 +70,8 @@ async def test_activate_channel_raises_error_if_activation_code_not_found(contai
 
 
 @pytest.mark.asyncio
-async def test_activate_channel_raises_error_if_activation_code_mismatch(container: AsyncContainer):
-    async with container() as di:
+async def test_activate_channel_raises_error_if_activation_code_mismatch(mock_container: AsyncContainer):
+    async with mock_container() as di:
         auth_service = await di.get(IAuthService)
         use_case = await di.get(ActivateChannelUseCase)
         session = await di.get(AsyncSession)

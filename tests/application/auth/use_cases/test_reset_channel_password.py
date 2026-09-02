@@ -12,8 +12,10 @@ from tests.factories.models.channels import ChannelORMFactory
 
 @pytest.mark.asyncio
 @pytest.mark.parametrize('is_channel_active', [True, False])
-async def test_reset_channel_password_returns_none_if_email_sent(container: AsyncContainer, is_channel_active: bool):
-    async with container() as di:
+async def test_reset_channel_password_returns_none_if_email_sent(
+    mock_container: AsyncContainer, is_channel_active: bool
+):
+    async with mock_container() as di:
         use_case = await di.get(ResetChannelPasswordUseCase)
         session = await di.get(AsyncSession)
         kv_repo = await di.get(IKVRepo)
@@ -36,9 +38,9 @@ async def test_reset_channel_password_returns_none_if_email_sent(container: Asyn
 @pytest.mark.asyncio
 @pytest.mark.parametrize('is_channel_active', [True, False])
 async def test_reset_channel_password_returns_none_if_channel_not_found_by_email(
-    container: AsyncContainer, is_channel_active: bool
+    mock_container: AsyncContainer, is_channel_active: bool
 ):
-    async with container() as di:
+    async with mock_container() as di:
         use_case = await di.get(ResetChannelPasswordUseCase)
 
         command = ResetChannelPasswordCommandFactory.build()

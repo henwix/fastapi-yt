@@ -21,10 +21,10 @@ from tests.factories.models.channels import ChannelORMFactory
     ['test.mp4', 'test.mkv', 'test.mov', 'test.webm', 'test.MP4', 'test.MKV', 'test.MOV', 'test.WEBM'],
 )
 async def test_create_video_multipart_upload_returns_correct_entity(
-    container: AsyncContainer,
+    mock_container: AsyncContainer,
     expected_filename: str,
 ):
-    async with container() as di:
+    async with mock_container() as di:
         use_case = await di.get(CreateVideoMultipartUploadUseCase)
         session = await di.get(AsyncSession)
 
@@ -55,10 +55,10 @@ async def test_create_video_multipart_upload_returns_correct_entity(
 @pytest.mark.asyncio
 @pytest.mark.parametrize('expected_filename', ['test.png', 'test.jpg', 'test.webp', 'test.gif', 'test.GIF', 'test.JPG'])
 async def test_create_video_multipart_upload_raises_error_if_invalid_video_format(
-    container: AsyncContainer,
+    mock_container: AsyncContainer,
     expected_filename: str,
 ):
-    async with container() as di:
+    async with mock_container() as di:
         use_case = await di.get(CreateVideoMultipartUploadUseCase)
         session = await di.get(AsyncSession)
 
@@ -73,8 +73,8 @@ async def test_create_video_multipart_upload_raises_error_if_invalid_video_forma
 
 
 @pytest.mark.asyncio
-async def test_create_video_multipart_upload_raises_error_if_channel_not_active(container: AsyncContainer):
-    async with container() as di:
+async def test_create_video_multipart_upload_raises_error_if_channel_not_active(mock_container: AsyncContainer):
+    async with mock_container() as di:
         use_case = await di.get(CreateVideoMultipartUploadUseCase)
         session = await di.get(AsyncSession)
 
@@ -86,8 +86,8 @@ async def test_create_video_multipart_upload_raises_error_if_channel_not_active(
 
 
 @pytest.mark.asyncio
-async def test_create_video_multipart_upload_raises_error_if_channel_not_found(container: AsyncContainer):
-    async with container() as di:
+async def test_create_video_multipart_upload_raises_error_if_channel_not_found(mock_container: AsyncContainer):
+    async with mock_container() as di:
         use_case = await di.get(CreateVideoMultipartUploadUseCase)
 
         command = CreateVideoMultipartUploadCommandFactory.build()

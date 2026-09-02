@@ -18,11 +18,11 @@ from tests.factories.models.channels import ChannelORMFactory
 
 @pytest.mark.asyncio
 async def test_register_channel_returns_correct_entity_if_created_and_activation_is_required(
-    container: AsyncContainer,
+    mock_container: AsyncContainer,
     test_settings: Settings,
 ):
     test_settings.auth_send_activation_email = True
-    async with container() as di:
+    async with mock_container() as di:
         use_case = await di.get(RegisterChannelUseCase)
         session = await di.get(AsyncSession)
         pwd_hasher = await di.get(IPasswordHasher)
@@ -70,11 +70,11 @@ async def test_register_channel_returns_correct_entity_if_created_and_activation
 
 @pytest.mark.asyncio
 async def test_register_channel_returns_correct_entity_if_created_and_activation_is_not_required(
-    container: AsyncContainer,
+    mock_container: AsyncContainer,
     test_settings: Settings,
 ):
     test_settings.auth_send_activation_email = False
-    async with container() as di:
+    async with mock_container() as di:
         use_case = await di.get(RegisterChannelUseCase)
         session = await di.get(AsyncSession)
         pwd_hasher = await di.get(IPasswordHasher)
@@ -121,8 +121,8 @@ async def test_register_channel_returns_correct_entity_if_created_and_activation
 
 
 @pytest.mark.asyncio
-async def test_register_channel_raises_error_if_email_exists(container: AsyncContainer):
-    async with container() as di:
+async def test_register_channel_raises_error_if_email_exists(mock_container: AsyncContainer):
+    async with mock_container() as di:
         use_case = await di.get(RegisterChannelUseCase)
         session = await di.get(AsyncSession)
         db_channel = await ChannelORMFactory.create(session=session)
@@ -133,8 +133,8 @@ async def test_register_channel_raises_error_if_email_exists(container: AsyncCon
 
 
 @pytest.mark.asyncio
-async def test_register_channel_raises_error_if_slug_exists(container: AsyncContainer):
-    async with container() as di:
+async def test_register_channel_raises_error_if_slug_exists(mock_container: AsyncContainer):
+    async with mock_container() as di:
         use_case = await di.get(RegisterChannelUseCase)
         session = await di.get(AsyncSession)
         db_channel = await ChannelORMFactory.create(session=session)

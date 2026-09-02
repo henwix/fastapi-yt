@@ -12,8 +12,8 @@ from tests.factories.models.channels import ChannelORMFactory
 
 
 @pytest.mark.asyncio
-async def test_delete_channel_avatar_returns_none_if_deleted(container: AsyncContainer):
-    async with container() as di:
+async def test_delete_channel_avatar_returns_none_if_deleted(mock_container: AsyncContainer):
+    async with mock_container() as di:
         use_case = await di.get(DeleteChannelAvatarUseCase)
         session = await di.get(AsyncSession)
 
@@ -32,8 +32,8 @@ async def test_delete_channel_avatar_returns_none_if_deleted(container: AsyncCon
 
 
 @pytest.mark.asyncio
-async def test_delete_channel_avatar_raises_error_if_channel_not_active(container: AsyncContainer):
-    async with container() as di:
+async def test_delete_channel_avatar_raises_error_if_channel_not_active(mock_container: AsyncContainer):
+    async with mock_container() as di:
         use_case = await di.get(DeleteChannelAvatarUseCase)
         session = await di.get(AsyncSession)
 
@@ -45,8 +45,8 @@ async def test_delete_channel_avatar_raises_error_if_channel_not_active(containe
 
 
 @pytest.mark.asyncio
-async def test_delete_channel_avatar_raises_error_if_channel_not_found(container: AsyncContainer):
-    async with container() as di:
+async def test_delete_channel_avatar_raises_error_if_channel_not_found(mock_container: AsyncContainer):
+    async with mock_container() as di:
         use_case = await di.get(DeleteChannelAvatarUseCase)
 
         command = DeleteChannelAvatarCommandFactory.build()
@@ -56,8 +56,8 @@ async def test_delete_channel_avatar_raises_error_if_channel_not_found(container
 
 
 @pytest.mark.asyncio
-async def test_delete_channel_avatar_raises_error_if_channel_avatar_not_found(container: AsyncContainer):
-    async with container() as di:
+async def test_delete_channel_avatar_raises_error_if_channel_avatar_not_found(mock_container: AsyncContainer):
+    async with mock_container() as di:
         use_case = await di.get(DeleteChannelAvatarUseCase)
         session = await di.get(AsyncSession)
 

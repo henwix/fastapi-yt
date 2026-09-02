@@ -22,10 +22,10 @@ from tests.factories.models.videos import VIDEO_VIEWS_LIMIT_PER_DAY, VideoORMFac
 @pytest.mark.asyncio
 @pytest.mark.parametrize('privacy_status', [VideoPrivacyStatusEnum.PUBLIC.value, VideoPrivacyStatusEnum.UNLISTED.value])
 async def test_create_video_view_returns_none_if_created_if_video_public_or_unlisted_and_channel_authenticated(
-    container: AsyncContainer,
+    mock_container: AsyncContainer,
     privacy_status: str,
 ):
-    async with container() as di:
+    async with mock_container() as di:
         use_case = await di.get(CreateVideoViewUseCase)
         session = await di.get(AsyncSession)
 
@@ -61,10 +61,10 @@ async def test_create_video_view_returns_none_if_created_if_video_public_or_unli
 @pytest.mark.asyncio
 @pytest.mark.parametrize('privacy_status', [VideoPrivacyStatusEnum.PUBLIC.value, VideoPrivacyStatusEnum.UNLISTED.value])
 async def test_create_video_view_returns_none_if_created_if_video_public_or_unlisted_and_channel_not_authenticated(
-    container: AsyncContainer,
+    mock_container: AsyncContainer,
     privacy_status: str,
 ):
-    async with container() as di:
+    async with mock_container() as di:
         use_case = await di.get(CreateVideoViewUseCase)
         session = await di.get(AsyncSession)
 
@@ -98,9 +98,9 @@ async def test_create_video_view_returns_none_if_created_if_video_public_or_unli
 
 @pytest.mark.asyncio
 async def test_create_video_view_returns_none_if_created_if_video_private_and_channel_author(
-    container: AsyncContainer,
+    mock_container: AsyncContainer,
 ):
-    async with container() as di:
+    async with mock_container() as di:
         use_case = await di.get(CreateVideoViewUseCase)
         session = await di.get(AsyncSession)
 
@@ -134,9 +134,9 @@ async def test_create_video_view_returns_none_if_created_if_video_private_and_ch
 
 @pytest.mark.asyncio
 async def test_create_video_view_raises_error_if_video_private_and_channel_not_author(
-    container: AsyncContainer,
+    mock_container: AsyncContainer,
 ):
-    async with container() as di:
+    async with mock_container() as di:
         use_case = await di.get(CreateVideoViewUseCase)
         session = await di.get(AsyncSession)
 
@@ -172,9 +172,9 @@ async def test_create_video_view_raises_error_if_video_private_and_channel_not_a
 
 @pytest.mark.asyncio
 async def test_create_video_view_raises_error_if_video_private_and_channel_not_authenticated(
-    container: AsyncContainer,
+    mock_container: AsyncContainer,
 ):
-    async with container() as di:
+    async with mock_container() as di:
         use_case = await di.get(CreateVideoViewUseCase)
         session = await di.get(AsyncSession)
 
@@ -209,9 +209,9 @@ async def test_create_video_view_raises_error_if_video_private_and_channel_not_a
 
 @pytest.mark.asyncio
 async def test_create_video_view_raises_error_if_video_views_limit_reached_and_channel_authenticated(
-    container: AsyncContainer,
+    mock_container: AsyncContainer,
 ):
-    async with container() as di:
+    async with mock_container() as di:
         use_case = await di.get(CreateVideoViewUseCase)
         session = await di.get(AsyncSession)
 
@@ -244,9 +244,9 @@ async def test_create_video_view_raises_error_if_video_views_limit_reached_and_c
 
 @pytest.mark.asyncio
 async def test_create_video_view_raises_error_if_video_views_limit_reached_and_channel_not_authenticated(
-    container: AsyncContainer,
+    mock_container: AsyncContainer,
 ):
-    async with container() as di:
+    async with mock_container() as di:
         use_case = await di.get(CreateVideoViewUseCase)
         session = await di.get(AsyncSession)
 
@@ -278,9 +278,9 @@ async def test_create_video_view_raises_error_if_video_views_limit_reached_and_c
 
 @pytest.mark.asyncio
 async def test_create_video_view_does_not_create_view_if_increase_views_count_fails(
-    container: AsyncContainer,
+    mock_container: AsyncContainer,
 ):
-    async with container() as di:
+    async with mock_container() as di:
         use_case = await di.get(CreateVideoViewUseCase)
         session = await di.get(AsyncSession)
 
@@ -315,9 +315,9 @@ async def test_create_video_view_does_not_create_view_if_increase_views_count_fa
 
 @pytest.mark.asyncio
 async def test_create_video_view_raises_error_if_channel_not_found(
-    container: AsyncContainer,
+    mock_container: AsyncContainer,
 ):
-    async with container() as di:
+    async with mock_container() as di:
         use_case = await di.get(CreateVideoViewUseCase)
         session = await di.get(AsyncSession)
 
@@ -340,9 +340,9 @@ async def test_create_video_view_raises_error_if_channel_not_found(
 
 @pytest.mark.asyncio
 async def test_create_video_view_raises_error_if_channel_not_active(
-    container: AsyncContainer,
+    mock_container: AsyncContainer,
 ):
-    async with container() as di:
+    async with mock_container() as di:
         use_case = await di.get(CreateVideoViewUseCase)
         session = await di.get(AsyncSession)
 
@@ -366,9 +366,9 @@ async def test_create_video_view_raises_error_if_channel_not_active(
 
 @pytest.mark.asyncio
 async def test_create_video_view_raises_error_if_video_not_completed(
-    container: AsyncContainer,
+    mock_container: AsyncContainer,
 ):
-    async with container() as di:
+    async with mock_container() as di:
         use_case = await di.get(CreateVideoViewUseCase)
         session = await di.get(AsyncSession)
 
@@ -392,9 +392,9 @@ async def test_create_video_view_raises_error_if_video_not_completed(
 
 @pytest.mark.asyncio
 async def test_create_video_view_raises_error_if_video_not_found(
-    container: AsyncContainer,
+    mock_container: AsyncContainer,
 ):
-    async with container() as di:
+    async with mock_container() as di:
         use_case = await di.get(CreateVideoViewUseCase)
         session = await di.get(AsyncSession)
 

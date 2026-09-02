@@ -11,8 +11,8 @@ from tests.factories.queries.posts import GetPostQueryFactory
 
 
 @pytest.mark.asyncio
-async def test_get_post_returns_correct_entity(container: AsyncContainer):
-    async with container() as di:
+async def test_get_post_returns_correct_entity(mock_container: AsyncContainer):
+    async with mock_container() as di:
         use_case = await di.get(GetPostUseCase)
         session = await di.get(AsyncSession)
 
@@ -35,8 +35,8 @@ async def test_get_post_returns_correct_entity(container: AsyncContainer):
 
 
 @pytest.mark.asyncio
-async def test_get_post_raises_error_if_not_found(container: AsyncContainer):
-    async with container() as di:
+async def test_get_post_raises_error_if_not_found(mock_container: AsyncContainer):
+    async with mock_container() as di:
         use_case = await di.get(GetPostUseCase)
 
         query = GetPostQueryFactory.build()

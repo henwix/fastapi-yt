@@ -15,8 +15,8 @@ from tests.factories.models.channels import ChannelORMFactory
 
 
 @pytest.mark.asyncio
-async def test_create_post_returns_correct_entity_if_created(container: AsyncContainer):
-    async with container() as di:
+async def test_create_post_returns_correct_entity_if_created(mock_container: AsyncContainer):
+    async with mock_container() as di:
         use_case = await di.get(CreatePostUseCase)
         session = await di.get(AsyncSession)
 
@@ -43,8 +43,8 @@ async def test_create_post_returns_correct_entity_if_created(container: AsyncCon
 
 
 @pytest.mark.asyncio
-async def test_create_post_raises_error_if_channel_not_found(container: AsyncContainer):
-    async with container() as di:
+async def test_create_post_raises_error_if_channel_not_found(mock_container: AsyncContainer):
+    async with mock_container() as di:
         use_case = await di.get(CreatePostUseCase)
 
         command = CreatePostCommandFactory.build()
@@ -54,8 +54,8 @@ async def test_create_post_raises_error_if_channel_not_found(container: AsyncCon
 
 
 @pytest.mark.asyncio
-async def test_create_post_raises_error_if_channel_not_active(container: AsyncContainer):
-    async with container() as di:
+async def test_create_post_raises_error_if_channel_not_active(mock_container: AsyncContainer):
+    async with mock_container() as di:
         use_case = await di.get(CreatePostUseCase)
         session = await di.get(AsyncSession)
 

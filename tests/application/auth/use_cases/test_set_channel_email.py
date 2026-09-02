@@ -18,8 +18,8 @@ from tests.factories.models.channels import ChannelORMFactory
 
 
 @pytest.mark.asyncio
-async def test_set_channel_email_returns_none_if_email_sent(container: AsyncContainer):
-    async with container() as di:
+async def test_set_channel_email_returns_none_if_email_sent(mock_container: AsyncContainer):
+    async with mock_container() as di:
         use_case = await di.get(SetChannelEmailUseCase)
         session = await di.get(AsyncSession)
         kv_repo = await di.get(IKVRepo)
@@ -42,8 +42,8 @@ async def test_set_channel_email_returns_none_if_email_sent(container: AsyncCont
 
 
 @pytest.mark.asyncio
-async def test_set_channel_email_raises_error_if_channel_not_active(container: AsyncContainer):
-    async with container() as di:
+async def test_set_channel_email_raises_error_if_channel_not_active(mock_container: AsyncContainer):
+    async with mock_container() as di:
         use_case = await di.get(SetChannelEmailUseCase)
         session = await di.get(AsyncSession)
 
@@ -55,8 +55,8 @@ async def test_set_channel_email_raises_error_if_channel_not_active(container: A
 
 
 @pytest.mark.asyncio
-async def test_set_channel_email_raises_error_if_channel_not_found(container: AsyncContainer):
-    async with container() as di:
+async def test_set_channel_email_raises_error_if_channel_not_found(mock_container: AsyncContainer):
+    async with mock_container() as di:
         use_case = await di.get(SetChannelEmailUseCase)
         command = SetChannelEmailCommandFactory.build()
 
@@ -65,8 +65,10 @@ async def test_set_channel_email_raises_error_if_channel_not_found(container: As
 
 
 @pytest.mark.asyncio
-async def test_set_channel_email_raises_error_if_email_already_associated_with_this_channel(container: AsyncContainer):
-    async with container() as di:
+async def test_set_channel_email_raises_error_if_email_already_associated_with_this_channel(
+    mock_container: AsyncContainer,
+):
+    async with mock_container() as di:
         use_case = await di.get(SetChannelEmailUseCase)
         session = await di.get(AsyncSession)
 
@@ -78,8 +80,8 @@ async def test_set_channel_email_raises_error_if_email_already_associated_with_t
 
 
 @pytest.mark.asyncio
-async def test_set_channel_email_raises_error_if_email_already_exists(container: AsyncContainer):
-    async with container() as di:
+async def test_set_channel_email_raises_error_if_email_already_exists(mock_container: AsyncContainer):
+    async with mock_container() as di:
         use_case = await di.get(SetChannelEmailUseCase)
         session = await di.get(AsyncSession)
 

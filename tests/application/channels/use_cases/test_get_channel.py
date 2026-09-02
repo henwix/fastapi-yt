@@ -10,8 +10,8 @@ from tests.factories.queries.channels import GetChannelQueryFactory
 
 
 @pytest.mark.asyncio
-async def test_get_channel_returns_correct_channel_entity(container: AsyncContainer):
-    async with container() as di:
+async def test_get_channel_returns_correct_channel_entity(mock_container: AsyncContainer):
+    async with mock_container() as di:
         use_case = await di.get(GetChannelUseCase)
         session = await di.get(AsyncSession)
         db_channel = await ChannelORMFactory.create(session=session)
@@ -33,8 +33,8 @@ async def test_get_channel_returns_correct_channel_entity(container: AsyncContai
 
 
 @pytest.mark.asyncio
-async def test_get_channel_returns_correct_channel_entity_if_not_active(container: AsyncContainer):
-    async with container() as di:
+async def test_get_channel_returns_correct_channel_entity_if_not_active(mock_container: AsyncContainer):
+    async with mock_container() as di:
         use_case = await di.get(GetChannelUseCase)
         session = await di.get(AsyncSession)
         db_channel = await ChannelORMFactory.create(session=session, is_active=False)
@@ -56,8 +56,8 @@ async def test_get_channel_returns_correct_channel_entity_if_not_active(containe
 
 
 @pytest.mark.asyncio
-async def test_get_channel_raises_error_if_not_found(container: AsyncContainer):
-    async with container() as di:
+async def test_get_channel_raises_error_if_not_found(mock_container: AsyncContainer):
+    async with mock_container() as di:
         use_case = await di.get(GetChannelUseCase)
         query = GetChannelQueryFactory.build()
 

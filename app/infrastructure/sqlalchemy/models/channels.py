@@ -25,7 +25,7 @@ class ChannelORM(
     country: Mapped[str] = mapped_column(sa.String(40))
     password_hash: Mapped[str | None]
     is_active: Mapped[bool] = mapped_column(default=True, server_default=sa.sql.true())
-    avatar_s3_key: Mapped[str] = mapped_column(
+    avatar_s3_key: Mapped[str | None] = mapped_column(
         sa.String(length=255), nullable=True, default=None, server_default=sa.sql.null()
     )
 

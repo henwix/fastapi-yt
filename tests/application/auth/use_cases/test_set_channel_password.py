@@ -10,8 +10,8 @@ from tests.factories.models.channels import ChannelORMFactory
 
 
 @pytest.mark.asyncio
-async def test_set_password_returns_none_if_password_updated(container: AsyncContainer):
-    async with container() as di:
+async def test_set_password_returns_none_if_password_updated(mock_container: AsyncContainer):
+    async with mock_container() as di:
         use_case = await di.get(SetChannelPasswordUseCase)
         session = await di.get(AsyncSession)
         password_hasher = await di.get(IPasswordHasher)
@@ -27,8 +27,8 @@ async def test_set_password_returns_none_if_password_updated(container: AsyncCon
 
 
 @pytest.mark.asyncio
-async def test_set_password_raises_error_if_not_active(container: AsyncContainer):
-    async with container() as di:
+async def test_set_password_raises_error_if_not_active(mock_container: AsyncContainer):
+    async with mock_container() as di:
         use_case = await di.get(SetChannelPasswordUseCase)
         session = await di.get(AsyncSession)
         db_channel = await ChannelORMFactory.create(session=session, is_active=False)
@@ -39,8 +39,8 @@ async def test_set_password_raises_error_if_not_active(container: AsyncContainer
 
 
 @pytest.mark.asyncio
-async def test_set_password_raises_error_if_not_found(container: AsyncContainer):
-    async with container() as di:
+async def test_set_password_raises_error_if_not_found(mock_container: AsyncContainer):
+    async with mock_container() as di:
         use_case = await di.get(SetChannelPasswordUseCase)
         command = SetChannelPasswordCommandFactory.build()
 

@@ -20,8 +20,8 @@ from tests.factories.models.channels import ChannelORMFactory, SubscriptionORMFa
 
 
 @pytest.mark.asyncio
-async def test_subscribe_returns_correct_entity_if_created(container: AsyncContainer):
-    async with container() as di:
+async def test_subscribe_returns_correct_entity_if_created(mock_container: AsyncContainer):
+    async with mock_container() as di:
         use_case = await di.get(SubscribeUseCase)
         session = await di.get(AsyncSession)
 
@@ -50,8 +50,8 @@ async def test_subscribe_returns_correct_entity_if_created(container: AsyncConta
 
 
 @pytest.mark.asyncio
-async def test_subscribe_raises_error_if_self_subscription(container: AsyncContainer):
-    async with container() as di:
+async def test_subscribe_raises_error_if_self_subscription(mock_container: AsyncContainer):
+    async with mock_container() as di:
         use_case = await di.get(SubscribeUseCase)
         session = await di.get(AsyncSession)
 
@@ -67,8 +67,8 @@ async def test_subscribe_raises_error_if_self_subscription(container: AsyncConta
 
 
 @pytest.mark.asyncio
-async def test_subscribe_raises_error_if_current_channel_not_found(container: AsyncContainer):
-    async with container() as di:
+async def test_subscribe_raises_error_if_current_channel_not_found(mock_container: AsyncContainer):
+    async with mock_container() as di:
         use_case = await di.get(SubscribeUseCase)
         session = await di.get(AsyncSession)
 
@@ -81,8 +81,8 @@ async def test_subscribe_raises_error_if_current_channel_not_found(container: As
 
 
 @pytest.mark.asyncio
-async def test_subscribe_raises_error_if_current_channel_not_active(container: AsyncContainer):
-    async with container() as di:
+async def test_subscribe_raises_error_if_current_channel_not_active(mock_container: AsyncContainer):
+    async with mock_container() as di:
         use_case = await di.get(SubscribeUseCase)
         session = await di.get(AsyncSession)
 
@@ -99,8 +99,8 @@ async def test_subscribe_raises_error_if_current_channel_not_active(container: A
 
 
 @pytest.mark.asyncio
-async def test_subscribe_raises_error_if_channel_slug_not_found(container: AsyncContainer):
-    async with container() as di:
+async def test_subscribe_raises_error_if_channel_slug_not_found(mock_container: AsyncContainer):
+    async with mock_container() as di:
         use_case = await di.get(SubscribeUseCase)
         session = await di.get(AsyncSession)
 
@@ -113,8 +113,8 @@ async def test_subscribe_raises_error_if_channel_slug_not_found(container: Async
 
 
 @pytest.mark.asyncio
-async def test_subscribe_raises_error_if_subscription_already_exists(container: AsyncContainer):
-    async with container() as di:
+async def test_subscribe_raises_error_if_subscription_already_exists(mock_container: AsyncContainer):
+    async with mock_container() as di:
         use_case = await di.get(SubscribeUseCase)
         session = await di.get(AsyncSession)
 

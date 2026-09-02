@@ -22,10 +22,10 @@ fake = Faker()
 @pytest.mark.asyncio
 @pytest.mark.parametrize(argnames='expected_slug', argvalues=[fake.slug(), Empty.UNSET])
 async def test_update_channel_returns_correct_entity_if_updated(
-    container: AsyncContainer,
+    mock_container: AsyncContainer,
     expected_slug: str | Empty,
 ):
-    async with container() as di:
+    async with mock_container() as di:
         use_case = await di.get(UpdateChannelUseCase)
         session = await di.get(AsyncSession)
         db_channel = deepcopy(await ChannelORMFactory.create(session=session))
@@ -64,8 +64,8 @@ async def test_update_channel_returns_correct_entity_if_updated(
 
 
 @pytest.mark.asyncio
-async def test_update_channel_raises_error_if_slug_exists(container: AsyncContainer):
-    async with container() as di:
+async def test_update_channel_raises_error_if_slug_exists(mock_container: AsyncContainer):
+    async with mock_container() as di:
         use_case = await di.get(UpdateChannelUseCase)
         session = await di.get(AsyncSession)
         db_channel = await ChannelORMFactory.create(session=session)
@@ -76,8 +76,8 @@ async def test_update_channel_raises_error_if_slug_exists(container: AsyncContai
 
 
 @pytest.mark.asyncio
-async def test_update_channel_raises_error_if_not_active(container: AsyncContainer):
-    async with container() as di:
+async def test_update_channel_raises_error_if_not_active(mock_container: AsyncContainer):
+    async with mock_container() as di:
         use_case = await di.get(UpdateChannelUseCase)
         session = await di.get(AsyncSession)
         db_channel = await ChannelORMFactory.create(session=session, is_active=False)
@@ -88,8 +88,8 @@ async def test_update_channel_raises_error_if_not_active(container: AsyncContain
 
 
 @pytest.mark.asyncio
-async def test_update_channel_raises_error_if_not_found(container: AsyncContainer):
-    async with container() as di:
+async def test_update_channel_raises_error_if_not_found(mock_container: AsyncContainer):
+    async with mock_container() as di:
         use_case = await di.get(UpdateChannelUseCase)
         command = UpdateChannelCommandFactory.build()
 

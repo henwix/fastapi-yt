@@ -22,10 +22,10 @@ from tests.factories.models.channels import ChannelORMFactory
 @pytest.mark.asyncio
 @pytest.mark.parametrize('expected_file_format', ['png', 'jpg', 'jpeg'])
 async def test_confirm_channel_avatar_upload_returns_none_if_avatar_updated_without_existing_avatar(
-    container: AsyncContainer,
+    mock_container: AsyncContainer,
     expected_file_format: str,
 ):
-    async with container() as di:
+    async with mock_container() as di:
         use_case = await di.get(ConfirmChannelAvatarUploadUseCase)
         session = await di.get(AsyncSession)
 
@@ -48,9 +48,9 @@ async def test_confirm_channel_avatar_upload_returns_none_if_avatar_updated_with
 
 @pytest.mark.asyncio
 async def test_confirm_channel_avatar_upload_returns_none_if_avatar_updated_with_existing_avatar(
-    container: AsyncContainer,
+    mock_container: AsyncContainer,
 ):
-    async with container() as di:
+    async with mock_container() as di:
         use_case = await di.get(ConfirmChannelAvatarUploadUseCase)
         session = await di.get(AsyncSession)
 
@@ -80,10 +80,10 @@ async def test_confirm_channel_avatar_upload_returns_none_if_avatar_updated_with
 @pytest.mark.asyncio
 @pytest.mark.parametrize('expected_file_format', ['mp4', 'mov', 'gif', 'hjhfsf', 'mkv', 'webm'])
 async def test_confirm_channel_avatar_upload_raises_error_if_invalid_invalid_file_format(
-    container: AsyncContainer,
+    mock_container: AsyncContainer,
     expected_file_format: str,
 ):
-    async with container() as di:
+    async with mock_container() as di:
         use_case = await di.get(ConfirmChannelAvatarUploadUseCase)
         session = await di.get(AsyncSession)
 
@@ -100,9 +100,9 @@ async def test_confirm_channel_avatar_upload_raises_error_if_invalid_invalid_fil
 
 @pytest.mark.asyncio
 async def test_confirm_channel_avatar_upload_raises_error_if_invalid_key(
-    container: AsyncContainer,
+    mock_container: AsyncContainer,
 ):
-    async with container() as di:
+    async with mock_container() as di:
         use_case = await di.get(ConfirmChannelAvatarUploadUseCase)
         session = await di.get(AsyncSession)
 
@@ -119,9 +119,9 @@ async def test_confirm_channel_avatar_upload_raises_error_if_invalid_key(
 
 @pytest.mark.asyncio
 async def test_confirm_channel_avatar_upload_raises_error_if_channel_not_found(
-    container: AsyncContainer,
+    mock_container: AsyncContainer,
 ):
-    async with container() as di:
+    async with mock_container() as di:
         use_case = await di.get(ConfirmChannelAvatarUploadUseCase)
 
         expected_avatar_s3_key = f'{settings.s3_avatars_key_prefix}/new_avatar.png'
@@ -134,9 +134,9 @@ async def test_confirm_channel_avatar_upload_raises_error_if_channel_not_found(
 
 @pytest.mark.asyncio
 async def test_confirm_channel_avatar_upload_raises_error_if_channel_not_active(
-    container: AsyncContainer,
+    mock_container: AsyncContainer,
 ):
-    async with container() as di:
+    async with mock_container() as di:
         use_case = await di.get(ConfirmChannelAvatarUploadUseCase)
         session = await di.get(AsyncSession)
 
@@ -153,9 +153,9 @@ async def test_confirm_channel_avatar_upload_raises_error_if_channel_not_active(
 
 @pytest.mark.asyncio
 async def test_confirm_channel_avatar_upload_raises_error_if_channel_avatar_already_set(
-    container: AsyncContainer,
+    mock_container: AsyncContainer,
 ):
-    async with container() as di:
+    async with mock_container() as di:
         use_case = await di.get(ConfirmChannelAvatarUploadUseCase)
         session = await di.get(AsyncSession)
 
@@ -172,9 +172,9 @@ async def test_confirm_channel_avatar_upload_raises_error_if_channel_avatar_alre
 
 @pytest.mark.asyncio
 async def test_confirm_channel_avatar_upload_raises_error_if_s3_object_access_forbidden(
-    container: AsyncContainer,
+    mock_container: AsyncContainer,
 ):
-    async with container() as di:
+    async with mock_container() as di:
         use_case = await di.get(ConfirmChannelAvatarUploadUseCase)
         session = await di.get(AsyncSession)
 
@@ -192,10 +192,10 @@ async def test_confirm_channel_avatar_upload_raises_error_if_s3_object_access_fo
 @pytest.mark.asyncio
 @pytest.mark.parametrize('expected_content_type', ['image/gif', 'video/mp4', 'video/webm'])
 async def test_confirm_channel_avatar_upload_raises_error_if_s3_object_invalid_content_type(
-    container: AsyncContainer,
+    mock_container: AsyncContainer,
     expected_content_type: str,
 ):
-    async with container() as di:
+    async with mock_container() as di:
         use_case = await di.get(ConfirmChannelAvatarUploadUseCase)
         session = await di.get(AsyncSession)
 

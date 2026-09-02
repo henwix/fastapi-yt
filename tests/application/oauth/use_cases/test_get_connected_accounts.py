@@ -12,8 +12,8 @@ from tests.factories.queries.oauth import OAuthGetConnectedAccountsQueryFactory
 
 
 @pytest.mark.asyncio
-async def test_get_connected_accounts_returns_empty_list_if_no_accounts_found(container: AsyncContainer):
-    async with container() as di:
+async def test_get_connected_accounts_returns_empty_list_if_no_accounts_found(mock_container: AsyncContainer):
+    async with mock_container() as di:
         use_case = await di.get(OAuthGetConnectedAccountsUseCase)
         session = await di.get(AsyncSession)
 
@@ -28,10 +28,10 @@ async def test_get_connected_accounts_returns_empty_list_if_no_accounts_found(co
 @pytest.mark.asyncio
 @pytest.mark.parametrize('expected_oauth_provider', [OAuthProviderEnum.GITHUB, OAuthProviderEnum.GOOGLE])
 async def test_get_connected_accounts_returns_one_account(
-    container: AsyncContainer,
+    mock_container: AsyncContainer,
     expected_oauth_provider: OAuthProviderEnum,
 ):
-    async with container() as di:
+    async with mock_container() as di:
         use_case = await di.get(OAuthGetConnectedAccountsUseCase)
         session = await di.get(AsyncSession)
 
@@ -53,8 +53,8 @@ async def test_get_connected_accounts_returns_one_account(
 
 
 @pytest.mark.asyncio
-async def test_get_connected_accounts_returns_two_accounts(container: AsyncContainer):
-    async with container() as di:
+async def test_get_connected_accounts_returns_two_accounts(mock_container: AsyncContainer):
+    async with mock_container() as di:
         use_case = await di.get(OAuthGetConnectedAccountsUseCase)
         session = await di.get(AsyncSession)
 
@@ -85,8 +85,8 @@ async def test_get_connected_accounts_returns_two_accounts(container: AsyncConta
 
 
 @pytest.mark.asyncio
-async def test_get_connected_accounts_raises_error_if_channel_not_active(container: AsyncContainer):
-    async with container() as di:
+async def test_get_connected_accounts_raises_error_if_channel_not_active(mock_container: AsyncContainer):
+    async with mock_container() as di:
         use_case = await di.get(OAuthGetConnectedAccountsUseCase)
         session = await di.get(AsyncSession)
 
@@ -98,8 +98,8 @@ async def test_get_connected_accounts_raises_error_if_channel_not_active(contain
 
 
 @pytest.mark.asyncio
-async def test_get_connected_accounts_raises_error_if_channel_not_found(container: AsyncContainer):
-    async with container() as di:
+async def test_get_connected_accounts_raises_error_if_channel_not_found(mock_container: AsyncContainer):
+    async with mock_container() as di:
         use_case = await di.get(OAuthGetConnectedAccountsUseCase)
         query = OAuthGetConnectedAccountsQueryFactory.build()
 

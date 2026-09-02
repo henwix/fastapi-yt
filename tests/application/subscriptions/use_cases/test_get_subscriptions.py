@@ -27,9 +27,9 @@ from tests.factories.queries.subscriptions import (
 
 @pytest.mark.asyncio
 async def test_get_subscriptions_returns_subscriptions_without_next_cursor_if_last_page(
-    container: AsyncContainer,
+    mock_container: AsyncContainer,
 ):
-    async with container() as di:
+    async with mock_container() as di:
         use_case = await di.get(GetSubscriptionsUseCase)
         session = await di.get(AsyncSession)
 
@@ -62,10 +62,10 @@ async def test_get_subscriptions_returns_subscriptions_without_next_cursor_if_la
 @pytest.mark.asyncio
 @pytest.mark.parametrize('expected_order', [SortingOrderEnum.ASC, SortingOrderEnum.DESC])
 async def test_get_subscriptions_returns_next_cursor_if_more_items_exist(
-    container: AsyncContainer,
+    mock_container: AsyncContainer,
     expected_order: SortingOrderEnum,
 ):
-    async with container() as di:
+    async with mock_container() as di:
         use_case = await di.get(GetSubscriptionsUseCase)
         session = await di.get(AsyncSession)
 
@@ -107,9 +107,9 @@ async def test_get_subscriptions_returns_next_cursor_if_more_items_exist(
 
 @pytest.mark.asyncio
 async def test_get_subscriptions_returns_correct_page_by_cursor(
-    container: AsyncContainer,
+    mock_container: AsyncContainer,
 ):
-    async with container() as di:
+    async with mock_container() as di:
         use_case = await di.get(GetSubscriptionsUseCase)
         session = await di.get(AsyncSession)
 
@@ -162,9 +162,9 @@ async def test_get_subscriptions_returns_correct_page_by_cursor(
 
 @pytest.mark.asyncio
 async def test_get_subscriptions_raises_error_if_cursor_invalid(
-    container: AsyncContainer,
+    mock_container: AsyncContainer,
 ):
-    async with container() as di:
+    async with mock_container() as di:
         use_case = await di.get(GetSubscriptionsUseCase)
 
         query = GetSubscriptionsQueryFactory.build(
@@ -180,9 +180,9 @@ async def test_get_subscriptions_raises_error_if_cursor_invalid(
 
 @pytest.mark.asyncio
 async def test_get_subscriptions_raises_error_if_current_channel_not_found(
-    container: AsyncContainer,
+    mock_container: AsyncContainer,
 ):
-    async with container() as di:
+    async with mock_container() as di:
         use_case = await di.get(GetSubscriptionsUseCase)
 
         query = GetSubscriptionsQueryFactory.build(
@@ -195,9 +195,9 @@ async def test_get_subscriptions_raises_error_if_current_channel_not_found(
 
 @pytest.mark.asyncio
 async def test_get_subscriptions_raises_error_if_current_channel_not_active(
-    container: AsyncContainer,
+    mock_container: AsyncContainer,
 ):
-    async with container() as di:
+    async with mock_container() as di:
         use_case = await di.get(GetSubscriptionsUseCase)
         session = await di.get(AsyncSession)
 

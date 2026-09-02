@@ -128,7 +128,7 @@ class GitHubOAuthProvider(IOAuthProvider):
             user_email = primary_emails[0]
 
         return OAuthProviderUserData(
-            uid=str(response_user_data['id']),
+            uid=str(user_id),
             email=user_email,
             login=user_login,
             name=user_name,

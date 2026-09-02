@@ -68,7 +68,7 @@ async def setup_db(postgres_url: str):
     await engine.dispose()
 
 
-@pytest_asyncio.fixture
+@pytest_asyncio.fixture(scope='session')
 async def container(postgres_url: str, redis_url: str) -> AsyncGenerator[AsyncContainer]:
     class MockAppProvider(AppProvider):
         mock_s3_provider = provide(MockS3Provider, scope=Scope.REQUEST, provides=IS3Provider, override=True)
@@ -109,8 +109,10 @@ async def container(postgres_url: str, redis_url: str) -> AsyncGenerator[AsyncCo
         UseCasesProvider(),
     )
 
-    yield container
-    await container.close()
+    try:
+        yield container
+    finally:
+        await container.close()
 
 
 @pytest.fixture(scope='session', autouse=True)
@@ -123,6 +125,12 @@ def test_override_settings() -> None:
     settings.s3_endpoint = 'https://test-s3-endpoint.com'
     settings.s3_access_key = '123'
     settings.s3_secret_key = '123'
+    settings.frontend_origin = 'http://localhost/'
+    settings.oauth_redirect_path = 'oauth/activation'
+    settings.oauth_github_client_id = '123'
+    settings.oauth_github_client_secret = '456'
+    settings.oauth_google_client_id = '123'
+    settings.oauth_google_client_secret = '456'
 
 
 @pytest.fixture

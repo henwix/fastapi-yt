@@ -6,7 +6,7 @@ from sqlalchemy.exc import DBAPIError, IntegrityError
 
 from app.domain.channels.exceptions import ChannelNotFoundByIdError
 from app.domain.subscriptions.entities import Subscription
-from app.domain.subscriptions.exceptions import SubscriptionAlreadyExistsError
+from app.domain.subscriptions.exceptions import SelfSubscriptionError, SubscriptionAlreadyExistsError
 from app.domain.subscriptions.repo import ISubscriptionRepo
 from app.infrastructure.sqlalchemy.models.channels import SubscriptionORM
 from app.infrastructure.sqlalchemy.repos.base import SARepo
@@ -25,6 +25,9 @@ class SASubscriptionRepo(SARepo, ISubscriptionRepo):
                     subscriber_id=subscription.subscriber_id,
                     subscribed_to_id=subscription.subscribed_to_id,
                 ) from error
+
+            case 'ck_no_self_subscriptions':
+                raise SelfSubscriptionError(subscriber_id=subscription.subscriber_id) from error
             case 'subscriptions_subscribed_to_id_fkey':
                 raise ChannelNotFoundByIdError(channel_id=subscription.subscribed_to_id) from error
             case 'subscriptions_subscriber_id_fkey':

@@ -29,6 +29,7 @@ class VideoORM(CreatedAtDatetimeMixin, BaseORM):
     )
     channel_id: Mapped[UUID] = mapped_column(
         sa.ForeignKey('channels.id', ondelete='CASCADE'),
+        index=True,
     )
     title: Mapped[str] = mapped_column(sa.String(length=100))
     description: Mapped[str] = mapped_column(sa.Text)

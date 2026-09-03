@@ -22,6 +22,7 @@ async def test_get_connected_accounts_returns_empty_list_if_no_accounts_found(mo
 
         result = await use_case.execute(query=query)
 
+        assert isinstance(result, list)
         assert len(result) == 0
 
 
@@ -46,6 +47,7 @@ async def test_get_connected_accounts_returns_one_account(
         result = await use_case.execute(query=query)
         oauth_account = result[0]
 
+        assert isinstance(result, list)
         assert isinstance(oauth_account, OAuthAccount)
         assert len(result) == 1
         assert oauth_account.provider is expected_oauth_provider
@@ -73,6 +75,7 @@ async def test_get_connected_accounts_returns_two_accounts(mock_container: Async
 
         result = await use_case.execute(query=query)
 
+        assert isinstance(result, list)
         assert len(result) == 2
 
         for oauth_account in result:

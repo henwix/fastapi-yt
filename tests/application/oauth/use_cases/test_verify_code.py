@@ -24,7 +24,7 @@ from tests.mocks.oauth.service import MockOAuthServiceFactory
 
 
 @pytest.mark.asyncio
-async def test_verify_code_returns_tokens_and_new_channel_and_oauth_account_created(mock_container: AsyncContainer):
+async def test_verify_code_returns_tokens_if_new_channel_and_oauth_account_created(mock_container: AsyncContainer):
     async with mock_container() as di:
         use_case = await di.get(OAuthVerifyCodeUseCase)
         session = await di.get(AsyncSession)
@@ -95,7 +95,9 @@ async def test_verify_code_raises_error_if_channel_with_email_already_exists(moc
 
 
 @pytest.mark.asyncio
-async def test_verify_code_builds_unique_slug_if_base_slug_already_exists(mock_container: AsyncContainer):
+async def test_verify_code_builds_unique_slug_and_creates_new_channel_if_base_slug_already_exists(
+    mock_container: AsyncContainer,
+):
     async with mock_container() as di:
         use_case = await di.get(OAuthVerifyCodeUseCase)
         jwt_service = await di.get(IJWTService)
@@ -141,7 +143,7 @@ async def test_verify_code_builds_unique_slug_if_base_slug_already_exists(mock_c
 
 
 @pytest.mark.asyncio
-async def test_verify_code_returns_tokens_if_oauth_account_already_connected_but_channel_not_authenticated(
+async def test_verify_code_returns_tokens_if_oauth_account_already_connected_and_channel_not_authenticated(
     mock_container: AsyncContainer,
 ):
     async with mock_container() as di:
@@ -177,7 +179,7 @@ async def test_verify_code_returns_tokens_if_oauth_account_already_connected_but
 
 
 @pytest.mark.asyncio
-async def test_verify_code_returns_none_if_new_oauth_account_connected_with_authenticated_channel(
+async def test_verify_code_returns_none_if_new_oauth_account_created_and_connected_to_authenticated_channel(
     mock_container: AsyncContainer,
 ):
     async with mock_container() as di:

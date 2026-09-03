@@ -101,6 +101,7 @@ class SubscriptionORM(
     )
 
     __table_args__ = (
+        sa.CheckConstraint('subscriber_id != subscribed_to_id', name='ck_no_self_subscriptions'),
         sa.UniqueConstraint('subscriber_id', 'subscribed_to_id', name='unique_channel_subscription'),
         sa.Index('ix_subscriptions_composite_subscriptions', 'subscriber_id', 'created_at', 'id'),
         sa.Index('ix_subscriptions_composite_subscribers', 'subscribed_to_id', 'created_at', 'id'),

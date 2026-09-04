@@ -9,10 +9,15 @@ class MockS3Provider(BotoS3Provider):
         super().__init__(_client=_client)
         self.METADATA_CHANNEL_ID: UUID = uuid7()
         self.CONTENT_TYPE: str = 'image/png'
+        self.CONTENT_LENGTH: int = 1048576
         self.UPLOAD_ID: str = uuid4().hex
 
     async def head_object(self, bucket: str, key: str) -> dict:
-        return {'Metadata': {'channel_id': str(self.METADATA_CHANNEL_ID)}, 'ContentType': self.CONTENT_TYPE}
+        return {
+            'Metadata': {'channel_id': str(self.METADATA_CHANNEL_ID)},
+            'ContentType': self.CONTENT_TYPE,
+            'ContentLength': self.CONTENT_LENGTH,
+        }
 
     async def create_multipart_upload(
         self,

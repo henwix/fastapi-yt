@@ -6,10 +6,11 @@ from app.application.common.interfaces.s3_provider import IS3Provider
 from app.application.common.interfaces.task_queues.s3 import IS3TaskQueue
 from app.application.common.interfaces.transaction_manager import ITransactionManager
 from app.core.configs import settings
-from app.domain.channels.constants import CHANNEL_AVATAR_FILE_MIME_TYPES
+from app.domain.channels.constants import CHANNEL_AVATAR_FILE_MIME_TYPES, CHANNEL_AVATAR_MAX_SIZE
 from app.domain.channels.exceptions import (
     ChannelAvatarAlreadySetError,
     ChannelAvatarInvalidFileContentTypeError,
+    ChannelAvatarSizeTooBigError,
 )
 from app.domain.channels.service import IChannelService
 from app.domain.common.exceptions import S3ObjectAccessForbiddenError
@@ -34,9 +35,19 @@ class ConfirmChannelAvatarUploadUseCase:
         avatar_info = await self._s3_provider.head_object(bucket=settings.s3_public_bucket_name, key=command.key)
         avatar_metadata_channel_id = avatar_info['Metadata'].get('channel_id')
         avatar_metadata_content_type = avatar_info['ContentType']
+        avatar_metadata_content_length: int = avatar_info['ContentLength']
 
         if avatar_metadata_channel_id != str(channel.id):
             raise S3ObjectAccessForbiddenError(channel_id=channel.id, key=command.key)
+
+        if avatar_metadata_content_length > CHANNEL_AVATAR_MAX_SIZE:
+            delete_s3_object_command = DeleteS3ObjectCommand(bucket=settings.s3_public_bucket_name, key=command.key)
+            await self._s3_task_queue.delete_s3_object(command=delete_s3_object_command)
+            raise ChannelAvatarSizeTooBigError(
+                file=command.key,
+                file_size=avatar_metadata_content_length,
+                file_max_size=CHANNEL_AVATAR_MAX_SIZE,
+            )
 
         if avatar_metadata_content_type not in CHANNEL_AVATAR_FILE_MIME_TYPES.values():
             delete_s3_object_command = DeleteS3ObjectCommand(bucket=settings.s3_public_bucket_name, key=command.key)

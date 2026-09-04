@@ -15,3 +15,5 @@ CHANNEL_AVATAR_FILE_MIME_TYPES = {
     '.jpg': 'image/jpeg',
     '.jpeg': 'image/jpeg',
 }
+
+CHANNEL_AVATAR_MAX_SIZE = 5242880  # 5 mb in bytes

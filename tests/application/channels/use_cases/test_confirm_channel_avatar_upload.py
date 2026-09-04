@@ -11,12 +11,61 @@ from app.domain.channels.exceptions import (
     ChannelAvatarInvalidFileContentTypeError,
     ChannelAvatarInvalidFileFormatError,
     ChannelAvatarInvalidKeyError,
+    ChannelAvatarSizeTooBigError,
     ChannelNotActiveError,
     ChannelNotFoundByIdError,
 )
 from app.domain.common.exceptions import S3ObjectAccessForbiddenError
 from tests.factories.commands.channels import ConfirmChannelAvatarUploadCommandFactory
 from tests.factories.models.channels import ChannelORMFactory
+
+
+@pytest.mark.asyncio
+@pytest.mark.parametrize(
+    'expected_content_length',
+    [
+        1024 * 1024 * 0.3,
+        1024 * 1024 * 0.1,
+        1024 * 1024 * 0.9,
+        1024 * 1024 * 1,
+        1024 * 1024 * 1.5,
+        1024 * 1024 * 2,
+        1024 * 1024 * 3,
+        1024 * 1024 * 4,
+        1024 * 1024 * 4.9,
+        1024 * 1024 * 5,
+    ],
+)
+async def test_confirm_channel_avatar_upload_returns_none_if_avatar_updated_with_existing_avatar(
+    mock_container: AsyncContainer,
+    expected_content_length: int,
+):
+    async with mock_container() as di:
+        use_case = await di.get(ConfirmChannelAvatarUploadUseCase)
+        session = await di.get(AsyncSession)
+
+        expected_old_avatar_s3_key = f'{settings.s3_avatars_key_prefix}/old_avatar.png'
+        expected_new_avatar_s3_key = f'{settings.s3_avatars_key_prefix}/new_avatar.png'
+
+        channel = await ChannelORMFactory.create(
+            session=session,
+            avatar_s3_key=expected_old_avatar_s3_key,
+        )
+        command = ConfirmChannelAvatarUploadCommandFactory.build(
+            current_channel_id=channel.id, key=expected_new_avatar_s3_key
+        )
+
+        use_case._s3_provider.METADATA_CHANNEL_ID = channel.id
+        use_case._s3_provider.CONTENT_LENGTH = expected_content_length
+
+        assert channel.avatar_s3_key == expected_old_avatar_s3_key
+
+        with patch.object(use_case._s3_task_queue, 'delete_s3_object') as mock_task_queue:
+            result = await use_case.execute(command)
+        mock_task_queue.assert_called_once()
+
+        assert result is None
+        assert channel.avatar_s3_key == expected_new_avatar_s3_key
 
 
 @pytest.mark.asyncio
@@ -44,37 +93,6 @@ async def test_confirm_channel_avatar_upload_returns_none_if_avatar_updated_with
 
         assert result is None
         assert channel.avatar_s3_key == expected_avatar_s3_key
-
-
-@pytest.mark.asyncio
-async def test_confirm_channel_avatar_upload_returns_none_if_avatar_updated_with_existing_avatar(
-    mock_container: AsyncContainer,
-):
-    async with mock_container() as di:
-        use_case = await di.get(ConfirmChannelAvatarUploadUseCase)
-        session = await di.get(AsyncSession)
-
-        expected_old_avatar_s3_key = f'{settings.s3_avatars_key_prefix}/old_avatar.png'
-        expected_new_avatar_s3_key = f'{settings.s3_avatars_key_prefix}/new_avatar.png'
-
-        channel = await ChannelORMFactory.create(
-            session=session,
-            avatar_s3_key=expected_old_avatar_s3_key,
-        )
-        command = ConfirmChannelAvatarUploadCommandFactory.build(
-            current_channel_id=channel.id, key=expected_new_avatar_s3_key
-        )
-
-        use_case._s3_provider.METADATA_CHANNEL_ID = channel.id
-
-        assert channel.avatar_s3_key == expected_old_avatar_s3_key
-
-        with patch.object(use_case._s3_task_queue, 'delete_s3_object') as mock_task_queue:
-            result = await use_case.execute(command)
-        mock_task_queue.assert_called_once()
-
-        assert result is None
-        assert channel.avatar_s3_key == expected_new_avatar_s3_key
 
 
 @pytest.mark.asyncio
@@ -211,5 +229,44 @@ async def test_confirm_channel_avatar_upload_raises_error_if_s3_object_invalid_c
 
         with patch.object(use_case._s3_task_queue, 'delete_s3_object') as mock_task_queue:
             with pytest.raises(ChannelAvatarInvalidFileContentTypeError):
+                await use_case.execute(command)
+        mock_task_queue.assert_called_once()
+
+
+@pytest.mark.asyncio
+@pytest.mark.parametrize(
+    'expected_content_length',
+    [
+        1024 * 1024 * 5.1,
+        1024 * 1024 * 5.6,
+        1024 * 1024 * 7,
+        1024 * 1024 * 9,
+        1024 * 1024 * 35.2,
+        1024 * 1024 * 125,
+        1024 * 1024 * 250,
+        1024 * 1024 * 333,
+        1024 * 1024 * 452,
+    ],
+)
+async def test_confirm_channel_avatar_upload_raises_error_if_s3_object_content_size_bigger_than_available_max_size(
+    mock_container: AsyncContainer,
+    expected_content_length: str,
+):
+    async with mock_container() as di:
+        use_case = await di.get(ConfirmChannelAvatarUploadUseCase)
+        session = await di.get(AsyncSession)
+
+        expected_new_avatar_s3_key = f'{settings.s3_avatars_key_prefix}/new_avatar.png'
+
+        channel = await ChannelORMFactory.create(session=session, avatar_s3_key=None)
+        command = ConfirmChannelAvatarUploadCommandFactory.build(
+            current_channel_id=channel.id, key=expected_new_avatar_s3_key
+        )
+
+        use_case._s3_provider.METADATA_CHANNEL_ID = channel.id
+        use_case._s3_provider.CONTENT_LENGTH = expected_content_length
+
+        with patch.object(use_case._s3_task_queue, 'delete_s3_object') as mock_task_queue:
+            with pytest.raises(ChannelAvatarSizeTooBigError):
                 await use_case.execute(command)
         mock_task_queue.assert_called_once()

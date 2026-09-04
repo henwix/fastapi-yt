@@ -37,7 +37,10 @@ class SAPlaylistReader(SAReader, IPlaylistReader):
     ):
         # TODO: query refactor
         videos_count_subquery = (
-            select(sa.func.count(PlaylistItemORM.playlist_id))
+            select(
+                PlaylistItemORM.playlist_id,
+                sa.func.count().label('videos_count'),
+            )
             .join(VideoORM, PlaylistItemORM.video_id == VideoORM.id)
             .where(
                 PlaylistItemORM.playlist_id == PlaylistORM.id,
@@ -48,16 +51,20 @@ class SAPlaylistReader(SAReader, IPlaylistReader):
                     ]
                 ),
             )
-            .correlate(PlaylistORM)
-            .scalar_subquery()
+            .group_by(PlaylistItemORM.playlist_id)
+            .subquery()
         )
-        stmt = select(
-            PlaylistORM.id,
-            PlaylistORM.title,
-            PlaylistORM.privacy_status,
-            PlaylistORM.created_at,
-            videos_count_subquery.label('videos_count'),
-        ).where(*filters)
+        stmt = (
+            select(
+                PlaylistORM.id,
+                PlaylistORM.title,
+                PlaylistORM.privacy_status,
+                PlaylistORM.created_at,
+                sa.func.coalesce(videos_count_subquery.c.videos_count, 0).label('videos_count'),
+            )
+            .outerjoin(videos_count_subquery, PlaylistORM.id == videos_count_subquery.c.playlist_id)
+            .where(*filters)
+        )
 
         sort_field = getattr(PlaylistORM, sorting.sort_by.value)
 

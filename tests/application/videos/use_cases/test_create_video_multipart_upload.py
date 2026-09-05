@@ -35,7 +35,7 @@ async def test_create_video_multipart_upload_returns_correct_entity(
         )
 
         expected_upload_id = uuid4().hex
-        use_case._s3_provider.UPLOAD_ID = expected_upload_id
+        use_case._s3_service.UPLOAD_ID = expected_upload_id
 
         video = await use_case.execute(command=command)
 

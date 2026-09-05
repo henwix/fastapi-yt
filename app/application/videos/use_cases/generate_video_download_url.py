@@ -1,6 +1,6 @@
 from dataclasses import dataclass
 
-from app.application.common.interfaces.s3_provider import IS3Provider
+from app.application.common.interfaces.s3.service import IS3Service
 from app.application.videos.commands import GenerateVideoDownloadUrlCommand
 from app.core.configs import settings
 from app.domain.channels.service import IChannelService
@@ -13,7 +13,7 @@ from app.domain.videos.service import IVideoService
 class GenerateVideoDownloadUrlUseCase:
     _video_service: IVideoService
     _channel_service: IChannelService
-    _s3_provider: IS3Provider
+    _s3_service: IS3Service
 
     async def execute(self, command: GenerateVideoDownloadUrlCommand) -> str:
         video = await self._video_service.try_get_completed_by_id(id=command.video_id)
@@ -24,7 +24,7 @@ class GenerateVideoDownloadUrlUseCase:
             channel = await self._channel_service.try_get_active_by_id(id=command.current_channel_id)
             self._video_service.ensure_video_access(video=video, channel=channel)
 
-        return await self._s3_provider.generate_download_url(
+        return await self._s3_service.generate_download_url(
             bucket=settings.s3_private_bucket_name,
             key=video.s3_key,
             expires_in=10800,

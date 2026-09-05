@@ -5,6 +5,7 @@ from dishka import AsyncContainer, Provider, Scope, make_async_container, provid
 from httpx import AsyncClient
 from redis.asyncio import Redis
 from sqlalchemy.ext.asyncio import AsyncEngine, AsyncSession, async_sessionmaker
+from types_aiobotocore_s3.client import S3Client
 
 from app.application.auth.use_cases.activate_channel import ActivateChannelUseCase
 from app.application.auth.use_cases.login_channel import LoginChannelUseCase
@@ -26,7 +27,8 @@ from app.application.channels.use_cases.update_channel import UpdateChannelUseCa
 from app.application.common.interfaces.email_provider import IEmailProvider
 from app.application.common.interfaces.jwt import IJWTService
 from app.application.common.interfaces.password_hasher import IPasswordHasher
-from app.application.common.interfaces.s3_provider import IS3Provider
+from app.application.common.interfaces.s3.provider import IS3Provider
+from app.application.common.interfaces.s3.service import IS3Service
 from app.application.common.interfaces.task_queues.email import IEmailTaskQueue
 from app.application.common.interfaces.task_queues.s3 import IS3TaskQueue
 from app.application.common.interfaces.transaction_manager import ITransactionManager
@@ -149,8 +151,9 @@ from app.infrastructure.oauth.providers.google import GoogleOAuthProvider
 from app.infrastructure.oauth.service import OAuthServiceFactory
 from app.infrastructure.redis.client import get_redis_client
 from app.infrastructure.redis.repo import RedisRepo
-from app.infrastructure.s3.client import BotoS3Client
+from app.infrastructure.s3.config import get_s3_client
 from app.infrastructure.s3.provider import BotoS3Provider
+from app.infrastructure.s3.service import S3Service
 from app.infrastructure.security.jwt import JWTService
 from app.infrastructure.security.password_hasher import PwdlibPasswordHasher
 from app.infrastructure.sqlalchemy.database import create_engine, create_session_factory
@@ -189,13 +192,18 @@ class AppProvider(Provider):
         yield client
         await client.aclose()
 
+    @provide(scope=Scope.APP)
+    async def provide_async_s3_client(self) -> AsyncGenerator[S3Client]:
+        async with get_s3_client() as s3_client:
+            yield s3_client
+
     http_client = provide(HttpxHttpClient, scope=Scope.REQUEST, provides=IHttpClient)
     transaction_manager = provide(SATransactionManager, scope=Scope.REQUEST, provides=ITransactionManager)
     password_hasher = provide(PwdlibPasswordHasher, scope=Scope.APP, provides=IPasswordHasher)
     jwt_service = provide(JWTService, scope=Scope.APP, provides=IJWTService)
-    s3_client = provide(BotoS3Client, scope=Scope.APP)
     smtp_client = provide(FastMailClient, scope=Scope.APP)
     s3_provider = provide(BotoS3Provider, scope=Scope.REQUEST, provides=IS3Provider)
+    s3_service = provide(S3Service, scope=Scope.REQUEST, provides=IS3Service)
     email_provider = provide(FastMailProvider, scope=Scope.REQUEST, provides=IEmailProvider)
     s3_task_queue = provide(TaskiqS3TaskQueue, scope=Scope.REQUEST, provides=IS3TaskQueue)
     email_task_queue = provide(TaskiqEmailTaskQueue, scope=Scope.REQUEST, provides=IEmailTaskQueue)

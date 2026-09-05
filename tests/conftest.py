@@ -8,7 +8,7 @@ from sqlalchemy.ext.asyncio import AsyncEngine, AsyncSession, async_sessionmaker
 from testcontainers.postgres import PostgresContainer
 from testcontainers.redis import RedisContainer
 
-from app.application.common.interfaces.s3_provider import IS3Provider
+from app.application.common.interfaces.s3.provider import IS3Provider
 from app.application.oauth.interfaces.service import IOAuthServiceFactory
 from app.core.configs import Settings, settings
 from app.domain.videos.service import IVideoService

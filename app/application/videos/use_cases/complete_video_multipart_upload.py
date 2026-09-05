@@ -1,6 +1,6 @@
 from dataclasses import dataclass
 
-from app.application.common.interfaces.s3_provider import IS3Provider
+from app.application.common.interfaces.s3.service import IS3Service
 from app.application.common.interfaces.transaction_manager import ITransactionManager
 from app.application.videos.commands import CompleteVideoMultipartUploadCommand
 from app.core.configs import settings
@@ -13,7 +13,7 @@ class CompleteVideoMultipartUploadUseCase:
     _channel_service: IChannelService
     _video_service: IVideoService
     _transaction_manager: ITransactionManager
-    _s3_provider: IS3Provider
+    _s3_service: IS3Service
 
     async def execute(self, command: CompleteVideoMultipartUploadCommand) -> None:
         channel = await self._channel_service.try_get_active_by_id(id=command.current_channel_id)
@@ -22,7 +22,7 @@ class CompleteVideoMultipartUploadUseCase:
         self._video_service.ensure_video_access(video=video, channel=channel)
         self._video_service.ensure_video_upload_not_completed(video=video)
 
-        await self._s3_provider.complete_multipart_upload(
+        await self._s3_service.complete_multipart_upload(
             bucket=settings.s3_private_bucket_name,
             key=video.s3_key,
             upload_id=video.upload_id,

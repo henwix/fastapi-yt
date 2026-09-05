@@ -2,7 +2,7 @@ from dataclasses import dataclass
 from uuid import UUID
 
 from app.application.channels.commands import GenerateChannelAvatarUploadUrlCommand
-from app.application.common.interfaces.s3_provider import IS3Provider
+from app.application.common.interfaces.s3.service import IS3Service
 from app.core.configs import settings
 from app.domain.channels.service import IChannelService
 
@@ -10,7 +10,7 @@ from app.domain.channels.service import IChannelService
 @dataclass
 class GenerateChannelAvatarUploadUrlUseCase:
     _channel_service: IChannelService
-    _s3_provider: IS3Provider
+    _s3_service: IS3Service
 
     async def execute(self, command: GenerateChannelAvatarUploadUrlCommand) -> tuple[str, str, UUID]:
         content_type = self._channel_service.validate_channel_avatar_file_format_and_get_content_type(
@@ -19,7 +19,7 @@ class GenerateChannelAvatarUploadUrlUseCase:
 
         channel = await self._channel_service.try_get_active_by_id(id=command.current_channel_id)
 
-        url, key = await self._s3_provider.generate_upload_url(
+        url, key = await self._s3_service.generate_upload_url(
             bucket=settings.s3_public_bucket_name,
             filename=command.filename,
             content_type=content_type,

@@ -2,7 +2,7 @@ from dataclasses import asdict, dataclass
 from logging import getLogger
 
 from app.application.common.commands.s3 import DeleteS3ObjectCommand
-from app.application.common.interfaces.s3_provider import IS3Provider
+from app.application.common.interfaces.s3.provider import IS3Provider
 from app.domain.common.exceptions import AppException
 
 logger = getLogger(__name__)

@@ -1,12 +1,13 @@
 from uuid import UUID, uuid4, uuid7
 
-from app.infrastructure.s3.client import BotoS3Client
+from types_aiobotocore_s3.client import S3Client
+
 from app.infrastructure.s3.provider import BotoS3Provider
 
 
 class MockS3Provider(BotoS3Provider):
-    def __init__(self, _client: BotoS3Client):
-        super().__init__(_client=_client)
+    def __init__(self, _s3_client: S3Client):
+        super().__init__(_s3_client=_s3_client)
         self.METADATA_CHANNEL_ID: UUID = uuid7()
         self.CONTENT_TYPE: str = 'image/png'
         self.CONTENT_LENGTH: int = 1048576

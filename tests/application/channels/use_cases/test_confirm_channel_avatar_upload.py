@@ -55,8 +55,8 @@ async def test_confirm_channel_avatar_upload_returns_none_if_avatar_updated_with
             current_channel_id=channel.id, key=expected_new_avatar_s3_key
         )
 
-        use_case._s3_provider.METADATA_CHANNEL_ID = channel.id
-        use_case._s3_provider.CONTENT_LENGTH = expected_content_length
+        use_case._s3_service.METADATA_CHANNEL_ID = channel.id
+        use_case._s3_service.CONTENT_LENGTH = expected_content_length
 
         assert channel.avatar_s3_key == expected_old_avatar_s3_key
 
@@ -85,7 +85,7 @@ async def test_confirm_channel_avatar_upload_returns_none_if_avatar_updated_with
             current_channel_id=channel.id, key=expected_avatar_s3_key
         )
 
-        use_case._s3_provider.METADATA_CHANNEL_ID = channel.id
+        use_case._s3_service.METADATA_CHANNEL_ID = channel.id
 
         assert channel.avatar_s3_key is None
 
@@ -224,8 +224,8 @@ async def test_confirm_channel_avatar_upload_raises_error_if_s3_object_invalid_c
             current_channel_id=channel.id, key=expected_new_avatar_s3_key
         )
 
-        use_case._s3_provider.METADATA_CHANNEL_ID = channel.id
-        use_case._s3_provider.CONTENT_TYPE = expected_content_type
+        use_case._s3_service.METADATA_CHANNEL_ID = channel.id
+        use_case._s3_service.CONTENT_TYPE = expected_content_type
 
         with patch.object(use_case._s3_task_queue, 'delete_s3_object') as mock_task_queue:
             with pytest.raises(ChannelAvatarInvalidFileContentTypeError):
@@ -263,8 +263,8 @@ async def test_confirm_channel_avatar_upload_raises_error_if_s3_object_content_s
             current_channel_id=channel.id, key=expected_new_avatar_s3_key
         )
 
-        use_case._s3_provider.METADATA_CHANNEL_ID = channel.id
-        use_case._s3_provider.CONTENT_LENGTH = expected_content_length
+        use_case._s3_service.METADATA_CHANNEL_ID = channel.id
+        use_case._s3_service.CONTENT_LENGTH = expected_content_length
 
         with patch.object(use_case._s3_task_queue, 'delete_s3_object') as mock_task_queue:
             with pytest.raises(ChannelAvatarSizeTooBigError):

@@ -1,33 +1,45 @@
 from dataclasses import dataclass
-from uuid import uuid4
+from typing import Any
 
-from app.application.common.interfaces.s3_provider import IS3Provider
+from botocore.exceptions import BotoCoreError, ClientError
+from types_aiobotocore_s3.client import S3Client
+from types_aiobotocore_s3.type_defs import CreateMultipartUploadOutputTypeDef
+
+from app.application.common.interfaces.s3.provider import IS3Provider
 from app.domain.common.exceptions import (
     S3MultipartUploadInvalidPartsError,
     S3MultipartUploadNotFoundError,
     S3ObjectNotFoundError,
     S3RequestError,
+    S3UnavailableError,
 )
-from app.infrastructure.s3.client import BotoS3Client
 
 
 @dataclass
 class BotoS3Provider(IS3Provider):
-    _client: BotoS3Client
+    _s3_client: S3Client
 
-    def _generate_unique_bucket_key(self, filename: str, key_prefix: str) -> str:
-        return f'{key_prefix}/{uuid4().hex[:10]}_{filename}'
+    async def _client_action(self, method, **kwargs) -> Any:
+        try:
+            return await method(**kwargs)
+        except ClientError as e:
+            response = e.response
+            status = response.get('ResponseMetadata', {}).get('HTTPStatusCode')
+            raise S3RequestError(
+                error_code=response.get('Error', {}).get('Code'),
+                error_message=response.get('Error', {}).get('Message'),
+                error_status=status,
+            ) from e
+        except BotoCoreError as e:
+            raise S3UnavailableError(exc_details=repr(e)) from e
 
     async def create_multipart_upload(
         self,
         bucket: str,
-        filename: str,
+        key: str,
         content_type: str,
-        key_prefix: str,
         metadata: dict[str, str] | None = None,
     ) -> tuple[str, str]:
-        key = self._generate_unique_bucket_key(filename=filename, key_prefix=key_prefix)
-
         request_params: dict = {
             'Bucket': bucket,
             'Key': key,
@@ -36,8 +48,10 @@ class BotoS3Provider(IS3Provider):
         if metadata is not None:
             request_params['Metadata'] = metadata
 
-        async with self._client.client() as s3:
-            resp = await s3.create_multipart_upload(**request_params)
+        resp: CreateMultipartUploadOutputTypeDef = await self._client_action(
+            self._s3_client.create_multipart_upload,
+            **request_params,
+        )
 
         upload_id, key = resp.get('UploadId'), resp.get('Key')
         return upload_id, key
@@ -45,14 +59,11 @@ class BotoS3Provider(IS3Provider):
     async def generate_upload_url(
         self,
         bucket: str,
-        filename: str,
+        key: str,
         content_type: str,
-        key_prefix: str,
         expires_in: int,
         metadata: dict[str, str] | None = None,
     ) -> tuple[str, str]:
-        key = self._generate_unique_bucket_key(filename=filename, key_prefix=key_prefix)
-
         params: dict = {
             'Bucket': bucket,
             'Key': key,
@@ -61,12 +72,12 @@ class BotoS3Provider(IS3Provider):
         if metadata is not None:
             params['Metadata'] = metadata
 
-        async with self._client.client() as s3:
-            url = await s3.generate_presigned_url(
-                ClientMethod='put_object',
-                Params=params,
-                ExpiresIn=expires_in,
-            )
+        url: str = await self._client_action(
+            self._s3_client.generate_presigned_url,
+            ClientMethod='put_object',
+            Params=params,
+            ExpiresIn=expires_in,
+        )
         return url, key
 
     async def complete_multipart_upload(
@@ -77,13 +88,13 @@ class BotoS3Provider(IS3Provider):
         parts: list[dict],
     ) -> dict:
         try:
-            async with self._client.client() as s3:
-                return await s3.complete_multipart_upload(
-                    Bucket=bucket,
-                    Key=key,
-                    UploadId=upload_id,
-                    MultipartUpload={'Parts': parts},
-                )
+            return await self._client_action(
+                self._s3_client.complete_multipart_upload,
+                Bucket=bucket,
+                Key=key,
+                UploadId=upload_id,
+                MultipartUpload={'Parts': parts},
+            )
         except S3RequestError as e:
             if e.error_status == 400 and e.error_code == 'InvalidPart':
                 raise S3MultipartUploadInvalidPartsError(bucket=bucket, key=key, upload_id=upload_id)
@@ -94,8 +105,12 @@ class BotoS3Provider(IS3Provider):
 
     async def abort_multipart_upload(self, bucket: str, key: str, upload_id: str) -> dict:
         try:
-            async with self._client.client() as s3:
-                return await s3.abort_multipart_upload(Bucket=bucket, Key=key, UploadId=upload_id)
+            return await self._client_action(
+                self._s3_client.abort_multipart_upload,
+                Bucket=bucket,
+                Key=key,
+                UploadId=upload_id,
+            )
         except S3RequestError as e:
             match e.error_status:
                 case 404:
@@ -111,30 +126,48 @@ class BotoS3Provider(IS3Provider):
         part_number: int,
         expires_in: int,
     ) -> str:
-        async with self._client.client() as s3:
-            return await s3.generate_presigned_url(
-                ClientMethod='upload_part',
-                Params={
-                    'Bucket': bucket,
-                    'Key': key,
-                    'UploadId': upload_id,
-                    'PartNumber': part_number,
-                },
-                ExpiresIn=expires_in,
-            )
+        return await self._client_action(
+            self._s3_client.generate_presigned_url,
+            ClientMethod='upload_part',
+            Params={
+                'Bucket': bucket,
+                'Key': key,
+                'UploadId': upload_id,
+                'PartNumber': part_number,
+            },
+            ExpiresIn=expires_in,
+        )
 
     async def generate_download_url(self, bucket: str, key: str, expires_in: int) -> str:
-        async with self._client.client() as s3:
-            return await s3.generate_presigned_url(
-                ClientMethod='get_object',
-                Params={'Bucket': bucket, 'Key': key},
-                ExpiresIn=expires_in,
-            )
+        return await self._client_action(
+            self._s3_client.generate_presigned_url,
+            ClientMethod='get_object',
+            Params={'Bucket': bucket, 'Key': key},
+            ExpiresIn=expires_in,
+        )
 
     async def head_object(self, bucket: str, key: str) -> dict:
         try:
-            async with self._client.client() as s3:
-                return await s3.head_object(Bucket=bucket, Key=key)
+            return await self._client_action(
+                self._s3_client.head_object,
+                Bucket=bucket,
+                Key=key,
+            )
+        except S3RequestError as e:
+            status = e.error_status
+            match status:
+                case 404:
+                    raise S3ObjectNotFoundError(key=key) from e
+                case _:
+                    raise
+
+    async def get_object(self, bucket: str, key: str, range: str | None = None) -> dict:
+        try:
+            return await self._client_action(
+                self._s3_client.get_object,
+                Bucket=bucket,
+                Key=key,
+            )
         except S3RequestError as e:
             status = e.error_status
             match status:
@@ -144,5 +177,8 @@ class BotoS3Provider(IS3Provider):
                     raise
 
     async def delete_object(self, bucket: str, key: str) -> dict:
-        async with self._client.client() as s3:
-            return await s3.delete_object(Bucket=bucket, Key=key)
+        return await self._client_action(
+            self._s3_client.delete_object,
+            Bucket=bucket,
+            Key=key,
+        )

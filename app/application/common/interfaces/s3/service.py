@@ -1,7 +1,7 @@
 from abc import ABC, abstractmethod
 
 
-class IS3Provider(ABC):
+class IS3Service(ABC):
     @abstractmethod
     async def create_multipart_upload(
         self,
@@ -33,7 +33,12 @@ class IS3Provider(ABC):
     ) -> dict: ...
 
     @abstractmethod
-    async def abort_multipart_upload(self, bucket: str, key: str, upload_id: str) -> dict: ...
+    async def schedule_abort_multipart_upload(
+        self,
+        bucket: str,
+        key: str,
+        upload_id: str,
+    ) -> None: ...
 
     @abstractmethod
     async def generate_part_upload_url(
@@ -46,10 +51,18 @@ class IS3Provider(ABC):
     ) -> str: ...
 
     @abstractmethod
-    async def generate_download_url(self, bucket: str, key: str, expires_in: int) -> str: ...
+    async def generate_download_url(
+        self,
+        bucket: str,
+        key: str,
+        expires_in: int,
+    ) -> str: ...
 
     @abstractmethod
     async def head_object(self, bucket: str, key: str) -> dict: ...
 
     @abstractmethod
-    async def delete_object(self, bucket: str, key: str) -> dict: ...
+    async def get_object(self, bucket: str, key: str, range: str | None = None) -> dict: ...
+
+    @abstractmethod
+    async def schedule_delete_object(self, bucket: str, key: str) -> None: ...

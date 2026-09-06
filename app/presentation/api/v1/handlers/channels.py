@@ -32,7 +32,7 @@ from app.domain.common.exceptions import (
     S3ObjectAccessForbiddenError,
     S3ObjectNotFoundError,
     S3RequestError,
-    S3UnavailableError,
+    S3ResponseError,
 )
 from app.presentation.api.openapi.common import error_response
 from app.presentation.api.v1.di.current_channel_id import CurrentChannelID
@@ -147,7 +147,7 @@ async def get_channel_about_info(
         ),
         status.HTTP_403_FORBIDDEN: error_response(ChannelNotActiveError),
         status.HTTP_404_NOT_FOUND: error_response(ChannelNotFoundByIdError),
-        status.HTTP_500_INTERNAL_SERVER_ERROR: error_response(S3RequestError, S3UnavailableError),
+        status.HTTP_500_INTERNAL_SERVER_ERROR: error_response(S3ResponseError, S3RequestError),
     },
 )
 async def generate_avatar_upload_url(
@@ -184,7 +184,7 @@ async def generate_avatar_upload_url(
         ),
         status.HTTP_403_FORBIDDEN: error_response(ChannelNotActiveError, S3ObjectAccessForbiddenError),
         status.HTTP_404_NOT_FOUND: error_response(ChannelNotFoundByIdError, S3ObjectNotFoundError),
-        status.HTTP_500_INTERNAL_SERVER_ERROR: error_response(S3RequestError, S3UnavailableError),
+        status.HTTP_500_INTERNAL_SERVER_ERROR: error_response(S3ResponseError, S3RequestError),
     },
 )
 async def avatar_upload_confirm(
@@ -207,7 +207,7 @@ async def avatar_upload_confirm(
         ),
         status.HTTP_403_FORBIDDEN: error_response(ChannelNotActiveError),
         status.HTTP_404_NOT_FOUND: error_response(ChannelNotFoundByIdError, ChannelAvatarNotFoundError),
-        status.HTTP_500_INTERNAL_SERVER_ERROR: error_response(S3RequestError, S3UnavailableError),
+        status.HTTP_500_INTERNAL_SERVER_ERROR: error_response(S3ResponseError, S3RequestError),
     },
 )
 async def delete_avatar(

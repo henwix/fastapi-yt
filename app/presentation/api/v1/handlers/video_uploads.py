@@ -22,7 +22,7 @@ from app.domain.common.exceptions import (
     S3MultipartUploadInvalidPartsError,
     S3MultipartUploadNotFoundError,
     S3RequestError,
-    S3UnavailableError,
+    S3ResponseError,
 )
 from app.domain.videos.exceptions import (
     VideoAccessForbiddenError,
@@ -60,7 +60,7 @@ router = APIRouter(
         ),
         status.HTTP_403_FORBIDDEN: error_response(ChannelNotActiveError),
         status.HTTP_404_NOT_FOUND: error_response(ChannelNotFoundByIdError),
-        status.HTTP_500_INTERNAL_SERVER_ERROR: error_response(S3RequestError, S3UnavailableError),
+        status.HTTP_500_INTERNAL_SERVER_ERROR: error_response(S3ResponseError, S3RequestError),
     },
 )
 async def create_mutipart_upload(
@@ -97,7 +97,7 @@ async def create_mutipart_upload(
             ChannelNotFoundByIdError,
             VideoNotFoundError,
         ),
-        status.HTTP_500_INTERNAL_SERVER_ERROR: error_response(S3RequestError, S3UnavailableError),
+        status.HTTP_500_INTERNAL_SERVER_ERROR: error_response(S3ResponseError, S3RequestError),
     },
 )
 async def generate_part_upload_url(
@@ -137,7 +137,7 @@ async def generate_part_upload_url(
             VideoNotFoundError,
             S3MultipartUploadNotFoundError,
         ),
-        status.HTTP_500_INTERNAL_SERVER_ERROR: error_response(S3RequestError, S3UnavailableError),
+        status.HTTP_500_INTERNAL_SERVER_ERROR: error_response(S3ResponseError, S3RequestError),
     },
 )
 async def complete_multipart_upload(
@@ -175,7 +175,7 @@ async def complete_multipart_upload(
             ChannelNotFoundByIdError,
             VideoNotFoundError,
         ),
-        status.HTTP_500_INTERNAL_SERVER_ERROR: error_response(S3RequestError, S3UnavailableError),
+        status.HTTP_500_INTERNAL_SERVER_ERROR: error_response(S3ResponseError, S3RequestError),
     },
 )
 async def abort_multipart_upload(

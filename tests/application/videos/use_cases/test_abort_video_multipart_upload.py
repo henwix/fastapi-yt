@@ -35,13 +35,13 @@ async def test_abort_video_multipart_upload_returns_none_if_upload_aborted(mock_
             video_id=video.id,
         )
 
-        with patch.object(use_case._s3_task_queue, 'abort_multipart_upload') as mock_task_queue:
+        with patch.object(use_case._s3_service, 'schedule_abort_multipart_upload') as mock_abort_multipart:
             result = await use_case.execute(command=command)
 
         stmt = select(exists().where(VideoORM.id == video.id))
         sql_result = await session.execute(statement=stmt)
 
-        mock_task_queue.assert_called_once()
+        mock_abort_multipart.assert_called_once()
         assert result is None
         assert not sql_result.scalar_one()
 

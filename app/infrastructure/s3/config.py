@@ -11,8 +11,13 @@ from app.core.configs import settings
 @asynccontextmanager
 async def get_s3_client() -> AsyncGenerator[S3Client]:
     config = AioConfig(
-        connect_timeout=5,
-        read_timeout=10,
+        connect_timeout=settings.s3_connect_timeout,
+        read_timeout=settings.s3_read_timeout,
+        max_pool_connections=settings.s3_max_pool_connections,
+        retries={
+            'mode': 'adaptive',
+            'max_attempts': settings.s3_retries_max_attempts,
+        },
     )
     session = aioboto3.Session()
     async with session.client(

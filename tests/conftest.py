@@ -8,7 +8,8 @@ from sqlalchemy.ext.asyncio import AsyncEngine, AsyncSession, async_sessionmaker
 from testcontainers.postgres import PostgresContainer
 from testcontainers.redis import RedisContainer
 
-from app.application.common.interfaces.s3.provider import IS3Provider
+from app.application.common.interfaces.file_type_detector import IFileTypeDetector
+from app.application.common.interfaces.s3.service import IS3Service
 from app.application.oauth.interfaces.service import IOAuthServiceFactory
 from app.core.configs import Settings, settings
 from app.domain.videos.service import IVideoService
@@ -25,8 +26,9 @@ from app.infrastructure.redis.client import get_redis_client
 from app.infrastructure.sqlalchemy.database import create_engine, create_session_factory
 from app.infrastructure.sqlalchemy.models import *  # noqa F403
 from app.infrastructure.sqlalchemy.models.base import BaseORM
+from tests.mocks.file_type_detector import MockFileTypeDetector
 from tests.mocks.oauth.service import MockOAuthServiceFactory
-from tests.mocks.s3_provider import MockS3Provider
+from tests.mocks.s3_service import MockS3Service
 from tests.mocks.video_service import MockVideoService
 
 
@@ -119,7 +121,10 @@ async def container(mock_database_dishka_provider: DatabaseProvider) -> AsyncGen
 @pytest_asyncio.fixture(scope='session')
 async def mock_container(mock_database_dishka_provider: DatabaseProvider) -> AsyncGenerator[AsyncContainer]:
     class MockAppProvider(AppProvider):
-        mock_s3_provider = provide(MockS3Provider, scope=Scope.REQUEST, provides=IS3Provider, override=True)
+        mock_s3_service = provide(MockS3Service, scope=Scope.REQUEST, provides=IS3Service, override=True)
+        mock_file_type_detector = provide(
+            MockFileTypeDetector, scope=Scope.REQUEST, provides=IFileTypeDetector, override=True
+        )
 
     class MockOAuthProvider(OAuthProvider):
         mock_oauth_service_factory = provide(MockOAuthServiceFactory, provides=IOAuthServiceFactory, override=True)

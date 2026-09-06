@@ -100,12 +100,12 @@ class S3Service(IS3Service):
             expires_in=expires_in,
         )
 
-    async def head_object(self, bucket: str, key: str) -> dict:
-        return await self._provider.head_object(bucket=bucket, key=key)
-
     async def get_object(self, bucket: str, key: str, range: str | None = None) -> dict:
         return await self._provider.get_object(bucket=bucket, key=key, range=range)
 
     async def schedule_delete_object(self, bucket: str, key: str) -> None:
         command = DeleteS3ObjectCommand(bucket=bucket, key=key)
         await self._s3_task_queue.delete_s3_object(command=command)
+
+    async def copy_object(self, bucket: str, current_key: str, new_key: str) -> None:
+        await self._provider.copy_object(bucket=bucket, current_key=current_key, new_key=new_key)

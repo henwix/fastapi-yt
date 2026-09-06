@@ -23,10 +23,10 @@ async def test_delete_channel_avatar_returns_none_if_deleted(mock_container: Asy
 
         assert channel.avatar_s3_key == expected_avatar_s3_key
 
-        with patch.object(use_case._s3_task_queue, 'delete_s3_object') as mock_task_queue:
+        with patch.object(use_case._s3_service, 'schedule_delete_object') as mock_delete_object:
             result = await use_case.execute(command=command)
 
-        mock_task_queue.assert_called_once()
+        mock_delete_object.assert_called_once()
         assert result is None
         assert channel.avatar_s3_key is None
 

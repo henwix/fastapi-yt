@@ -38,7 +38,7 @@ from app.domain.common.exceptions import (
     S3ObjectAccessForbiddenError,
     S3ObjectNotFoundError,
     S3RequestError,
-    S3UnavailableError,
+    S3ResponseError,
 )
 from app.domain.oauth.exceptions import (
     OAuthAccountNotConnectedError,
@@ -95,8 +95,8 @@ def get_http_status_code(exc: AppException):
         S3ObjectNotFoundError: status.HTTP_404_NOT_FOUND,
         S3MultipartUploadNotFoundError: status.HTTP_404_NOT_FOUND,
         S3MultipartUploadInvalidPartsError: status.HTTP_400_BAD_REQUEST,
+        S3ResponseError: status.HTTP_500_INTERNAL_SERVER_ERROR,
         S3RequestError: status.HTTP_500_INTERNAL_SERVER_ERROR,
-        S3UnavailableError: status.HTTP_500_INTERNAL_SERVER_ERROR,
         # Channels
         ChannelWithEmailAlreadyExistsError: status.HTTP_400_BAD_REQUEST,
         ChannelWithSlugAlreadyExistsError: status.HTTP_400_BAD_REQUEST,

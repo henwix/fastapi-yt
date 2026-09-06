@@ -15,17 +15,10 @@ class InvalidCursorError(AppException):
 
 
 @dataclass(kw_only=True)
-class S3RequestError(AppException):
-    message = 'Error occured during S3 request'
-    error_code: str | None
-    error_message: str | None
-    error_status: int | None
-
-
-@dataclass(kw_only=True)
 class S3ObjectNotFoundError(AppException):
     message = 'Object not found in S3'
     key: str
+    action: str
 
 
 @dataclass(kw_only=True)
@@ -52,9 +45,17 @@ class S3ObjectAccessForbiddenError(AppException):
 
 
 @dataclass(kw_only=True)
-class S3UnavailableError(AppException):
-    message = 'S3 unavailable'
+class S3RequestError(AppException):
+    message = 'Error occured during S3 request'
     exc_details: str
+
+
+@dataclass(kw_only=True)
+class S3ResponseError(AppException):
+    message = 'Error occured in S3 response'
+    error_code: str | None
+    error_message: str | None
+    error_status: int | None
 
 
 @dataclass(kw_only=True)

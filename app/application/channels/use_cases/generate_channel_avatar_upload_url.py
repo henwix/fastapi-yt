@@ -23,7 +23,7 @@ class GenerateChannelAvatarUploadUrlUseCase:
             bucket=settings.s3_public_bucket_name,
             filename=command.filename,
             content_type=content_type,
-            key_prefix=settings.s3_avatars_key_prefix,
+            key_prefix=settings.s3_tmp_avatars_key_prefix,
             expires_in=120,
             metadata={'channel_id': str(channel.id)},
         )

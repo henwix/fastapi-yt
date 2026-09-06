@@ -10,7 +10,6 @@ from app.domain.channels.entities import Channel
 from app.domain.channels.exceptions import (
     ChannelActivationFailedError,
     ChannelAvatarInvalidFileFormatError,
-    ChannelAvatarInvalidKeyError,
     ChannelNotActiveError,
     ChannelNotFoundByIdError,
     ChannelNotFoundBySlugError,
@@ -65,9 +64,6 @@ class IChannelService(ABC):
 
     @abstractmethod
     def validate_channel_avatar_file_format_and_get_content_type(self, value: str) -> str: ...
-
-    @abstractmethod
-    def validate_channel_avatar_key(self, key: str, key_prefix: str) -> None: ...
 
 
 @dataclass
@@ -145,7 +141,3 @@ class ChannelService(IChannelService):
         if content_type not in CHANNEL_AVATAR_FILE_MIME_TYPES:
             raise ChannelAvatarInvalidFileFormatError(key=value)
         return CHANNEL_AVATAR_FILE_MIME_TYPES[content_type]
-
-    def validate_channel_avatar_key(self, key: str, key_prefix: str) -> None:
-        if not key.startswith(key_prefix):
-            raise ChannelAvatarInvalidKeyError(key=key)

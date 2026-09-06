@@ -11,7 +11,7 @@ from app.domain.common.exceptions import (
     S3MultipartUploadNotFoundError,
     S3ObjectNotFoundError,
     S3RequestError,
-    S3UnavailableError,
+    S3ResponseError,
 )
 
 
@@ -25,13 +25,13 @@ class BotoS3Provider(IS3Provider):
         except ClientError as e:
             response = e.response
             status = response.get('ResponseMetadata', {}).get('HTTPStatusCode')
-            raise S3RequestError(
+            raise S3ResponseError(
                 error_code=response.get('Error', {}).get('Code'),
                 error_message=response.get('Error', {}).get('Message'),
                 error_status=status,
             ) from e
         except BotoCoreError as e:
-            raise S3UnavailableError(exc_details=repr(e)) from e
+            raise S3RequestError(exc_details=repr(e)) from e
 
     async def create_multipart_upload(
         self,
@@ -95,7 +95,7 @@ class BotoS3Provider(IS3Provider):
                 UploadId=upload_id,
                 MultipartUpload={'Parts': parts},
             )
-        except S3RequestError as e:
+        except S3ResponseError as e:
             if e.error_status == 400 and e.error_code == 'InvalidPart':
                 raise S3MultipartUploadInvalidPartsError(bucket=bucket, key=key, upload_id=upload_id)
             elif e.error_status == 404 and e.error_code == 'NoSuchUpload':
@@ -111,7 +111,7 @@ class BotoS3Provider(IS3Provider):
                 Key=key,
                 UploadId=upload_id,
             )
-        except S3RequestError as e:
+        except S3ResponseError as e:
             match e.error_status:
                 case 404:
                     raise S3MultipartUploadNotFoundError(bucket=bucket, key=key, upload_id=upload_id)
@@ -146,21 +146,6 @@ class BotoS3Provider(IS3Provider):
             ExpiresIn=expires_in,
         )
 
-    async def head_object(self, bucket: str, key: str) -> dict:
-        try:
-            return await self._client_action(
-                self._s3_client.head_object,
-                Bucket=bucket,
-                Key=key,
-            )
-        except S3RequestError as e:
-            status = e.error_status
-            match status:
-                case 404:
-                    raise S3ObjectNotFoundError(key=key) from e
-                case _:
-                    raise
-
     async def get_object(self, bucket: str, key: str, range: str | None = None) -> dict:
         try:
             return await self._client_action(
@@ -168,11 +153,11 @@ class BotoS3Provider(IS3Provider):
                 Bucket=bucket,
                 Key=key,
             )
-        except S3RequestError as e:
+        except S3ResponseError as e:
             status = e.error_status
             match status:
                 case 404:
-                    raise S3ObjectNotFoundError(key=key) from e
+                    raise S3ObjectNotFoundError(key=key, action='get_object') from e
                 case _:
                     raise
 
@@ -182,3 +167,22 @@ class BotoS3Provider(IS3Provider):
             Bucket=bucket,
             Key=key,
         )
+
+    async def copy_object(self, bucket: str, current_key: str, new_key: str) -> None:
+        try:
+            await self._client_action(
+                self._s3_client.copy_object,
+                Bucket=bucket,
+                CopySource={
+                    'Bucket': bucket,
+                    'Key': current_key,
+                },
+                Key=new_key,
+            )
+        except S3ResponseError as e:
+            status = e.error_status
+            match status:
+                case 404:
+                    raise S3ObjectNotFoundError(key=current_key, action='copy_object') from e
+                case _:
+                    raise

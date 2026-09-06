@@ -37,7 +37,7 @@ async def test_generate_channel_avatar_upload_url_returns_correct_data(
         assert 'amz-meta-channel_id' in url
         assert 'X-Amz-Signature' in url
         assert 'Amz-Expires' in url
-        assert key.startswith(settings.s3_avatars_key_prefix) and key.endswith(expected_filename)
+        assert key.startswith(settings.s3_tmp_avatars_key_prefix) and key.endswith(expected_filename)
         assert channel_id == channel.id
 
 

@@ -25,6 +25,7 @@ from app.application.channels.use_cases.get_channel import GetChannelUseCase
 from app.application.channels.use_cases.get_channel_about_info import GetChannelAboutInfoUseCase
 from app.application.channels.use_cases.update_channel import UpdateChannelUseCase
 from app.application.common.interfaces.email_provider import IEmailProvider
+from app.application.common.interfaces.file_type_detector import IFileTypeDetector
 from app.application.common.interfaces.jwt import IJWTService
 from app.application.common.interfaces.password_hasher import IPasswordHasher
 from app.application.common.interfaces.s3.provider import IS3Provider
@@ -142,6 +143,7 @@ from app.domain.videos.repo import IVideoRepo
 from app.domain.videos.service import IVideoService, VideoService
 from app.infrastructure.email.client import FastMailClient
 from app.infrastructure.email.provider import FastMailProvider
+from app.infrastructure.files.file_type_detector import FileTypeDetector
 from app.infrastructure.http.base import IHttpClient
 from app.infrastructure.http.httpx_client import HttpxHttpClient
 from app.infrastructure.http.httpx_config import get_httpx_client
@@ -199,6 +201,7 @@ class AppProvider(Provider):
 
     http_client = provide(HttpxHttpClient, scope=Scope.REQUEST, provides=IHttpClient)
     transaction_manager = provide(SATransactionManager, scope=Scope.REQUEST, provides=ITransactionManager)
+    file_type_detector = provide(FileTypeDetector, scope=Scope.REQUEST, provides=IFileTypeDetector)
     password_hasher = provide(PwdlibPasswordHasher, scope=Scope.APP, provides=IPasswordHasher)
     jwt_service = provide(JWTService, scope=Scope.APP, provides=IJWTService)
     smtp_client = provide(FastMailClient, scope=Scope.APP)

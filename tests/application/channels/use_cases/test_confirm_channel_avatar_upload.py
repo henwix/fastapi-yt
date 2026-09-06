@@ -45,6 +45,7 @@ async def test_confirm_channel_avatar_upload_returns_none_if_avatar_updated_with
         session = await di.get(AsyncSession)
 
         expected_old_avatar_s3_key = f'{settings.s3_avatars_key_prefix}/old_avatar.png'
+        expected_tmp_avatar_s3_key = f'{settings.s3_tmp_avatars_key_prefix}/new_avatar.png'
         expected_new_avatar_s3_key = f'{settings.s3_avatars_key_prefix}/new_avatar.png'
 
         channel = await ChannelORMFactory.create(
@@ -52,7 +53,7 @@ async def test_confirm_channel_avatar_upload_returns_none_if_avatar_updated_with
             avatar_s3_key=expected_old_avatar_s3_key,
         )
         command = ConfirmChannelAvatarUploadCommandFactory.build(
-            current_channel_id=channel.id, key=expected_new_avatar_s3_key
+            current_channel_id=channel.id, key=expected_tmp_avatar_s3_key
         )
 
         use_case._s3_service.METADATA_CHANNEL_ID = channel.id
@@ -60,10 +61,14 @@ async def test_confirm_channel_avatar_upload_returns_none_if_avatar_updated_with
 
         assert channel.avatar_s3_key == expected_old_avatar_s3_key
 
-        with patch.object(use_case._s3_task_queue, 'delete_s3_object') as mock_task_queue:
+        with (
+            patch.object(use_case._s3_service, 'schedule_delete_object') as mock_delete_object,
+            patch.object(use_case._s3_service, 'copy_object') as mock_copy_object,
+        ):
             result = await use_case.execute(command)
-        mock_task_queue.assert_called_once()
 
+        mock_copy_object.assert_called_once()
+        assert mock_delete_object.call_count == 2
         assert result is None
         assert channel.avatar_s3_key == expected_new_avatar_s3_key
 
@@ -78,21 +83,28 @@ async def test_confirm_channel_avatar_upload_returns_none_if_avatar_updated_with
         use_case = await di.get(ConfirmChannelAvatarUploadUseCase)
         session = await di.get(AsyncSession)
 
-        expected_avatar_s3_key = f'{settings.s3_avatars_key_prefix}/new_avatar.{expected_file_format}'
+        expected_tmp_avatar_s3_key = f'{settings.s3_tmp_avatars_key_prefix}/new_avatar.{expected_file_format}'
+        expected_new_avatar_s3_key = f'{settings.s3_avatars_key_prefix}/new_avatar.{expected_file_format}'
 
         channel = await ChannelORMFactory.create(session=session, avatar_s3_key=None)
         command = ConfirmChannelAvatarUploadCommandFactory.build(
-            current_channel_id=channel.id, key=expected_avatar_s3_key
+            current_channel_id=channel.id, key=expected_tmp_avatar_s3_key
         )
 
         use_case._s3_service.METADATA_CHANNEL_ID = channel.id
 
         assert channel.avatar_s3_key is None
 
-        result = await use_case.execute(command)
+        with (
+            patch.object(use_case._s3_service, 'schedule_delete_object') as mock_delete_object,
+            patch.object(use_case._s3_service, 'copy_object') as mock_copy_object,
+        ):
+            result = await use_case.execute(command)
 
+        mock_delete_object.assert_called_once()
+        mock_copy_object.assert_called_once()
         assert result is None
-        assert channel.avatar_s3_key == expected_avatar_s3_key
+        assert channel.avatar_s3_key == expected_new_avatar_s3_key
 
 
 @pytest.mark.asyncio
@@ -105,7 +117,7 @@ async def test_confirm_channel_avatar_upload_raises_error_if_invalid_invalid_fil
         use_case = await di.get(ConfirmChannelAvatarUploadUseCase)
         session = await di.get(AsyncSession)
 
-        expected_avatar_s3_key = f'{settings.s3_avatars_key_prefix}/new_avatar.{expected_file_format}'
+        expected_avatar_s3_key = f'{settings.s3_tmp_avatars_key_prefix}/new_avatar.{expected_file_format}'
 
         channel = await ChannelORMFactory.create(session=session)
         command = ConfirmChannelAvatarUploadCommandFactory.build(
@@ -142,7 +154,7 @@ async def test_confirm_channel_avatar_upload_raises_error_if_channel_not_found(
     async with mock_container() as di:
         use_case = await di.get(ConfirmChannelAvatarUploadUseCase)
 
-        expected_avatar_s3_key = f'{settings.s3_avatars_key_prefix}/new_avatar.png'
+        expected_avatar_s3_key = f'{settings.s3_tmp_avatars_key_prefix}/new_avatar.png'
 
         command = ConfirmChannelAvatarUploadCommandFactory.build(key=expected_avatar_s3_key)
 
@@ -158,7 +170,7 @@ async def test_confirm_channel_avatar_upload_raises_error_if_channel_not_active(
         use_case = await di.get(ConfirmChannelAvatarUploadUseCase)
         session = await di.get(AsyncSession)
 
-        expected_avatar_s3_key = f'{settings.s3_avatars_key_prefix}/new_avatar.png'
+        expected_avatar_s3_key = f'{settings.s3_tmp_avatars_key_prefix}/new_avatar.png'
 
         channel = await ChannelORMFactory.create(session=session, is_active=False)
         command = ConfirmChannelAvatarUploadCommandFactory.build(
@@ -177,11 +189,15 @@ async def test_confirm_channel_avatar_upload_raises_error_if_channel_avatar_alre
         use_case = await di.get(ConfirmChannelAvatarUploadUseCase)
         session = await di.get(AsyncSession)
 
-        expected_old_avatar_s3_key = f'{settings.s3_avatars_key_prefix}/old_avatar.png'
+        expected_old_avatar_filename = 'old_avatar.png'
 
-        channel = await ChannelORMFactory.create(session=session, avatar_s3_key=expected_old_avatar_s3_key)
+        channel = await ChannelORMFactory.create(
+            session=session,
+            avatar_s3_key=f'{settings.s3_avatars_key_prefix}/{expected_old_avatar_filename}',
+        )
         command = ConfirmChannelAvatarUploadCommandFactory.build(
-            current_channel_id=channel.id, key=expected_old_avatar_s3_key
+            current_channel_id=channel.id,
+            key=f'{settings.s3_tmp_avatars_key_prefix}/{expected_old_avatar_filename}',
         )
 
         with pytest.raises(ChannelAvatarAlreadySetError):
@@ -196,15 +212,43 @@ async def test_confirm_channel_avatar_upload_raises_error_if_s3_object_access_fo
         use_case = await di.get(ConfirmChannelAvatarUploadUseCase)
         session = await di.get(AsyncSession)
 
-        expected_new_avatar_s3_key = f'{settings.s3_avatars_key_prefix}/new_avatar.png'
+        expected_new_tmp_avatar_s3_key = f'{settings.s3_tmp_avatars_key_prefix}/new_avatar.png'
 
         channel = await ChannelORMFactory.create(session=session, avatar_s3_key=None)
         command = ConfirmChannelAvatarUploadCommandFactory.build(
-            current_channel_id=channel.id, key=expected_new_avatar_s3_key
+            current_channel_id=channel.id, key=expected_new_tmp_avatar_s3_key
         )
 
         with pytest.raises(S3ObjectAccessForbiddenError):
             await use_case.execute(command)
+
+
+@pytest.mark.asyncio
+@pytest.mark.parametrize('expected_content_type', ['image/gif', 'video/mp4', 'video/webm'])
+async def test_confirm_channel_avatar_upload_raises_error_if_s3_object_invalid_metadata_content_type(
+    mock_container: AsyncContainer,
+    expected_content_type: str,
+):
+    async with mock_container() as di:
+        use_case = await di.get(ConfirmChannelAvatarUploadUseCase)
+        session = await di.get(AsyncSession)
+
+        expected_new_tmp_avatar_s3_key = f'{settings.s3_tmp_avatars_key_prefix}/new_avatar.png'
+
+        channel = await ChannelORMFactory.create(session=session, avatar_s3_key=None)
+        command = ConfirmChannelAvatarUploadCommandFactory.build(
+            current_channel_id=channel.id, key=expected_new_tmp_avatar_s3_key
+        )
+
+        use_case._s3_service.METADATA_CHANNEL_ID = channel.id
+        use_case._s3_service.CONTENT_TYPE = expected_content_type
+
+        with patch.object(use_case._s3_service, 'schedule_delete_object') as mock_delete_object:
+            with pytest.raises(ChannelAvatarInvalidFileContentTypeError) as e:
+                await use_case.execute(command)
+
+        assert e.value.metadata_content_type == expected_content_type
+        mock_delete_object.assert_called_once()
 
 
 @pytest.mark.asyncio
@@ -217,20 +261,22 @@ async def test_confirm_channel_avatar_upload_raises_error_if_s3_object_invalid_c
         use_case = await di.get(ConfirmChannelAvatarUploadUseCase)
         session = await di.get(AsyncSession)
 
-        expected_new_avatar_s3_key = f'{settings.s3_avatars_key_prefix}/new_avatar.png'
+        expected_new_tmp_avatar_s3_key = f'{settings.s3_tmp_avatars_key_prefix}/new_avatar.png'
 
         channel = await ChannelORMFactory.create(session=session, avatar_s3_key=None)
         command = ConfirmChannelAvatarUploadCommandFactory.build(
-            current_channel_id=channel.id, key=expected_new_avatar_s3_key
+            current_channel_id=channel.id, key=expected_new_tmp_avatar_s3_key
         )
 
         use_case._s3_service.METADATA_CHANNEL_ID = channel.id
-        use_case._s3_service.CONTENT_TYPE = expected_content_type
+        use_case._file_type_detector.FILE_TYPE = expected_content_type
 
-        with patch.object(use_case._s3_task_queue, 'delete_s3_object') as mock_task_queue:
-            with pytest.raises(ChannelAvatarInvalidFileContentTypeError):
+        with patch.object(use_case._s3_service, 'schedule_delete_object') as mock_delete_object:
+            with pytest.raises(ChannelAvatarInvalidFileContentTypeError) as e:
                 await use_case.execute(command)
-        mock_task_queue.assert_called_once()
+
+        assert e.value.actual_content_type == expected_content_type
+        mock_delete_object.assert_called_once()
 
 
 @pytest.mark.asyncio
@@ -256,17 +302,17 @@ async def test_confirm_channel_avatar_upload_raises_error_if_s3_object_content_s
         use_case = await di.get(ConfirmChannelAvatarUploadUseCase)
         session = await di.get(AsyncSession)
 
-        expected_new_avatar_s3_key = f'{settings.s3_avatars_key_prefix}/new_avatar.png'
+        expected_new_tmp_avatar_s3_key = f'{settings.s3_tmp_avatars_key_prefix}/new_avatar.png'
 
         channel = await ChannelORMFactory.create(session=session, avatar_s3_key=None)
         command = ConfirmChannelAvatarUploadCommandFactory.build(
-            current_channel_id=channel.id, key=expected_new_avatar_s3_key
+            current_channel_id=channel.id, key=expected_new_tmp_avatar_s3_key
         )
 
         use_case._s3_service.METADATA_CHANNEL_ID = channel.id
         use_case._s3_service.CONTENT_LENGTH = expected_content_length
 
-        with patch.object(use_case._s3_task_queue, 'delete_s3_object') as mock_task_queue:
+        with patch.object(use_case._s3_service, 'schedule_delete_object') as mock_delete_object:
             with pytest.raises(ChannelAvatarSizeTooBigError):
                 await use_case.execute(command)
-        mock_task_queue.assert_called_once()
+        mock_delete_object.assert_called_once()

@@ -9,8 +9,8 @@ class DatabaseSettings(BaseSettings):
     db_host: str = Field(alias='POSTGRES_HOST')
     db_port: int = Field(alias='POSTGRES_PORT')
 
-    redis_host: str = Field(alias='REDIS_HOST')
-    redis_port: str = Field(alias='REDIS_PORT')
+    redis_host: str
+    redis_port: str
 
     @property
     def db_url(self) -> str:

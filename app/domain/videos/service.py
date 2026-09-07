@@ -91,4 +91,4 @@ class VideoService(IVideoService):
         content_type = Path(value).suffix.lower()
         if content_type not in VIDEO_FILE_MIME_TYPES:
             raise VideoInvalidFileFormatError(file=value)
-        return content_type
+        return VIDEO_FILE_MIME_TYPES[content_type]

@@ -23,6 +23,14 @@ class VideoInvalidFileFormatError(AppException):
 
 
 @dataclass(kw_only=True)
+class VideoInvalidFileContentTypeError(AppException):
+    message = 'Video invalid content type'
+    key: str
+    metadata_content_type: str
+    actual_content_type: str
+
+
+@dataclass(kw_only=True)
 class VideoAccessForbiddenError(AppException):
     message = 'Video access forbidden'
     video_id: str

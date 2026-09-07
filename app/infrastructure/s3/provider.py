@@ -97,9 +97,9 @@ class BotoS3Provider(IS3Provider):
             )
         except S3ResponseError as e:
             if e.error_status == 400 and e.error_code == 'InvalidPart':
-                raise S3MultipartUploadInvalidPartsError(bucket=bucket, key=key, upload_id=upload_id)
+                raise S3MultipartUploadInvalidPartsError(bucket=bucket, key=key, upload_id=upload_id) from e
             elif e.error_status == 404 and e.error_code == 'NoSuchUpload':
-                raise S3MultipartUploadNotFoundError(bucket=bucket, key=key, upload_id=upload_id)
+                raise S3MultipartUploadNotFoundError(bucket=bucket, key=key, upload_id=upload_id) from e
             else:
                 raise
 
@@ -114,7 +114,7 @@ class BotoS3Provider(IS3Provider):
         except S3ResponseError as e:
             match e.error_status:
                 case 404:
-                    raise S3MultipartUploadNotFoundError(bucket=bucket, key=key, upload_id=upload_id)
+                    raise S3MultipartUploadNotFoundError(bucket=bucket, key=key, upload_id=upload_id) from e
                 case _:
                     raise
 
@@ -152,6 +152,7 @@ class BotoS3Provider(IS3Provider):
                 self._s3_client.get_object,
                 Bucket=bucket,
                 Key=key,
+                Range=range,
             )
         except S3ResponseError as e:
             status = e.error_status

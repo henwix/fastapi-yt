@@ -15,7 +15,7 @@ from app.application.posts.use_cases.get_posts import GetPostsUseCase
 from app.application.posts.use_cases.update_post import UpdatePostUseCase
 from app.domain.auth.exceptions import JWTExpiredTokenError, JWTInvalidTokenError, NotAuthenticatedError
 from app.domain.channels.exceptions import ChannelNotActiveError, ChannelNotFoundByIdError, ChannelNotFoundBySlugError
-from app.domain.common.exceptions import InvalidCursorError
+from app.domain.common.exceptions.pagination import InvalidCursorError
 from app.domain.posts.exceptions import PostAccessForbiddenError, PostNotFoundError
 from app.presentation.api.openapi.common import error_response
 from app.presentation.api.v1.di.current_channel_id import CurrentChannelID

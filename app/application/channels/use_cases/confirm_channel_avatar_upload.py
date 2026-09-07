@@ -14,7 +14,7 @@ from app.domain.channels.exceptions import (
     ChannelAvatarSizeTooBigError,
 )
 from app.domain.channels.service import IChannelService
-from app.domain.common.exceptions import S3ObjectAccessForbiddenError
+from app.domain.common.exceptions.s3 import S3ObjectAccessForbiddenError
 
 
 @dataclass

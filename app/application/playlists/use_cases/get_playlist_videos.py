@@ -6,7 +6,7 @@ from app.application.playlists.interfaces.reader import IPlaylistReader
 from app.application.playlists.queries import GetPlaylistVideosQuery, PlaylistVideosSortingFieldsEnum
 from app.domain.channels.service import IChannelService
 from app.domain.common.constants import Empty
-from app.domain.common.exceptions import InvalidCursorError
+from app.domain.common.exceptions.pagination import InvalidCursorError
 from app.domain.playlists.enums import PlaylistPrivacyStatusEnum
 from app.domain.playlists.exceptions import PlaylistAccessForbiddenError
 from app.domain.playlists.service import IPlaylistService

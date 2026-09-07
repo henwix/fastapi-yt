@@ -5,13 +5,13 @@ from app.application.oauth.dto import OAuthProviderUserData
 from app.application.oauth.interfaces.provider import IOAuthProvider
 from app.core.configs import settings
 from app.domain.auth.exceptions import JWTInvalidTokenError
-from app.domain.common.exceptions import HttpRequestError, HttpResponseError
+from app.domain.common.exceptions.http import HttpRequestError, HttpResponseError
 from app.domain.oauth.enums import OAuthProviderEnum
 from app.domain.oauth.exceptions import (
     OAuthInvalidCodeError,
     OAuthProviderEmailNotVerifiedError,
+    OAuthProviderReceivedInvalidResponseError,
     OAuthProviderRequestError,
-    OAuthProviderResponseError,
 )
 from app.infrastructure.http.base import IHttpClient
 
@@ -62,7 +62,10 @@ class GoogleOAuthProvider(IOAuthProvider):
             raise OAuthInvalidCodeError(provider=self.provider_name, code=code) from e
 
         if 'id_token' not in response:
-            raise OAuthProviderResponseError(provider=self.provider_name, error='id_token_not_found_in_response')
+            raise OAuthProviderReceivedInvalidResponseError(
+                provider=self.provider_name,
+                error='id_token_not_found_in_response',
+            )
 
         return response['id_token']
 
@@ -70,11 +73,14 @@ class GoogleOAuthProvider(IOAuthProvider):
         try:
             token_payload = self._jwt_service.decode_unverified_token(token=token)
         except JWTInvalidTokenError as e:
-            raise OAuthProviderResponseError(provider=self.provider_name, error='unable_to_decode_openid_token') from e
+            raise OAuthProviderReceivedInvalidResponseError(
+                provider=self.provider_name,
+                error='unable_to_decode_openid_token',
+            ) from e
 
         email_verified = token_payload.get('email_verified')
         if email_verified is None:
-            raise OAuthProviderResponseError(
+            raise OAuthProviderReceivedInvalidResponseError(
                 provider=self.provider_name,
                 error='email_verified_not_found_in_openid_token_payload',
             )
@@ -90,6 +96,6 @@ class GoogleOAuthProvider(IOAuthProvider):
                 provider=self.provider_name,
             )
         except KeyError as e:
-            raise OAuthProviderResponseError(
+            raise OAuthProviderReceivedInvalidResponseError(
                 provider=self.provider_name, error=f'{e.args[0]}_not_found_in_openid_token_payload'
             )

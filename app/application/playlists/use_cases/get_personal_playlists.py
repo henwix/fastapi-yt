@@ -7,7 +7,7 @@ from app.application.playlists.interfaces.reader import IPlaylistReader
 from app.application.playlists.queries import GetPersonalPlaylistsQuery, PlaylistsPreviewSortingFieldsEnum
 from app.domain.channels.service import IChannelService
 from app.domain.common.constants import Empty
-from app.domain.common.exceptions import InvalidCursorError
+from app.domain.common.exceptions.pagination import InvalidCursorError
 from app.utils.base64url import base64url_decode, base64url_encode
 
 

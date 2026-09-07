@@ -5,7 +5,7 @@ from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 
 from app.core.configs import settings
-from app.domain.common.exceptions import AppException
+from app.domain.common.exceptions.base import AppException
 from app.infrastructure.di.container import get_container
 from app.infrastructure.logging.config import configure_logging
 from app.infrastructure.taskiq.broker import get_broker

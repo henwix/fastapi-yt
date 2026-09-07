@@ -6,7 +6,7 @@ from types_aiobotocore_s3.client import S3Client
 from types_aiobotocore_s3.type_defs import CreateMultipartUploadOutputTypeDef
 
 from app.application.common.interfaces.s3.provider import IS3Provider
-from app.domain.common.exceptions import (
+from app.domain.common.exceptions.s3 import (
     S3MultipartUploadInvalidPartsError,
     S3MultipartUploadNotFoundError,
     S3ObjectNotFoundError,

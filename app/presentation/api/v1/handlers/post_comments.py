@@ -19,7 +19,7 @@ from app.application.post_comments.use_cases.get_post_comments import GetPostCom
 from app.application.post_comments.use_cases.update_post_comment import UpdatePostCommentUseCase
 from app.domain.auth.exceptions import JWTExpiredTokenError, JWTInvalidTokenError, NotAuthenticatedError
 from app.domain.channels.exceptions import ChannelNotActiveError, ChannelNotFoundByIdError
-from app.domain.common.exceptions import InvalidCursorError
+from app.domain.common.exceptions.pagination import InvalidCursorError
 from app.domain.post_comments.exceptions import PostCommentAccessForbiddenError, PostCommentNotFoundError
 from app.domain.posts.exceptions import PostNotFoundError
 from app.presentation.api.openapi.common import error_response

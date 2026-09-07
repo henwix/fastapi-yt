@@ -1,6 +1,6 @@
 from pydantic import BaseModel
 
-from app.domain.common.exceptions import AppException
+from app.domain.common.exceptions.base import AppException
 
 
 class DetailSchema(BaseModel):

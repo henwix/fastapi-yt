@@ -30,9 +30,9 @@ from app.domain.channels.exceptions import (
     ChannelWithEmailAlreadyExistsError,
     ChannelWithSlugAlreadyExistsError,
 )
-from app.domain.common.exceptions import (
-    AppException,
-    InvalidCursorError,
+from app.domain.common.exceptions.base import AppException
+from app.domain.common.exceptions.pagination import InvalidCursorError
+from app.domain.common.exceptions.s3 import (
     S3MultipartUploadInvalidPartsError,
     S3MultipartUploadNotFoundError,
     S3ObjectAccessForbiddenError,
@@ -48,6 +48,9 @@ from app.domain.oauth.exceptions import (
     OAuthNoAccountsConnectedError,
     OAuthProviderAlreadyConnectedError,
     OAuthProviderEmailNotVerifiedError,
+    OAuthProviderReceivedInvalidResponseError,
+    OAuthProviderRequestError,
+    OAuthProviderResponseError,
 )
 from app.domain.playlists.exceptions import (
     PlaylistAccessForbiddenError,
@@ -95,8 +98,8 @@ def get_http_status_code(exc: AppException):
         S3ObjectNotFoundError: status.HTTP_404_NOT_FOUND,
         S3MultipartUploadNotFoundError: status.HTTP_404_NOT_FOUND,
         S3MultipartUploadInvalidPartsError: status.HTTP_400_BAD_REQUEST,
-        S3ResponseError: status.HTTP_500_INTERNAL_SERVER_ERROR,
         S3RequestError: status.HTTP_500_INTERNAL_SERVER_ERROR,
+        S3ResponseError: status.HTTP_502_BAD_GATEWAY,
         # Channels
         ChannelWithEmailAlreadyExistsError: status.HTTP_400_BAD_REQUEST,
         ChannelWithSlugAlreadyExistsError: status.HTTP_400_BAD_REQUEST,
@@ -130,6 +133,9 @@ def get_http_status_code(exc: AppException):
         OAuthNoAccountsConnectedError: status.HTTP_404_NOT_FOUND,
         OAuthAccountNotConnectedError: status.HTTP_404_NOT_FOUND,
         OAuthAccountUnableToDisconnectError: status.HTTP_400_BAD_REQUEST,
+        OAuthProviderRequestError: status.HTTP_500_INTERNAL_SERVER_ERROR,
+        OAuthProviderResponseError: status.HTTP_502_BAD_GATEWAY,
+        OAuthProviderReceivedInvalidResponseError: status.HTTP_502_BAD_GATEWAY,
         # Videos
         VideoInvalidFileFormatError: status.HTTP_400_BAD_REQUEST,
         VideoUploadAlreadyCompletedError: status.HTTP_400_BAD_REQUEST,

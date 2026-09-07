@@ -4,11 +4,12 @@ from urllib.parse import urlencode
 from app.application.oauth.dto import OAuthProviderUserData
 from app.application.oauth.interfaces.provider import IOAuthProvider
 from app.core.configs import settings
-from app.domain.common.exceptions import HttpRequestError, HttpResponseError
+from app.domain.common.exceptions.http import HttpRequestError, HttpResponseError
 from app.domain.oauth.enums import OAuthProviderEnum
 from app.domain.oauth.exceptions import (
     OAuthInvalidCodeError,
     OAuthProviderEmailNotVerifiedError,
+    OAuthProviderReceivedInvalidResponseError,
     OAuthProviderRequestError,
     OAuthProviderResponseError,
 )
@@ -34,26 +35,32 @@ class GitHubOAuthProvider(IOAuthProvider):
                 error='provider_unavailable',
             ) from e
         except HttpResponseError as e:
-            match e.status_code:
+            status_code = e.status_code
+
+            match status_code:
                 case 401:
                     raise OAuthProviderResponseError(
                         provider=self.provider_name,
                         error='requires_authentication',
+                        status_code=status_code,
                     ) from e
                 case 403:
                     raise OAuthProviderResponseError(
                         provider=self.provider_name,
                         error='forbidden',
+                        status_code=status_code,
                     ) from e
                 case 404:
                     raise OAuthProviderResponseError(
                         provider=self.provider_name,
                         error='resource_not_found',
+                        status_code=status_code,
                     ) from e
                 case _:
                     raise OAuthProviderResponseError(
                         provider=self.provider_name,
                         error='provider_response_error',
+                        status_code=status_code,
                     ) from e
 
     @property
@@ -89,10 +96,17 @@ class GitHubOAuthProvider(IOAuthProvider):
                 case 'unverified_user_email':
                     raise OAuthProviderEmailNotVerifiedError(provider=self.provider_name)
                 case _:
-                    raise OAuthProviderResponseError(provider=self.provider_name, error=error)
+                    raise OAuthProviderResponseError(
+                        provider=self.provider_name,
+                        error=error,
+                        status_code=200,
+                    )
 
         if 'access_token' not in response_data:
-            raise OAuthProviderResponseError(provider=self.provider_name, error='access_token_not_found_in_response')
+            raise OAuthProviderReceivedInvalidResponseError(
+                provider=self.provider_name,
+                error='access_token_not_found_in_response',
+            )
 
         return response_data['access_token']
 
@@ -103,11 +117,17 @@ class GitHubOAuthProvider(IOAuthProvider):
 
         user_id = response_user_data.get('id')
         if user_id is None:
-            raise OAuthProviderResponseError(provider=self.provider_name, error='uid_not_found_in_response')
+            raise OAuthProviderReceivedInvalidResponseError(
+                provider=self.provider_name,
+                error='uid_not_found_in_response',
+            )
 
         user_login = response_user_data.get('login')
         if user_login is None:
-            raise OAuthProviderResponseError(provider=self.provider_name, error='login_not_found_in_response')
+            raise OAuthProviderReceivedInvalidResponseError(
+                provider=self.provider_name,
+                error='login_not_found_in_response',
+            )
 
         user_name = response_user_data.get('name')
         if user_name is None:
@@ -121,7 +141,7 @@ class GitHubOAuthProvider(IOAuthProvider):
                 email.get('email') for email in user_emails if email.get('primary') and email.get('verified')
             ]
             if not any(primary_emails):
-                raise OAuthProviderResponseError(
+                raise OAuthProviderReceivedInvalidResponseError(
                     provider=self.provider_name,
                     error='verified_email_not_found_in_response',
                 )

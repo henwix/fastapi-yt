@@ -8,6 +8,9 @@ class DatabaseSettings(BaseSettings):
     db_name: str = Field(alias='POSTGRES_DB')
     db_host: str = Field(alias='POSTGRES_HOST')
     db_port: int = Field(alias='POSTGRES_PORT')
+    db_pool_size: int
+    db_max_overflow: int
+    db_pool_pre_ping: bool
 
     redis_host: str
     redis_port: str

@@ -195,7 +195,7 @@ class AppProvider(Provider):
         await client.aclose()
 
     @provide(scope=Scope.APP)
-    async def provide_async_s3_client(self) -> AsyncGenerator[S3Client]:
+    async def provide_s3_async_client(self) -> AsyncGenerator[S3Client]:
         async with get_s3_client() as s3_client:
             yield s3_client
 

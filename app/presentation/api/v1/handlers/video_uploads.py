@@ -18,7 +18,7 @@ from app.application.videos.use_cases.generate_video_download_url import Generat
 from app.application.videos.use_cases.generate_video_part_upload_url import GenerateVideoPartUploadUrlUseCase
 from app.domain.auth.exceptions import JWTExpiredTokenError, JWTInvalidTokenError, NotAuthenticatedError
 from app.domain.channels.exceptions import ChannelNotActiveError, ChannelNotFoundByIdError
-from app.domain.common.exceptions import (
+from app.domain.common.exceptions.s3 import (
     S3MultipartUploadInvalidPartsError,
     S3MultipartUploadNotFoundError,
     S3RequestError,

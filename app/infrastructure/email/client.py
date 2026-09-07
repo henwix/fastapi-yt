@@ -1,7 +1,7 @@
 from fastapi_mail import ConnectionConfig, FastMail, MessageSchema, MessageType
 
 from app.core.configs import BASE_DIR, settings
-from app.domain.common.exceptions import EmailSendingError
+from app.domain.common.exceptions.email import EmailSendingError
 
 fm_conf = ConnectionConfig(
     MAIL_USERNAME=settings.email_username,

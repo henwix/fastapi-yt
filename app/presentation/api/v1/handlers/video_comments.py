@@ -22,7 +22,7 @@ from app.application.video_comments.use_cases.get_video_comments import GetVideo
 from app.application.video_comments.use_cases.update_video_comment import UpdateVideoCommentUseCase
 from app.domain.auth.exceptions import JWTExpiredTokenError, JWTInvalidTokenError, NotAuthenticatedError
 from app.domain.channels.exceptions import ChannelNotActiveError, ChannelNotFoundByIdError
-from app.domain.common.exceptions import InvalidCursorError
+from app.domain.common.exceptions.pagination import InvalidCursorError
 from app.domain.video_comments.exceptions import VideoCommentAccessForbiddenError, VideoCommentNotFoundError
 from app.domain.videos.exceptions import VideoAccessForbiddenError, VideoNotFoundError
 from app.presentation.api.openapi.common import error_response

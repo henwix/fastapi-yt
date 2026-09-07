@@ -15,7 +15,7 @@ from app.domain.channels.exceptions import (
     ChannelNotActiveError,
     ChannelNotFoundByIdError,
 )
-from app.domain.common.exceptions import S3ObjectAccessForbiddenError
+from app.domain.common.exceptions.s3 import S3ObjectAccessForbiddenError
 from tests.factories.commands.channels import ConfirmChannelAvatarUploadCommandFactory
 from tests.factories.models.channels import ChannelORMFactory
 

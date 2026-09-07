@@ -17,7 +17,7 @@ from app.application.subscriptions.use_cases.subscribe import SubscribeUseCase
 from app.application.subscriptions.use_cases.unsubscribe import UnsubscribeUseCase
 from app.domain.auth.exceptions import JWTExpiredTokenError, JWTInvalidTokenError, NotAuthenticatedError
 from app.domain.channels.exceptions import ChannelNotActiveError, ChannelNotFoundByIdError, ChannelNotFoundBySlugError
-from app.domain.common.exceptions import InvalidCursorError
+from app.domain.common.exceptions.pagination import InvalidCursorError
 from app.domain.subscriptions.exceptions import SubscriptionAlreadyExistsError, SubscriptionNotFoundError
 from app.presentation.api.openapi.common import error_response
 from app.presentation.api.v1.di.current_channel_id import CurrentChannelID

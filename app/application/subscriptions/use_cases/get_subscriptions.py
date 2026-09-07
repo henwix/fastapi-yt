@@ -7,7 +7,7 @@ from app.application.subscriptions.interfaces.reader import ISubscriptionReader
 from app.application.subscriptions.queries import GetSubscriptionsQuery, SubscriptionsSortingFieldsEnum
 from app.domain.channels.service import IChannelService
 from app.domain.common.constants import Empty
-from app.domain.common.exceptions import InvalidCursorError
+from app.domain.common.exceptions.pagination import InvalidCursorError
 from app.utils.base64url import base64url_decode, base64url_encode
 
 

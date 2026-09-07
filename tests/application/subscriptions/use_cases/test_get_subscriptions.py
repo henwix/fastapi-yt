@@ -16,7 +16,7 @@ from app.application.subscriptions.use_cases.get_subscriptions import (
 )
 from app.domain.channels.exceptions import ChannelNotActiveError, ChannelNotFoundByIdError
 from app.domain.common.constants import Empty
-from app.domain.common.exceptions import InvalidCursorError
+from app.domain.common.exceptions.pagination import InvalidCursorError
 from app.utils.base64url import base64url_decode
 from tests.factories.models.channels import ChannelORMFactory, SubscriptionORMFactory
 from tests.factories.queries.common import CursorPaginationFactory

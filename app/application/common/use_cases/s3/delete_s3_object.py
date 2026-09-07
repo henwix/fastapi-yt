@@ -3,7 +3,7 @@ from logging import getLogger
 
 from app.application.common.commands.s3 import DeleteS3ObjectCommand
 from app.application.common.interfaces.s3.provider import IS3Provider
-from app.domain.common.exceptions import AppException
+from app.domain.common.exceptions.base import AppException
 
 logger = getLogger(__name__)
 

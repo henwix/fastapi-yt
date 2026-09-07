@@ -28,7 +28,7 @@ from app.domain.channels.exceptions import (
     ChannelNotFoundBySlugError,
     ChannelWithSlugAlreadyExistsError,
 )
-from app.domain.common.exceptions import (
+from app.domain.common.exceptions.s3 import (
     S3ObjectAccessForbiddenError,
     S3ObjectNotFoundError,
     S3RequestError,

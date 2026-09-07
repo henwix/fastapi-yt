@@ -3,7 +3,7 @@ from typing import Any
 
 import httpx
 
-from app.domain.common.exceptions import HttpRequestError, HttpResponseError
+from app.domain.common.exceptions.http import HttpRequestError, HttpResponseError
 from app.infrastructure.http.base import IHttpClient
 
 

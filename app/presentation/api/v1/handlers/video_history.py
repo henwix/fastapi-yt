@@ -16,7 +16,7 @@ from app.application.video_history.use_cases.delete_video_from_history import De
 from app.application.video_history.use_cases.get_video_history import GetVideoHistoryUseCase
 from app.domain.auth.exceptions import JWTExpiredTokenError, JWTInvalidTokenError, NotAuthenticatedError
 from app.domain.channels.exceptions import ChannelNotActiveError, ChannelNotFoundByIdError
-from app.domain.common.exceptions import InvalidCursorError
+from app.domain.common.exceptions.pagination import InvalidCursorError
 from app.domain.video_history.exceptions import VideoHistoryEmptyError, VideoNotFoundInHistoryError
 from app.domain.videos.exceptions import VideoAccessForbiddenError, VideoNotFoundError
 from app.presentation.api.openapi.common import error_response

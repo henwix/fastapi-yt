@@ -23,7 +23,7 @@ from app.application.videos.use_cases.get_video import GetVideoUseCase
 from app.application.videos.use_cases.update_video import UpdateVideoUseCase
 from app.domain.auth.exceptions import JWTExpiredTokenError, JWTInvalidTokenError, NotAuthenticatedError
 from app.domain.channels.exceptions import ChannelNotActiveError, ChannelNotFoundByIdError, ChannelNotFoundBySlugError
-from app.domain.common.exceptions import InvalidCursorError
+from app.domain.common.exceptions.pagination import InvalidCursorError
 from app.domain.videos.exceptions import (
     VideoAccessForbiddenError,
     VideoNotFoundError,

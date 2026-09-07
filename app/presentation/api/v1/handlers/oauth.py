@@ -24,6 +24,7 @@ from app.domain.oauth.exceptions import (
     OAuthNoAccountsConnectedError,
     OAuthProviderAlreadyConnectedError,
     OAuthProviderEmailNotVerifiedError,
+    OAuthProviderReceivedInvalidResponseError,
     OAuthProviderRequestError,
     OAuthProviderResponseError,
 )
@@ -81,7 +82,10 @@ async def get_login_url(
         ),
         status.HTTP_500_INTERNAL_SERVER_ERROR: error_response(
             OAuthProviderRequestError,
+        ),
+        status.HTTP_502_BAD_GATEWAY: error_response(
             OAuthProviderResponseError,
+            OAuthProviderReceivedInvalidResponseError,
         ),
     },
     summary='Verify OAuth Code',

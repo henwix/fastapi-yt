@@ -1,7 +1,7 @@
 from dataclasses import dataclass
 from uuid import UUID
 
-from app.domain.common.exceptions import AppException
+from app.domain.common.exceptions.base import AppException
 from app.domain.oauth.enums import OAuthProviderEnum
 
 
@@ -59,13 +59,21 @@ class OAuthAccountUnableToDisconnectError(AppException):
 
 @dataclass(kw_only=True)
 class OAuthProviderRequestError(AppException):
-    message = 'Exception occured during OAuth provider request'
+    message = 'Error occured during OAuth provider request'
     provider: OAuthProviderEnum
     error: str
 
 
 @dataclass(kw_only=True)
 class OAuthProviderResponseError(AppException):
+    message = 'Error occured in OAuth provider response'
+    provider: OAuthProviderEnum
+    error: str
+    status_code: int
+
+
+@dataclass(kw_only=True)
+class OAuthProviderReceivedInvalidResponseError(AppException):
     message = 'Invalid response received from OAuth provider'
     provider: OAuthProviderEnum
     error: str

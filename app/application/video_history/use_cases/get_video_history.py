@@ -6,7 +6,7 @@ from app.application.video_history.interfaces.reader import IVideoHistoryReader
 from app.application.video_history.queries import GetVideoHistoryQuery, VideoHistorySortingFieldsEnum
 from app.domain.channels.service import IChannelService
 from app.domain.common.constants import Empty
-from app.domain.common.exceptions import InvalidCursorError
+from app.domain.common.exceptions.pagination import InvalidCursorError
 from app.utils.base64url import base64url_decode, base64url_encode
 
 

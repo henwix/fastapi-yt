@@ -1,17 +1,7 @@
 from dataclasses import dataclass
 from uuid import UUID
 
-
-@dataclass
-class AppException(Exception):
-    message = 'Application exception occured'
-
-
-@dataclass
-class InvalidCursorError(AppException):
-    message = 'Invalid cursor value'
-    cursor: str
-    exc_details: str
+from app.domain.common.exceptions.base import AppException
 
 
 @dataclass(kw_only=True)
@@ -56,26 +46,3 @@ class S3ResponseError(AppException):
     error_code: str | None
     error_message: str | None
     error_status: int | None
-
-
-@dataclass(kw_only=True)
-class EmailSendingError(AppException):
-    message = 'Error occured during SMTP email sending'
-    exc_details: str
-
-
-@dataclass(kw_only=True)
-class HttpRequestError(AppException):
-    message = 'Error occured during HTTP request'
-    url: str
-    method: str
-    exc_details: str
-
-
-@dataclass(kw_only=True)
-class HttpResponseError(AppException):
-    message = 'Error occured in HTTP response'
-    status_code: int
-    url: str
-    method: str
-    exc_details: str

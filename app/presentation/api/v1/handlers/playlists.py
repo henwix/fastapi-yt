@@ -31,7 +31,7 @@ from app.application.playlists.use_cases.get_playlist_videos import GetPlaylistV
 from app.application.playlists.use_cases.update_playlist import UpdatePlaylistUseCase
 from app.domain.auth.exceptions import JWTExpiredTokenError, JWTInvalidTokenError, NotAuthenticatedError
 from app.domain.channels.exceptions import ChannelNotActiveError, ChannelNotFoundByIdError, ChannelNotFoundBySlugError
-from app.domain.common.exceptions import InvalidCursorError
+from app.domain.common.exceptions.pagination import InvalidCursorError
 from app.domain.playlists.exceptions import (
     PlaylistAccessForbiddenError,
     PlaylistNotFoundError,

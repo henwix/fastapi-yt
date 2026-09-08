@@ -1,7 +1,8 @@
 from logging import getLogger
 
 from dishka.integrations.taskiq import setup_dishka
-from taskiq import AsyncBroker, TaskiqEvents, TaskiqState
+from taskiq import AsyncBroker, TaskiqEvents, TaskiqScheduler, TaskiqState
+from taskiq.schedule_sources import LabelScheduleSource
 
 from app.infrastructure.di.container import get_container
 from app.infrastructure.logging.config import configure_logging
@@ -19,6 +20,10 @@ def setup_broker() -> AsyncBroker:
 
 
 broker = setup_broker()
+scheduler = TaskiqScheduler(
+    broker=broker,
+    sources=[LabelScheduleSource(broker=broker)],
+)
 
 
 @broker.on_event(TaskiqEvents.WORKER_STARTUP)

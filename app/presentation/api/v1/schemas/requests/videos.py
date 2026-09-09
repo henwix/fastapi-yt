@@ -8,10 +8,13 @@ from app.domain.videos.enums import VideoPrivacyStatusEnum, VideoUploadStatusEnu
 from app.presentation.api.v1.schemas.base import BaseSchema, BaseUpdateSchema
 
 
-class CreateVideoMultipartUploadInSchema(BaseSchema):
+class CreateVideoInSchema(BaseSchema):
     title: str = Field(min_length=VIDEO_TITLE_MIN_LENGTH, max_length=VIDEO_TITLE_MAX_LENGTH)
     description: str = Field(default='', max_length=VIDEO_DESCRIPTION_MAX_LENGTH)
     privacy_status: VideoPrivacyStatusEnum
+
+
+class CreateVideoMultipartUploadInSchema(BaseSchema):
     filename: str = Field(max_length=FILENAME_MAX_LENGTH, pattern=FILENAME_PATTERN, examples=['video.mp4'])
 
 

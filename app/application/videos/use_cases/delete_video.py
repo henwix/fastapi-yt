@@ -23,4 +23,5 @@ class DeleteVideoUseCase:
         async with self._transaction_manager:
             await self._video_service.try_delete_by_id(id=command.video_id)
 
-        await self._s3_service.schedule_delete_object(bucket=settings.s3_private_bucket_name, key=video.s3_key)
+        if video.s3_key is not None:
+            await self._s3_service.schedule_delete_object(bucket=settings.s3_private_bucket_name, key=video.s3_key)

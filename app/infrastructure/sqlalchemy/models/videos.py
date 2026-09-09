@@ -41,7 +41,7 @@ class VideoORM(CreatedAtDatetimeMixin, BaseORM):
     )
 
     upload_id: Mapped[str | None] = mapped_column(default=None, server_default=sa.sql.null(), unique=True)
-    s3_key: Mapped[str] = mapped_column(sa.String(length=255), unique=True)
+    s3_key: Mapped[str | None] = mapped_column(sa.String(length=255), unique=True)
     upload_status: Mapped[str] = mapped_column(sa.String(length=10))
 
     __table_args__ = (
@@ -49,7 +49,7 @@ class VideoORM(CreatedAtDatetimeMixin, BaseORM):
         sa.Index('ix_videos_composite_channel_id_views_count_id', 'channel_id', 'views_count', 'id'),
         sa.CheckConstraint("id ~ '^[A-Za-z0-9_-]{11}$'"),
         sa.CheckConstraint("privacy_status IN ('public', 'unlisted', 'private')", name='ck_privacy_status'),
-        sa.CheckConstraint("upload_status IN ('uploading', 'completed')", name='ck_upload_status'),
+        sa.CheckConstraint("upload_status IN ('pending', 'uploading', 'completed')", name='ck_upload_status'),
         sa.CheckConstraint('char_length(description) <= 5000', name='ck_videos_description_max_length'),
     )
 

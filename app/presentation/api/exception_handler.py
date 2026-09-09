@@ -85,6 +85,8 @@ from app.domain.videos.exceptions import (
     VideoInvalidFileFormatError,
     VideoNotFoundError,
     VideoUploadAlreadyCompletedError,
+    VideoUploadAlreadyCreatedError,
+    VideoUploadNotCreatedError,
 )
 from app.presentation.api.responses.msgspec import MsgSpecJSONResponse
 
@@ -139,8 +141,10 @@ def get_http_status_code(exc: AppException):
         OAuthProviderReceivedInvalidResponseError: status.HTTP_502_BAD_GATEWAY,
         # Videos
         VideoInvalidFileFormatError: status.HTTP_400_BAD_REQUEST,
-        VideoUploadAlreadyCompletedError: status.HTTP_400_BAD_REQUEST,
-        VideoInvalidFileContentTypeError: status.HTTP_400_BAD_REQUEST,
+        VideoUploadAlreadyCompletedError: status.HTTP_409_CONFLICT,
+        VideoUploadAlreadyCreatedError: status.HTTP_409_CONFLICT,
+        VideoUploadNotCreatedError: status.HTTP_409_CONFLICT,
+        VideoInvalidFileContentTypeError: status.HTTP_422_UNPROCESSABLE_CONTENT,
         VideoAccessForbiddenError: status.HTTP_403_FORBIDDEN,
         VideoNotFoundError: status.HTTP_404_NOT_FOUND,
         # Video views

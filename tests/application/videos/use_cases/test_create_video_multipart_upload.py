@@ -1,4 +1,3 @@
-import re
 from uuid import uuid4
 
 import pytest
@@ -8,11 +7,17 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from app.application.videos.use_cases.create_video_multipart_upload import CreateVideoMultipartUploadUseCase
 from app.core.configs import settings
 from app.domain.channels.exceptions import ChannelNotActiveError, ChannelNotFoundByIdError
-from app.domain.videos.constants import VIDEO_ID_PATTERN
 from app.domain.videos.enums import VideoUploadStatusEnum
-from app.domain.videos.exceptions import VideoInvalidFileFormatError
+from app.domain.videos.exceptions import (
+    VideoAccessForbiddenError,
+    VideoInvalidFileFormatError,
+    VideoNotFoundError,
+    VideoUploadAlreadyCompletedError,
+    VideoUploadAlreadyCreatedError,
+)
 from tests.factories.commands.videos import CreateVideoMultipartUploadCommandFactory
 from tests.factories.models.channels import ChannelORMFactory
+from tests.factories.models.videos import VideoORMFactory
 
 
 @pytest.mark.asyncio
@@ -20,7 +25,7 @@ from tests.factories.models.channels import ChannelORMFactory
     'expected_filename',
     ['test.mp4', 'test.mkv', 'test.mov', 'test.webm', 'test.MP4', 'test.MKV', 'test.MOV', 'test.WEBM'],
 )
-async def test_create_video_multipart_upload_returns_correct_entity(
+async def test_create_video_multipart_upload_returns_none_if_created(
     mock_container: AsyncContainer,
     expected_filename: str,
 ):
@@ -29,27 +34,116 @@ async def test_create_video_multipart_upload_returns_correct_entity(
         session = await di.get(AsyncSession)
 
         channel = await ChannelORMFactory.create(session=session)
+        video = await VideoORMFactory.create(
+            session=session,
+            channel_id=channel.id,
+            upload_status=VideoUploadStatusEnum.PENDING,
+            s3_key=None,
+            upload_id=None,
+        )
         command = CreateVideoMultipartUploadCommandFactory.build(
             current_channel_id=channel.id,
             filename=expected_filename,
+            video_id=video.id,
         )
 
         expected_upload_id = uuid4().hex
         use_case._s3_service.UPLOAD_ID = expected_upload_id
 
-        video = await use_case.execute(command=command)
+        result = await use_case.execute(command=command)
 
-        assert video.title == command.title
-        assert video.description == command.description
-        assert video.privacy_status is command.privacy_status
-        assert video.channel_id == channel.id
-        assert video.description == command.description
+        assert result is None
         assert video.upload_id == expected_upload_id
-        assert video.views_count == 0
+        assert video.upload_status == VideoUploadStatusEnum.UPLOADING.value
         assert video.s3_key.startswith(settings.s3_videos_key_prefix) and video.s3_key.endswith(command.filename)
-        assert not video.is_reported
-        assert video.upload_status is VideoUploadStatusEnum.UPLOADING
-        assert re.fullmatch(pattern=VIDEO_ID_PATTERN, string=video.id)
+
+
+@pytest.mark.asyncio
+async def test_create_video_multipart_upload_raises_error_if_upload_already_completed(
+    mock_container: AsyncContainer,
+):
+    async with mock_container() as di:
+        use_case = await di.get(CreateVideoMultipartUploadUseCase)
+        session = await di.get(AsyncSession)
+
+        channel = await ChannelORMFactory.create(session=session)
+        video = await VideoORMFactory.create(
+            session=session,
+            channel_id=channel.id,
+            upload_status=VideoUploadStatusEnum.COMPLETED,
+            upload_id=None,
+        )
+        command = CreateVideoMultipartUploadCommandFactory.build(
+            current_channel_id=channel.id,
+            video_id=video.id,
+        )
+
+        with pytest.raises(VideoUploadAlreadyCompletedError):
+            await use_case.execute(command=command)
+
+
+@pytest.mark.asyncio
+async def test_create_video_multipart_upload_raises_error_if_video_not_found(
+    mock_container: AsyncContainer,
+):
+    async with mock_container() as di:
+        use_case = await di.get(CreateVideoMultipartUploadUseCase)
+        session = await di.get(AsyncSession)
+
+        channel = await ChannelORMFactory.create(session=session)
+        command = CreateVideoMultipartUploadCommandFactory.build(
+            current_channel_id=channel.id,
+        )
+
+        with pytest.raises(VideoNotFoundError):
+            await use_case.execute(command=command)
+
+
+@pytest.mark.asyncio
+async def test_create_video_multipart_upload_raises_error_if_video_access_forbidden(
+    mock_container: AsyncContainer,
+):
+    async with mock_container() as di:
+        use_case = await di.get(CreateVideoMultipartUploadUseCase)
+        session = await di.get(AsyncSession)
+
+        channel = await ChannelORMFactory.create(session=session)
+        second_channel = await ChannelORMFactory.create(session=session)
+        video = await VideoORMFactory.create(
+            session=session,
+            channel_id=channel.id,
+            upload_status=VideoUploadStatusEnum.PENDING,
+        )
+        command = CreateVideoMultipartUploadCommandFactory.build(
+            current_channel_id=second_channel.id,
+            video_id=video.id,
+        )
+
+        with pytest.raises(VideoAccessForbiddenError):
+            await use_case.execute(command=command)
+
+
+@pytest.mark.asyncio
+async def test_create_video_multipart_upload_raises_error_if_upload_already_created(
+    mock_container: AsyncContainer,
+):
+    async with mock_container() as di:
+        use_case = await di.get(CreateVideoMultipartUploadUseCase)
+        session = await di.get(AsyncSession)
+
+        channel = await ChannelORMFactory.create(session=session)
+        video = await VideoORMFactory.create(
+            session=session,
+            channel_id=channel.id,
+            upload_status=VideoUploadStatusEnum.UPLOADING,
+        )
+        command = CreateVideoMultipartUploadCommandFactory.build(
+            current_channel_id=channel.id,
+            video_id=video.id,
+        )
+
+        with pytest.raises(VideoUploadAlreadyCreatedError):
+            await use_case.execute(command=command)
 
 
 @pytest.mark.asyncio

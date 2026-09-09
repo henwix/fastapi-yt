@@ -1,3 +1,5 @@
+from datetime import timedelta
+
 from sqlalchemy import delete, select, update
 
 from app.domain.videos.entities import Video
@@ -5,6 +7,7 @@ from app.domain.videos.enums import VideoUploadStatusEnum
 from app.domain.videos.repo import IVideoRepo
 from app.infrastructure.sqlalchemy.models.videos import VideoORM
 from app.infrastructure.sqlalchemy.repos.base import SARepo
+from app.utils.datetime import get_current_utc_datetime
 
 
 class SAVideoRepo(SARepo, IVideoRepo):
@@ -29,6 +32,7 @@ class SAVideoRepo(SARepo, IVideoRepo):
                 privacy_status=video.privacy_status,
                 upload_id=video.upload_id,
                 upload_status=video.upload_status.value,
+                s3_key=video.s3_key,
             )
             .returning(VideoORM)
         )
@@ -56,3 +60,11 @@ class SAVideoRepo(SARepo, IVideoRepo):
         stmt = delete(VideoORM).where(VideoORM.id == id)
         result = await self._session.execute(statement=stmt)
         return result.rowcount > 0
+
+    async def delete_not_completed_videos(self) -> int:
+        stmt = delete(VideoORM).where(
+            VideoORM.upload_status != VideoUploadStatusEnum.COMPLETED,
+            VideoORM.created_at < get_current_utc_datetime() - timedelta(days=1),
+        )
+        result = await self._session.execute(statement=stmt)
+        return result.rowcount

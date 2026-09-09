@@ -6,6 +6,7 @@ from fastapi import APIRouter, Depends, Request, status
 
 from app.application.common.pagination import CursorPagination
 from app.application.videos.commands import (
+    CreateVideoCommand,
     DeleteVideoCommand,
     UpdateVideoCommand,
 )
@@ -16,6 +17,7 @@ from app.application.videos.queries import (
     PersonalVideosFilters,
     PreviewVideosSorting,
 )
+from app.application.videos.use_cases.create_video import CreateVideoUseCase
 from app.application.videos.use_cases.delete_video import DeleteVideoUseCase
 from app.application.videos.use_cases.get_channel_videos import GetChannelVideosUseCase
 from app.application.videos.use_cases.get_personal_videos import GetPersonalVideosUseCase
@@ -33,6 +35,7 @@ from app.presentation.api.v1.di.current_channel_id import CurrentChannelID, Opti
 from app.presentation.api.v1.handlers.common.params import PathChannelSlug, PathVideoId
 from app.presentation.api.v1.schemas.common import CursorPaginationParams
 from app.presentation.api.v1.schemas.requests.videos import (
+    CreateVideoInSchema,
     PersonalPreviewVideosFiltersParams,
     PreviewVideosSortingParams,
     UpdateVideoInSchema,
@@ -114,6 +117,32 @@ async def get_channel_videos(
         next_page=str(request.url.include_query_params(cursor=cursor)) if cursor else None,
         results=[ChannelPreviewVideoOutSchema.from_dto(dto=video) for video in videos],
     )
+
+
+@router.post(
+    path='/videos',
+    status_code=status.HTTP_201_CREATED,
+    responses={
+        status.HTTP_401_UNAUTHORIZED: error_response(
+            NotAuthenticatedError,
+            JWTExpiredTokenError,
+            JWTInvalidTokenError,
+        ),
+        status.HTTP_403_FORBIDDEN: error_response(ChannelNotActiveError),
+        status.HTTP_404_NOT_FOUND: error_response(ChannelNotFoundByIdError),
+    },
+)
+async def create_video(
+    current_channel_id: CurrentChannelID,
+    schema: CreateVideoInSchema,
+    use_case: FromDishka[CreateVideoUseCase],
+) -> VideoOutSchema:
+    command = CreateVideoCommand(
+        current_channel_id=current_channel_id,
+        **schema.model_dump(),
+    )
+    video = await use_case.execute(command=command)
+    return VideoOutSchema.from_entity(entity=video)
 
 
 @router.delete(

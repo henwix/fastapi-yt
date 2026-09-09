@@ -8,7 +8,12 @@ from app.application.videos.use_cases.generate_video_part_upload_url import Gene
 from app.core.configs import settings
 from app.domain.channels.exceptions import ChannelNotActiveError, ChannelNotFoundByIdError
 from app.domain.videos.enums import VideoUploadStatusEnum
-from app.domain.videos.exceptions import VideoAccessForbiddenError, VideoNotFoundError, VideoUploadAlreadyCompletedError
+from app.domain.videos.exceptions import (
+    VideoAccessForbiddenError,
+    VideoNotFoundError,
+    VideoUploadAlreadyCompletedError,
+    VideoUploadNotCreatedError,
+)
 from app.utils.videos import generate_video_id
 from tests.factories.commands.videos import GenerateVideoPartUploadUrlCommandFactory
 from tests.factories.models.channels import ChannelORMFactory
@@ -121,7 +126,29 @@ async def test_generate_video_part_upload_url_raises_error_if_video_already_uplo
 
 
 @pytest.mark.asyncio
-async def test_generate_video_part_upload_url_raises_error_if_video_upload_id_is_none(mock_container: AsyncContainer):
+async def test_generate_video_part_upload_url_raises_error_if_video_upload_not_created_and_status_pending(
+    mock_container: AsyncContainer,
+):
+    async with mock_container() as di:
+        use_case = await di.get(GenerateVideoPartUploadUrlUseCase)
+        session = await di.get(AsyncSession)
+
+        channel = await ChannelORMFactory.create(session=session)
+        video = await VideoORMFactory.create(
+            session=session,
+            channel_id=channel.id,
+            upload_status=VideoUploadStatusEnum.PENDING,
+        )
+        command = GenerateVideoPartUploadUrlCommandFactory.build(current_channel_id=channel.id, video_id=video.id)
+
+        with pytest.raises(VideoUploadNotCreatedError):
+            await use_case.execute(command=command)
+
+
+@pytest.mark.asyncio
+async def test_generate_video_part_upload_url_raises_error_if_video_upload_not_created_and_upload_id_is_none(
+    mock_container: AsyncContainer,
+):
     async with mock_container() as di:
         use_case = await di.get(GenerateVideoPartUploadUrlUseCase)
         session = await di.get(AsyncSession)
@@ -135,5 +162,26 @@ async def test_generate_video_part_upload_url_raises_error_if_video_upload_id_is
         )
         command = GenerateVideoPartUploadUrlCommandFactory.build(current_channel_id=channel.id, video_id=video.id)
 
-        with pytest.raises(VideoUploadAlreadyCompletedError):
+        with pytest.raises(VideoUploadNotCreatedError):
+            await use_case.execute(command=command)
+
+
+@pytest.mark.asyncio
+async def test_generate_video_part_upload_url_raises_error_if_video_upload_not_created_and_s3_key_is_none(
+    mock_container: AsyncContainer,
+):
+    async with mock_container() as di:
+        use_case = await di.get(GenerateVideoPartUploadUrlUseCase)
+        session = await di.get(AsyncSession)
+
+        channel = await ChannelORMFactory.create(session=session)
+        video = await VideoORMFactory.create(
+            session=session,
+            channel_id=channel.id,
+            upload_status=VideoUploadStatusEnum.UPLOADING.value,
+            s3_key=None,
+        )
+        command = GenerateVideoPartUploadUrlCommandFactory.build(current_channel_id=channel.id, video_id=video.id)
+
+        with pytest.raises(VideoUploadNotCreatedError):
             await use_case.execute(command=command)

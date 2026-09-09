@@ -19,9 +19,9 @@ class Video(BaseEntity):
     is_reported: bool = False
     created_at: datetime = field(default_factory=get_current_utc_datetime)
     views_count: int = 0
-    upload_id: str | None
-    s3_key: str
-    upload_status: VideoUploadStatusEnum = VideoUploadStatusEnum.UPLOADING
+    upload_id: str | None = None
+    s3_key: str | None = None
+    upload_status: VideoUploadStatusEnum = VideoUploadStatusEnum.PENDING
 
     @staticmethod
     def create(
@@ -29,16 +29,12 @@ class Video(BaseEntity):
         title: str,
         description: str,
         privacy_status: VideoPrivacyStatusEnum,
-        upload_id: str,
-        s3_key: str,
     ) -> Video:
         return Video(
             channel_id=channel_id,
             title=title,
             description=description,
             privacy_status=privacy_status,
-            upload_id=upload_id,
-            s3_key=s3_key,
         )
 
     def set_title(self, value: str | Empty) -> None:
@@ -53,6 +49,14 @@ class Video(BaseEntity):
         if value is not Empty.UNSET:
             self.privacy_status = value
 
-    def update_after_completed_upload(self) -> None:
-        self.upload_id = None
-        self.upload_status = VideoUploadStatusEnum.COMPLETED
+    def set_upload_status(self, value: VideoUploadStatusEnum | Empty) -> None:
+        if value is not Empty.UNSET:
+            self.upload_status = value
+
+    def set_upload_id(self, value: str | None | Empty) -> None:
+        if value is not Empty.UNSET:
+            self.upload_id = value
+
+    def set_s3_key(self, value: str | None | Empty) -> None:
+        if value is not Empty.UNSET:
+            self.s3_key = value

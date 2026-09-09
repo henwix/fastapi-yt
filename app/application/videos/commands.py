@@ -8,10 +8,8 @@ from app.domain.videos.enums import VideoPrivacyStatusEnum
 @dataclass(kw_only=True, frozen=True)
 class CreateVideoMultipartUploadCommand:
     current_channel_id: UUID
+    video_id: str
     filename: str
-    title: str
-    description: str
-    privacy_status: VideoPrivacyStatusEnum
 
 
 @dataclass(kw_only=True, frozen=True)
@@ -38,6 +36,14 @@ class AbortVideoMultipartUploadCommand:
 class GenerateVideoDownloadUrlCommand:
     current_channel_id: UUID | None
     video_id: str
+
+
+@dataclass(kw_only=True, frozen=True)
+class CreateVideoCommand:
+    current_channel_id: UUID
+    title: str
+    description: str
+    privacy_status: VideoPrivacyStatusEnum
 
 
 @dataclass(kw_only=True, frozen=True)

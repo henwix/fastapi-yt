@@ -19,6 +19,7 @@ class GenerateVideoPartUploadUrlUseCase:
 
         self._video_service.ensure_video_access(video=video, channel=channel)
         self._video_service.ensure_video_upload_not_completed(video=video)
+        self._video_service.ensure_video_upload_created(video=video)
 
         return await self._s3_service.generate_part_upload_url(
             bucket=settings.s3_private_bucket_name,

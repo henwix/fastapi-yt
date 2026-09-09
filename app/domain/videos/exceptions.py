@@ -17,6 +17,18 @@ class VideoUploadAlreadyCompletedError(AppException):
 
 
 @dataclass(kw_only=True)
+class VideoUploadAlreadyCreatedError(AppException):
+    message = 'Video already has an active upload'
+    video_id: str
+
+
+@dataclass(kw_only=True)
+class VideoUploadNotCreatedError(AppException):
+    message = 'Video upload not created'
+    video_id: str
+
+
+@dataclass(kw_only=True)
 class VideoInvalidFileFormatError(AppException):
     message = 'Video invalid file format'
     file: str

@@ -103,7 +103,9 @@ from app.application.video_views.use_cases.create_video_view import CreateVideoV
 from app.application.videos.interfaces.reader import IVideoReader
 from app.application.videos.use_cases.abort_video_multipart_upload import AbortVideoMultipartUploadUseCase
 from app.application.videos.use_cases.complete_video_multipart_upload import CompleteVideoMultipartUploadUseCase
+from app.application.videos.use_cases.create_video import CreateVideoUseCase
 from app.application.videos.use_cases.create_video_multipart_upload import CreateVideoMultipartUploadUseCase
+from app.application.videos.use_cases.delete_not_completed_videos import DeleteNotCompletedVideosUseCase
 from app.application.videos.use_cases.delete_video import DeleteVideoUseCase
 from app.application.videos.use_cases.generate_video_download_url import GenerateVideoDownloadUrlUseCase
 from app.application.videos.use_cases.generate_video_part_upload_url import GenerateVideoPartUploadUrlUseCase
@@ -344,6 +346,7 @@ class UseCasesProvider(Provider):
     disconnect_account = provide(OAuthDisconnectAccountUseCase)
 
     # Videos
+    create_video = provide(CreateVideoUseCase)
     delete_video = provide(DeleteVideoUseCase)
     update_video = provide(UpdateVideoUseCase)
     get_video = provide(GetVideoUseCase)
@@ -355,6 +358,8 @@ class UseCasesProvider(Provider):
     generate_video_part_upload_url = provide(GenerateVideoPartUploadUrlUseCase)
     complete_video_multipart_upload = provide(CompleteVideoMultipartUploadUseCase)
     generate_video_download_url = provide(GenerateVideoDownloadUrlUseCase)
+
+    delete_not_completed_videos = provide(DeleteNotCompletedVideosUseCase)
 
     # Video views
     create_video_view = provide(CreateVideoViewUseCase)

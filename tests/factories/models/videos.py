@@ -44,6 +44,10 @@ class VideoORMFactory(SQLAlchemyFactory[VideoORM]):
         return f'{settings.s3_videos_key_prefix}/{uuid4().hex[:10]}_test.mp4'
 
     @classmethod
+    def upload_id(cls) -> str:
+        return uuid4().hex
+
+    @classmethod
     async def create(cls, session: AsyncSession, **kwargs) -> VideoORM:
         obj = cls.build(**kwargs)
         session.add(obj)

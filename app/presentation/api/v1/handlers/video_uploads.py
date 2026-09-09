@@ -26,9 +26,12 @@ from app.domain.common.exceptions.s3 import (
 )
 from app.domain.videos.exceptions import (
     VideoAccessForbiddenError,
+    VideoInvalidFileContentTypeError,
     VideoInvalidFileFormatError,
     VideoNotFoundError,
     VideoUploadAlreadyCompletedError,
+    VideoUploadAlreadyCreatedError,
+    VideoUploadNotCreatedError,
 )
 from app.presentation.api.openapi.common import error_response
 from app.presentation.api.v1.di.current_channel_id import CurrentChannelID, OptionalCurrentChannelID
@@ -38,7 +41,6 @@ from app.presentation.api.v1.schemas.requests.videos import CreateVideoMultipart
 from app.presentation.api.v1.schemas.responses.videos import (
     GenerateVideoDownloadUrlOutSchema,
     GenerateVideoPartUploadUrlOutSchema,
-    VideoOutSchema,
 )
 
 router = APIRouter(
@@ -49,41 +51,10 @@ router = APIRouter(
 
 
 @router.post(
-    path='/create_multipart_upload',
-    status_code=status.HTTP_201_CREATED,
+    path='/{video_id}/create_upload',
+    status_code=status.HTTP_204_NO_CONTENT,
     responses={
         status.HTTP_400_BAD_REQUEST: error_response(VideoInvalidFileFormatError),
-        status.HTTP_401_UNAUTHORIZED: error_response(
-            NotAuthenticatedError,
-            JWTExpiredTokenError,
-            JWTInvalidTokenError,
-        ),
-        status.HTTP_403_FORBIDDEN: error_response(ChannelNotActiveError),
-        status.HTTP_404_NOT_FOUND: error_response(ChannelNotFoundByIdError),
-        status.HTTP_500_INTERNAL_SERVER_ERROR: error_response(S3ResponseError, S3RequestError),
-    },
-)
-async def create_mutipart_upload(
-    current_channel_id: CurrentChannelID,
-    schema: CreateVideoMultipartUploadInSchema,
-    use_case: FromDishka[CreateVideoMultipartUploadUseCase],
-) -> VideoOutSchema:
-    command = CreateVideoMultipartUploadCommand(
-        current_channel_id=current_channel_id,
-        **schema.model_dump(),
-    )
-    video = await use_case.execute(command=command)
-    return VideoOutSchema.from_entity(entity=video)
-
-
-@router.get(
-    '/{video_id}/part_upload_url',
-    summary='Generate Part Upload Url For Multipart Upload',
-    status_code=status.HTTP_201_CREATED,
-    responses={
-        status.HTTP_400_BAD_REQUEST: error_response(
-            VideoUploadAlreadyCompletedError,
-        ),
         status.HTTP_401_UNAUTHORIZED: error_response(
             NotAuthenticatedError,
             JWTExpiredTokenError,
@@ -97,10 +68,55 @@ async def create_mutipart_upload(
             ChannelNotFoundByIdError,
             VideoNotFoundError,
         ),
+        status.HTTP_409_CONFLICT: error_response(
+            VideoUploadAlreadyCompletedError,
+            VideoUploadAlreadyCreatedError,
+        ),
+        status.HTTP_500_INTERNAL_SERVER_ERROR: error_response(
+            S3ResponseError,
+            S3RequestError,
+        ),
+    },
+)
+async def create_video_mutipart_upload(
+    current_channel_id: CurrentChannelID,
+    video_id: PathVideoId,
+    schema: CreateVideoMultipartUploadInSchema,
+    use_case: FromDishka[CreateVideoMultipartUploadUseCase],
+) -> None:
+    command = CreateVideoMultipartUploadCommand(
+        current_channel_id=current_channel_id,
+        video_id=video_id,
+        **schema.model_dump(),
+    )
+    await use_case.execute(command=command)
+
+
+@router.get(
+    '/{video_id}/part_upload_url',
+    status_code=status.HTTP_201_CREATED,
+    responses={
+        status.HTTP_401_UNAUTHORIZED: error_response(
+            NotAuthenticatedError,
+            JWTExpiredTokenError,
+            JWTInvalidTokenError,
+        ),
+        status.HTTP_403_FORBIDDEN: error_response(
+            ChannelNotActiveError,
+            VideoAccessForbiddenError,
+        ),
+        status.HTTP_404_NOT_FOUND: error_response(
+            ChannelNotFoundByIdError,
+            VideoNotFoundError,
+        ),
+        status.HTTP_409_CONFLICT: error_response(
+            VideoUploadAlreadyCompletedError,
+            VideoUploadNotCreatedError,
+        ),
         status.HTTP_500_INTERNAL_SERVER_ERROR: error_response(S3ResponseError, S3RequestError),
     },
 )
-async def generate_part_upload_url(
+async def generate_video_part_upload_url(
     current_channel_id: CurrentChannelID,
     video_id: PathVideoId,
     part_number: Annotated[int, Query(ge=1, le=10000)],
@@ -116,12 +132,12 @@ async def generate_part_upload_url(
 
 
 @router.post(
-    path='/{video_id}/complete_multipart_upload',
+    path='/{video_id}/complete_upload',
     status_code=status.HTTP_204_NO_CONTENT,
     responses={
         status.HTTP_400_BAD_REQUEST: error_response(
-            VideoUploadAlreadyCompletedError,
             S3MultipartUploadInvalidPartsError,
+            VideoInvalidFileContentTypeError,
         ),
         status.HTTP_401_UNAUTHORIZED: error_response(
             NotAuthenticatedError,
@@ -137,10 +153,14 @@ async def generate_part_upload_url(
             VideoNotFoundError,
             S3MultipartUploadNotFoundError,
         ),
+        status.HTTP_409_CONFLICT: error_response(
+            VideoUploadAlreadyCompletedError,
+            VideoUploadNotCreatedError,
+        ),
         status.HTTP_500_INTERNAL_SERVER_ERROR: error_response(S3ResponseError, S3RequestError),
     },
 )
-async def complete_multipart_upload(
+async def complete_video_multipart_upload(
     current_channel_id: CurrentChannelID,
     video_id: PathVideoId,
     schema: CompleteMultipartUploadInSchema,
@@ -155,13 +175,9 @@ async def complete_multipart_upload(
 
 
 @router.delete(
-    path='/{video_id}/abort_multipart_upload',
+    path='/{video_id}/abort_upload',
     status_code=status.HTTP_204_NO_CONTENT,
-    summary='Abort Multipart Upload And Delete Video',
     responses={
-        status.HTTP_400_BAD_REQUEST: error_response(
-            VideoUploadAlreadyCompletedError,
-        ),
         status.HTTP_401_UNAUTHORIZED: error_response(
             NotAuthenticatedError,
             JWTExpiredTokenError,
@@ -175,10 +191,14 @@ async def complete_multipart_upload(
             ChannelNotFoundByIdError,
             VideoNotFoundError,
         ),
+        status.HTTP_409_CONFLICT: error_response(
+            VideoUploadAlreadyCompletedError,
+            VideoUploadNotCreatedError,
+        ),
         status.HTTP_500_INTERNAL_SERVER_ERROR: error_response(S3ResponseError, S3RequestError),
     },
 )
-async def abort_multipart_upload(
+async def abort_video_multipart_upload(
     current_channel_id: CurrentChannelID,
     video_id: PathVideoId,
     use_case: FromDishka[AbortVideoMultipartUploadUseCase],
@@ -208,7 +228,7 @@ async def abort_multipart_upload(
         ),
     },
 )
-async def generate_download_url(
+async def generate_video_download_url(
     current_channel_id: OptionalCurrentChannelID,
     video_id: PathVideoId,
     use_case: FromDishka[GenerateVideoDownloadUrlUseCase],

@@ -21,3 +21,6 @@ class IVideoRepo(ABC):
 
     @abstractmethod
     async def delete_by_id(self, id: str) -> bool: ...
+
+    @abstractmethod
+    async def delete_not_completed_videos(self) -> int: ...

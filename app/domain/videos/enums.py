@@ -8,5 +8,6 @@ class VideoPrivacyStatusEnum(StrEnum):
 
 
 class VideoUploadStatusEnum(StrEnum):
+    PENDING = 'pending'
     UPLOADING = 'uploading'
     COMPLETED = 'completed'

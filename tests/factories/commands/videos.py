@@ -4,10 +4,16 @@ from polyfactory.factories import DataclassFactory
 from app.application.videos.commands import (
     AbortVideoMultipartUploadCommand,
     CompleteVideoMultipartUploadCommand,
+    CreateVideoCommand,
     CreateVideoMultipartUploadCommand,
     GenerateVideoDownloadUrlCommand,
     GenerateVideoPartUploadUrlCommand,
 )
+from app.utils.videos import generate_video_id
+
+
+class CreateVideoCommandFactory(DataclassFactory[CreateVideoCommand]):
+    __model__ = CreateVideoCommand
 
 
 class CreateVideoMultipartUploadCommandFactory(DataclassFactory[CreateVideoMultipartUploadCommand]):
@@ -19,8 +25,8 @@ class CreateVideoMultipartUploadCommandFactory(DataclassFactory[CreateVideoMulti
         return 'test.mp4'
 
     @classmethod
-    def title(cls) -> str:
-        return cls.__faker__.text(max_nb_chars=100)
+    def video_id(cls) -> str:
+        return generate_video_id()
 
 
 class GenerateVideoPartUploadUrlCommandFactory(DataclassFactory[GenerateVideoPartUploadUrlCommand]):

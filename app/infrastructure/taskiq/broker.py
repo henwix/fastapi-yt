@@ -10,7 +10,7 @@ from app.core.configs import settings
 def get_broker() -> RedisStreamBroker:
     result_backend = RedisAsyncResultBackend(
         redis_url=f'{settings.redis_url}/1',
-        result_ex_time=1000,
+        result_ex_time=60 * 60 * 24,
     )
 
     broker = (

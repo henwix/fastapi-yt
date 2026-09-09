@@ -11,6 +11,7 @@ from app.domain.videos.exceptions import (
     VideoInvalidFileFormatError,
     VideoNotFoundError,
     VideoUploadAlreadyCompletedError,
+    VideoUploadNotCreatedError,
 )
 from app.domain.videos.repo import IVideoRepo
 
@@ -39,6 +40,9 @@ class IVideoService(ABC):
 
     @abstractmethod
     def ensure_video_upload_not_completed(self, video: Video) -> None: ...
+
+    @abstractmethod
+    def ensure_video_upload_created(self, video: Video) -> None: ...
 
     @abstractmethod
     def validate_video_file_format_and_get_content_type(self, value: str) -> str: ...
@@ -84,11 +88,15 @@ class VideoService(IVideoService):
             raise VideoAccessForbiddenError(video_id=video.id, channel_id=channel.id)
 
     def ensure_video_upload_not_completed(self, video: Video) -> None:
-        if video.upload_status is VideoUploadStatusEnum.COMPLETED or video.upload_id is None:
+        if video.upload_status is VideoUploadStatusEnum.COMPLETED:
             raise VideoUploadAlreadyCompletedError(video_id=video.id)
+
+    def ensure_video_upload_created(self, video: Video) -> None:
+        if video.upload_status is VideoUploadStatusEnum.PENDING or video.upload_id is None or video.s3_key is None:
+            raise VideoUploadNotCreatedError(video_id=video.id)
 
     def validate_video_file_format_and_get_content_type(self, value: str) -> str:
         content_type = Path(value).suffix.lower()
         if content_type not in VIDEO_FILE_MIME_TYPES:
             raise VideoInvalidFileFormatError(file=value)
-        return VIDEO_FILE_MIME_TYPES[content_type]
+        return VIDEO_FILE_MIME_TYPES[content_type][0]

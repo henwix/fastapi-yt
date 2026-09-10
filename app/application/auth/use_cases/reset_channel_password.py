@@ -23,8 +23,8 @@ class ResetChannelPasswordUseCase:
         uid = base64url_encode(value=str(channel.id))
         confirmation_url = self._auth_service.build_reset_password_confirm_url(code=code, uid=uid)
         send_channel_reset_password_code_command = SendChannelResetPasswordCodeCommand(
-            email=channel.email.value,
-            name=channel.name.value,
+            email=channel.email.to_raw(),
+            name=channel.name.to_raw(),
             confirmation_url=confirmation_url,
             code=code,
             uid=uid,

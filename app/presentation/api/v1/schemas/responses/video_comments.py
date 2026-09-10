@@ -1,8 +1,6 @@
 from datetime import datetime
 from uuid import UUID
 
-from pydantic import HttpUrl
-
 from app.application.video_comments.dto import DetailedVideoComment
 from app.domain.video_comments.entities import VideoComment
 from app.presentation.api.v1.schemas.base import BaseSchema
@@ -48,8 +46,3 @@ class DetailedVideoCommentOutSchema(BaseSchema):
             created_at=dto.created_at,
             author_slug=dto.author_slug,
         )
-
-
-class VideoCommentsCursorResponse(BaseSchema):
-    next_page: HttpUrl | None
-    results: list[DetailedVideoCommentOutSchema]

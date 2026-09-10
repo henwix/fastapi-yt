@@ -3,6 +3,7 @@ from uuid import UUID
 
 from dishka.integrations.fastapi import DishkaRoute, FromDishka
 from fastapi import APIRouter, Depends, Request, status
+from pydantic import HttpUrl
 
 from app.application.common.pagination import CursorPagination
 from app.application.playlists.commands import (
@@ -42,20 +43,19 @@ from app.domain.videos.exceptions import VideoAccessForbiddenError, VideoNotFoun
 from app.presentation.api.openapi.common import error_response
 from app.presentation.api.v1.di.current_channel_id import CurrentChannelID, OptionalCurrentChannelID
 from app.presentation.api.v1.handlers.common.params import PathChannelSlug, PathVideoId
-from app.presentation.api.v1.schemas.common import CursorPaginationParams
+from app.presentation.api.v1.schemas.requests.common import CursorPaginationParams
 from app.presentation.api.v1.schemas.requests.playlists import (
     CreatePlaylistInSchema,
     PlaylistsPreviewSortingParams,
     PlaylistVideosSortingParams,
     UpdatePlaylistInSchema,
 )
+from app.presentation.api.v1.schemas.responses.common import CursorPaginationResponse
 from app.presentation.api.v1.schemas.responses.playlists import (
     DetailedPlaylistOutSchema,
     PlaylistOutSchema,
     PlaylistPreviewVideoOutSchema,
-    PlaylistVideosCursorResponse,
     PreviewPlaylistOutSchema,
-    PreviewPlaylistsCursorResponse,
 )
 
 router = APIRouter(
@@ -115,15 +115,17 @@ async def get_personal_playlists(
     pagination: Annotated[CursorPaginationParams, Depends()],
     use_case: FromDishka[GetPersonalPlaylistsUseCase],
     request: Request,
-) -> PreviewPlaylistsCursorResponse:
+) -> CursorPaginationResponse[PreviewPlaylistOutSchema]:
     query = GetPersonalPlaylistsQuery(
         current_channel_id=current_channel_id,
         sorting=PlaylistsPreviewSorting(**sorting.model_dump()),
         pagination=CursorPagination(**pagination.model_dump(exclude_none=True)),
     )
     playlists, next_cursor = await use_case.execute(query=query)
-    return PreviewPlaylistsCursorResponse(
-        next_page=str(request.url.include_query_params(cursor=next_cursor)) if next_cursor is not None else None,
+    return CursorPaginationResponse(
+        next_page=HttpUrl(str(request.url.include_query_params(cursor=next_cursor)))
+        if next_cursor is not None
+        else None,
         results=[PreviewPlaylistOutSchema.from_dto(dto=playlist) for playlist in playlists],
     )
 
@@ -143,15 +145,17 @@ async def get_channel_playlists(
     pagination: Annotated[CursorPaginationParams, Depends()],
     use_case: FromDishka[GetChannelPlaylistsUseCase],
     request: Request,
-) -> PreviewPlaylistsCursorResponse:
+) -> CursorPaginationResponse[PreviewPlaylistOutSchema]:
     query = GetChannelPlaylistsQuery(
         channel_slug=channel_slug,
         sorting=PlaylistsPreviewSorting(**sorting.model_dump()),
         pagination=CursorPagination(**pagination.model_dump(exclude_none=True)),
     )
     playlists, next_cursor = await use_case.execute(query=query)
-    return PreviewPlaylistsCursorResponse(
-        next_page=str(request.url.include_query_params(cursor=next_cursor)) if next_cursor is not None else None,
+    return CursorPaginationResponse(
+        next_page=HttpUrl(str(request.url.include_query_params(cursor=next_cursor)))
+        if next_cursor is not None
+        else None,
         results=[PreviewPlaylistOutSchema.from_dto(dto=playlist) for playlist in playlists],
     )
 
@@ -213,7 +217,7 @@ async def get_playlist_videos(
     pagination: Annotated[CursorPaginationParams, Depends()],
     use_case: FromDishka[GetPlaylistVideosUseCase],
     request: Request,
-) -> PlaylistVideosCursorResponse:
+) -> CursorPaginationResponse[PlaylistPreviewVideoOutSchema]:
     query = GetPlaylistVideosQuery(
         current_channel_id=current_channel_id,
         playlist_id=playlist_id,
@@ -222,8 +226,10 @@ async def get_playlist_videos(
     )
     playlist_videos, next_cursor = await use_case.execute(query=query)
 
-    return PlaylistVideosCursorResponse(
-        next_page=str(request.url.include_query_params(cursor=next_cursor)) if next_cursor is not None else None,
+    return CursorPaginationResponse(
+        next_page=HttpUrl(str(request.url.include_query_params(cursor=next_cursor)))
+        if next_cursor is not None
+        else None,
         results=[PlaylistPreviewVideoOutSchema.from_dto(dto=video) for video in playlist_videos],
     )
 

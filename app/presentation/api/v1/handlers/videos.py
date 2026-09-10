@@ -3,6 +3,7 @@ from typing import Annotated
 from dishka import FromDishka
 from dishka.integrations.fastapi import DishkaRoute
 from fastapi import APIRouter, Depends, Request, status
+from pydantic import HttpUrl
 
 from app.application.common.pagination import CursorPagination
 from app.application.videos.commands import (
@@ -33,19 +34,18 @@ from app.domain.videos.exceptions import (
 from app.presentation.api.openapi.common import error_response
 from app.presentation.api.v1.di.current_channel_id import CurrentChannelID, OptionalCurrentChannelID
 from app.presentation.api.v1.handlers.common.params import PathChannelSlug, PathVideoId
-from app.presentation.api.v1.schemas.common import CursorPaginationParams
+from app.presentation.api.v1.schemas.requests.common import CursorPaginationParams
 from app.presentation.api.v1.schemas.requests.videos import (
     CreateVideoInSchema,
     PersonalPreviewVideosFiltersParams,
     PreviewVideosSortingParams,
     UpdateVideoInSchema,
 )
+from app.presentation.api.v1.schemas.responses.common import CursorPaginationResponse
 from app.presentation.api.v1.schemas.responses.videos import (
     ChannelPreviewVideoOutSchema,
-    ChannelPreviewVideosCursorResponse,
     DetailedVideoOutSchema,
     PersonalPreviewVideoOutSchema,
-    PersonalPreviewVideosCursorResponse,
     VideoOutSchema,
 )
 
@@ -80,7 +80,7 @@ async def get_personal_videos(
     sorting: Annotated[PreviewVideosSortingParams, Depends()],
     pagination: Annotated[CursorPaginationParams, Depends()],
     request: Request,
-) -> PersonalPreviewVideosCursorResponse:
+) -> CursorPaginationResponse[PersonalPreviewVideoOutSchema]:
     query = GetPersonalVideosQuery(
         current_channel_id=current_channel_id,
         filters=PersonalVideosFilters(**filters.model_dump(exclude_none=True)),
@@ -88,8 +88,8 @@ async def get_personal_videos(
         pagination=CursorPagination(**pagination.model_dump(exclude_none=True)),
     )
     videos, cursor = await use_case.execute(query=query)
-    return PersonalPreviewVideosCursorResponse(
-        next_page=str(request.url.include_query_params(cursor=cursor)) if cursor else None,
+    return CursorPaginationResponse(
+        next_page=HttpUrl(str(request.url.include_query_params(cursor=cursor))) if cursor else None,
         results=[PersonalPreviewVideoOutSchema.from_dto(dto=video) for video in videos],
     )
 
@@ -106,15 +106,15 @@ async def get_channel_videos(
     pagination: Annotated[CursorPaginationParams, Depends()],
     use_case: FromDishka[GetChannelVideosUseCase],
     request: Request,
-) -> ChannelPreviewVideosCursorResponse:
+) -> CursorPaginationResponse[ChannelPreviewVideoOutSchema]:
     query = GetChannelVideosQuery(
         channel_slug=channel_slug,
         sorting=PreviewVideosSorting(**sorting.model_dump()),
         pagination=CursorPagination(**pagination.model_dump(exclude_none=True)),
     )
     videos, cursor = await use_case.execute(query=query)
-    return ChannelPreviewVideosCursorResponse(
-        next_page=str(request.url.include_query_params(cursor=cursor)) if cursor else None,
+    return CursorPaginationResponse(
+        next_page=HttpUrl(str(request.url.include_query_params(cursor=cursor))) if cursor else None,
         results=[ChannelPreviewVideoOutSchema.from_dto(dto=video) for video in videos],
     )
 

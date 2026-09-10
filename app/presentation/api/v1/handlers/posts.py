@@ -4,6 +4,7 @@ from uuid import UUID
 from dishka import FromDishka
 from dishka.integrations.fastapi import DishkaRoute
 from fastapi import APIRouter, Depends, Request, status
+from pydantic import HttpUrl
 
 from app.application.common.pagination import CursorPagination
 from app.application.posts.commands import CreatePostCommand, DeletePostCommand, UpdatePostCommand
@@ -20,9 +21,10 @@ from app.domain.posts.exceptions import PostAccessForbiddenError, PostNotFoundEr
 from app.presentation.api.openapi.common import error_response
 from app.presentation.api.v1.di.current_channel_id import CurrentChannelID
 from app.presentation.api.v1.handlers.common.params import PathChannelSlug
-from app.presentation.api.v1.schemas.common import CursorPaginationParams
+from app.presentation.api.v1.schemas.requests.common import CursorPaginationParams
 from app.presentation.api.v1.schemas.requests.posts import CreatePostInSchema, PostsSortingParams, UpdatePostInSchema
-from app.presentation.api.v1.schemas.responses.posts import DetailedPostOutSchema, PostOutSchema, PostsCursorResponse
+from app.presentation.api.v1.schemas.responses.common import CursorPaginationResponse
+from app.presentation.api.v1.schemas.responses.posts import DetailedPostOutSchema, PostOutSchema
 
 router = APIRouter(
     prefix='',
@@ -80,15 +82,15 @@ async def get_channel_posts(
     pagination: Annotated[CursorPaginationParams, Depends()],
     use_case: FromDishka[GetPostsUseCase],
     request: Request,
-) -> PostsCursorResponse:
+) -> CursorPaginationResponse[DetailedPostOutSchema]:
     query = GetPostsQuery(
         channel_slug=channel_slug,
         sorting=PostsSorting(**sorting.model_dump()),
         pagination=CursorPagination(**pagination.model_dump(exclude_none=True)),
     )
     posts, cursor = await use_case.execute(query=query)
-    return PostsCursorResponse(
-        next_page=str(request.url.include_query_params(cursor=cursor)) if cursor else None,
+    return CursorPaginationResponse(
+        next_page=HttpUrl(str(request.url.include_query_params(cursor=cursor))) if cursor else None,
         results=[DetailedPostOutSchema.from_dto(dto=post) for post in posts],
     )
 

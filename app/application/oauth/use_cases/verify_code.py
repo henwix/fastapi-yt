@@ -61,9 +61,9 @@ class OAuthVerifyCodeUseCase:
             provider=provider_user_data.provider,
         )
 
-        await self._channel_service.try_check_email_exists(email=new_channel_entity.email.value)
-        if await self._channel_service.check_slug_exists(slug=new_channel_entity.slug.value):
-            unique_slug = self._channel_service.build_unique_slug(slug=new_channel_entity.slug.value)
+        await self._channel_service.try_check_email_exists(email=new_channel_entity.email.to_raw())
+        if await self._channel_service.check_slug_exists(slug=new_channel_entity.slug.to_raw()):
+            unique_slug = self._channel_service.build_unique_slug(slug=new_channel_entity.slug.to_raw())
             new_channel_entity.set_slug(value=unique_slug)
 
         async with self._transaction_manager:

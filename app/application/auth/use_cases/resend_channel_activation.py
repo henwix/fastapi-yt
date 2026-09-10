@@ -22,8 +22,8 @@ class ResendChannelActivationCodeUseCase:
         code = await self._auth_service.create_activation_code(channel_id=channel.id)
         activation_url = self._auth_service.build_activation_url(code=code)
         send_channel_activation_code_command = SendChannelActivationCodeCommand(
-            email=channel.email.value,
-            name=channel.name.value,
+            email=channel.email.to_raw(),
+            name=channel.name.to_raw(),
             activation_url=activation_url,
             code=code,
         )

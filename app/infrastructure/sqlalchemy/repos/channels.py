@@ -20,9 +20,9 @@ class SAChannelRepo(SARepo, IChannelRepo):
 
         match constraint_name:
             case 'channels_email_key':
-                raise ChannelWithEmailAlreadyExistsError(channel_email=channel.email.value) from error
+                raise ChannelWithEmailAlreadyExistsError(channel_email=channel.email.to_raw()) from error
             case 'channels_slug_key':
-                raise ChannelWithSlugAlreadyExistsError(channel_slug=channel.slug.value) from error
+                raise ChannelWithSlugAlreadyExistsError(channel_slug=channel.slug.to_raw()) from error
             case _:
                 raise error
 
@@ -62,9 +62,9 @@ class SAChannelRepo(SARepo, IChannelRepo):
             update(ChannelORM)
             .where(ChannelORM.id == channel.id)
             .values(
-                email=channel.email.value,
-                name=channel.name.value,
-                slug=channel.slug.value,
+                email=channel.email.to_raw(),
+                name=channel.name.to_raw(),
+                slug=channel.slug.to_raw(),
                 description=channel.description,
                 country=channel.country,
                 avatar_s3_key=channel.avatar_s3_key,

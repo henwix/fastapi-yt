@@ -3,6 +3,7 @@ from uuid import UUID
 
 from dishka.integrations.fastapi import DishkaRoute, FromDishka
 from fastapi import APIRouter, Depends, Request, status
+from pydantic import HttpUrl
 
 from app.application.common.pagination import CursorPagination
 from app.application.video_comments.commands import (
@@ -28,16 +29,16 @@ from app.domain.videos.exceptions import VideoAccessForbiddenError, VideoNotFoun
 from app.presentation.api.openapi.common import error_response
 from app.presentation.api.v1.di.current_channel_id import CurrentChannelID
 from app.presentation.api.v1.handlers.common.params import PathVideoId
-from app.presentation.api.v1.schemas.common import CursorPaginationParams
+from app.presentation.api.v1.schemas.requests.common import CursorPaginationParams
 from app.presentation.api.v1.schemas.requests.video_comments import (
     CreateVideoCommentInSchema,
     UpdateVideoCommentInSchema,
     VideoCommentsSortingParams,
 )
+from app.presentation.api.v1.schemas.responses.common import CursorPaginationResponse
 from app.presentation.api.v1.schemas.responses.video_comments import (
     DetailedVideoCommentOutSchema,
     VideoCommentOutSchema,
-    VideoCommentsCursorResponse,
 )
 
 router = APIRouter(
@@ -95,15 +96,15 @@ async def get_video_comments(
     pagination: Annotated[CursorPaginationParams, Depends()],
     use_case: FromDishka[GetVideoCommentsUseCase],
     request: Request,
-) -> VideoCommentsCursorResponse:
+) -> CursorPaginationResponse[DetailedVideoCommentOutSchema]:
     query = GetVideoCommentsQuery(
         video_id=video_id,
         sorting=VideoCommentsSorting(**sorting.model_dump()),
         pagination=CursorPagination(**pagination.model_dump(exclude_none=True)),
     )
     comments, cursor = await use_case.execute(query=query)
-    return VideoCommentsCursorResponse(
-        next_page=str(request.url.include_query_params(cursor=cursor)) if cursor else None,
+    return CursorPaginationResponse(
+        next_page=HttpUrl(str(request.url.include_query_params(cursor=cursor))) if cursor else None,
         results=[DetailedVideoCommentOutSchema.from_dto(dto=comment) for comment in comments],
     )
 
@@ -121,15 +122,15 @@ async def get_video_comment_replies(
     pagination: Annotated[CursorPaginationParams, Depends()],
     use_case: FromDishka[GetVideoCommentRepliesUseCase],
     request: Request,
-) -> VideoCommentsCursorResponse:
+) -> CursorPaginationResponse[DetailedVideoCommentOutSchema]:
     query = GetVideoCommentRepliesQuery(
         video_comment_id=video_comment_id,
         sorting=VideoCommentsSorting(**sorting.model_dump()),
         pagination=CursorPagination(**pagination.model_dump(exclude_none=True)),
     )
     replies, cursor = await use_case.execute(query=query)
-    return VideoCommentsCursorResponse(
-        next_page=str(request.url.include_query_params(cursor=cursor)) if cursor else None,
+    return CursorPaginationResponse(
+        next_page=HttpUrl(str(request.url.include_query_params(cursor=cursor))) if cursor else None,
         results=[DetailedVideoCommentOutSchema.from_dto(dto=reply) for reply in replies],
     )
 

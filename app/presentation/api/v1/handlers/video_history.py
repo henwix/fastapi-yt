@@ -2,6 +2,7 @@ from typing import Annotated
 
 from dishka.integrations.fastapi import DishkaRoute, FromDishka
 from fastapi import APIRouter, Depends, Request, status
+from pydantic import HttpUrl
 
 from app.application.common.pagination import CursorPagination
 from app.application.video_history.commands import (
@@ -22,12 +23,10 @@ from app.domain.videos.exceptions import VideoAccessForbiddenError, VideoNotFoun
 from app.presentation.api.openapi.common import error_response
 from app.presentation.api.v1.di.current_channel_id import CurrentChannelID
 from app.presentation.api.v1.handlers.common.params import PathVideoId
-from app.presentation.api.v1.schemas.common import CursorPaginationParams
+from app.presentation.api.v1.schemas.requests.common import CursorPaginationParams
 from app.presentation.api.v1.schemas.requests.video_history import VideoHistorySortingParams
-from app.presentation.api.v1.schemas.responses.video_history import (
-    PreviewVideoHistoryOutSchema,
-    VideoHistoryCursorResponse,
-)
+from app.presentation.api.v1.schemas.responses.common import CursorPaginationResponse
+from app.presentation.api.v1.schemas.responses.video_history import PreviewVideoHistoryOutSchema
 
 router = APIRouter(
     prefix='',
@@ -146,14 +145,14 @@ async def get_video_history(
     pagination: Annotated[CursorPaginationParams, Depends()],
     use_case: FromDishka[GetVideoHistoryUseCase],
     request: Request,
-) -> VideoHistoryCursorResponse:
+) -> CursorPaginationResponse[PreviewVideoHistoryOutSchema]:
     query = GetVideoHistoryQuery(
         current_channel_id=current_channel_id,
         sorting=VideoHistorySorting(**sorting.model_dump()),
         pagination=CursorPagination(**pagination.model_dump(exclude_none=True)),
     )
     videos, cursor = await use_case.execute(query=query)
-    return VideoHistoryCursorResponse(
-        next_page=str(request.url.include_query_params(cursor=cursor)) if cursor else None,
+    return CursorPaginationResponse(
+        next_page=HttpUrl(str(request.url.include_query_params(cursor=cursor))) if cursor else None,
         results=[PreviewVideoHistoryOutSchema.from_dto(dto=video) for video in videos],
     )

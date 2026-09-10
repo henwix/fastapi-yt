@@ -63,9 +63,9 @@ class ChannelORM(
     def from_entity(entity: Channel) -> ChannelORM:
         return ChannelORM(
             id=entity.id,
-            email=entity.email.value,
-            name=entity.name.value,
-            slug=entity.slug.value,
+            email=entity.email.to_raw(),
+            name=entity.name.to_raw(),
+            slug=entity.slug.to_raw(),
             description=entity.description,
             country=entity.country,
             password_hash=entity.password_hash,

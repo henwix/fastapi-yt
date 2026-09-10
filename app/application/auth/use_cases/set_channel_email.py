@@ -16,7 +16,7 @@ class SetChannelEmailUseCase:
 
     async def execute(self, command: SetChannelEmailCommand) -> None:
         channel = await self._channel_service.try_get_active_by_id(id=command.current_channel_id)
-        if channel.email.value == command.new_email:
+        if channel.email.to_raw() == command.new_email:
             raise ChannelEmailAlreadyAssociatedWithThisAcccountError(channel_id=channel.id)
 
         await self._channel_service.try_check_email_exists(email=command.new_email)
@@ -25,7 +25,7 @@ class SetChannelEmailUseCase:
         confirmation_url = self._auth_service.build_set_email_confirm_url(code=code)
         send_channel_set_email_code_command = SendChannelSetEmailCodeCommand(
             email=command.new_email,
-            name=channel.name.value,
+            name=channel.name.to_raw(),
             confirmation_url=confirmation_url,
             code=code,
         )

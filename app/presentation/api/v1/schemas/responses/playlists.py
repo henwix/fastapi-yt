@@ -1,7 +1,7 @@
 from datetime import datetime
 from uuid import UUID
 
-from pydantic import Field, HttpUrl
+from pydantic import Field
 
 from app.application.playlists.dto import DetailedPlaylist, PlaylistPreviewVideo, PreviewPlaylist
 from app.domain.playlists.entities import Playlist
@@ -70,11 +70,6 @@ class PreviewPlaylistOutSchema(BaseSchema):
         )
 
 
-class PreviewPlaylistsCursorResponse(BaseSchema):
-    next_page: HttpUrl | None
-    results: list[PreviewPlaylistOutSchema]
-
-
 class PlaylistPreviewVideoOutSchema(BaseSchema):
     id: str
     title: str
@@ -97,8 +92,3 @@ class PlaylistPreviewVideoOutSchema(BaseSchema):
             author_name=dto.author_name,
             author_slug=dto.author_slug,
         )
-
-
-class PlaylistVideosCursorResponse(BaseSchema):
-    next_page: HttpUrl | None
-    results: list[PlaylistPreviewVideoOutSchema]

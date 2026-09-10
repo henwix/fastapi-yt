@@ -49,9 +49,9 @@ async def test_register_channel_returns_correct_entity_if_created_and_activation
         assert decoded_refresh_token['token_type'] == 'refresh'
 
         assert isinstance(created_channel, Channel)
-        assert created_channel.email.value == command.email
-        assert created_channel.name.value == command.name
-        assert created_channel.slug.value == command.slug
+        assert created_channel.email.to_raw() == command.email
+        assert created_channel.name.to_raw() == command.name
+        assert created_channel.slug.to_raw() == command.slug
         assert created_channel.description == command.description
         assert created_channel.country == command.country
         assert created_channel.avatar_s3_key is None
@@ -101,9 +101,9 @@ async def test_register_channel_returns_correct_entity_if_created_and_activation
         assert decoded_refresh_token['token_type'] == 'refresh'
 
         assert isinstance(created_channel, Channel)
-        assert created_channel.email.value == command.email
-        assert created_channel.name.value == command.name
-        assert created_channel.slug.value == command.slug
+        assert created_channel.email.to_raw() == command.email
+        assert created_channel.name.to_raw() == command.name
+        assert created_channel.slug.to_raw() == command.slug
         assert created_channel.description == command.description
         assert created_channel.country == command.country
         assert created_channel.avatar_s3_key is None

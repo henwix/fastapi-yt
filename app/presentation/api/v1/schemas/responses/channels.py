@@ -24,9 +24,9 @@ class ChannelOutSchema(BaseSchema):
     def from_entity(entity: Channel) -> ChannelOutSchema:
         return ChannelOutSchema(
             id=entity.id,
-            email=entity.email.value,
-            name=entity.name.value,
-            slug=entity.slug.value,
+            email=entity.email.to_raw(),
+            name=entity.name.to_raw(),
+            slug=entity.slug.to_raw(),
             description=entity.description,
             country=entity.country,
             avatar_s3_key=entity.avatar_s3_key,

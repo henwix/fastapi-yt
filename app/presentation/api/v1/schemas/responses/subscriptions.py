@@ -1,8 +1,6 @@
 from datetime import datetime
 from uuid import UUID
 
-from pydantic import HttpUrl
-
 from app.application.subscriptions.dto import DetailedSubscription
 from app.domain.subscriptions.entities import Subscription
 from app.presentation.api.v1.schemas.base import BaseSchema
@@ -36,8 +34,3 @@ class DetailedSubscriptionOutSchema(BaseSchema):
             channel_slug=dto.channel_slug,
             created_at=dto.created_at,
         )
-
-
-class SubscriptionsCursorResponse(BaseSchema):
-    next_page: HttpUrl | None
-    results: list[DetailedSubscriptionOutSchema]

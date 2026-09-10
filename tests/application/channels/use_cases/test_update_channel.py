@@ -35,21 +35,21 @@ async def test_update_channel_returns_correct_entity_if_updated(
 
         assert isinstance(updated_channel, Channel)
         assert updated_channel.id == db_channel.id
-        assert updated_channel.email.value == db_channel.email
+        assert updated_channel.email.to_raw() == db_channel.email
         assert updated_channel.password_hash == db_channel.password_hash
         assert updated_channel.is_active == db_channel.is_active
         assert updated_channel.created_at == db_channel.created_at
         assert updated_channel.updated_at > db_channel.updated_at
 
         assert (
-            updated_channel.name.value == command.name
+            updated_channel.name.to_raw() == command.name
             if command.name is not Empty.UNSET
-            else updated_channel.name.value == db_channel.name
+            else updated_channel.name.to_raw() == db_channel.name
         )
         assert (
-            updated_channel.slug.value == command.slug
+            updated_channel.slug.to_raw() == command.slug
             if command.slug is not Empty.UNSET
-            else updated_channel.slug.value == db_channel.slug
+            else updated_channel.slug.to_raw() == db_channel.slug
         )
         assert (
             updated_channel.description == command.description

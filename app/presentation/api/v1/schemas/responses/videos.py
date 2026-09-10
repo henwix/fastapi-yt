@@ -68,11 +68,6 @@ class ChannelPreviewVideoOutSchema(BaseSchema):
         )
 
 
-class ChannelPreviewVideosCursorResponse(BaseSchema):
-    next_page: HttpUrl | None
-    results: list[ChannelPreviewVideoOutSchema]
-
-
 class PersonalPreviewVideoOutSchema(BaseSchema):
     id: str
     title: str
@@ -91,11 +86,6 @@ class PersonalPreviewVideoOutSchema(BaseSchema):
             created_at=dto.created_at,
             views_count=dto.views_count,
         )
-
-
-class PersonalPreviewVideosCursorResponse(BaseSchema):
-    next_page: HttpUrl | None
-    results: list[PersonalPreviewVideoOutSchema]
 
 
 class GenerateVideoPartUploadUrlOutSchema(BaseSchema):

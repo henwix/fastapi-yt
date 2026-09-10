@@ -3,6 +3,7 @@ from typing import Annotated
 from dishka import FromDishka
 from dishka.integrations.fastapi import DishkaRoute
 from fastapi import APIRouter, Depends, Request, status
+from pydantic import HttpUrl
 
 from app.application.common.pagination import CursorPagination
 from app.application.subscriptions.commands import SubscribeCommand, UnsubscribeCommand
@@ -22,12 +23,12 @@ from app.domain.subscriptions.exceptions import SubscriptionAlreadyExistsError, 
 from app.presentation.api.openapi.common import error_response
 from app.presentation.api.v1.di.current_channel_id import CurrentChannelID
 from app.presentation.api.v1.handlers.common.params import PathChannelSlug
-from app.presentation.api.v1.schemas.common import CursorPaginationParams
+from app.presentation.api.v1.schemas.requests.common import CursorPaginationParams
 from app.presentation.api.v1.schemas.requests.subscriptions import SubscriptionsSortingParams
+from app.presentation.api.v1.schemas.responses.common import CursorPaginationResponse
 from app.presentation.api.v1.schemas.responses.subscriptions import (
     DetailedSubscriptionOutSchema,
     SubscriptionOutSchema,
-    SubscriptionsCursorResponse,
 )
 
 router = APIRouter(
@@ -111,15 +112,15 @@ async def get_subscribers(
     sorting: Annotated[SubscriptionsSortingParams, Depends()],
     pagination: Annotated[CursorPaginationParams, Depends()],
     request: Request,
-) -> SubscriptionsCursorResponse:
+) -> CursorPaginationResponse[DetailedSubscriptionOutSchema]:
     query = GetSubscribersQuery(
         current_channel_id=current_channel_id,
         sorting=SubscriptionsSorting(**sorting.model_dump()),
         pagination=CursorPagination(**pagination.model_dump(exclude_none=True)),
     )
     subscribers, cursor = await use_case.execute(query=query)
-    return SubscriptionsCursorResponse(
-        next_page=str(request.url.include_query_params(cursor=cursor)) if cursor else None,
+    return CursorPaginationResponse(
+        next_page=HttpUrl(str(request.url.include_query_params(cursor=cursor))) if cursor else None,
         results=[DetailedSubscriptionOutSchema.from_dto(dto=sub) for sub in subscribers],
     )
 
@@ -145,14 +146,14 @@ async def get_subscriptions(
     pagination: Annotated[CursorPaginationParams, Depends()],
     use_case: FromDishka[GetSubscriptionsUseCase],
     request: Request,
-) -> SubscriptionsCursorResponse:
+) -> CursorPaginationResponse[DetailedSubscriptionOutSchema]:
     query = GetSubscriptionsQuery(
         current_channel_id=current_channel_id,
         sorting=SubscriptionsSorting(**sorting.model_dump()),
         pagination=CursorPagination(**pagination.model_dump(exclude_none=True)),
     )
     subscriptions, cursor = await use_case.execute(query=query)
-    return SubscriptionsCursorResponse(
-        next_page=str(request.url.include_query_params(cursor=cursor)) if cursor else None,
+    return CursorPaginationResponse(
+        next_page=HttpUrl(str(request.url.include_query_params(cursor=cursor))) if cursor else None,
         results=[DetailedSubscriptionOutSchema.from_dto(dto=sub) for sub in subscriptions],
     )

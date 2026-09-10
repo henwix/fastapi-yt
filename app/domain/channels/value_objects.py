@@ -12,9 +12,7 @@ from app.domain.common.value_objects import BaseValueObject
 
 
 @dataclass
-class Email(BaseValueObject):
-    value: str
-
+class Email(BaseValueObject[str]):
     def _validate(self) -> None:
         value = self.value.strip().lower()
         if not re.fullmatch(pattern=EMAIL_PATTERN, string=value):
@@ -25,9 +23,7 @@ class Email(BaseValueObject):
 
 
 @dataclass
-class Slug(BaseValueObject):
-    value: str
-
+class Slug(BaseValueObject[str]):
     def _validate(self) -> None:
         value = self.value.strip().lower().replace(' ', '')
         if not re.fullmatch(pattern=SLUG_PATTERN, string=value):
@@ -38,9 +34,7 @@ class Slug(BaseValueObject):
 
 
 @dataclass
-class Name(BaseValueObject):
-    value: str
-
+class Name(BaseValueObject[str]):
     def _validate(self) -> None:
         value = self.value.strip()
         if len(value) > CHANNEL_NAME_MAX_LENGTH:

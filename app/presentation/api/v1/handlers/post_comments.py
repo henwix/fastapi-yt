@@ -4,6 +4,7 @@ from uuid import UUID
 from dishka import FromDishka
 from dishka.integrations.fastapi import DishkaRoute
 from fastapi import APIRouter, Depends, Request, status
+from pydantic import HttpUrl
 
 from app.application.common.pagination import CursorPagination
 from app.application.post_comments.commands import (
@@ -24,16 +25,16 @@ from app.domain.post_comments.exceptions import PostCommentAccessForbiddenError,
 from app.domain.posts.exceptions import PostNotFoundError
 from app.presentation.api.openapi.common import error_response
 from app.presentation.api.v1.di.current_channel_id import CurrentChannelID
-from app.presentation.api.v1.schemas.common import CursorPaginationParams
+from app.presentation.api.v1.schemas.requests.common import CursorPaginationParams
 from app.presentation.api.v1.schemas.requests.post_comments import (
     CreatePostCommentInSchema,
     PostCommentsSortingParams,
     UpdatePostCommentInSchema,
 )
+from app.presentation.api.v1.schemas.responses.common import CursorPaginationResponse
 from app.presentation.api.v1.schemas.responses.post_comments import (
     DetailedPostCommentOutSchema,
     PostCommentOutSchema,
-    PostCommentsCursorResponse,
 )
 
 router = APIRouter(
@@ -88,15 +89,15 @@ async def get_post_comments(
     pagination: Annotated[CursorPaginationParams, Depends()],
     use_case: FromDishka[GetPostCommentsUseCase],
     request: Request,
-) -> PostCommentsCursorResponse:
+) -> CursorPaginationResponse[DetailedPostCommentOutSchema]:
     query = GetPostCommentsQuery(
         post_id=post_id,
         sorting=PostCommentsSorting(**sorting.model_dump()),
         pagination=CursorPagination(**pagination.model_dump(exclude_none=True)),
     )
     comments, cursor = await use_case.execute(query=query)
-    return PostCommentsCursorResponse(
-        next_page=str(request.url.include_query_params(cursor=cursor)) if cursor else None,
+    return CursorPaginationResponse(
+        next_page=HttpUrl(str(request.url.include_query_params(cursor=cursor))) if cursor else None,
         results=[DetailedPostCommentOutSchema.from_dto(dto=comment) for comment in comments],
     )
 
@@ -114,15 +115,15 @@ async def get_post_comment_replies(
     pagination: Annotated[CursorPaginationParams, Depends()],
     use_case: FromDishka[GetPostCommentRepliesUseCase],
     request: Request,
-) -> PostCommentsCursorResponse:
+) -> CursorPaginationResponse[DetailedPostCommentOutSchema]:
     query = GetPostCommentRepliesQuery(
         post_comment_id=post_comment_id,
         sorting=PostCommentsSorting(**sorting.model_dump()),
         pagination=CursorPagination(**pagination.model_dump(exclude_none=True)),
     )
     replies, cursor = await use_case.execute(query=query)
-    return PostCommentsCursorResponse(
-        next_page=str(request.url.include_query_params(cursor=cursor)) if cursor else None,
+    return CursorPaginationResponse(
+        next_page=HttpUrl(str(request.url.include_query_params(cursor=cursor))) if cursor else None,
         results=[DetailedPostCommentOutSchema.from_dto(dto=reply) for reply in replies],
     )
 

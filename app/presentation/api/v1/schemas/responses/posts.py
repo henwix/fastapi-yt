@@ -1,8 +1,6 @@
 from datetime import datetime
 from uuid import UUID
 
-from pydantic import HttpUrl
-
 from app.application.posts.dto import DetailedPost
 from app.domain.posts.entities import Post
 from app.presentation.api.v1.schemas.base import BaseSchema
@@ -38,8 +36,3 @@ class DetailedPostOutSchema(BaseSchema):
             channel_name=dto.channel_name,
             channel_slug=dto.channel_slug,
         )
-
-
-class PostsCursorResponse(BaseSchema):
-    next_page: HttpUrl | None
-    results: list[DetailedPostOutSchema]

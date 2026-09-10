@@ -1,7 +1,5 @@
 from datetime import datetime
 
-from pydantic import HttpUrl
-
 from app.application.video_history.dto import PreviewVideoHistory
 from app.domain.videos.enums import VideoPrivacyStatusEnum
 from app.presentation.api.v1.schemas.base import BaseSchema
@@ -29,8 +27,3 @@ class PreviewVideoHistoryOutSchema(BaseSchema):
             author_name=dto.author_name,
             author_slug=dto.author_slug,
         )
-
-
-class VideoHistoryCursorResponse(BaseSchema):
-    next_page: HttpUrl | None
-    results: list[PreviewVideoHistoryOutSchema]

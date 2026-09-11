@@ -1,5 +1,3 @@
-from uuid import uuid7
-
 import pytest
 from dishka import AsyncContainer
 from sqlalchemy.ext.asyncio import AsyncSession
@@ -31,7 +29,6 @@ async def test_generate_video_part_upload_url_returns_correct_url(mock_container
             session=session,
             channel_id=channel.id,
             upload_status=VideoUploadStatusEnum.UPLOADING.value,
-            upload_id=uuid7().hex,
         )
         command = GenerateVideoPartUploadUrlCommandFactory.build(current_channel_id=channel.id, video_id=video.id)
 
@@ -96,7 +93,6 @@ async def test_generate_video_part_upload_url_raises_error_if_access_forbidden(m
             session=session,
             channel_id=author_channel.id,
             upload_status=VideoUploadStatusEnum.UPLOADING.value,
-            upload_id=uuid7().hex,
         )
         command = GenerateVideoPartUploadUrlCommandFactory.build(
             current_channel_id=second_channel.id, video_id=video.id
@@ -117,7 +113,6 @@ async def test_generate_video_part_upload_url_raises_error_if_video_already_uplo
             session=session,
             channel_id=channel.id,
             upload_status=VideoUploadStatusEnum.COMPLETED.value,
-            upload_id=uuid7().hex,
         )
         command = GenerateVideoPartUploadUrlCommandFactory.build(current_channel_id=channel.id, video_id=video.id)
 

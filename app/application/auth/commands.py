@@ -19,6 +19,16 @@ class LoginChannelCommand:
 
 
 @dataclass(kw_only=True, frozen=True)
+class RefreshJWTTokenCommand:
+    refresh: str
+
+
+@dataclass(kw_only=True, frozen=True)
+class LogoutCommand:
+    refresh: str
+
+
+@dataclass(kw_only=True, frozen=True)
 class ActivateChannelCommand:
     current_channel_id: UUID
     code: str

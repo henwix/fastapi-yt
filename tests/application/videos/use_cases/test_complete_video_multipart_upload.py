@@ -1,5 +1,6 @@
+import secrets
 from unittest.mock import patch
-from uuid import uuid4, uuid7
+from uuid import uuid7
 
 import pytest
 from dishka import AsyncContainer
@@ -51,8 +52,7 @@ async def test_complete_video_multipart_upload_returns_none_if_completed(
             session=session,
             channel_id=channel.id,
             upload_status=VideoUploadStatusEnum.UPLOADING.value,
-            upload_id=uuid7().hex,
-            s3_key=f'{test_settings.s3_videos_key_prefix}/{uuid4().hex[:10]}_test.{expected_file_extension}',
+            s3_key=f'{test_settings.s3_videos_key_prefix}/{secrets.token_hex(5)}_test.{expected_file_extension}',
         )
         video_s3_key = video.s3_key
         command = CompleteVideoMultipartUploadCommandFactory.build(
@@ -102,8 +102,7 @@ async def test_complete_video_multipart_upload_raises_error_if_video_file_metada
             session=session,
             channel_id=channel.id,
             upload_status=VideoUploadStatusEnum.UPLOADING.value,
-            upload_id=uuid7().hex,
-            s3_key=f'{test_settings.s3_videos_key_prefix}/{uuid4().hex[:10]}_test.{expected_file_extension}',
+            s3_key=f'{test_settings.s3_videos_key_prefix}/{secrets.token_hex(5)}_test.{expected_file_extension}',
         )
         command = CompleteVideoMultipartUploadCommandFactory.build(
             current_channel_id=channel.id,
@@ -156,8 +155,7 @@ async def test_complete_video_multipart_upload_raises_error_if_video_file_actual
             session=session,
             channel_id=channel.id,
             upload_status=VideoUploadStatusEnum.UPLOADING.value,
-            upload_id=uuid7().hex,
-            s3_key=f'{test_settings.s3_videos_key_prefix}/{uuid4().hex[:10]}_test.{expected_file_extension}',
+            s3_key=f'{test_settings.s3_videos_key_prefix}/{secrets.token_hex(5)}_test.{expected_file_extension}',
         )
         command = CompleteVideoMultipartUploadCommandFactory.build(
             current_channel_id=channel.id,
@@ -255,7 +253,6 @@ async def test_complete_video_multipart_upload_raises_error_if_video_already_upl
             session=session,
             channel_id=channel.id,
             upload_status=VideoUploadStatusEnum.COMPLETED.value,
-            upload_id=uuid7().hex,
         )
         command = CompleteVideoMultipartUploadCommandFactory.build(
             current_channel_id=channel.id,

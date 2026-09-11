@@ -1,4 +1,4 @@
-from uuid import uuid4
+import secrets
 
 import pytest
 from dishka import AsyncContainer
@@ -47,7 +47,7 @@ async def test_create_video_multipart_upload_returns_none_if_created(
             video_id=video.id,
         )
 
-        expected_upload_id = uuid4().hex
+        expected_upload_id = secrets.token_hex(16)
         use_case._s3_service.UPLOAD_ID = expected_upload_id
 
         result = await use_case.execute(command=command)

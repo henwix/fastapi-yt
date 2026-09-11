@@ -5,6 +5,8 @@ from fastapi import APIRouter, status
 from app.application.auth.commands import (
     ActivateChannelCommand,
     LoginChannelCommand,
+    LogoutCommand,
+    RefreshJWTTokenCommand,
     RegisterChannelCommand,
     ResendChannelActivationCodeCommand,
     ResetChannelPasswordCommand,
@@ -15,6 +17,8 @@ from app.application.auth.commands import (
 )
 from app.application.auth.use_cases.activate_channel import ActivateChannelUseCase
 from app.application.auth.use_cases.login_channel import LoginChannelUseCase
+from app.application.auth.use_cases.logout import LogoutUseCase
+from app.application.auth.use_cases.refresh_jwt_token import RefreshJWTTokenUseCase
 from app.application.auth.use_cases.register_channel import RegisterChannelUseCase
 from app.application.auth.use_cases.resend_channel_activation import ResendChannelActivationCodeUseCase
 from app.application.auth.use_cases.reset_channel_password import ResetChannelPasswordUseCase
@@ -30,6 +34,7 @@ from app.domain.auth.exceptions import (
     IncorrectEmailOrPasswordError,
     JWTExpiredTokenError,
     JWTInvalidTokenError,
+    JWTTokenNotFoundError,
     NotAuthenticatedError,
 )
 from app.domain.channels.exceptions import (
@@ -44,6 +49,8 @@ from app.presentation.api.v1.di.current_channel_id import CurrentChannelID
 from app.presentation.api.v1.schemas.requests.auth import (
     ActivateChannelInSchema,
     LoginInSchema,
+    LogoutInSchema,
+    RefreshJWTTokenInSchema,
     RegisterChannelInSchema,
     ResetChannelPasswordConfirmInSchema,
     ResetChannelPasswordInSchema,
@@ -51,7 +58,7 @@ from app.presentation.api.v1.schemas.requests.auth import (
     SetChannelEmailInSchema,
     SetChannelPasswordInSchema,
 )
-from app.presentation.api.v1.schemas.responses.auth import JWTOutSchema, RegisterChannelOutSchema
+from app.presentation.api.v1.schemas.responses.auth import JWTTokensOutSchema, RegisterChannelOutSchema
 from app.presentation.api.v1.schemas.responses.channels import ChannelOutSchema
 
 router = APIRouter(
@@ -79,7 +86,7 @@ async def register_channel(
     channel, tokens, activation_required = await use_case.execute(command=command)
     return RegisterChannelOutSchema(
         channel=ChannelOutSchema.from_entity(entity=channel),
-        tokens=JWTOutSchema(**tokens),
+        tokens=JWTTokensOutSchema.from_dto(dto=tokens),
         activation_required=activation_required,
     )
 
@@ -94,10 +101,49 @@ async def register_channel(
 async def login_channel(
     schema: LoginInSchema,
     use_case: FromDishka[LoginChannelUseCase],
-) -> JWTOutSchema:
+) -> JWTTokensOutSchema:
     command = LoginChannelCommand(**schema.model_dump())
     tokens = await use_case.execute(command=command)
-    return JWTOutSchema(**tokens)
+    return JWTTokensOutSchema.from_dto(dto=tokens)
+
+
+@router.post(
+    path='/jwt_refresh',
+    status_code=status.HTTP_201_CREATED,
+    responses={
+        status.HTTP_401_UNAUTHORIZED: error_response(
+            JWTExpiredTokenError,
+            JWTInvalidTokenError,
+        ),
+        status.HTTP_404_NOT_FOUND: error_response(JWTTokenNotFoundError),
+    },
+)
+async def refresh_jwt_token(
+    schema: RefreshJWTTokenInSchema,
+    use_case: FromDishka[RefreshJWTTokenUseCase],
+) -> JWTTokensOutSchema:
+    command = RefreshJWTTokenCommand(**schema.model_dump())
+    tokens = await use_case.execute(command=command)
+    return JWTTokensOutSchema.from_dto(dto=tokens)
+
+
+@router.post(
+    path='/logout',
+    status_code=status.HTTP_204_NO_CONTENT,
+    responses={
+        status.HTTP_401_UNAUTHORIZED: error_response(
+            JWTExpiredTokenError,
+            JWTInvalidTokenError,
+        ),
+        status.HTTP_404_NOT_FOUND: error_response(JWTTokenNotFoundError),
+    },
+)
+async def logout(
+    schema: LogoutInSchema,
+    use_case: FromDishka[LogoutUseCase],
+) -> None:
+    command = LogoutCommand(**schema.model_dump())
+    await use_case.execute(command=command)
 
 
 @router.post(

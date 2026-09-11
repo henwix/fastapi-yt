@@ -1,5 +1,5 @@
+import secrets
 from dataclasses import dataclass
-from uuid import uuid4
 
 from app.application.oauth.dto import OAuthProviderUserData
 from app.application.oauth.interfaces.provider import IOAuthProvider, IOAuthProviderFactory
@@ -18,9 +18,9 @@ class OAuthService(IOAuthService):
         return f'oauth:state:{self._oauth_provider.provider_name}:{state}'
 
     async def create_state(self) -> str:
-        state = uuid4().hex
+        state = secrets.token_hex(16)
         key = self._build_state_key(state=state)
-        await self._kv_repo.set(key=key, value=state, ttl=60 * 10)
+        await self._kv_repo.set(key=key, value=state, ttl_seconds=60 * 10)
         return state
 
     async def validate_state(self, state: str) -> None:

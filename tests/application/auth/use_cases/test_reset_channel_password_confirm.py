@@ -6,8 +6,8 @@ from pwdlib import PasswordHash
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.application.auth.use_cases.reset_channel_password_confirm import ResetChannelPasswordConfirmUseCase
+from app.application.common.interfaces.auth_code import IAuthCodeService
 from app.domain.auth.exceptions import ChannelInvalidEmailCodeError, ChannelInvalidEmailUIDError
-from app.domain.auth.service import IAuthService
 from app.domain.channels.exceptions import ChannelNotFoundByIdError
 from app.utils.base64url import base64url_encode
 from tests.factories.commands.auth import ResetChannelPasswordConfirmCommandFactory
@@ -20,7 +20,7 @@ _password_hasher = PasswordHash.recommended()
 async def test_reset_channel_password_confirm_returns_none_if_password_updated(mock_container: AsyncContainer):
     async with mock_container() as di:
         use_case = await di.get(ResetChannelPasswordConfirmUseCase)
-        auth_service = await di.get(IAuthService)
+        auth_service = await di.get(IAuthCodeService)
         session = await di.get(AsyncSession)
 
         db_channel = await ChannelORMFactory.create(session=session)
@@ -75,7 +75,7 @@ async def test_reset_channel_password_confirm_raises_error_if_code_not_found(moc
 async def test_reset_channel_password_confirm_raises_error_if_code_mismatch(mock_container: AsyncContainer):
     async with mock_container() as di:
         use_case = await di.get(ResetChannelPasswordConfirmUseCase)
-        auth_service = await di.get(IAuthService)
+        auth_service = await di.get(IAuthCodeService)
 
         channel_id = uuid7()
 
@@ -96,7 +96,7 @@ async def test_reset_channel_password_confirm_raises_error_if_code_mismatch(mock
 async def test_reset_channel_password_confirm_raises_error_if_channel_not_found(mock_container: AsyncContainer):
     async with mock_container() as di:
         use_case = await di.get(ResetChannelPasswordConfirmUseCase)
-        auth_service = await di.get(IAuthService)
+        auth_service = await di.get(IAuthCodeService)
 
         channel_id = uuid7()
 

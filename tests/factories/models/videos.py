@@ -1,6 +1,6 @@
+import secrets
 from datetime import UTC, date, datetime
 from random import Random
-from uuid import uuid4
 
 from faker import Faker
 from polyfactory.factories.sqlalchemy_factory import SQLAlchemyFactory
@@ -41,11 +41,11 @@ class VideoORMFactory(SQLAlchemyFactory[VideoORM]):
 
     @classmethod
     def s3_key(cls) -> str:
-        return f'{settings.s3_videos_key_prefix}/{uuid4().hex[:10]}_test.mp4'
+        return f'{settings.s3_videos_key_prefix}/{secrets.token_hex(5)}_test.mp4'
 
     @classmethod
     def upload_id(cls) -> str:
-        return uuid4().hex
+        return secrets.token_hex(16)
 
     @classmethod
     async def create(cls, session: AsyncSession, **kwargs) -> VideoORM:

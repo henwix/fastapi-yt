@@ -2,7 +2,7 @@ from dataclasses import dataclass
 from datetime import datetime
 from uuid import UUID
 
-from app.application.common.dto import DTO
+from app.application.common.dto.base import DTO
 from app.domain.playlists.enums import PlaylistPrivacyStatusEnum
 from app.domain.videos.enums import VideoPrivacyStatusEnum
 

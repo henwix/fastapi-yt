@@ -1,46 +1,18 @@
-from abc import ABC, abstractmethod
+import secrets
 from dataclasses import dataclass
 from urllib.parse import urlencode
-from uuid import UUID, uuid4
+from uuid import UUID
 
 import msgspec
 
+from app.application.common.interfaces.auth_code import IAuthCodeService
 from app.core.configs import settings
 from app.domain.auth.exceptions import ChannelInvalidEmailCodeError
 from app.domain.common.repos.kv import IKVRepo
 
 
-class IAuthService(ABC):
-    @abstractmethod
-    def build_activation_url(self, code: str) -> str: ...
-
-    @abstractmethod
-    def build_reset_password_confirm_url(self, code: str, uid: str) -> str: ...
-
-    @abstractmethod
-    def build_set_email_confirm_url(self, code: str) -> str: ...
-
-    @abstractmethod
-    async def create_activation_code(self, channel_id: UUID) -> str: ...
-
-    @abstractmethod
-    async def create_reset_password_code(self, channel_id: UUID) -> str: ...
-
-    @abstractmethod
-    async def create_set_email_code(self, channel_id: UUID, new_email: str) -> str: ...
-
-    @abstractmethod
-    async def validate_activation_code(self, channel_id: UUID, code: str) -> None: ...
-
-    @abstractmethod
-    async def validate_reset_password_code(self, channel_id: UUID, code: str) -> str: ...
-
-    @abstractmethod
-    async def validate_set_email_code(self, channel_id: UUID, code: str) -> str: ...
-
-
 @dataclass
-class AuthService(IAuthService):
+class AuthCodeService(IAuthCodeService):
     _kv_repo: IKVRepo
 
     def _build_activation_key(self, channel_id: UUID) -> str:
@@ -53,8 +25,8 @@ class AuthService(IAuthService):
         return f'auth:reset_password:code:{channel_id}'
 
     async def _create_code(self, key: str, ttl: int) -> str:
-        code = uuid4().hex
-        await self._kv_repo.set(key=key, value=code, ttl=ttl)
+        code = secrets.token_hex(16)
+        await self._kv_repo.set(key=key, value=code, ttl_seconds=ttl)
         return code
 
     async def _validate_code(self, key: str, channel_id: UUID, code: str) -> None:
@@ -98,9 +70,9 @@ class AuthService(IAuthService):
 
     async def create_set_email_code(self, channel_id: UUID, new_email: str) -> str:
         key = self._build_set_email_key(channel_id=channel_id)
-        code = uuid4().hex
+        code = secrets.token_hex(16)
         encoded_code_and_email = msgspec.json.encode({'code': code, 'new_email': new_email})
-        await self._kv_repo.set(key=key, value=encoded_code_and_email, ttl=60 * 5)
+        await self._kv_repo.set(key=key, value=encoded_code_and_email, ttl_seconds=60 * 5)
         return code
 
     async def validate_activation_code(self, channel_id: UUID, code: str) -> None:

@@ -47,8 +47,10 @@ async def test_reset_channel_password_returns_none_if_channel_not_found_by_email
 
         with (
             patch.object(use_case._email_task_queue, 'send_channel_reset_password_code') as mock_email_task_queue,
-            patch.object(use_case._auth_service, 'create_reset_password_code') as mock_auth_service_create_code,
-            patch.object(use_case._auth_service, 'build_reset_password_confirm_url') as mock_auth_service_password_url,
+            patch.object(use_case._auth_code_service, 'create_reset_password_code') as mock_auth_service_create_code,
+            patch.object(
+                use_case._auth_code_service, 'build_reset_password_confirm_url'
+            ) as mock_auth_service_password_url,
         ):
             result = await use_case.execute(command=command)
 

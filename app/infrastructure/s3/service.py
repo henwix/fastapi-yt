@@ -1,5 +1,5 @@
+import secrets
 from dataclasses import dataclass
-from uuid import uuid4
 
 from app.application.common.commands.s3 import AbortMultipartUploadCommand, DeleteS3ObjectCommand
 from app.application.common.interfaces.s3.provider import IS3Provider
@@ -13,7 +13,7 @@ class S3Service(IS3Service):
     _s3_task_queue: IS3TaskQueue
 
     def _generate_unique_bucket_key(self, filename: str, key_prefix: str) -> str:
-        return f'{key_prefix}/{uuid4().hex[:10]}_{filename}'
+        return f'{key_prefix}/{secrets.token_hex(5)}_{filename}'
 
     async def create_multipart_upload(
         self,

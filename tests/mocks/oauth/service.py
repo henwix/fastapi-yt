@@ -1,5 +1,5 @@
+import secrets
 from dataclasses import dataclass
-from uuid import uuid4
 
 from app.application.oauth.dto import OAuthProviderUserData
 from app.application.oauth.interfaces.provider import IOAuthProvider
@@ -13,7 +13,7 @@ class MockOAuthService(IOAuthService):
     _oauth_provider: IOAuthProvider
 
     async def create_state(self) -> str:
-        return uuid4().hex
+        return secrets.token_hex(16)
 
     async def validate_state(self, state: str) -> None:
         return

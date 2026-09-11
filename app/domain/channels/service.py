@@ -1,7 +1,8 @@
+import secrets
 from abc import ABC, abstractmethod
 from dataclasses import dataclass
 from pathlib import Path
-from uuid import UUID, uuid4
+from uuid import UUID
 
 from slugify import slugify
 
@@ -86,7 +87,7 @@ class ChannelService(IChannelService):
 
     def build_unique_slug(self, slug: str) -> str:
         base_slug = slug[:29]
-        unique_slug = f'{base_slug}-{uuid4().hex[:10]}'
+        unique_slug = f'{base_slug}-{secrets.token_hex(5)}'
         return unique_slug
 
     async def create(self, channel: Channel) -> Channel:

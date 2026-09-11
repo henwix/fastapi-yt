@@ -1,4 +1,5 @@
-from uuid import UUID, uuid4, uuid7
+import secrets
+from uuid import UUID, uuid7
 
 from app.application.common.interfaces.s3.provider import IS3Provider
 from app.application.common.interfaces.task_queues.s3 import IS3TaskQueue
@@ -11,10 +12,10 @@ class MockS3Service(S3Service):
         self.METADATA_CHANNEL_ID: UUID = uuid7()
         self.CONTENT_TYPE: str = 'image/png'
         self.CONTENT_LENGTH: int = 1024 * 1024 * 1
-        self.UPLOAD_ID: str = uuid4().hex
+        self.UPLOAD_ID: str = secrets.token_hex(16)
 
     def _generate_unique_bucket_key(self, filename: str, key_prefix: str) -> str:
-        return f'{key_prefix}/{uuid4().hex[:10]}_{filename}'
+        return f'{key_prefix}/{secrets.token_hex(5)}_{filename}'
 
     async def get_object(self, bucket: str, key: str, range: str | None = None) -> dict:
         class DummyObjectBody:

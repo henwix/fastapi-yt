@@ -11,6 +11,7 @@ from app.domain.auth.exceptions import (
     IncorrectEmailOrPasswordError,
     JWTExpiredTokenError,
     JWTInvalidTokenError,
+    JWTTokenNotFoundError,
     NotAuthenticatedError,
 )
 from app.domain.channels.exceptions import (
@@ -127,6 +128,7 @@ def get_http_status_code(exc: AppException):
         IncorrectEmailOrPasswordError: status.HTTP_401_UNAUTHORIZED,
         JWTInvalidTokenError: status.HTTP_401_UNAUTHORIZED,
         JWTExpiredTokenError: status.HTTP_401_UNAUTHORIZED,
+        JWTTokenNotFoundError: status.HTTP_404_NOT_FOUND,
         NotAuthenticatedError: status.HTTP_401_UNAUTHORIZED,
         # OAuth
         OAuthInvalidStateError: status.HTTP_400_BAD_REQUEST,

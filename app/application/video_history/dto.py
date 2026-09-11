@@ -1,7 +1,7 @@
 from dataclasses import dataclass
 from datetime import datetime
 
-from app.application.common.dto import DTO
+from app.application.common.dto.base import DTO
 from app.domain.videos.enums import VideoPrivacyStatusEnum
 
 

@@ -5,6 +5,7 @@ from dishka import AsyncContainer
 from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
 
+from app.application.common.dto.jwt import JWTTokens
 from app.application.common.interfaces.jwt import IJWTService
 from app.application.oauth.interfaces.service import IOAuthServiceFactory
 from app.application.oauth.use_cases.verify_code import OAuthVerifyCodeUseCase
@@ -46,20 +47,20 @@ async def test_verify_code_returns_tokens_if_new_channel_and_oauth_account_creat
         assert db_channel is None
         assert db_oauth_account is None
 
-        tokens: dict[str, str] = await use_case.execute(command=command)
+        tokens: JWTTokens = await use_case.execute(command=command)
 
         channel_stmt = select(ChannelORM).where(ChannelORM.email == oauth_provider_user_data.email)
         db_channel = (await session.execute(statement=channel_stmt)).scalar_one()
         oauth_account_stmt = select(OAuthAccountORM).where(OAuthAccountORM.provider_uid == oauth_provider_user_data.uid)
         db_oauth_account = (await session.execute(statement=oauth_account_stmt)).scalar_one()
 
-        decoded_access_token = jwt_service.decode_access_token(tokens['access'])
-        decoded_refresh_token = jwt_service.decode_refresh_token(tokens['refresh'])
+        decoded_access_token = jwt_service.decode_access_token(tokens.access.token)
+        decoded_refresh_token = jwt_service.decode_refresh_token(tokens.refresh.token)
 
-        assert decoded_access_token['sub'] == db_channel.id
-        assert decoded_access_token['token_type'] == 'access'
-        assert decoded_refresh_token['sub'] == db_channel.id
-        assert decoded_refresh_token['token_type'] == 'refresh'
+        assert decoded_access_token.sub == str(db_channel.id)
+        assert decoded_access_token.token_type == 'access'
+        assert decoded_refresh_token.sub == str(db_channel.id)
+        assert decoded_refresh_token.token_type == 'refresh'
 
         assert db_channel.email == oauth_provider_user_data.email
         assert db_channel.slug == oauth_provider_user_data.login
@@ -112,20 +113,20 @@ async def test_verify_code_builds_unique_slug_and_creates_new_channel_if_base_sl
             provider=oauth_provider_user_data.provider,
         )
 
-        tokens: dict[str, str] = await use_case.execute(command=command)
+        tokens: JWTTokens = await use_case.execute(command=command)
 
-        decoded_access_token = jwt_service.decode_access_token(tokens['access'])
-        decoded_refresh_token = jwt_service.decode_refresh_token(tokens['refresh'])
+        decoded_access_token = jwt_service.decode_access_token(tokens.access.token)
+        decoded_refresh_token = jwt_service.decode_refresh_token(tokens.refresh.token)
 
         channel_stmt = select(ChannelORM).where(ChannelORM.email == oauth_provider_user_data.email)
         db_channel = (await session.execute(statement=channel_stmt)).scalar_one()
         oauth_account_stmt = select(OAuthAccountORM).where(OAuthAccountORM.provider_uid == oauth_provider_user_data.uid)
         db_oauth_account = (await session.execute(statement=oauth_account_stmt)).scalar_one()
 
-        assert decoded_access_token['sub'] == db_channel.id
-        assert decoded_access_token['token_type'] == 'access'
-        assert decoded_refresh_token['sub'] == db_channel.id
-        assert decoded_refresh_token['token_type'] == 'refresh'
+        assert decoded_access_token.sub == str(db_channel.id)
+        assert decoded_access_token.token_type == 'access'
+        assert decoded_refresh_token.sub == str(db_channel.id)
+        assert decoded_refresh_token.token_type == 'refresh'
 
         assert db_channel.email == oauth_provider_user_data.email
         assert db_channel.slug.startswith(f'{oauth_provider_user_data.login}-')
@@ -167,15 +168,15 @@ async def test_verify_code_returns_tokens_if_oauth_account_already_connected_and
             provider=oauth_provider_user_data.provider,
         )
 
-        tokens: dict[str, str] = await use_case.execute(command=command)
+        tokens: JWTTokens = await use_case.execute(command=command)
 
-        decoded_access_token = jwt_service.decode_access_token(tokens['access'])
-        decoded_refresh_token = jwt_service.decode_refresh_token(tokens['refresh'])
+        decoded_access_token = jwt_service.decode_access_token(tokens.access.token)
+        decoded_refresh_token = jwt_service.decode_refresh_token(tokens.refresh.token)
 
-        assert decoded_access_token['sub'] == db_channel.id
-        assert decoded_access_token['token_type'] == 'access'
-        assert decoded_refresh_token['sub'] == db_channel.id
-        assert decoded_refresh_token['token_type'] == 'refresh'
+        assert decoded_access_token.sub == str(db_channel.id)
+        assert decoded_access_token.token_type == 'access'
+        assert decoded_refresh_token.sub == str(db_channel.id)
+        assert decoded_refresh_token.token_type == 'refresh'
 
 
 @pytest.mark.asyncio

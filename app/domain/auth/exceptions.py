@@ -21,6 +21,11 @@ class JWTExpiredTokenError(AppException):
 
 
 @dataclass
+class JWTTokenNotFoundError(AppException):
+    message = 'JWT token not found'
+
+
+@dataclass
 class NotAuthenticatedError(AppException):
     message = 'Not authenticated'
 

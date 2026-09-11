@@ -3,12 +3,13 @@ from dataclasses import dataclass
 
 from app.application.auth.commands import RegisterChannelCommand
 from app.application.common.commands.email import SendChannelActivationCodeCommand
-from app.application.common.interfaces.jwt import IJWTService
+from app.application.common.dto.jwt import JWTTokens
+from app.application.common.interfaces.auth import IAuthService
+from app.application.common.interfaces.auth_code import IAuthCodeService
 from app.application.common.interfaces.password_hasher import IPasswordHasher
 from app.application.common.interfaces.task_queues.email import IEmailTaskQueue
 from app.application.common.interfaces.transaction_manager import ITransactionManager
 from app.core.configs import settings
-from app.domain.auth.service import IAuthService
 from app.domain.channels.entities import Channel
 from app.domain.channels.service import IChannelService
 
@@ -19,12 +20,12 @@ password_hash_semaphore = asyncio.Semaphore(2)
 class RegisterChannelUseCase:
     _password_hasher: IPasswordHasher
     _channel_service: IChannelService
+    _auth_code_service: IAuthCodeService
     _auth_service: IAuthService
-    _jwt_service: IJWTService
     _email_task_queue: IEmailTaskQueue
     _transaction_manager: ITransactionManager
 
-    async def execute(self, command: RegisterChannelCommand) -> tuple[Channel, dict[str, str], bool]:
+    async def execute(self, command: RegisterChannelCommand) -> tuple[Channel, JWTTokens, bool]:
         await self._channel_service.try_check_email_exists(email=command.email)
         await self._channel_service.try_check_slug_exists(slug=command.slug)
 
@@ -46,11 +47,11 @@ class RegisterChannelUseCase:
         async with self._transaction_manager:
             channel = await self._channel_service.create(channel=channel_entity)
 
-        tokens = self._jwt_service.create_tokens(sub=channel.id)
+        tokens = await self._auth_service.login(channel_id=channel.id)
 
         if activation_required:
-            code = await self._auth_service.create_activation_code(channel_id=channel.id)
-            activation_url = self._auth_service.build_activation_url(code=code)
+            code = await self._auth_code_service.create_activation_code(channel_id=channel.id)
+            activation_url = self._auth_code_service.build_activation_url(code=code)
             send_channel_activation_code_command = SendChannelActivationCodeCommand(
                 email=channel.email.to_raw(),
                 name=channel.name.to_raw(),

@@ -42,6 +42,14 @@ class LoginInSchema(BaseModel):
     password: str
 
 
+class RefreshJWTTokenInSchema(BaseModel):
+    refresh: str
+
+
+class LogoutInSchema(BaseModel):
+    refresh: str
+
+
 class ActivateChannelInSchema(BaseModel):
     code: str = Field(min_length=32, max_length=32)
 

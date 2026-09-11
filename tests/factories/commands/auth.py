@@ -1,4 +1,5 @@
-from uuid import uuid4, uuid7
+import secrets
+from uuid import uuid7
 
 from faker import Faker
 from polyfactory.factories import DataclassFactory
@@ -48,7 +49,7 @@ class ActivateChannelCommandFactory(DataclassFactory[ActivateChannelCommand]):
 
     @classmethod
     def code(cls) -> str:
-        return uuid4().hex
+        return secrets.token_hex(16)
 
 
 class ResendChannelActivationCodeCommandFactory(DataclassFactory[ResendChannelActivationCodeCommand]):
@@ -69,7 +70,7 @@ class SetChannelEmailConfirmCommandFactory(DataclassFactory[SetChannelEmailConfi
 
     @classmethod
     def code(cls) -> str:
-        return uuid4().hex
+        return secrets.token_hex(16)
 
 
 class ResetChannelPasswordCommandFactory(DataclassFactory[ResetChannelPasswordCommand]):
@@ -87,7 +88,7 @@ class ResetChannelPasswordConfirmCommandFactory(DataclassFactory[ResetChannelPas
 
     @classmethod
     def code(cls) -> str:
-        return uuid4().hex
+        return secrets.token_hex(16)
 
     @classmethod
     def uid(cls) -> str:

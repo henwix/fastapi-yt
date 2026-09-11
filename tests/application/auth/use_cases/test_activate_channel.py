@@ -3,8 +3,8 @@ from dishka import AsyncContainer
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.application.auth.use_cases.activate_channel import ActivateChannelUseCase
+from app.application.common.interfaces.auth_code import IAuthCodeService
 from app.domain.auth.exceptions import ChannelAlreadyActivatedError, ChannelInvalidEmailCodeError
-from app.domain.auth.service import IAuthService
 from app.domain.channels.exceptions import ChannelNotFoundByIdError
 from tests.factories.commands.auth import ActivateChannelCommandFactory
 from tests.factories.models.channels import ChannelORMFactory
@@ -13,7 +13,7 @@ from tests.factories.models.channels import ChannelORMFactory
 @pytest.mark.asyncio
 async def test_activate_channel_returns_none_if_activated(mock_container: AsyncContainer):
     async with mock_container() as di:
-        auth_service = await di.get(IAuthService)
+        auth_service = await di.get(IAuthCodeService)
         use_case = await di.get(ActivateChannelUseCase)
         session = await di.get(AsyncSession)
 
@@ -72,7 +72,7 @@ async def test_activate_channel_raises_error_if_activation_code_not_found(mock_c
 @pytest.mark.asyncio
 async def test_activate_channel_raises_error_if_activation_code_mismatch(mock_container: AsyncContainer):
     async with mock_container() as di:
-        auth_service = await di.get(IAuthService)
+        auth_service = await di.get(IAuthCodeService)
         use_case = await di.get(ActivateChannelUseCase)
         session = await di.get(AsyncSession)
 

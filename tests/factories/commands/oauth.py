@@ -1,4 +1,4 @@
-from uuid import uuid4
+import secrets
 
 from polyfactory.factories import DataclassFactory
 
@@ -14,8 +14,8 @@ class OAuthVerifyCodeCommandFactory(DataclassFactory[OAuthVerifyCodeCommand]):
 
     @classmethod
     def code(cls) -> str:
-        return uuid4().hex
+        return secrets.token_hex(16)
 
     @classmethod
     def state(cls) -> str:
-        return uuid4().hex
+        return secrets.token_hex(16)

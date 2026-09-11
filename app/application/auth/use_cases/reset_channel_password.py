@@ -2,8 +2,8 @@ from dataclasses import dataclass
 
 from app.application.auth.commands import ResetChannelPasswordCommand
 from app.application.common.commands.email import SendChannelResetPasswordCodeCommand
+from app.application.common.interfaces.auth_code import IAuthCodeService
 from app.application.common.interfaces.task_queues.email import IEmailTaskQueue
-from app.domain.auth.service import IAuthService
 from app.domain.channels.service import IChannelService
 from app.utils.base64url import base64url_encode
 
@@ -11,7 +11,7 @@ from app.utils.base64url import base64url_encode
 @dataclass
 class ResetChannelPasswordUseCase:
     _channel_service: IChannelService
-    _auth_service: IAuthService
+    _auth_code_service: IAuthCodeService
     _email_task_queue: IEmailTaskQueue
 
     async def execute(self, command: ResetChannelPasswordCommand) -> None:
@@ -19,9 +19,9 @@ class ResetChannelPasswordUseCase:
         if channel is None:
             return
 
-        code = await self._auth_service.create_reset_password_code(channel_id=channel.id)
+        code = await self._auth_code_service.create_reset_password_code(channel_id=channel.id)
         uid = base64url_encode(value=str(channel.id))
-        confirmation_url = self._auth_service.build_reset_password_confirm_url(code=code, uid=uid)
+        confirmation_url = self._auth_code_service.build_reset_password_confirm_url(code=code, uid=uid)
         send_channel_reset_password_code_command = SendChannelResetPasswordCodeCommand(
             email=channel.email.to_raw(),
             name=channel.name.to_raw(),

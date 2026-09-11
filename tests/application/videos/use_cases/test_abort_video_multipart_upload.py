@@ -104,7 +104,6 @@ async def test_abort_video_multipart_upload_returns_none_if_video_access_forbidd
             session=session,
             channel_id=author_channel.id,
             upload_status=VideoUploadStatusEnum.UPLOADING.value,
-            upload_id=uuid7().hex,
         )
         command = AbortVideoMultipartUploadCommandFactory.build(
             current_channel_id=second_channel.id,

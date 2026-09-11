@@ -40,13 +40,13 @@ async def test_register_channel_returns_correct_entity_if_created_and_activation
 
         mock_email_task_queue.assert_called_once()
 
-        decoded_access_token = jwt_service.decode_access_token(token=tokens['access'])
-        decoded_refresh_token = jwt_service.decode_refresh_token(token=tokens['refresh'])
+        decoded_access_token = jwt_service.decode_access_token(token=tokens.access.token)
+        decoded_refresh_token = jwt_service.decode_refresh_token(token=tokens.refresh.token)
 
-        assert decoded_access_token['sub'] == created_channel.id
-        assert decoded_access_token['token_type'] == 'access'
-        assert decoded_refresh_token['sub'] == created_channel.id
-        assert decoded_refresh_token['token_type'] == 'refresh'
+        assert decoded_access_token.sub == str(created_channel.id)
+        assert decoded_access_token.token_type == 'access'
+        assert decoded_refresh_token.sub == str(created_channel.id)
+        assert decoded_refresh_token.token_type == 'refresh'
 
         assert isinstance(created_channel, Channel)
         assert created_channel.email.to_raw() == command.email
@@ -92,13 +92,13 @@ async def test_register_channel_returns_correct_entity_if_created_and_activation
 
         mock_email_task_queue.assert_not_called()
 
-        decoded_access_token = jwt_service.decode_access_token(token=tokens['access'])
-        decoded_refresh_token = jwt_service.decode_refresh_token(token=tokens['refresh'])
+        decoded_access_token = jwt_service.decode_access_token(token=tokens.access.token)
+        decoded_refresh_token = jwt_service.decode_refresh_token(token=tokens.refresh.token)
 
-        assert decoded_access_token['sub'] == created_channel.id
-        assert decoded_access_token['token_type'] == 'access'
-        assert decoded_refresh_token['sub'] == created_channel.id
-        assert decoded_refresh_token['token_type'] == 'refresh'
+        assert decoded_access_token.sub == str(created_channel.id)
+        assert decoded_access_token.token_type == 'access'
+        assert decoded_refresh_token.sub == str(created_channel.id)
+        assert decoded_refresh_token.token_type == 'refresh'
 
         assert isinstance(created_channel, Channel)
         assert created_channel.email.to_raw() == command.email

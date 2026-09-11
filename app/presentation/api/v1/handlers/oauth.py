@@ -31,7 +31,7 @@ from app.domain.oauth.exceptions import (
 from app.presentation.api.openapi.common import error_response
 from app.presentation.api.v1.di.current_channel_id import CurrentChannelID, OptionalCurrentChannelID
 from app.presentation.api.v1.schemas.requests.oauth import OAuthVerifyCodeInSchema
-from app.presentation.api.v1.schemas.responses.auth import JWTOutSchema
+from app.presentation.api.v1.schemas.responses.auth import JWTTokensOutSchema
 from app.presentation.api.v1.schemas.responses.oauth import OAuthAccountOutSchema, OAuthLoginUrlOutSchema
 
 router = APIRouter(
@@ -59,7 +59,7 @@ async def get_login_url(
     status_code=status.HTTP_201_CREATED,
     responses={
         status.HTTP_201_CREATED: {
-            'model': JWTOutSchema,
+            'model': JWTTokensOutSchema,
             'description': 'Returns JWT tokens if a new channel was created or an existing one was logged in to',
         },
         status.HTTP_204_NO_CONTENT: {
@@ -96,7 +96,7 @@ async def verify_code(
     schema: OAuthVerifyCodeInSchema,
     use_case: FromDishka[OAuthVerifyCodeUseCase],
     response: Response,
-) -> None | JWTOutSchema:
+) -> None | JWTTokensOutSchema:
     command = OAuthVerifyCodeCommand(
         current_channel_id=current_channel_id,
         provider=provider,
@@ -106,7 +106,7 @@ async def verify_code(
     if result is None:
         response.status_code = status.HTTP_204_NO_CONTENT
         return result
-    return JWTOutSchema(**result)
+    return JWTTokensOutSchema.from_dto(dto=result)
 
 
 @router.get(

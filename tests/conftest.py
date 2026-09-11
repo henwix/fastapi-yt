@@ -19,6 +19,7 @@ from app.infrastructure.di.container import (
     OAuthProvider,
     ReadersProvider,
     ReposProvider,
+    SecurityProvider,
     ServicesProvider,
     UseCasesProvider,
 )
@@ -104,6 +105,7 @@ def mock_database_dishka_provider(postgres_url: str, redis_url: str) -> Database
 async def container(mock_database_dishka_provider: DatabaseProvider) -> AsyncGenerator[AsyncContainer]:
     container = make_async_container(
         AppProvider(),
+        SecurityProvider(),
         OAuthProvider(),
         mock_database_dishka_provider,
         ReposProvider(),
@@ -134,6 +136,7 @@ async def mock_container(mock_database_dishka_provider: DatabaseProvider) -> Asy
 
     container = make_async_container(
         MockAppProvider(),
+        SecurityProvider(),
         MockOAuthProvider(),
         mock_database_dishka_provider,
         ReposProvider(),

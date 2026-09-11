@@ -19,7 +19,7 @@ async def get_current_channel_id(
 ) -> UUID:
     token = credentials.credentials
     token_payload = jwt_service.decode_access_token(token=token)
-    return token_payload['sub']
+    return UUID(token_payload.sub)
 
 
 @inject
@@ -31,7 +31,7 @@ async def optional_get_current_channel_id(
         return None
     token = credentials.credentials
     token_payload = jwt_service.decode_access_token(token=token)
-    return token_payload['sub']
+    return UUID(token_payload.sub)
 
 
 CurrentChannelID = Annotated[UUID, Depends(get_current_channel_id)]

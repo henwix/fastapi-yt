@@ -32,7 +32,11 @@ async def test_login_channel_returns_tokens_if_credentials_are_correct(mock_cont
 
         tokens = await use_case.execute(command=command)
 
-        assert tokens == jwt_service.create_tokens(sub=db_channel.id)
+        decoded_refresh_payload = jwt_service.decode_refresh_token(token=tokens.refresh.token)
+        decoded_access_payload = jwt_service.decode_access_token(token=tokens.access.token)
+
+        assert decoded_refresh_payload.sub == str(db_channel.id)
+        assert decoded_access_payload.sub == str(db_channel.id)
 
 
 @pytest.mark.asyncio
@@ -60,7 +64,11 @@ async def test_login_channel_returns_tokens_if_credentials_are_correct_and_chann
 
         tokens = await use_case.execute(command=command)
 
-        assert tokens == jwt_service.create_tokens(sub=db_channel.id)
+        decoded_refresh_payload = jwt_service.decode_refresh_token(token=tokens.refresh.token)
+        decoded_access_payload = jwt_service.decode_access_token(token=tokens.access.token)
+
+        assert decoded_refresh_payload.sub == str(db_channel.id)
+        assert decoded_access_payload.sub == str(db_channel.id)
 
 
 @pytest.mark.asyncio

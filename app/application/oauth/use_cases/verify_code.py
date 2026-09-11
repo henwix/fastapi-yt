@@ -1,6 +1,7 @@
 from dataclasses import dataclass
 
-from app.application.common.interfaces.jwt import IJWTService
+from app.application.common.dto.jwt import JWTTokens
+from app.application.common.interfaces.auth import IAuthService
 from app.application.common.interfaces.transaction_manager import ITransactionManager
 from app.application.oauth.commands import OAuthVerifyCodeCommand
 from app.application.oauth.interfaces.service import IOAuthServiceFactory
@@ -16,10 +17,10 @@ class OAuthVerifyCodeUseCase:
     _oauth_service_factory: IOAuthServiceFactory
     _oauth_account_service: IOAuthAccountService
     _channel_service: IChannelService
-    _jwt_service: IJWTService
+    _auth_service: IAuthService
     _transaction_manager: ITransactionManager
 
-    async def execute(self, command: OAuthVerifyCodeCommand) -> None | dict[str, str]:
+    async def execute(self, command: OAuthVerifyCodeCommand) -> None | JWTTokens:
         oauth_service = self._oauth_service_factory.get(provider_name=command.provider)
         await oauth_service.validate_state(state=command.state)
         token = await oauth_service.exchange_code(code=command.code)
@@ -48,7 +49,7 @@ class OAuthVerifyCodeUseCase:
 
         if oauth_account is not None:
             channel = await self._channel_service.try_get_by_id(id=oauth_account.channel_id)
-            return self._jwt_service.create_tokens(sub=channel.id)
+            return await self._auth_service.login(channel_id=channel.id)
 
         new_channel_entity = Channel.create(
             email=provider_user_data.email,
@@ -70,4 +71,4 @@ class OAuthVerifyCodeUseCase:
             channel = await self._channel_service.create(channel=new_channel_entity)
             await self._oauth_account_service.create(oauth_account=new_oauth_account_entity)
 
-        return self._jwt_service.create_tokens(sub=channel.id)
+        return await self._auth_service.login(channel_id=channel.id)

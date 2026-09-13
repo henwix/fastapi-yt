@@ -46,7 +46,6 @@ class CompleteVideoMultipartUploadUseCase:
         video_metadata_mime_type: str = video_object['ContentType']
         video_actual_mime_type = self._file_type_detector.detect(content=video_object_data)
         allowed_mime_types = VIDEO_FILE_MIME_TYPES.get(Path(video.s3_key).suffix.lower(), [])
-        print(video_metadata_mime_type, video_actual_mime_type)
 
         if video_metadata_mime_type not in allowed_mime_types or video_actual_mime_type not in allowed_mime_types:
             video_s3_key = video.s3_key

@@ -43,7 +43,8 @@ class ConfirmChannelAvatarUploadUseCase:
         )
         avatar_metadata_channel_id: str = avatar_object['Metadata'].get('channel_id')
         avatar_metadata_mime_type: str = avatar_object['ContentType']
-        avatar_metadata_content_length: int = avatar_object['ContentLength']
+        _, avatar_metadata_content_length = avatar_object['ContentRange'].split('/')
+        avatar_metadata_content_length = int(avatar_metadata_content_length)
 
         if avatar_metadata_channel_id != str(channel.id):
             raise S3ObjectAccessForbiddenError(channel_id=channel.id, key=command.key)

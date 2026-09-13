@@ -1,7 +1,7 @@
 from dataclasses import dataclass
 
 from app.application.common.dto.jwt import JWTTokens
-from app.application.common.interfaces.auth import IAuthService
+from app.application.common.interfaces.security.auth import IAuthService
 from app.application.common.interfaces.transaction_manager import ITransactionManager
 from app.application.oauth.commands import OAuthVerifyCodeCommand
 from app.application.oauth.interfaces.service import IOAuthServiceFactory

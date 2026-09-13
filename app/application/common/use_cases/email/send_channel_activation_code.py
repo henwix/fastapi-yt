@@ -2,7 +2,7 @@ from dataclasses import asdict, dataclass
 from logging import getLogger
 
 from app.application.common.commands.email import SendChannelActivationCodeCommand
-from app.application.common.interfaces.email_provider import IEmailProvider
+from app.application.common.interfaces.email.provider import IEmailProvider
 from app.domain.common.exceptions.base import AppException
 
 logger = getLogger(__name__)

@@ -1,6 +1,6 @@
 from urllib.parse import unquote, urlencode
 
-from app.application.common.interfaces.jwt import IJWTService
+from app.application.common.interfaces.security.jwt import IJWTService
 from app.application.oauth.dto import OAuthProviderUserData
 from app.application.oauth.interfaces.provider import IOAuthProvider
 from app.core.configs import settings

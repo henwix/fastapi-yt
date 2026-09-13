@@ -146,7 +146,7 @@ def get_http_status_code(exc: AppException):
         VideoUploadAlreadyCompletedError: status.HTTP_409_CONFLICT,
         VideoUploadAlreadyCreatedError: status.HTTP_409_CONFLICT,
         VideoUploadNotCreatedError: status.HTTP_409_CONFLICT,
-        VideoInvalidFileContentTypeError: status.HTTP_422_UNPROCESSABLE_CONTENT,
+        VideoInvalidFileContentTypeError: status.HTTP_409_CONFLICT,
         VideoAccessForbiddenError: status.HTTP_403_FORBIDDEN,
         VideoNotFoundError: status.HTTP_404_NOT_FOUND,
         # Video views

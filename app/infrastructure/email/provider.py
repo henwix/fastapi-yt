@@ -1,6 +1,6 @@
 from dataclasses import dataclass
 
-from app.application.common.interfaces.email_provider import IEmailProvider
+from app.application.common.interfaces.email.provider import IEmailProvider
 from app.infrastructure.email.client import FastMailClient
 
 

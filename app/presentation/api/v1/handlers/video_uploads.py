@@ -73,8 +73,10 @@ router = APIRouter(
             VideoUploadAlreadyCreatedError,
         ),
         status.HTTP_500_INTERNAL_SERVER_ERROR: error_response(
-            S3ResponseError,
             S3RequestError,
+        ),
+        status.HTTP_502_BAD_GATEWAY: error_response(
+            S3ResponseError,
         ),
     },
 )
@@ -113,7 +115,12 @@ async def create_video_mutipart_upload(
             VideoUploadAlreadyCompletedError,
             VideoUploadNotCreatedError,
         ),
-        status.HTTP_500_INTERNAL_SERVER_ERROR: error_response(S3ResponseError, S3RequestError),
+        status.HTTP_500_INTERNAL_SERVER_ERROR: error_response(
+            S3RequestError,
+        ),
+        status.HTTP_502_BAD_GATEWAY: error_response(
+            S3ResponseError,
+        ),
     },
 )
 async def generate_video_part_upload_url(
@@ -137,7 +144,6 @@ async def generate_video_part_upload_url(
     responses={
         status.HTTP_400_BAD_REQUEST: error_response(
             S3MultipartUploadInvalidPartsError,
-            VideoInvalidFileContentTypeError,
         ),
         status.HTTP_401_UNAUTHORIZED: error_response(
             NotAuthenticatedError,
@@ -156,8 +162,14 @@ async def generate_video_part_upload_url(
         status.HTTP_409_CONFLICT: error_response(
             VideoUploadAlreadyCompletedError,
             VideoUploadNotCreatedError,
+            VideoInvalidFileContentTypeError,
         ),
-        status.HTTP_500_INTERNAL_SERVER_ERROR: error_response(S3ResponseError, S3RequestError),
+        status.HTTP_500_INTERNAL_SERVER_ERROR: error_response(
+            S3RequestError,
+        ),
+        status.HTTP_502_BAD_GATEWAY: error_response(
+            S3ResponseError,
+        ),
     },
 )
 async def complete_video_multipart_upload(
@@ -195,7 +207,12 @@ async def complete_video_multipart_upload(
             VideoUploadAlreadyCompletedError,
             VideoUploadNotCreatedError,
         ),
-        status.HTTP_500_INTERNAL_SERVER_ERROR: error_response(S3ResponseError, S3RequestError),
+        status.HTTP_500_INTERNAL_SERVER_ERROR: error_response(
+            S3RequestError,
+        ),
+        status.HTTP_502_BAD_GATEWAY: error_response(
+            S3ResponseError,
+        ),
     },
 )
 async def abort_video_multipart_upload(

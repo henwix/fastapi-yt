@@ -2,8 +2,8 @@ from dataclasses import dataclass
 from uuid import UUID
 
 from app.application.common.dto.jwt import JWTRefreshToken, JWTTokens
-from app.application.common.interfaces.auth import IAuthService
-from app.application.common.interfaces.jwt import IJWTService
+from app.application.common.interfaces.security.auth import IAuthService
+from app.application.common.interfaces.security.jwt import IJWTService
 from app.core.configs import settings
 from app.domain.auth.exceptions import JWTTokenNotFoundError
 from app.domain.common.repos.kv import IKVRepo

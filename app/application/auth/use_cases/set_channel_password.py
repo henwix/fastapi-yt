@@ -2,7 +2,7 @@ import asyncio
 from dataclasses import dataclass
 
 from app.application.auth.commands import SetChannelPasswordCommand
-from app.application.common.interfaces.password_hasher import IPasswordHasher
+from app.application.common.interfaces.security.password_hasher import IPasswordHasher
 from app.application.common.interfaces.transaction_manager import ITransactionManager
 from app.domain.channels.service import IChannelService
 

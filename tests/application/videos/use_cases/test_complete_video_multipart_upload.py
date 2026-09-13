@@ -323,7 +323,7 @@ async def test_complete_video_multipart_upload_raises_error_if_video_upload_not_
             session=session,
             channel_id=channel.id,
             upload_status=VideoUploadStatusEnum.UPLOADING.value,
-            upload_id=None,
+            s3_key=None,
         )
         command = CompleteVideoMultipartUploadCommandFactory.build(
             current_channel_id=channel.id,

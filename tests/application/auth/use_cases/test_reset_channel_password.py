@@ -24,11 +24,11 @@ async def test_reset_channel_password_returns_none_if_email_sent(
 
         command = ResetChannelPasswordCommandFactory.build(email=db_channel.email)
 
-        with patch.object(use_case._email_task_queue, 'send_channel_reset_password_code') as mock_email_task_queue:
+        with patch.object(use_case._email_service, 'schedule_send_channel_reset_password_code') as mock_email_service:
             result = await use_case.execute(command=command)
 
         assert result is None
-        mock_email_task_queue.assert_called_once()
+        mock_email_service.assert_called_once()
 
         code = await kv_repo.get(f'auth:reset_password:code:{db_channel.id}')
         assert code is not None
@@ -46,15 +46,15 @@ async def test_reset_channel_password_returns_none_if_channel_not_found_by_email
         command = ResetChannelPasswordCommandFactory.build()
 
         with (
-            patch.object(use_case._email_task_queue, 'send_channel_reset_password_code') as mock_email_task_queue,
+            patch.object(use_case._email_service, 'schedule_send_channel_reset_password_code') as mock_email_service,
             patch.object(use_case._auth_code_service, 'create_reset_password_code') as mock_auth_service_create_code,
             patch.object(
                 use_case._auth_code_service, 'build_reset_password_confirm_url'
-            ) as mock_auth_service_password_url,
+            ) as mock_auth_code_service_password_url,
         ):
             result = await use_case.execute(command=command)
 
         assert result is None
-        mock_email_task_queue.assert_not_called()
+        mock_email_service.assert_not_called()
         mock_auth_service_create_code.assert_not_called()
-        mock_auth_service_password_url.assert_not_called()
+        mock_auth_code_service_password_url.assert_not_called()

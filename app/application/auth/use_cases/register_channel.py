@@ -2,12 +2,11 @@ import asyncio
 from dataclasses import dataclass
 
 from app.application.auth.commands import RegisterChannelCommand
-from app.application.common.commands.email import SendChannelActivationCodeCommand
 from app.application.common.dto.jwt import JWTTokens
-from app.application.common.interfaces.auth import IAuthService
-from app.application.common.interfaces.auth_code import IAuthCodeService
-from app.application.common.interfaces.password_hasher import IPasswordHasher
-from app.application.common.interfaces.task_queues.email import IEmailTaskQueue
+from app.application.common.interfaces.email.service import IEmailService
+from app.application.common.interfaces.security.auth import IAuthService
+from app.application.common.interfaces.security.auth_code import IAuthCodeService
+from app.application.common.interfaces.security.password_hasher import IPasswordHasher
 from app.application.common.interfaces.transaction_manager import ITransactionManager
 from app.core.configs import settings
 from app.domain.channels.entities import Channel
@@ -22,7 +21,7 @@ class RegisterChannelUseCase:
     _channel_service: IChannelService
     _auth_code_service: IAuthCodeService
     _auth_service: IAuthService
-    _email_task_queue: IEmailTaskQueue
+    _email_service: IEmailService
     _transaction_manager: ITransactionManager
 
     async def execute(self, command: RegisterChannelCommand) -> tuple[Channel, JWTTokens, bool]:
@@ -52,11 +51,10 @@ class RegisterChannelUseCase:
         if activation_required:
             code = await self._auth_code_service.create_activation_code(channel_id=channel.id)
             activation_url = self._auth_code_service.build_activation_url(code=code)
-            send_channel_activation_code_command = SendChannelActivationCodeCommand(
+            await self._email_service.schedule_send_channel_activation_code(
                 email=channel.email.to_raw(),
                 name=channel.name.to_raw(),
                 activation_url=activation_url,
                 code=code,
             )
-            await self._email_task_queue.send_channel_activation_code(command=send_channel_activation_code_command)
         return channel, tokens, activation_required

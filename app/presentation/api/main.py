@@ -10,6 +10,7 @@ from app.infrastructure.di.container import get_container
 from app.infrastructure.logging.config import configure_logging
 from app.infrastructure.taskiq.broker import get_broker
 from app.presentation.api.exception_handler import exception_handler
+from app.presentation.api.responses.msgspec import MsgSpecJSONResponse
 from app.presentation.api.v1.router import v1_router
 
 
@@ -48,7 +49,11 @@ async def lifespan(app: FastAPI):
 def create_app() -> FastAPI:
     configure_logging()
 
-    app = FastAPI(title=settings.app_name, lifespan=lifespan)
+    app = FastAPI(
+        title=settings.app_name,
+        lifespan=lifespan,
+        default_response_class=MsgSpecJSONResponse,
+    )
     app.add_exception_handler(AppException, exception_handler)
 
     init_di(app=app)

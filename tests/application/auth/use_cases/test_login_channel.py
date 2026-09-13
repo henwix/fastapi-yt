@@ -3,8 +3,8 @@ from dishka import AsyncContainer
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.application.auth.use_cases.login_channel import LoginChannelUseCase
-from app.application.common.interfaces.jwt import IJWTService
-from app.application.common.interfaces.password_hasher import IPasswordHasher
+from app.application.common.interfaces.security.jwt import IJWTService
+from app.application.common.interfaces.security.password_hasher import IPasswordHasher
 from app.domain.auth.exceptions import IncorrectEmailOrPasswordError
 from tests.factories.commands.auth import LoginChannelCommandFactory
 from tests.factories.models.channels import ChannelORMFactory

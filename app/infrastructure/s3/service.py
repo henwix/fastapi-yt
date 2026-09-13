@@ -4,13 +4,12 @@ from dataclasses import dataclass
 from app.application.common.commands.s3 import AbortMultipartUploadCommand, DeleteS3ObjectCommand
 from app.application.common.interfaces.s3.provider import IS3Provider
 from app.application.common.interfaces.s3.service import IS3Service
-from app.application.common.interfaces.task_queues.s3 import IS3TaskQueue
+from app.infrastructure.taskiq.tasks.s3 import s3_abort_multipart_upload_task, s3_delete_object_task
 
 
 @dataclass
 class S3Service(IS3Service):
     _provider: IS3Provider
-    _s3_task_queue: IS3TaskQueue
 
     def _generate_unique_bucket_key(self, filename: str, key_prefix: str) -> str:
         return f'{key_prefix}/{secrets.token_hex(5)}_{filename}'
@@ -70,7 +69,7 @@ class S3Service(IS3Service):
         upload_id: str,
     ) -> None:
         command = AbortMultipartUploadCommand(bucket=bucket, key=key, upload_id=upload_id)
-        await self._s3_task_queue.abort_multipart_upload(command=command)
+        await s3_abort_multipart_upload_task.kiq(command=command)
 
     async def generate_part_upload_url(
         self,
@@ -105,7 +104,7 @@ class S3Service(IS3Service):
 
     async def schedule_delete_object(self, bucket: str, key: str) -> None:
         command = DeleteS3ObjectCommand(bucket=bucket, key=key)
-        await self._s3_task_queue.delete_s3_object(command=command)
+        await s3_delete_object_task.kiq(command)
 
     async def copy_object(self, bucket: str, current_key: str, new_key: str) -> None:
         await self._provider.copy_object(bucket=bucket, current_key=current_key, new_key=new_key)

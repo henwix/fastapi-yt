@@ -1,7 +1,7 @@
 from dataclasses import dataclass
 
 from app.application.auth.commands import LogoutCommand
-from app.application.common.interfaces.auth import IAuthService
+from app.application.common.interfaces.security.auth import IAuthService
 
 
 @dataclass

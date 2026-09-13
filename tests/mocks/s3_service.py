@@ -2,13 +2,12 @@ import secrets
 from uuid import UUID, uuid7
 
 from app.application.common.interfaces.s3.provider import IS3Provider
-from app.application.common.interfaces.task_queues.s3 import IS3TaskQueue
 from app.infrastructure.s3.service import S3Service
 
 
 class MockS3Service(S3Service):
-    def __init__(self, _provider: IS3Provider, _s3_task_queue: IS3TaskQueue):
-        super().__init__(_provider=_provider, _s3_task_queue=_s3_task_queue)
+    def __init__(self, _provider: IS3Provider):
+        super().__init__(_provider=_provider)
         self.METADATA_CHANNEL_ID: UUID = uuid7()
         self.CONTENT_TYPE: str = 'image/png'
         self.CONTENT_LENGTH: int = 1024 * 1024 * 1
@@ -25,7 +24,8 @@ class MockS3Service(S3Service):
         return {
             'Metadata': {'channel_id': str(self.METADATA_CHANNEL_ID)},
             'ContentType': self.CONTENT_TYPE,
-            'ContentLength': self.CONTENT_LENGTH,
+            'ContentLength': '2048',
+            'ContentRange': f'bytes 0-2047/{self.CONTENT_LENGTH}',
             'Body': DummyObjectBody(),
         }
 

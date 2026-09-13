@@ -5,7 +5,7 @@ from uuid import UUID
 
 import msgspec
 
-from app.application.common.interfaces.auth_code import IAuthCodeService
+from app.application.common.interfaces.security.auth_code import IAuthCodeService
 from app.core.configs import settings
 from app.domain.auth.exceptions import ChannelInvalidEmailCodeError
 from app.domain.common.repos.kv import IKVRepo

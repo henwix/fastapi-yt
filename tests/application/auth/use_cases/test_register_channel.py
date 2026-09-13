@@ -6,8 +6,8 @@ from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.application.auth.use_cases.register_channel import RegisterChannelUseCase
-from app.application.common.interfaces.jwt import IJWTService
-from app.application.common.interfaces.password_hasher import IPasswordHasher
+from app.application.common.interfaces.security.jwt import IJWTService
+from app.application.common.interfaces.security.password_hasher import IPasswordHasher
 from app.core.configs import Settings
 from app.domain.channels.entities import Channel
 from app.domain.channels.exceptions import ChannelWithEmailAlreadyExistsError, ChannelWithSlugAlreadyExistsError
@@ -29,7 +29,7 @@ async def test_register_channel_returns_correct_entity_if_created_and_activation
         jwt_service = await di.get(IJWTService)
         command = RegisterChannelCommandFactory.build()
 
-        with patch.object(use_case._email_task_queue, 'send_channel_activation_code') as mock_email_task_queue:
+        with patch.object(use_case._email_service, 'schedule_send_channel_activation_code') as mock_email_service:
             created_channel, tokens, is_activation_required = await use_case.execute(command=command)
 
         stmt = select(ChannelORM).where(ChannelORM.id == created_channel.id)
@@ -38,7 +38,7 @@ async def test_register_channel_returns_correct_entity_if_created_and_activation
 
         assert is_activation_required
 
-        mock_email_task_queue.assert_called_once()
+        mock_email_service.assert_called_once()
 
         decoded_access_token = jwt_service.decode_access_token(token=tokens.access.token)
         decoded_refresh_token = jwt_service.decode_refresh_token(token=tokens.refresh.token)
@@ -81,7 +81,7 @@ async def test_register_channel_returns_correct_entity_if_created_and_activation
         jwt_service = await di.get(IJWTService)
         command = RegisterChannelCommandFactory.build()
 
-        with patch.object(use_case._email_task_queue, 'send_channel_activation_code') as mock_email_task_queue:
+        with patch.object(use_case._email_service, 'schedule_send_channel_activation_code') as mock_email_service:
             created_channel, tokens, is_activation_required = await use_case.execute(command=command)
 
         stmt = select(ChannelORM).where(ChannelORM.id == created_channel.id)
@@ -90,7 +90,7 @@ async def test_register_channel_returns_correct_entity_if_created_and_activation
 
         assert not is_activation_required
 
-        mock_email_task_queue.assert_not_called()
+        mock_email_service.assert_not_called()
 
         decoded_access_token = jwt_service.decode_access_token(token=tokens.access.token)
         decoded_refresh_token = jwt_service.decode_refresh_token(token=tokens.refresh.token)

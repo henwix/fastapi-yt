@@ -1,5 +1,4 @@
 from dataclasses import dataclass
-from typing import Any
 
 from redis.asyncio import Redis
 
@@ -10,10 +9,10 @@ from app.domain.common.repos.kv import IKVRepo
 class RedisRepo(IKVRepo):
     _redis: Redis
 
-    async def set(self, key: str, value: Any, ttl_seconds: int) -> None:
+    async def set(self, key: str, value: str | bytes | int | float, ttl_seconds: int) -> None:
         await self._redis.set(name=key, value=value, ex=ttl_seconds)
 
-    async def get(self, key: str) -> Any:
+    async def get(self, key: str) -> str | bytes | None:
         return await self._redis.get(name=key)
 
     async def delete(self, key: str) -> bool:

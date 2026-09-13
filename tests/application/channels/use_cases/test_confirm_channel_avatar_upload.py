@@ -24,16 +24,16 @@ from tests.factories.models.channels import ChannelORMFactory
 @pytest.mark.parametrize(
     'expected_content_length',
     [
-        1024 * 1024 * 0.3,
-        1024 * 1024 * 0.1,
-        1024 * 1024 * 0.9,
-        1024 * 1024 * 1,
-        1024 * 1024 * 1.5,
-        1024 * 1024 * 2,
-        1024 * 1024 * 3,
-        1024 * 1024 * 4,
-        1024 * 1024 * 4.9,
-        1024 * 1024 * 5,
+        314572,
+        104857,
+        943718,
+        1048576,
+        1572864,
+        2097152,
+        3145728,
+        4194304,
+        5138022,
+        5242880,
     ],
 )
 async def test_confirm_channel_avatar_upload_returns_none_if_avatar_updated_with_existing_avatar(
@@ -283,11 +283,11 @@ async def test_confirm_channel_avatar_upload_raises_error_if_s3_object_invalid_c
 @pytest.mark.parametrize(
     'expected_content_length',
     [
-        1024 * 1024 * 5.1,
-        1024 * 1024 * 5.6,
+        1024 * 1024 * 6,
         1024 * 1024 * 7,
         1024 * 1024 * 9,
-        1024 * 1024 * 35.2,
+        1024 * 1024 * 21,
+        1024 * 1024 * 35,
         1024 * 1024 * 125,
         1024 * 1024 * 250,
         1024 * 1024 * 333,

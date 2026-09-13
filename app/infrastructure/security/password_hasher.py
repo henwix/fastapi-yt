@@ -1,6 +1,6 @@
 from pwdlib import PasswordHash
 
-from app.application.common.interfaces.password_hasher import IPasswordHasher
+from app.application.common.interfaces.security.password_hasher import IPasswordHasher
 
 _password_hasher = PasswordHash.recommended()
 _dummy_password = 'not-a-real-password'

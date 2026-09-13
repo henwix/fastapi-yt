@@ -3,7 +3,7 @@ from dishka import AsyncContainer
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.application.auth.use_cases.set_channel_email_confirm import SetChannelEmailConfirmUseCase
-from app.application.common.interfaces.auth_code import IAuthCodeService
+from app.application.common.interfaces.security.auth_code import IAuthCodeService
 from app.domain.auth.exceptions import ChannelInvalidEmailCodeError
 from app.domain.channels.exceptions import ChannelNotActiveError, ChannelNotFoundByIdError
 from tests.factories.commands.auth import SetChannelEmailConfirmCommandFactory
@@ -16,11 +16,11 @@ async def test_set_channel_email_confirm_returns_none_if_email_confirmed(mock_co
         expected_new_email = 'testnewemail@test.com'
         use_case = await di.get(SetChannelEmailConfirmUseCase)
         session = await di.get(AsyncSession)
-        auth_service = await di.get(IAuthCodeService)
+        auth_code_service = await di.get(IAuthCodeService)
 
         db_channel = await ChannelORMFactory.create(session=session)
 
-        code = await auth_service.create_set_email_code(channel_id=db_channel.id, new_email=expected_new_email)
+        code = await auth_code_service.create_set_email_code(channel_id=db_channel.id, new_email=expected_new_email)
         command = SetChannelEmailConfirmCommandFactory.build(current_channel_id=db_channel.id, code=code)
 
         result = await use_case.execute(command=command)
@@ -77,10 +77,10 @@ async def test_set_channel_email_confirm_raises_error_if_code_mismatch(mock_cont
     async with mock_container() as di:
         use_case = await di.get(SetChannelEmailConfirmUseCase)
         session = await di.get(AsyncSession)
-        auth_service = await di.get(IAuthCodeService)
+        auth_code_service = await di.get(IAuthCodeService)
 
         db_channel = await ChannelORMFactory.create(session=session)
-        await auth_service.create_set_email_code(channel_id=db_channel.id, new_email='test@test.com')
+        await auth_code_service.create_set_email_code(channel_id=db_channel.id, new_email='test@test.com')
 
         command = SetChannelEmailConfirmCommandFactory.build(current_channel_id=db_channel.id)
 

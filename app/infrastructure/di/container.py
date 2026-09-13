@@ -26,16 +26,15 @@ from app.application.channels.use_cases.generate_channel_avatar_upload_url impor
 from app.application.channels.use_cases.get_channel import GetChannelUseCase
 from app.application.channels.use_cases.get_channel_about_info import GetChannelAboutInfoUseCase
 from app.application.channels.use_cases.update_channel import UpdateChannelUseCase
-from app.application.common.interfaces.auth import IAuthService
-from app.application.common.interfaces.auth_code import IAuthCodeService
-from app.application.common.interfaces.email_provider import IEmailProvider
+from app.application.common.interfaces.email.provider import IEmailProvider
+from app.application.common.interfaces.email.service import IEmailService
 from app.application.common.interfaces.file_type_detector import IFileTypeDetector
-from app.application.common.interfaces.jwt import IJWTService
-from app.application.common.interfaces.password_hasher import IPasswordHasher
 from app.application.common.interfaces.s3.provider import IS3Provider
 from app.application.common.interfaces.s3.service import IS3Service
-from app.application.common.interfaces.task_queues.email import IEmailTaskQueue
-from app.application.common.interfaces.task_queues.s3 import IS3TaskQueue
+from app.application.common.interfaces.security.auth import IAuthService
+from app.application.common.interfaces.security.auth_code import IAuthCodeService
+from app.application.common.interfaces.security.jwt import IJWTService
+from app.application.common.interfaces.security.password_hasher import IPasswordHasher
 from app.application.common.interfaces.transaction_manager import ITransactionManager
 from app.application.common.use_cases.email.send_channel_activation_code import SendChannelActivationCodeUseCase
 from app.application.common.use_cases.email.send_channel_reset_password_code import SendChannelResetPasswordCodeUseCase
@@ -148,6 +147,7 @@ from app.domain.videos.repo import IVideoRepo
 from app.domain.videos.service import IVideoService, VideoService
 from app.infrastructure.email.client import FastMailClient
 from app.infrastructure.email.provider import FastMailProvider
+from app.infrastructure.email.service import EmailService
 from app.infrastructure.files.file_type_detector import FileTypeDetector
 from app.infrastructure.http.base import IHttpClient
 from app.infrastructure.http.httpx_client import HttpxHttpClient
@@ -190,8 +190,6 @@ from app.infrastructure.sqlalchemy.repos.video_reactions import SAVideoReactionR
 from app.infrastructure.sqlalchemy.repos.video_views import SAVideoViewRepo
 from app.infrastructure.sqlalchemy.repos.videos import SAVideoRepo
 from app.infrastructure.sqlalchemy.transaction_manager import SATransactionManager
-from app.infrastructure.taskiq.task_queues.email import TaskiqEmailTaskQueue
-from app.infrastructure.taskiq.task_queues.s3 import TaskiqS3TaskQueue
 
 
 class AppProvider(Provider):
@@ -213,8 +211,7 @@ class AppProvider(Provider):
     s3_provider = provide(BotoS3Provider, scope=Scope.REQUEST, provides=IS3Provider)
     s3_service = provide(S3Service, scope=Scope.REQUEST, provides=IS3Service)
     email_provider = provide(FastMailProvider, scope=Scope.REQUEST, provides=IEmailProvider)
-    s3_task_queue = provide(TaskiqS3TaskQueue, scope=Scope.REQUEST, provides=IS3TaskQueue)
-    email_task_queue = provide(TaskiqEmailTaskQueue, scope=Scope.REQUEST, provides=IEmailTaskQueue)
+    email_service = provide(EmailService, scope=Scope.REQUEST, provides=IEmailService)
 
 
 class SecurityProvider(Provider):

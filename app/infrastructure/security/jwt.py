@@ -4,7 +4,7 @@ from datetime import timedelta
 import jwt
 
 from app.application.common.dto.jwt import JWTAccessToken, JWTRefreshToken, JWTTokenPayload
-from app.application.common.interfaces.jwt import IJWTService
+from app.application.common.interfaces.security.jwt import IJWTService
 from app.core.configs import settings
 from app.domain.auth.exceptions import JWTExpiredTokenError, JWTInvalidTokenError
 from app.utils.datetime import get_current_utc_datetime

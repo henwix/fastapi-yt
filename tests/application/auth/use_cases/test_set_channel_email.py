@@ -27,11 +27,11 @@ async def test_set_channel_email_returns_none_if_email_sent(mock_container: Asyn
         db_channel = await ChannelORMFactory.create(session=session)
         command = SetChannelEmailCommandFactory.build(current_channel_id=db_channel.id)
 
-        with patch.object(use_case._email_task_queue, 'send_channel_set_email_code') as mock_email_task_queue:
+        with patch.object(use_case._email_service, 'schedule_send_channel_set_email_code') as mock_email_service:
             result = await use_case.execute(command=command)
 
         assert result is None
-        mock_email_task_queue.assert_called_once()
+        mock_email_service.assert_called_once()
 
         saved_code_and_channel = await kv_repo.get(f'auth:set_email:code_and_email:{db_channel.id}')
         assert isinstance(saved_code_and_channel, str)

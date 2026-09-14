@@ -1,0 +1,42 @@
+DC := "docker compose"
+LOGS := "docker logs"
+EXEC := "docker exec -it"
+APP_DEV_FILE := "docker_compose/backend.yaml"
+STORAGES_FILE := "docker_compose/storages.yaml"
+APP_CONTAINER := "fastapi-yt-backend-dev"
+TASKIQ_CONTAINER := "fastapi-yt-taskiq-dev"
+DATABASE_CONTAINER := "fastapi-yt-postgres-dev"
+ENV := "--env-file .env"
+
+help:
+  just -l
+
+up:
+	{{DC}} -f {{APP_DEV_FILE}} {{ENV}} -f {{STORAGES_FILE}} {{ENV}} up --build -d
+
+logs:
+	{{LOGS}} {{APP_CONTAINER}} -f
+
+taskiq-logs:
+	{{LOGS}} {{TASKIQ_CONTAINER}} -f
+
+down:
+	{{DC}} -f {{APP_DEV_FILE}} {{ENV}} -f {{STORAGES_FILE}} {{ENV}} down
+
+restart:
+	{{DC}} -f {{APP_DEV_FILE}} {{ENV}} -f {{STORAGES_FILE}} {{ENV}} down && {{DC}} -f {{APP_DEV_FILE}} {{ENV}} -f {{STORAGES_FILE}} {{ENV}} up --build -d
+
+makemigrations m:
+	{{EXEC}} {{APP_CONTAINER}} alembic revision --autogenerate -m "{{m}}"
+
+migrate:
+	{{EXEC}} {{APP_CONTAINER}} alembic upgrade head
+
+downgrade:
+	{{EXEC}} {{APP_CONTAINER}} alembic downgrade -1
+
+shell:
+	{{EXEC}} {{APP_CONTAINER}} python -m asyncio
+
+test *args:
+	uv run pytest -s {{args}}

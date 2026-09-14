@@ -6,7 +6,7 @@ from app.application.common.interfaces.file_type_detector import IFileTypeDetect
 from app.application.common.interfaces.s3.service import IS3Service
 from app.application.common.interfaces.transaction_manager import ITransactionManager
 from app.core.configs import settings
-from app.domain.channels.constants import CHANNEL_AVATAR_FILE_MIME_TYPES, CHANNEL_AVATAR_MAX_SIZE
+from app.domain.channels.constants import CHANNEL_AVATAR_MAX_SIZE
 from app.domain.channels.exceptions import (
     ChannelAvatarAlreadySetError,
     ChannelAvatarInvalidFileContentTypeError,
@@ -14,6 +14,7 @@ from app.domain.channels.exceptions import (
     ChannelAvatarSizeTooBigError,
 )
 from app.domain.channels.service import IChannelService
+from app.domain.common.constants import IMAGE_FILE_MIME_TYPES
 from app.domain.common.exceptions.s3 import S3ObjectAccessForbiddenError
 
 
@@ -61,8 +62,8 @@ class ConfirmChannelAvatarUploadUseCase:
         actual_avatar_mime_type = self._file_type_detector.detect(content=avatar_object_data)
 
         if (
-            actual_avatar_mime_type not in CHANNEL_AVATAR_FILE_MIME_TYPES.values()
-            or avatar_metadata_mime_type not in CHANNEL_AVATAR_FILE_MIME_TYPES.values()
+            actual_avatar_mime_type not in IMAGE_FILE_MIME_TYPES.values()
+            or avatar_metadata_mime_type not in IMAGE_FILE_MIME_TYPES.values()
         ):
             await self._s3_service.schedule_delete_object(bucket=settings.s3_public_bucket_name, key=command.key)
             raise ChannelAvatarInvalidFileContentTypeError(

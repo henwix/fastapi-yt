@@ -5,9 +5,4 @@ VIDEO_TITLE_MAX_LENGTH = 100
 
 VIDEO_DESCRIPTION_MAX_LENGTH = 5000
 
-VIDEO_FILE_MIME_TYPES = {
-    '.mp4': ['video/mp4'],
-    '.mov': ['video/quicktime'],
-    '.mkv': ['video/matroska', 'video/x-matroska'],
-    '.webm': ['video/webm'],
-}
+VIDEO_THUMBNAIL_MAX_SIZE = 5242880  # 5 mb in bytes

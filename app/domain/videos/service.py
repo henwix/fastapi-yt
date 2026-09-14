@@ -3,7 +3,7 @@ from dataclasses import dataclass
 from pathlib import Path
 
 from app.domain.channels.entities import Channel
-from app.domain.videos.constants import VIDEO_FILE_MIME_TYPES
+from app.domain.common.constants import VIDEO_FILE_MIME_TYPES
 from app.domain.videos.entities import Video
 from app.domain.videos.enums import VideoUploadStatusEnum
 from app.domain.videos.exceptions import (

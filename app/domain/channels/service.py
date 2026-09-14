@@ -6,7 +6,6 @@ from uuid import UUID
 
 from slugify import slugify
 
-from app.domain.channels.constants import CHANNEL_AVATAR_FILE_MIME_TYPES
 from app.domain.channels.entities import Channel
 from app.domain.channels.exceptions import (
     ChannelActivationFailedError,
@@ -18,6 +17,7 @@ from app.domain.channels.exceptions import (
     ChannelWithSlugAlreadyExistsError,
 )
 from app.domain.channels.repo import IChannelRepo
+from app.domain.common.constants import IMAGE_FILE_MIME_TYPES
 
 
 class IChannelService(ABC):
@@ -139,6 +139,6 @@ class ChannelService(IChannelService):
 
     def validate_channel_avatar_file_format_and_get_content_type(self, value: str) -> str:
         content_type = Path(value).suffix.lower()
-        if content_type not in CHANNEL_AVATAR_FILE_MIME_TYPES:
+        if content_type not in IMAGE_FILE_MIME_TYPES:
             raise ChannelAvatarInvalidFileFormatError(key=value)
-        return CHANNEL_AVATAR_FILE_MIME_TYPES[content_type]
+        return IMAGE_FILE_MIME_TYPES[content_type]

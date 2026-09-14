@@ -2,14 +2,14 @@
 
 #### Auth
 - [x] Login endpoint
-- [ ] JWT refresh tokens endpoint with blacklist/whitelist
+- [x] JWT refresh tokens endpoint with blacklist/whitelist
 
 
 #### OAuth2
-- [ ] OAuth2 get url endpoint
-- [ ] OAuth2 verify token endpoint
-- [ ] OAuth2 get all connected accounts endpoint
-- [ ] OAuth2 disconnect account endpoint
+- [x] OAuth2 get url endpoint
+- [x] OAuth2 verify token endpoint
+- [x] OAuth2 get all connected accounts endpoint
+- [x] OAuth2 disconnect account endpoint
 
 
 #### Channels

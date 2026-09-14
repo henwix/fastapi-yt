@@ -10,10 +10,4 @@ CHANNEL_DESCRIPTION_MAX_LENGTH = 1000
 
 CHANNEL_COUNTRY_MAX_LENGTH = 40
 
-CHANNEL_AVATAR_FILE_MIME_TYPES = {
-    '.png': 'image/png',
-    '.jpg': 'image/jpeg',
-    '.jpeg': 'image/jpeg',
-}
-
 CHANNEL_AVATAR_MAX_SIZE = 5242880  # 5 mb in bytes

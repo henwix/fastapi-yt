@@ -1,34 +1,37 @@
-# Stage 1
+FROM python:3.14-alpine AS base
 
-FROM python:3.14-alpine AS builder
+ENV PYTHONDONTWRITEBYTECODE=1 \
+    PYTHONUNBUFFERED=1 \
+    PYTHONOPTIMIZE=1 \
+    PIP_NO_CACHE_DIR=1 \
+    PIP_DISABLE_PIP_VERSION_CHECK=1 \
+    UV_VERSION="0.12.13" \
+    LIBMAGIC_VERSION="5.47-r2" \
+    APP_PATH="/src" \
+    USER="fastapi-yt-user"
 
-ENV PYTHONDONTWRITEBYTECODE=1
-ENV PYTHONUNBUFFERED=1
+ENV VIRTUAL_ENV="$APP_PATH/.venv"
+ENV PATH="$VIRTUAL_ENV/bin:$PATH"
 
-WORKDIR /src
+WORKDIR $APP_PATH
 
-COPY pyproject.toml uv.lock /src/
-RUN pip install --no-cache-dir --upgrade pip && \
-  pip install --no-cache-dir uv && \
-  uv sync --frozen --no-dev --no-install-project
 
-# Stage 2
+FROM base AS builder
 
-FROM python:3.14-alpine
+COPY pyproject.toml uv.lock ./
 
-ENV PYTHONDONTWRITEBYTECODE=1
-ENV PYTHONUNBUFFERED=1
-ENV PATH="/src/.venv/bin:$PATH"
+RUN pip install --no-cache-dir "uv==$UV_VERSION" && \
+    uv sync --frozen --no-dev --no-install-project
 
-RUN apk add --no-cache libmagic
 
-WORKDIR /src
+FROM base AS runner
 
-RUN adduser --disabled-password fastapi-yt-user
+RUN apk add --no-cache "libmagic==$LIBMAGIC_VERSION" && \
+    adduser --disabled-password $USER
 
-COPY --from=builder /src/.venv /src/.venv
-COPY --chown=fastapi-yt-user:fastapi-yt-user . /src/
+COPY --from=builder $VIRTUAL_ENV $VIRTUAL_ENV
+COPY --chown=$USER:$USER . .
 
-USER fastapi-yt-user
+USER $USER
 
 EXPOSE 8000

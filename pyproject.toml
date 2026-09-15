@@ -37,6 +37,8 @@ dev = [
     "pytest-asyncio (>=1.4.0,<2.0.0)",
     "testcontainers (>=4.14.2,<5.0.0)",
     "polyfactory (>=3.3.0,<4.0.0)",
+    "ruff>=0.16.7",
+    "ty>=0.0.81",
 ]
 
 [build-system]
@@ -46,6 +48,12 @@ build-backend = "uv_build"
 [tool.uv.build-backend]
 module-name = "app"
 module-root = "."
+
+[tool.ty.src]
+exclude = [
+    "tests",
+    "**/__pycache__",
+]
 
 [tool.ruff]
 line-length = 120

@@ -51,7 +51,6 @@ module-root = "."
 
 [tool.ty.src]
 exclude = [
-    "tests",
     "**/__pycache__",
 ]
 

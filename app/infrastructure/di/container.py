@@ -106,12 +106,15 @@ from app.application.video_views.use_cases.create_video_view import CreateVideoV
 from app.application.videos.interfaces.reader import IVideoReader
 from app.application.videos.use_cases.abort_video_multipart_upload import AbortVideoMultipartUploadUseCase
 from app.application.videos.use_cases.complete_video_multipart_upload import CompleteVideoMultipartUploadUseCase
+from app.application.videos.use_cases.confirm_video_thumbnail_upload import ConfirmVideoThumbnailUploadUseCase
 from app.application.videos.use_cases.create_video import CreateVideoUseCase
 from app.application.videos.use_cases.create_video_multipart_upload import CreateVideoMultipartUploadUseCase
 from app.application.videos.use_cases.delete_not_completed_videos import DeleteNotCompletedVideosUseCase
 from app.application.videos.use_cases.delete_video import DeleteVideoUseCase
+from app.application.videos.use_cases.delete_video_thumbnail import DeleteVideoThumbnailUseCase
 from app.application.videos.use_cases.generate_video_download_url import GenerateVideoDownloadUrlUseCase
 from app.application.videos.use_cases.generate_video_part_upload_url import GenerateVideoPartUploadUrlUseCase
+from app.application.videos.use_cases.generate_video_thumbnail_upload_url import GenerateVideoThumbnailUploadUrlUseCase
 from app.application.videos.use_cases.get_channel_videos import GetChannelVideosUseCase
 from app.application.videos.use_cases.get_personal_videos import GetPersonalVideosUseCase
 from app.application.videos.use_cases.get_video import GetVideoUseCase
@@ -360,6 +363,10 @@ class UseCasesProvider(Provider):
     get_video = provide(GetVideoUseCase)
     get_personal_videos = provide(GetPersonalVideosUseCase)
     get_channel_videos = provide(GetChannelVideosUseCase)
+
+    generate_video_thumbnail_upload_url = provide(GenerateVideoThumbnailUploadUrlUseCase)
+    confirm_video_thumbnail_upload = provide(ConfirmVideoThumbnailUploadUseCase)
+    delete_video_thumbnail = provide(DeleteVideoThumbnailUseCase)
 
     create_video_multipart_upload = provide(CreateVideoMultipartUploadUseCase)
     abort_video_multipart_upload = provide(AbortVideoMultipartUploadUseCase)

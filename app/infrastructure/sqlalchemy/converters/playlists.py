@@ -35,6 +35,7 @@ def convert_row_to_playlist_preview_video_dto(row: RowMapping) -> PlaylistPrevie
         privacy_status=VideoPrivacyStatusEnum(row.privacy_status),
         created_at=row.created_at,
         views_count=row.views_count,
+        thumbnail_s3_key=row.thumbnail_s3_key,
         added_at=row.added_at,
         author_name=row.author_name,
         author_slug=row.author_slug,

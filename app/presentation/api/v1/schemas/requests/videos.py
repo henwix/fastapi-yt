@@ -18,6 +18,14 @@ class CreateVideoMultipartUploadInSchema(BaseSchema):
     filename: str = Field(max_length=FILENAME_MAX_LENGTH, pattern=FILENAME_PATTERN, examples=['video.mp4'])
 
 
+class GenerateVideoThumbnailUploadUrlInSchema(BaseSchema):
+    filename: str = Field(max_length=FILENAME_MAX_LENGTH, pattern=FILENAME_PATTERN, examples=['video_thumbnail.png'])
+
+
+class ConfirmVideoThumbnailUploadInSchema(BaseSchema):
+    key: str
+
+
 class UpdateVideoInSchema(BaseUpdateSchema):
     title: str = Field(default='', min_length=VIDEO_TITLE_MIN_LENGTH, max_length=VIDEO_TITLE_MAX_LENGTH)
     description: str = Field(default='', max_length=VIDEO_DESCRIPTION_MAX_LENGTH)

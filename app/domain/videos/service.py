@@ -1,14 +1,11 @@
 from abc import ABC, abstractmethod
 from dataclasses import dataclass
-from pathlib import Path
 
 from app.domain.channels.entities import Channel
-from app.domain.common.constants import VIDEO_FILE_MIME_TYPES
 from app.domain.videos.entities import Video
 from app.domain.videos.enums import VideoUploadStatusEnum
 from app.domain.videos.exceptions import (
     VideoAccessForbiddenError,
-    VideoInvalidFileFormatError,
     VideoNotFoundError,
     VideoUploadAlreadyCompletedError,
     VideoUploadNotCreatedError,
@@ -43,9 +40,6 @@ class IVideoService(ABC):
 
     @abstractmethod
     def ensure_video_upload_created(self, video: Video) -> None: ...
-
-    @abstractmethod
-    def validate_video_file_format_and_get_content_type(self, value: str) -> str: ...
 
 
 @dataclass
@@ -94,9 +88,3 @@ class VideoService(IVideoService):
     def ensure_video_upload_created(self, video: Video) -> None:
         if video.upload_status is VideoUploadStatusEnum.PENDING or video.upload_id is None or video.s3_key is None:
             raise VideoUploadNotCreatedError(video_id=video.id)
-
-    def validate_video_file_format_and_get_content_type(self, value: str) -> str:
-        content_type = Path(value).suffix.lower()
-        if content_type not in VIDEO_FILE_MIME_TYPES:
-            raise VideoInvalidFileFormatError(file=value)
-        return VIDEO_FILE_MIME_TYPES[content_type][0]

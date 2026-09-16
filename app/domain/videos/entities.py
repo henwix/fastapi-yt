@@ -21,6 +21,7 @@ class Video(BaseEntity):
     views_count: int = 0
     upload_id: str | None = None
     s3_key: str | None = None
+    thumbnail_s3_key: str | None = None
     upload_status: VideoUploadStatusEnum = VideoUploadStatusEnum.PENDING
 
     @staticmethod
@@ -60,3 +61,7 @@ class Video(BaseEntity):
     def set_s3_key(self, value: str | None | Empty) -> None:
         if value is not Empty.UNSET:
             self.s3_key = value
+
+    def set_thumbnail_s3_key(self, value: str | None | Empty) -> None:
+        if value is not Empty.UNSET:
+            self.thumbnail_s3_key = value

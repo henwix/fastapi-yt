@@ -1,12 +1,14 @@
 from dataclasses import dataclass
+from pathlib import Path
 
 from app.application.common.interfaces.s3.service import IS3Service
 from app.application.common.interfaces.transaction_manager import ITransactionManager
 from app.application.videos.commands import CreateVideoMultipartUploadCommand
 from app.core.configs import settings
 from app.domain.channels.service import IChannelService
+from app.domain.common.constants import VIDEO_FILE_MIME_TYPES
 from app.domain.videos.enums import VideoUploadStatusEnum
-from app.domain.videos.exceptions import VideoUploadAlreadyCreatedError
+from app.domain.videos.exceptions import VideoInvalidFilenameError, VideoUploadAlreadyCreatedError
 from app.domain.videos.service import IVideoService
 
 
@@ -18,7 +20,11 @@ class CreateVideoMultipartUploadUseCase:
     _transaction_manager: ITransactionManager
 
     async def execute(self, command: CreateVideoMultipartUploadCommand) -> None:
-        content_type = self._video_service.validate_video_file_format_and_get_content_type(value=command.filename)
+        filename_extension = Path(command.filename).suffix.lower()
+        if filename_extension not in VIDEO_FILE_MIME_TYPES:
+            raise VideoInvalidFilenameError(filename=command.filename)
+        content_type = VIDEO_FILE_MIME_TYPES[filename_extension][0]
+
         channel = await self._channel_service.try_get_active_by_id(id=command.current_channel_id)
         video = await self._video_service.try_get_by_id(id=command.video_id)
 

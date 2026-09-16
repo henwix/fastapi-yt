@@ -32,6 +32,7 @@ class SAVideoReader(SAReader, IVideoReader):
                 VideoORM.is_reported,
                 VideoORM.created_at,
                 VideoORM.views_count,
+                VideoORM.thumbnail_s3_key,
                 VideoORM.channel_id,
                 ChannelORM.name.label('channel_name'),
                 ChannelORM.slug.label('channel_slug'),
@@ -59,6 +60,7 @@ class SAVideoReader(SAReader, IVideoReader):
             VideoORM.id,
             VideoORM.title,
             VideoORM.views_count,
+            VideoORM.thumbnail_s3_key,
             VideoORM.created_at,
         ).where(
             VideoORM.channel_id == channel_id,
@@ -104,8 +106,9 @@ class SAVideoReader(SAReader, IVideoReader):
             VideoORM.title,
             VideoORM.privacy_status,
             VideoORM.upload_status,
-            VideoORM.created_at,
             VideoORM.views_count,
+            VideoORM.thumbnail_s3_key,
+            VideoORM.created_at,
         ).where(VideoORM.channel_id == channel_id)
 
         match sorting.sort_by:

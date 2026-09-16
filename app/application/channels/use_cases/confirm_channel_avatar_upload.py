@@ -26,15 +26,18 @@ class ConfirmChannelAvatarUploadUseCase:
     _transaction_manager: ITransactionManager
 
     async def execute(self, command: ConfirmChannelAvatarUploadCommand) -> None:
-        self._channel_service.validate_channel_avatar_file_format_and_get_content_type(value=command.key)
-        if not command.key.startswith(settings.s3_tmp_avatars_key_prefix):
+        key = Path(command.key)
+        if (
+            key.suffix.lower() not in IMAGE_FILE_MIME_TYPES
+            or str(key.parent) != settings.s3_tmp_channel_avatars_key_prefix
+        ):
             raise ChannelAvatarInvalidKeyError(key=command.key)
 
         channel = await self._channel_service.try_get_active_by_id(id=command.current_channel_id)
 
-        avatar_s3_key = f'{settings.s3_avatars_key_prefix}/{Path(command.key).name}'
+        avatar_s3_key = f'{settings.s3_channel_avatars_key_prefix}/{key.name}'
 
-        if channel.avatar_s3_key is not None and channel.avatar_s3_key == avatar_s3_key:
+        if channel.avatar_s3_key == avatar_s3_key:
             raise ChannelAvatarAlreadySetError(channel_id=channel.id, avatar_s3_key=channel.avatar_s3_key)
 
         avatar_object = await self._s3_service.get_object(
@@ -42,13 +45,13 @@ class ConfirmChannelAvatarUploadUseCase:
             key=command.key,
             range='bytes=0-2047',
         )
-        avatar_metadata_channel_id: str = avatar_object['Metadata'].get('channel_id')
-        avatar_metadata_mime_type: str = avatar_object['ContentType']
-        _, avatar_metadata_content_length = avatar_object['ContentRange'].split('/')
-        avatar_metadata_content_length = int(avatar_metadata_content_length)
 
+        avatar_metadata_channel_id = avatar_object['Metadata'].get('channel_id')
         if avatar_metadata_channel_id != str(channel.id):
             raise S3ObjectAccessForbiddenError(channel_id=channel.id, key=command.key)
+
+        _, avatar_metadata_content_length = avatar_object['ContentRange'].split('/')
+        avatar_metadata_content_length = int(avatar_metadata_content_length)
 
         if avatar_metadata_content_length > CHANNEL_AVATAR_MAX_SIZE:
             await self._s3_service.schedule_delete_object(bucket=settings.s3_public_bucket_name, key=command.key)
@@ -60,6 +63,7 @@ class ConfirmChannelAvatarUploadUseCase:
 
         avatar_object_data = await avatar_object['Body'].read()
         actual_avatar_mime_type = self._file_type_detector.detect(content=avatar_object_data)
+        avatar_metadata_mime_type: str = avatar_object['ContentType']
 
         if (
             actual_avatar_mime_type not in IMAGE_FILE_MIME_TYPES.values()

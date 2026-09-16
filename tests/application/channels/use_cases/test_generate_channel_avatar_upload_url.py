@@ -5,7 +5,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from app.application.channels.use_cases.generate_channel_avatar_upload_url import GenerateChannelAvatarUploadUrlUseCase
 from app.core.configs import settings
 from app.domain.channels.exceptions import (
-    ChannelAvatarInvalidFileFormatError,
+    ChannelAvatarInvalidFilenameError,
     ChannelNotActiveError,
     ChannelNotFoundByIdError,
 )
@@ -37,7 +37,7 @@ async def test_generate_channel_avatar_upload_url_returns_correct_data(
         assert 'amz-meta-channel_id' in url
         assert 'X-Amz-Signature' in url
         assert 'Amz-Expires' in url
-        assert key.startswith(settings.s3_tmp_avatars_key_prefix) and key.endswith(expected_filename)
+        assert key.startswith(settings.s3_tmp_channel_avatars_key_prefix) and key.endswith(expected_filename)
         assert channel_id == channel.id
 
 
@@ -59,7 +59,7 @@ async def test_generate_channel_avatar_upload_url_raises_error_if_filename_inval
             filename=expected_filename,
         )
 
-        with pytest.raises(ChannelAvatarInvalidFileFormatError):
+        with pytest.raises(ChannelAvatarInvalidFilenameError):
             await use_case.execute(command=command)
 
 

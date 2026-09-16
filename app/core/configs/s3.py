@@ -8,8 +8,10 @@ class S3Settings(BaseSettings):
     s3_public_bucket_name: str
     s3_public_bucket_url: str
     s3_private_bucket_name: str
-    s3_avatars_key_prefix: str
-    s3_tmp_avatars_key_prefix: str
+    s3_channel_avatars_key_prefix: str
+    s3_tmp_channel_avatars_key_prefix: str
+    s3_video_thumbnails_key_prefix: str
+    s3_tmp_video_thumbnails_key_prefix: str
     s3_videos_key_prefix: str
     s3_connect_timeout: int
     s3_read_timeout: int

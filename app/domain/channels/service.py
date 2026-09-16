@@ -1,7 +1,6 @@
 import secrets
 from abc import ABC, abstractmethod
 from dataclasses import dataclass
-from pathlib import Path
 from uuid import UUID
 
 from slugify import slugify
@@ -9,7 +8,6 @@ from slugify import slugify
 from app.domain.channels.entities import Channel
 from app.domain.channels.exceptions import (
     ChannelActivationFailedError,
-    ChannelAvatarInvalidFileFormatError,
     ChannelNotActiveError,
     ChannelNotFoundByIdError,
     ChannelNotFoundBySlugError,
@@ -17,7 +15,6 @@ from app.domain.channels.exceptions import (
     ChannelWithSlugAlreadyExistsError,
 )
 from app.domain.channels.repo import IChannelRepo
-from app.domain.common.constants import IMAGE_FILE_MIME_TYPES
 
 
 class IChannelService(ABC):
@@ -62,9 +59,6 @@ class IChannelService(ABC):
 
     @abstractmethod
     async def try_delete_by_id(self, id: UUID) -> None: ...
-
-    @abstractmethod
-    def validate_channel_avatar_file_format_and_get_content_type(self, value: str) -> str: ...
 
 
 @dataclass
@@ -136,9 +130,3 @@ class ChannelService(IChannelService):
         is_deleted = await self._repo.delete_by_id(id=id)
         if not is_deleted:
             raise ChannelNotFoundByIdError(channel_id=id)
-
-    def validate_channel_avatar_file_format_and_get_content_type(self, value: str) -> str:
-        content_type = Path(value).suffix.lower()
-        if content_type not in IMAGE_FILE_MIME_TYPES:
-            raise ChannelAvatarInvalidFileFormatError(key=value)
-        return IMAGE_FILE_MIME_TYPES[content_type]

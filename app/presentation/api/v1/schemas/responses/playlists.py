@@ -76,6 +76,7 @@ class PlaylistPreviewVideoOutSchema(BaseSchema):
     privacy_status: VideoPrivacyStatusEnum
     created_at: datetime
     views_count: int
+    thumbnail_s3_key: str | None
     added_at: datetime
     author_name: str
     author_slug: str
@@ -88,6 +89,7 @@ class PlaylistPreviewVideoOutSchema(BaseSchema):
             privacy_status=dto.privacy_status,
             created_at=dto.created_at,
             views_count=dto.views_count,
+            thumbnail_s3_key=dto.thumbnail_s3_key,
             added_at=dto.added_at,
             author_name=dto.author_name,
             author_slug=dto.author_slug,

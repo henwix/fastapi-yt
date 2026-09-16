@@ -9,7 +9,6 @@ from app.core.configs import settings
 from app.domain.channels.exceptions import (
     ChannelAvatarAlreadySetError,
     ChannelAvatarInvalidFileContentTypeError,
-    ChannelAvatarInvalidFileFormatError,
     ChannelAvatarInvalidKeyError,
     ChannelAvatarSizeTooBigError,
     ChannelNotActiveError,
@@ -44,9 +43,9 @@ async def test_confirm_channel_avatar_upload_returns_none_if_avatar_updated_with
         use_case = await di.get(ConfirmChannelAvatarUploadUseCase)
         session = await di.get(AsyncSession)
 
-        expected_old_avatar_s3_key = f'{settings.s3_avatars_key_prefix}/old_avatar.png'
-        expected_tmp_avatar_s3_key = f'{settings.s3_tmp_avatars_key_prefix}/new_avatar.png'
-        expected_new_avatar_s3_key = f'{settings.s3_avatars_key_prefix}/new_avatar.png'
+        expected_old_avatar_s3_key = f'{settings.s3_channel_avatars_key_prefix}/old_avatar.png'
+        expected_tmp_avatar_s3_key = f'{settings.s3_tmp_channel_avatars_key_prefix}/new_avatar.png'
+        expected_new_avatar_s3_key = f'{settings.s3_channel_avatars_key_prefix}/new_avatar.png'
 
         channel = await ChannelORMFactory.create(
             session=session,
@@ -83,8 +82,8 @@ async def test_confirm_channel_avatar_upload_returns_none_if_avatar_updated_with
         use_case = await di.get(ConfirmChannelAvatarUploadUseCase)
         session = await di.get(AsyncSession)
 
-        expected_tmp_avatar_s3_key = f'{settings.s3_tmp_avatars_key_prefix}/new_avatar.{expected_file_format}'
-        expected_new_avatar_s3_key = f'{settings.s3_avatars_key_prefix}/new_avatar.{expected_file_format}'
+        expected_tmp_avatar_s3_key = f'{settings.s3_tmp_channel_avatars_key_prefix}/new_avatar.{expected_file_format}'
+        expected_new_avatar_s3_key = f'{settings.s3_channel_avatars_key_prefix}/new_avatar.{expected_file_format}'
 
         channel = await ChannelORMFactory.create(session=session, avatar_s3_key=None)
         command = ConfirmChannelAvatarUploadCommandFactory.build(
@@ -117,14 +116,14 @@ async def test_confirm_channel_avatar_upload_raises_error_if_invalid_invalid_fil
         use_case = await di.get(ConfirmChannelAvatarUploadUseCase)
         session = await di.get(AsyncSession)
 
-        expected_avatar_s3_key = f'{settings.s3_tmp_avatars_key_prefix}/new_avatar.{expected_file_format}'
+        expected_avatar_s3_key = f'{settings.s3_tmp_channel_avatars_key_prefix}/new_avatar.{expected_file_format}'
 
         channel = await ChannelORMFactory.create(session=session)
         command = ConfirmChannelAvatarUploadCommandFactory.build(
             current_channel_id=channel.id, key=expected_avatar_s3_key
         )
 
-        with pytest.raises(ChannelAvatarInvalidFileFormatError):
+        with pytest.raises(ChannelAvatarInvalidKeyError):
             await use_case.execute(command)
 
 
@@ -154,7 +153,7 @@ async def test_confirm_channel_avatar_upload_raises_error_if_channel_not_found(
     async with mock_container() as di:
         use_case = await di.get(ConfirmChannelAvatarUploadUseCase)
 
-        expected_avatar_s3_key = f'{settings.s3_tmp_avatars_key_prefix}/new_avatar.png'
+        expected_avatar_s3_key = f'{settings.s3_tmp_channel_avatars_key_prefix}/new_avatar.png'
 
         command = ConfirmChannelAvatarUploadCommandFactory.build(key=expected_avatar_s3_key)
 
@@ -170,7 +169,7 @@ async def test_confirm_channel_avatar_upload_raises_error_if_channel_not_active(
         use_case = await di.get(ConfirmChannelAvatarUploadUseCase)
         session = await di.get(AsyncSession)
 
-        expected_avatar_s3_key = f'{settings.s3_tmp_avatars_key_prefix}/new_avatar.png'
+        expected_avatar_s3_key = f'{settings.s3_tmp_channel_avatars_key_prefix}/new_avatar.png'
 
         channel = await ChannelORMFactory.create(session=session, is_active=False)
         command = ConfirmChannelAvatarUploadCommandFactory.build(
@@ -193,11 +192,11 @@ async def test_confirm_channel_avatar_upload_raises_error_if_channel_avatar_alre
 
         channel = await ChannelORMFactory.create(
             session=session,
-            avatar_s3_key=f'{settings.s3_avatars_key_prefix}/{expected_old_avatar_filename}',
+            avatar_s3_key=f'{settings.s3_channel_avatars_key_prefix}/{expected_old_avatar_filename}',
         )
         command = ConfirmChannelAvatarUploadCommandFactory.build(
             current_channel_id=channel.id,
-            key=f'{settings.s3_tmp_avatars_key_prefix}/{expected_old_avatar_filename}',
+            key=f'{settings.s3_tmp_channel_avatars_key_prefix}/{expected_old_avatar_filename}',
         )
 
         with pytest.raises(ChannelAvatarAlreadySetError):
@@ -212,7 +211,7 @@ async def test_confirm_channel_avatar_upload_raises_error_if_s3_object_access_fo
         use_case = await di.get(ConfirmChannelAvatarUploadUseCase)
         session = await di.get(AsyncSession)
 
-        expected_new_tmp_avatar_s3_key = f'{settings.s3_tmp_avatars_key_prefix}/new_avatar.png'
+        expected_new_tmp_avatar_s3_key = f'{settings.s3_tmp_channel_avatars_key_prefix}/new_avatar.png'
 
         channel = await ChannelORMFactory.create(session=session, avatar_s3_key=None)
         command = ConfirmChannelAvatarUploadCommandFactory.build(
@@ -233,7 +232,7 @@ async def test_confirm_channel_avatar_upload_raises_error_if_s3_object_invalid_m
         use_case = await di.get(ConfirmChannelAvatarUploadUseCase)
         session = await di.get(AsyncSession)
 
-        expected_new_tmp_avatar_s3_key = f'{settings.s3_tmp_avatars_key_prefix}/new_avatar.png'
+        expected_new_tmp_avatar_s3_key = f'{settings.s3_tmp_channel_avatars_key_prefix}/new_avatar.png'
 
         channel = await ChannelORMFactory.create(session=session, avatar_s3_key=None)
         command = ConfirmChannelAvatarUploadCommandFactory.build(
@@ -261,7 +260,7 @@ async def test_confirm_channel_avatar_upload_raises_error_if_s3_object_invalid_c
         use_case = await di.get(ConfirmChannelAvatarUploadUseCase)
         session = await di.get(AsyncSession)
 
-        expected_new_tmp_avatar_s3_key = f'{settings.s3_tmp_avatars_key_prefix}/new_avatar.png'
+        expected_new_tmp_avatar_s3_key = f'{settings.s3_tmp_channel_avatars_key_prefix}/new_avatar.png'
 
         channel = await ChannelORMFactory.create(session=session, avatar_s3_key=None)
         command = ConfirmChannelAvatarUploadCommandFactory.build(
@@ -302,7 +301,7 @@ async def test_confirm_channel_avatar_upload_raises_error_if_s3_object_content_s
         use_case = await di.get(ConfirmChannelAvatarUploadUseCase)
         session = await di.get(AsyncSession)
 
-        expected_new_tmp_avatar_s3_key = f'{settings.s3_tmp_avatars_key_prefix}/new_avatar.png'
+        expected_new_tmp_avatar_s3_key = f'{settings.s3_tmp_channel_avatars_key_prefix}/new_avatar.png'
 
         channel = await ChannelORMFactory.create(session=session, avatar_s3_key=None)
         command = ConfirmChannelAvatarUploadCommandFactory.build(

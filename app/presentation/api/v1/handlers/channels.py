@@ -20,9 +20,10 @@ from app.domain.auth.exceptions import JWTExpiredTokenError, JWTInvalidTokenErro
 from app.domain.channels.exceptions import (
     ChannelAvatarAlreadySetError,
     ChannelAvatarInvalidFileContentTypeError,
-    ChannelAvatarInvalidFileFormatError,
+    ChannelAvatarInvalidFilenameError,
     ChannelAvatarInvalidKeyError,
     ChannelAvatarNotFoundError,
+    ChannelAvatarSizeTooBigError,
     ChannelNotActiveError,
     ChannelNotFoundByIdError,
     ChannelNotFoundBySlugError,
@@ -137,24 +138,35 @@ async def get_channel_about_info(
 @router.post(
     path='/avatar_upload_url',
     status_code=status.HTTP_201_CREATED,
-    description='Pass the channel_id in the "x-amz-meta-channel_id" Header to upload the file using upload_url',
     responses={
-        status.HTTP_400_BAD_REQUEST: error_response(ChannelAvatarInvalidFileFormatError),
+        status.HTTP_400_BAD_REQUEST: error_response(
+            ChannelAvatarInvalidFilenameError,
+        ),
         status.HTTP_401_UNAUTHORIZED: error_response(
             NotAuthenticatedError,
             JWTExpiredTokenError,
             JWTInvalidTokenError,
         ),
-        status.HTTP_403_FORBIDDEN: error_response(ChannelNotActiveError),
-        status.HTTP_404_NOT_FOUND: error_response(ChannelNotFoundByIdError),
-        status.HTTP_500_INTERNAL_SERVER_ERROR: error_response(S3ResponseError, S3RequestError),
+        status.HTTP_403_FORBIDDEN: error_response(
+            ChannelNotActiveError,
+        ),
+        status.HTTP_404_NOT_FOUND: error_response(
+            ChannelNotFoundByIdError,
+        ),
+        status.HTTP_500_INTERNAL_SERVER_ERROR: error_response(
+            S3RequestError,
+        ),
+        status.HTTP_502_BAD_GATEWAY: error_response(
+            S3ResponseError,
+        ),
     },
 )
-async def generate_avatar_upload_url(
+async def generate_channel_avatar_upload_url(
     current_channel_id: CurrentChannelID,
     schema: GenerateChannelAvatarUploadUrlInSchema,
     use_case: FromDishka[GenerateChannelAvatarUploadUrlUseCase],
 ) -> GenerateChannelAvatarUploadUrlOutSchema:
+    """Pass the channel_id in the "x-amz-meta-channel_id" Header to upload the file using upload_url"""
     command = GenerateChannelAvatarUploadUrlCommand(
         current_channel_id=current_channel_id,
         **schema.model_dump(),
@@ -172,10 +184,7 @@ async def generate_avatar_upload_url(
     status_code=status.HTTP_204_NO_CONTENT,
     responses={
         status.HTTP_400_BAD_REQUEST: error_response(
-            ChannelAvatarInvalidFileFormatError,
             ChannelAvatarInvalidKeyError,
-            ChannelAvatarAlreadySetError,
-            ChannelAvatarInvalidFileContentTypeError,
         ),
         status.HTTP_401_UNAUTHORIZED: error_response(
             NotAuthenticatedError,
@@ -184,10 +193,20 @@ async def generate_avatar_upload_url(
         ),
         status.HTTP_403_FORBIDDEN: error_response(ChannelNotActiveError, S3ObjectAccessForbiddenError),
         status.HTTP_404_NOT_FOUND: error_response(ChannelNotFoundByIdError, S3ObjectNotFoundError),
-        status.HTTP_500_INTERNAL_SERVER_ERROR: error_response(S3ResponseError, S3RequestError),
+        status.HTTP_409_CONFLICT: error_response(
+            ChannelAvatarAlreadySetError,
+            ChannelAvatarInvalidFileContentTypeError,
+            ChannelAvatarSizeTooBigError,
+        ),
+        status.HTTP_500_INTERNAL_SERVER_ERROR: error_response(
+            S3RequestError,
+        ),
+        status.HTTP_502_BAD_GATEWAY: error_response(
+            S3ResponseError,
+        ),
     },
 )
-async def avatar_upload_confirm(
+async def channel_avatar_upload_confirm(
     current_channel_id: CurrentChannelID,
     schema: ChannelAvatarUploadConfirmInSchema,
     use_case: FromDishka[ConfirmChannelAvatarUploadUseCase],
@@ -207,10 +226,15 @@ async def avatar_upload_confirm(
         ),
         status.HTTP_403_FORBIDDEN: error_response(ChannelNotActiveError),
         status.HTTP_404_NOT_FOUND: error_response(ChannelNotFoundByIdError, ChannelAvatarNotFoundError),
-        status.HTTP_500_INTERNAL_SERVER_ERROR: error_response(S3ResponseError, S3RequestError),
+        status.HTTP_500_INTERNAL_SERVER_ERROR: error_response(
+            S3RequestError,
+        ),
+        status.HTTP_502_BAD_GATEWAY: error_response(
+            S3ResponseError,
+        ),
     },
 )
-async def delete_avatar(
+async def delete_channel_avatar(
     current_channel_id: CurrentChannelID,
     use_case: FromDishka[DeleteChannelAvatarUseCase],
 ) -> None:

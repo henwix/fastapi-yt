@@ -3,6 +3,7 @@ from collections.abc import AsyncGenerator, Generator
 import pytest
 import pytest_asyncio
 from dishka import AsyncContainer, Scope, make_async_container, provide
+from pydantic import AnyHttpUrl
 from redis.asyncio import Redis
 from sqlalchemy.ext.asyncio import AsyncEngine, AsyncSession, async_sessionmaker, create_async_engine
 from testcontainers.postgres import PostgresContainer
@@ -153,7 +154,7 @@ async def mock_container(mock_database_dishka_provider: DatabaseProvider) -> Asy
 
 @pytest.fixture(scope='session', autouse=True)
 def test_override_settings() -> None:
-    settings.s3_avatars_key_prefix = 'test-avatar-prefix'
+    settings.s3_channel_avatars_key_prefix = 'test-avatar-prefix'
     settings.s3_videos_key_prefix = 'test-video-prefix'
     settings.s3_private_bucket_name = 'test-private-bucket'
     settings.s3_public_bucket_name = 'test-public-bucket'
@@ -161,7 +162,7 @@ def test_override_settings() -> None:
     settings.s3_endpoint = 'https://test-s3-endpoint.com'
     settings.s3_access_key = '123'
     settings.s3_secret_key = '123'
-    settings.frontend_origin = 'http://localhost/'
+    settings.frontend_origin = AnyHttpUrl('http://localhost/')
     settings.oauth_redirect_path = 'oauth/activation'
     settings.oauth_github_client_id = '123'
     settings.oauth_github_client_secret = '456'

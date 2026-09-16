@@ -42,7 +42,7 @@ class VideoORM(CreatedAtDatetimeMixin, BaseORM):
 
     upload_id: Mapped[str | None] = mapped_column(default=None, server_default=sa.sql.null(), unique=True)
     s3_key: Mapped[str | None] = mapped_column(sa.String(length=255), unique=True)
-    thumbnail_s3_key: Mapped[str | None] = mapped_column(sa.String(length=255), unique=True)
+    thumbnail_s3_key: Mapped[str | None] = mapped_column(sa.String(length=255))
     upload_status: Mapped[str] = mapped_column(sa.String(length=10))
 
     __table_args__ = (
@@ -66,6 +66,7 @@ class VideoORM(CreatedAtDatetimeMixin, BaseORM):
             views_count=entity.views_count,
             upload_id=entity.upload_id,
             s3_key=entity.s3_key,
+            thumbnail_s3_key=entity.thumbnail_s3_key,
             upload_status=entity.upload_status.value,
         )
 
@@ -80,6 +81,7 @@ class VideoORM(CreatedAtDatetimeMixin, BaseORM):
             views_count=self.views_count,
             upload_id=self.upload_id,
             s3_key=self.s3_key,
+            thumbnail_s3_key=self.thumbnail_s3_key,
             upload_status=VideoUploadStatusEnum(self.upload_status),
         )
 

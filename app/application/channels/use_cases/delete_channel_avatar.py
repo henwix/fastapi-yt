@@ -25,4 +25,7 @@ class DeleteChannelAvatarUseCase:
         async with self._transaction_manager:
             await self._channel_service.try_update(channel=channel)
 
-        await self._s3_service.schedule_delete_object(bucket=settings.s3_public_bucket_name, key=channel_avatar_s3_key)
+        await self._s3_service.schedule_delete_object(
+            bucket=settings.s3_public_bucket_name,
+            key=channel_avatar_s3_key,
+        )

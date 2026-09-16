@@ -56,12 +56,6 @@ class ChannelNotActiveError(AppException):
 
 
 @dataclass(kw_only=True)
-class ChannelAvatarInvalidFileFormatError(AppException):
-    message = 'Channel avatar invalid file format'
-    key: str
-
-
-@dataclass(kw_only=True)
 class ChannelAvatarSizeTooBigError(AppException):
     message = 'Channel avatar size too big'
     key: str
@@ -73,6 +67,12 @@ class ChannelAvatarSizeTooBigError(AppException):
 class ChannelAvatarInvalidKeyError(AppException):
     message = 'Channel avatar invalid key'
     key: str
+
+
+@dataclass(kw_only=True)
+class ChannelAvatarInvalidFilenameError(AppException):
+    message = 'Channel avatar invalid filename'
+    filename: str
 
 
 @dataclass(kw_only=True)

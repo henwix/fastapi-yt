@@ -1,4 +1,5 @@
 from datetime import datetime
+from uuid import UUID
 
 from pydantic import HttpUrl
 
@@ -34,6 +35,7 @@ class DetailedVideoOutSchema(BaseSchema):
     is_reported: bool
     created_at: datetime
     views_count: int
+    thumbnail_s3_key: str | None
     channel_name: str
     channel_slug: str
 
@@ -47,6 +49,7 @@ class DetailedVideoOutSchema(BaseSchema):
             is_reported=dto.is_reported,
             created_at=dto.created_at,
             views_count=dto.views_count,
+            thumbnail_s3_key=dto.thumbnail_s3_key,
             channel_name=dto.channel_name,
             channel_slug=dto.channel_slug,
         )
@@ -56,6 +59,7 @@ class ChannelPreviewVideoOutSchema(BaseSchema):
     id: str
     title: str
     views_count: int
+    thumbnail_s3_key: str | None
     created_at: datetime
 
     @staticmethod
@@ -64,6 +68,7 @@ class ChannelPreviewVideoOutSchema(BaseSchema):
             id=dto.id,
             title=dto.title,
             views_count=dto.views_count,
+            thumbnail_s3_key=dto.thumbnail_s3_key,
             created_at=dto.created_at,
         )
 
@@ -73,8 +78,9 @@ class PersonalPreviewVideoOutSchema(BaseSchema):
     title: str
     privacy_status: VideoPrivacyStatusEnum
     upload_status: VideoUploadStatusEnum
-    created_at: datetime
     views_count: int
+    thumbnail_s3_key: str | None
+    created_at: datetime
 
     @staticmethod
     def from_dto(dto: PersonalPreviewVideo) -> PersonalPreviewVideoOutSchema:
@@ -83,8 +89,9 @@ class PersonalPreviewVideoOutSchema(BaseSchema):
             title=dto.title,
             privacy_status=dto.privacy_status,
             upload_status=dto.upload_status,
-            created_at=dto.created_at,
             views_count=dto.views_count,
+            thumbnail_s3_key=dto.thumbnail_s3_key,
+            created_at=dto.created_at,
         )
 
 
@@ -94,3 +101,10 @@ class GenerateVideoPartUploadUrlOutSchema(BaseSchema):
 
 class GenerateVideoDownloadUrlOutSchema(BaseSchema):
     download_url: HttpUrl
+
+
+class GenerateVideoThumbnailUploadUrlOutSchema(BaseSchema):
+    upload_url: HttpUrl
+    key: str
+    channel_id: UUID
+    video_id: str

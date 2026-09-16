@@ -10,7 +10,7 @@ from app.domain.channels.exceptions import ChannelNotActiveError, ChannelNotFoun
 from app.domain.videos.enums import VideoUploadStatusEnum
 from app.domain.videos.exceptions import (
     VideoAccessForbiddenError,
-    VideoInvalidFileFormatError,
+    VideoInvalidFilenameError,
     VideoNotFoundError,
     VideoUploadAlreadyCompletedError,
     VideoUploadAlreadyCreatedError,
@@ -162,7 +162,7 @@ async def test_create_video_multipart_upload_raises_error_if_invalid_video_forma
             filename=expected_filename,
         )
 
-        with pytest.raises(VideoInvalidFileFormatError):
+        with pytest.raises(VideoInvalidFilenameError):
             await use_case.execute(command=command)
 
 

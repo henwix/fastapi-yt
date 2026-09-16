@@ -17,7 +17,7 @@ async def test_delete_channel_avatar_returns_none_if_deleted(mock_container: Asy
         use_case = await di.get(DeleteChannelAvatarUseCase)
         session = await di.get(AsyncSession)
 
-        expected_avatar_s3_key = f'{settings.s3_avatars_key_prefix}/new_avatar.png'
+        expected_avatar_s3_key = f'{settings.s3_channel_avatars_key_prefix}/new_avatar.png'
         channel = await ChannelORMFactory.create(session=session, avatar_s3_key=expected_avatar_s3_key)
         command = DeleteChannelAvatarCommandFactory.build(current_channel_id=channel.id)
 

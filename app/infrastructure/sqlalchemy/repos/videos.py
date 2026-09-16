@@ -33,6 +33,7 @@ class SAVideoRepo(SARepo, IVideoRepo):
                 upload_id=video.upload_id,
                 upload_status=video.upload_status.value,
                 s3_key=video.s3_key,
+                thumbnail_s3_key=video.thumbnail_s3_key,
             )
             .returning(VideoORM)
         )

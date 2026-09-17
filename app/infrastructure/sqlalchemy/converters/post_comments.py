@@ -1,6 +1,6 @@
 from sqlalchemy import RowMapping
 
-from app.application.post_comments.dto import DetailedPostComment
+from app.application.posts.dtos import DetailedPostComment
 
 
 def convert_row_to_detailed_post_comment_dto(row: RowMapping) -> DetailedPostComment:

@@ -1,6 +1,6 @@
 from sqlalchemy import RowMapping
 
-from app.application.video_comments.dto import DetailedVideoComment
+from app.application.videos.dtos import DetailedVideoComment
 
 
 def convert_row_to_detailed_video_comment_dto(row: RowMapping) -> DetailedVideoComment:

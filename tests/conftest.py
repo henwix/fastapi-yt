@@ -10,8 +10,8 @@ from testcontainers.postgres import PostgresContainer
 from testcontainers.redis import RedisContainer
 
 from app.application.common.interfaces.file_type_detector import IFileTypeDetector
-from app.application.common.interfaces.s3.service import IS3Service
-from app.application.oauth.interfaces.service import IOAuthServiceFactory
+from app.application.common.interfaces.s3 import IS3Service
+from app.application.oauth.interfaces import IOAuthServiceFactory
 from app.core.configs import Settings, settings
 from app.domain.videos.service import IVideoService
 from app.infrastructure.di.container import (

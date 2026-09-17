@@ -5,8 +5,8 @@ from sqlalchemy import select, tuple_
 
 from app.application.common.pagination import CursorPagination
 from app.application.common.sorting import SortingOrderEnum
-from app.application.posts.dto import DetailedPost
-from app.application.posts.interfaces.reader import IPostReader
+from app.application.posts.dtos import DetailedPost
+from app.application.posts.interfaces import IPostReader
 from app.application.posts.queries import PostsSorting
 from app.infrastructure.sqlalchemy.models.channels import ChannelORM
 from app.infrastructure.sqlalchemy.models.posts import PostORM

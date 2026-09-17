@@ -3,7 +3,7 @@ from datetime import datetime
 from uuid import UUID
 
 from app.application.playlists.dto import PreviewPlaylist
-from app.application.playlists.interfaces.reader import IPlaylistReader
+from app.application.playlists.interfaces import IPlaylistReader
 from app.application.playlists.queries import GetPersonalPlaylistsQuery, PlaylistsPreviewSortingFieldsEnum
 from app.domain.channels.service import IChannelService
 from app.domain.common.constants import Empty

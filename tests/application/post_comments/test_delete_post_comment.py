@@ -4,9 +4,7 @@ import pytest
 from dishka import AsyncContainer
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from app.application.post_comments.use_cases.delete_post_comment import (
-    DeletePostCommentUseCase,
-)
+from app.application.posts.use_cases import DeletePostCommentUseCase
 from app.domain.channels.exceptions import (
     ChannelNotActiveError,
     ChannelNotFoundByIdError,

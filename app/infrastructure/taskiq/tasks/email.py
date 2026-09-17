@@ -5,9 +5,11 @@ from app.application.common.commands.email import (
     SendChannelResetPasswordCodeCommand,
     SendChannelSetEmailCodeCommand,
 )
-from app.application.common.use_cases.email.send_channel_activation_code import SendChannelActivationCodeUseCase
-from app.application.common.use_cases.email.send_channel_reset_password_code import SendChannelResetPasswordCodeUseCase
-from app.application.common.use_cases.email.send_channel_set_email_code import SendChannelSetEmailCodeUseCase
+from app.application.common.use_cases.email import (
+    SendChannelActivationCodeUseCase,
+    SendChannelResetPasswordCodeUseCase,
+    SendChannelSetEmailCodeUseCase,
+)
 from app.infrastructure.taskiq.broker import get_broker
 
 broker = get_broker()

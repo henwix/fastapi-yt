@@ -6,29 +6,31 @@ from fastapi import APIRouter, Depends, Request, status
 from pydantic import HttpUrl
 
 from app.application.common.pagination import CursorPagination
-from app.application.video_comments.commands import (
+from app.application.videos.commands.video_comments import (
     CreateVideoCommentCommand,
     DeleteVideoCommentCommand,
     UpdateVideoCommentCommand,
 )
-from app.application.video_comments.queries import (
+from app.application.videos.queries import (
     GetVideoCommentRepliesQuery,
     GetVideoCommentsQuery,
     VideoCommentsSorting,
 )
-from app.application.video_comments.use_cases.create_video_comment import CreateVideoCommentUseCase
-from app.application.video_comments.use_cases.delete_video_comment import DeleteVideoCommentUseCase
-from app.application.video_comments.use_cases.get_video_comment_replies import GetVideoCommentRepliesUseCase
-from app.application.video_comments.use_cases.get_video_comments import GetVideoCommentsUseCase
-from app.application.video_comments.use_cases.update_video_comment import UpdateVideoCommentUseCase
+from app.application.videos.use_cases import (
+    CreateVideoCommentUseCase,
+    DeleteVideoCommentUseCase,
+    GetVideoCommentRepliesUseCase,
+    GetVideoCommentsUseCase,
+    UpdateVideoCommentUseCase,
+)
 from app.domain.auth.exceptions import JWTTokenExpiredError, JWTTokenInvalidError, NotAuthenticatedError
 from app.domain.channels.exceptions import ChannelNotActiveError, ChannelNotFoundByIdError
 from app.domain.common.exceptions.pagination import InvalidCursorError
 from app.domain.video_comments.exceptions import VideoCommentAccessForbiddenError, VideoCommentNotFoundError
 from app.domain.videos.exceptions import VideoAccessForbiddenError, VideoNotFoundError
 from app.presentation.api.openapi.common import error_response
-from app.presentation.api.v1.di.current_channel_id import CurrentChannelID
-from app.presentation.api.v1.handlers.common.params import PathVideoId
+from app.presentation.api.v1.di import CurrentChannelID
+from app.presentation.api.v1.handlers.common.path_params import PathVideoId
 from app.presentation.api.v1.schemas.requests.common import CursorPaginationParams
 from app.presentation.api.v1.schemas.requests.video_comments import (
     CreateVideoCommentInSchema,

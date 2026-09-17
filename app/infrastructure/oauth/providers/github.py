@@ -2,7 +2,7 @@ from typing import Any
 from urllib.parse import urlencode
 
 from app.application.oauth.dto import OAuthProviderUserData
-from app.application.oauth.interfaces.provider import IOAuthProvider
+from app.application.oauth.interfaces import IOAuthProvider
 from app.core.configs import settings
 from app.domain.common.exceptions.http import HttpRequestError, HttpResponseError
 from app.domain.oauth.enums import OAuthProviderEnum

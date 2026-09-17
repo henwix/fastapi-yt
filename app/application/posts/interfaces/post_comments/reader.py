@@ -1,0 +1,29 @@
+from abc import ABC, abstractmethod
+from datetime import datetime
+from uuid import UUID
+
+from app.application.common.pagination import CursorPagination
+from app.application.posts.dtos import DetailedPostComment
+from app.application.posts.queries import PostCommentsSorting
+
+
+class IPostCommentReader(ABC):
+    @abstractmethod
+    async def get_comments(
+        self,
+        post_id: UUID,
+        cursor_sort_value: datetime | None,
+        cursor_id_value: UUID | None,
+        sorting: PostCommentsSorting,
+        pagination: CursorPagination,
+    ) -> list[DetailedPostComment]: ...
+
+    @abstractmethod
+    async def get_replies(
+        self,
+        post_comment_id: UUID,
+        cursor_sort_value: datetime | None,
+        cursor_id_value: UUID | None,
+        sorting: PostCommentsSorting,
+        pagination: CursorPagination,
+    ) -> list[DetailedPostComment]: ...

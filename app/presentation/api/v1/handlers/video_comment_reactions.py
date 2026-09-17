@@ -3,22 +3,17 @@ from uuid import UUID
 from dishka.integrations.fastapi import DishkaRoute, FromDishka
 from fastapi import APIRouter, Response, status
 
-from app.application.video_comment_reactions.commands import (
+from app.application.videos.commands.video_comment_reactions import (
     CreateVideoCommentReactionCommand,
     DeleteVideoCommentReactionCommand,
 )
-from app.application.video_comment_reactions.use_cases.create_video_comment_reaction import (
-    CreateVideoCommentReactionUseCase,
-)
-from app.application.video_comment_reactions.use_cases.delete_video_comment_reaction import (
-    DeleteVideoCommentReactionUseCase,
-)
+from app.application.videos.use_cases import CreateVideoCommentReactionUseCase, DeleteVideoCommentReactionUseCase
 from app.domain.auth.exceptions import JWTTokenExpiredError, JWTTokenInvalidError, NotAuthenticatedError
 from app.domain.channels.exceptions import ChannelNotActiveError, ChannelNotFoundByIdError
 from app.domain.video_comment_reactions.exceptions import VideoCommentReactionNotFoundError
 from app.domain.video_comments.exceptions import VideoCommentNotFoundError
 from app.presentation.api.openapi.common import error_response
-from app.presentation.api.v1.di.current_channel_id import CurrentChannelID
+from app.presentation.api.v1.di import CurrentChannelID
 from app.presentation.api.v1.schemas.requests.video_comment_reactions import CreateVideoCommentReactionInSchema
 from app.presentation.api.v1.schemas.responses.video_comment_reactions import VideoCommentReactionOutSchema
 

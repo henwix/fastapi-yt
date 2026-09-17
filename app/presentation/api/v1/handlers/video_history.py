@@ -5,24 +5,26 @@ from fastapi import APIRouter, Depends, Request, status
 from pydantic import HttpUrl
 
 from app.application.common.pagination import CursorPagination
-from app.application.video_history.commands import (
+from app.application.videos.commands.video_history import (
     AddVideoToHistoryCommand,
     ClearVideoHistoryCommand,
     DeleteVideoFromHistoryCommand,
 )
-from app.application.video_history.queries import GetVideoHistoryQuery, VideoHistorySorting
-from app.application.video_history.use_cases.add_video_to_history import AddVideoToHistoryUseCase
-from app.application.video_history.use_cases.clear_video_history import ClearVideoHistoryUseCase
-from app.application.video_history.use_cases.delete_video_from_history import DeleteVideoFromHistoryUseCase
-from app.application.video_history.use_cases.get_video_history import GetVideoHistoryUseCase
+from app.application.videos.queries import GetVideoHistoryQuery, VideoHistorySorting
+from app.application.videos.use_cases import (
+    AddVideoToHistoryUseCase,
+    ClearVideoHistoryUseCase,
+    DeleteVideoFromHistoryUseCase,
+    GetVideoHistoryUseCase,
+)
 from app.domain.auth.exceptions import JWTTokenExpiredError, JWTTokenInvalidError, NotAuthenticatedError
 from app.domain.channels.exceptions import ChannelNotActiveError, ChannelNotFoundByIdError
 from app.domain.common.exceptions.pagination import InvalidCursorError
 from app.domain.video_history.exceptions import VideoHistoryEmptyError, VideoNotFoundInHistoryError
 from app.domain.videos.exceptions import VideoAccessForbiddenError, VideoNotFoundError
 from app.presentation.api.openapi.common import error_response
-from app.presentation.api.v1.di.current_channel_id import CurrentChannelID
-from app.presentation.api.v1.handlers.common.params import PathVideoId
+from app.presentation.api.v1.di import CurrentChannelID
+from app.presentation.api.v1.handlers.common.path_params import PathVideoId
 from app.presentation.api.v1.schemas.requests.common import CursorPaginationParams
 from app.presentation.api.v1.schemas.requests.video_history import VideoHistorySortingParams
 from app.presentation.api.v1.schemas.responses.common import CursorPaginationResponse

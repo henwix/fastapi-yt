@@ -6,12 +6,9 @@ from dishka import AsyncContainer
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.application.common.sorting import SortingOrderEnum
-from app.application.posts.dto import DetailedPost
-from app.application.posts.queries import (
-    PostsSorting,
-    PostsSortingFieldsEnum,
-)
-from app.application.posts.use_cases.get_posts import GetPostsUseCase
+from app.application.posts.dtos import DetailedPost
+from app.application.posts.queries import PostsSorting, PostsSortingFieldsEnum
+from app.application.posts.use_cases import GetPostsUseCase
 from app.domain.channels.exceptions import ChannelNotFoundBySlugError
 from app.domain.common.constants import Empty
 from app.domain.common.exceptions.pagination import InvalidCursorError

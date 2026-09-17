@@ -7,118 +7,115 @@ from redis.asyncio import Redis
 from sqlalchemy.ext.asyncio import AsyncEngine, AsyncSession, async_sessionmaker
 from types_aiobotocore_s3.client import S3Client
 
-from app.application.auth.use_cases.activate_channel import ActivateChannelUseCase
-from app.application.auth.use_cases.login_channel import LoginChannelUseCase
-from app.application.auth.use_cases.logout import LogoutUseCase
-from app.application.auth.use_cases.refresh_jwt_token import RefreshJWTTokenUseCase
-from app.application.auth.use_cases.register_channel import RegisterChannelUseCase
-from app.application.auth.use_cases.resend_channel_activation import ResendChannelActivationCodeUseCase
-from app.application.auth.use_cases.reset_channel_password import ResetChannelPasswordUseCase
-from app.application.auth.use_cases.reset_channel_password_confirm import ResetChannelPasswordConfirmUseCase
-from app.application.auth.use_cases.set_channel_email import SetChannelEmailUseCase
-from app.application.auth.use_cases.set_channel_email_confirm import SetChannelEmailConfirmUseCase
-from app.application.auth.use_cases.set_channel_password import SetChannelPasswordUseCase
-from app.application.channels.interfaces.reader import IChannelReader
-from app.application.channels.use_cases.confirm_channel_avatar_upload import ConfirmChannelAvatarUploadUseCase
-from app.application.channels.use_cases.delete_channel import DeleteChannelUseCase
-from app.application.channels.use_cases.delete_channel_avatar import DeleteChannelAvatarUseCase
-from app.application.channels.use_cases.generate_channel_avatar_upload_url import GenerateChannelAvatarUploadUrlUseCase
-from app.application.channels.use_cases.get_channel import GetChannelUseCase
-from app.application.channels.use_cases.get_channel_about_info import GetChannelAboutInfoUseCase
-from app.application.channels.use_cases.update_channel import UpdateChannelUseCase
-from app.application.common.interfaces.email.provider import IEmailProvider
-from app.application.common.interfaces.email.service import IEmailService
+from app.application.auth.use_cases import (
+    ActivateChannelUseCase,
+    LoginChannelUseCase,
+    LogoutUseCase,
+    RefreshJWTTokenUseCase,
+    RegisterChannelUseCase,
+    ResendChannelActivationCodeUseCase,
+    ResetChannelPasswordConfirmUseCase,
+    ResetChannelPasswordUseCase,
+    SetChannelEmailConfirmUseCase,
+    SetChannelEmailUseCase,
+    SetChannelPasswordUseCase,
+)
+from app.application.channels.interfaces import IChannelReader
+from app.application.channels.use_cases import (
+    ConfirmChannelAvatarUploadUseCase,
+    DeleteChannelAvatarUseCase,
+    DeleteChannelUseCase,
+    GenerateChannelAvatarUploadUrlUseCase,
+    GetChannelAboutInfoUseCase,
+    GetChannelUseCase,
+    UpdateChannelUseCase,
+)
+from app.application.common.interfaces.email import IEmailProvider, IEmailService
 from app.application.common.interfaces.file_type_detector import IFileTypeDetector
-from app.application.common.interfaces.s3.provider import IS3Provider
-from app.application.common.interfaces.s3.service import IS3Service
-from app.application.common.interfaces.security.auth_code_service import IAuthCodeService
-from app.application.common.interfaces.security.auth_service import IAuthService
-from app.application.common.interfaces.security.jwt_service import IJWTService
-from app.application.common.interfaces.security.password_hasher import IPasswordHasher
+from app.application.common.interfaces.s3 import IS3Provider, IS3Service
+from app.application.common.interfaces.security import IAuthCodeService, IAuthService, IJWTService, IPasswordHasher
 from app.application.common.interfaces.transaction_manager import ITransactionManager
-from app.application.common.use_cases.email.send_channel_activation_code import SendChannelActivationCodeUseCase
-from app.application.common.use_cases.email.send_channel_reset_password_code import SendChannelResetPasswordCodeUseCase
-from app.application.common.use_cases.email.send_channel_set_email_code import SendChannelSetEmailCodeUseCase
-from app.application.common.use_cases.s3.abort_multipart_upload import AbortMultipartUploadUseCase
-from app.application.common.use_cases.s3.delete_s3_object import DeleteS3ObjectUseCase
-from app.application.oauth.interfaces.provider import IOAuthProviderFactory
-from app.application.oauth.interfaces.reader import IOAuthAccountReader
-from app.application.oauth.interfaces.service import IOAuthServiceFactory
-from app.application.oauth.use_cases.disconnect_account import OAuthDisconnectAccountUseCase
-from app.application.oauth.use_cases.get_connected_accounts import OAuthGetConnectedAccountsUseCase
-from app.application.oauth.use_cases.get_login_url import OAuthGetLoginUrlUseCase
-from app.application.oauth.use_cases.verify_code import OAuthVerifyCodeUseCase
-from app.application.playlists.interfaces.reader import IPlaylistReader
-from app.application.playlists.use_cases.add_video_to_playlist import AddVideoToPlaylistUseCase
-from app.application.playlists.use_cases.create_playlist import CreatePlaylistUseCase
-from app.application.playlists.use_cases.delete_playlist import DeletePlaylistUseCase
-from app.application.playlists.use_cases.delete_video_from_playlist import DeleteVideoFromPlaylistUseCase
-from app.application.playlists.use_cases.get_channel_playlists import GetChannelPlaylistsUseCase
-from app.application.playlists.use_cases.get_personal_playlists import GetPersonalPlaylistsUseCase
-from app.application.playlists.use_cases.get_playlist import GetPlaylistUseCase
-from app.application.playlists.use_cases.get_playlist_videos import GetPlaylistVideosUseCase
-from app.application.playlists.use_cases.update_playlist import UpdatePlaylistUseCase
-from app.application.post_comment_reactions.use_cases.create_post_comment_reaction import (
+from app.application.common.use_cases.email import (
+    SendChannelActivationCodeUseCase,
+    SendChannelResetPasswordCodeUseCase,
+    SendChannelSetEmailCodeUseCase,
+)
+from app.application.common.use_cases.s3 import AbortMultipartUploadUseCase, DeleteS3ObjectUseCase
+from app.application.oauth.interfaces import IOAuthAccountReader, IOAuthProviderFactory, IOAuthServiceFactory
+from app.application.oauth.use_cases import (
+    OAuthDisconnectAccountUseCase,
+    OAuthGetConnectedAccountsUseCase,
+    OAuthGetLoginUrlUseCase,
+    OAuthVerifyCodeUseCase,
+)
+from app.application.playlists.interfaces import IPlaylistReader
+from app.application.playlists.use_cases import (
+    AddVideoToPlaylistUseCase,
+    CreatePlaylistUseCase,
+    DeletePlaylistUseCase,
+    DeleteVideoFromPlaylistUseCase,
+    GetChannelPlaylistsUseCase,
+    GetPersonalPlaylistsUseCase,
+    GetPlaylistUseCase,
+    GetPlaylistVideosUseCase,
+    UpdatePlaylistUseCase,
+)
+from app.application.posts.interfaces import IPostCommentReader, IPostReader
+from app.application.posts.use_cases import (
     CreatePostCommentReactionUseCase,
-)
-from app.application.post_comment_reactions.use_cases.delete_post_comment_reaction import (
+    CreatePostCommentUseCase,
+    CreatePostReactionUseCase,
+    CreatePostUseCase,
     DeletePostCommentReactionUseCase,
+    DeletePostCommentUseCase,
+    DeletePostReactionUseCase,
+    DeletePostUseCase,
+    GetPostCommentRepliesUseCase,
+    GetPostCommentsUseCase,
+    GetPostsUseCase,
+    GetPostUseCase,
+    UpdatePostCommentUseCase,
+    UpdatePostUseCase,
 )
-from app.application.post_comments.interfaces.reader import IPostCommentReader
-from app.application.post_comments.use_cases.create_post_comment import CreatePostCommentUseCase
-from app.application.post_comments.use_cases.delete_post_comment import DeletePostCommentUseCase
-from app.application.post_comments.use_cases.get_post_comment_replies import GetPostCommentRepliesUseCase
-from app.application.post_comments.use_cases.get_post_comments import GetPostCommentsUseCase
-from app.application.post_comments.use_cases.update_post_comment import UpdatePostCommentUseCase
-from app.application.post_reactions.use_cases.create_post_reaction import CreatePostReactionUseCase
-from app.application.post_reactions.use_cases.delete_post_reaction import DeletePostReactionUseCase
-from app.application.posts.interfaces.reader import IPostReader
-from app.application.posts.use_cases.create_post import CreatePostUseCase
-from app.application.posts.use_cases.delete_post import DeletePostUseCase
-from app.application.posts.use_cases.get_post import GetPostUseCase
-from app.application.posts.use_cases.get_posts import GetPostsUseCase
-from app.application.posts.use_cases.update_post import UpdatePostUseCase
-from app.application.subscriptions.interfaces.reader import ISubscriptionReader
-from app.application.subscriptions.use_cases.get_subscribers import GetSubscribersUseCase
-from app.application.subscriptions.use_cases.get_subscriptions import GetSubscriptionsUseCase
-from app.application.subscriptions.use_cases.subscribe import SubscribeUseCase
-from app.application.subscriptions.use_cases.unsubscribe import UnsubscribeUseCase
-from app.application.video_comment_reactions.use_cases.create_video_comment_reaction import (
+from app.application.subscriptions.interfaces import ISubscriptionReader
+from app.application.subscriptions.use_cases import (
+    GetSubscribersUseCase,
+    GetSubscriptionsUseCase,
+    SubscribeUseCase,
+    UnsubscribeUseCase,
+)
+from app.application.videos.interfaces import IVideoCommentReader, IVideoHistoryReader, IVideoReader
+from app.application.videos.use_cases import (
+    AbortVideoMultipartUploadUseCase,
+    AddVideoToHistoryUseCase,
+    ClearVideoHistoryUseCase,
+    CompleteVideoMultipartUploadUseCase,
+    ConfirmVideoThumbnailUploadUseCase,
     CreateVideoCommentReactionUseCase,
-)
-from app.application.video_comment_reactions.use_cases.delete_video_comment_reaction import (
+    CreateVideoCommentUseCase,
+    CreateVideoMultipartUploadUseCase,
+    CreateVideoReactionUseCase,
+    CreateVideoUseCase,
+    CreateVideoViewUseCase,
+    DeleteNotCompletedVideosUseCase,
     DeleteVideoCommentReactionUseCase,
+    DeleteVideoCommentUseCase,
+    DeleteVideoFromHistoryUseCase,
+    DeleteVideoReactionUseCase,
+    DeleteVideoThumbnailUseCase,
+    DeleteVideoUseCase,
+    GenerateVideoDownloadUrlUseCase,
+    GenerateVideoPartUploadUrlUseCase,
+    GenerateVideoThumbnailUploadUrlUseCase,
+    GetChannelVideosUseCase,
+    GetPersonalVideosUseCase,
+    GetVideoCommentRepliesUseCase,
+    GetVideoCommentsUseCase,
+    GetVideoHistoryUseCase,
+    GetVideoUseCase,
+    UpdateVideoCommentUseCase,
+    UpdateVideoUseCase,
 )
-from app.application.video_comments.interfaces.reader import IVideoCommentReader
-from app.application.video_comments.use_cases.create_video_comment import CreateVideoCommentUseCase
-from app.application.video_comments.use_cases.delete_video_comment import DeleteVideoCommentUseCase
-from app.application.video_comments.use_cases.get_video_comment_replies import GetVideoCommentRepliesUseCase
-from app.application.video_comments.use_cases.get_video_comments import GetVideoCommentsUseCase
-from app.application.video_comments.use_cases.update_video_comment import UpdateVideoCommentUseCase
-from app.application.video_history.interfaces.reader import IVideoHistoryReader
-from app.application.video_history.use_cases.add_video_to_history import AddVideoToHistoryUseCase
-from app.application.video_history.use_cases.clear_video_history import ClearVideoHistoryUseCase
-from app.application.video_history.use_cases.delete_video_from_history import DeleteVideoFromHistoryUseCase
-from app.application.video_history.use_cases.get_video_history import GetVideoHistoryUseCase
-from app.application.video_reactions.use_cases.create_video_reaction import CreateVideoReactionUseCase
-from app.application.video_reactions.use_cases.delete_video_reaction import DeleteVideoReactionUseCase
-from app.application.video_views.use_cases.create_video_view import CreateVideoViewUseCase
-from app.application.videos.interfaces.reader import IVideoReader
-from app.application.videos.use_cases.abort_video_multipart_upload import AbortVideoMultipartUploadUseCase
-from app.application.videos.use_cases.complete_video_multipart_upload import CompleteVideoMultipartUploadUseCase
-from app.application.videos.use_cases.confirm_video_thumbnail_upload import ConfirmVideoThumbnailUploadUseCase
-from app.application.videos.use_cases.create_video import CreateVideoUseCase
-from app.application.videos.use_cases.create_video_multipart_upload import CreateVideoMultipartUploadUseCase
-from app.application.videos.use_cases.delete_not_completed_videos import DeleteNotCompletedVideosUseCase
-from app.application.videos.use_cases.delete_video import DeleteVideoUseCase
-from app.application.videos.use_cases.delete_video_thumbnail import DeleteVideoThumbnailUseCase
-from app.application.videos.use_cases.generate_video_download_url import GenerateVideoDownloadUrlUseCase
-from app.application.videos.use_cases.generate_video_part_upload_url import GenerateVideoPartUploadUrlUseCase
-from app.application.videos.use_cases.generate_video_thumbnail_upload_url import GenerateVideoThumbnailUploadUrlUseCase
-from app.application.videos.use_cases.get_channel_videos import GetChannelVideosUseCase
-from app.application.videos.use_cases.get_personal_videos import GetPersonalVideosUseCase
-from app.application.videos.use_cases.get_video import GetVideoUseCase
-from app.application.videos.use_cases.update_video import UpdateVideoUseCase
 from app.domain.channels.repo import IChannelRepo
 from app.domain.channels.service import ChannelService, IChannelService
 from app.domain.common.repos.kv import IKVRepo
@@ -153,11 +150,9 @@ from app.infrastructure.email.provider import FastMailProvider
 from app.infrastructure.email.service import EmailService
 from app.infrastructure.files.file_type_detector import FileTypeDetector
 from app.infrastructure.http.base import IHttpClient
-from app.infrastructure.http.httpx_client import HttpxHttpClient
+from app.infrastructure.http.httpx_client import HttpxClient
 from app.infrastructure.http.httpx_config import get_httpx_client
-from app.infrastructure.oauth.providers.factory import OAuthProviderFactory
-from app.infrastructure.oauth.providers.github import GitHubOAuthProvider
-from app.infrastructure.oauth.providers.google import GoogleOAuthProvider
+from app.infrastructure.oauth.providers import GitHubOAuthProvider, GoogleOAuthProvider, OAuthProviderFactory
 from app.infrastructure.oauth.service import OAuthServiceFactory
 from app.infrastructure.redis.client import get_redis_client
 from app.infrastructure.redis.repo import RedisRepo
@@ -207,7 +202,7 @@ class AppProvider(Provider):
         async with get_s3_client() as s3_client:
             yield s3_client
 
-    http_client = provide(HttpxHttpClient, scope=Scope.REQUEST, provides=IHttpClient)
+    http_client = provide(HttpxClient, scope=Scope.REQUEST, provides=IHttpClient)
     transaction_manager = provide(SATransactionManager, scope=Scope.REQUEST, provides=ITransactionManager)
     file_type_detector = provide(FileTypeDetector, scope=Scope.REQUEST, provides=IFileTypeDetector)
     smtp_client = provide(FastMailClient, scope=Scope.APP)

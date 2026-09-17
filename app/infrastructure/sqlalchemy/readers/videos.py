@@ -5,9 +5,13 @@ from sqlalchemy import select, tuple_
 
 from app.application.common.pagination import CursorPagination
 from app.application.common.sorting import SortingOrderEnum
-from app.application.videos.dto import ChannelPreviewVideo, DetailedVideo, PersonalPreviewVideo
-from app.application.videos.interfaces.reader import IVideoReader
-from app.application.videos.queries import PersonalVideosFilters, PreviewVideosSorting, PreviewVideosSortingFieldEnum
+from app.application.videos.dtos import ChannelPreviewVideo, DetailedVideo, PersonalPreviewVideo
+from app.application.videos.interfaces import IVideoReader
+from app.application.videos.queries import (
+    PersonalVideosFilters,
+    PreviewVideosSorting,
+    PreviewVideosSortingFieldEnum,
+)
 from app.domain.common.constants import Empty
 from app.domain.videos.enums import VideoPrivacyStatusEnum, VideoUploadStatusEnum
 from app.domain.videos.exceptions import VideoNotFoundError

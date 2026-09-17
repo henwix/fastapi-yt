@@ -5,9 +5,7 @@ from dishka import AsyncContainer
 from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from app.application.post_comments.use_cases.create_post_comment import (
-    CreatePostCommentUseCase,
-)
+from app.application.posts.use_cases import CreatePostCommentUseCase
 from app.domain.channels.exceptions import ChannelNotActiveError, ChannelNotFoundByIdError
 from app.domain.common.constants import Empty
 from app.domain.post_comments.entities import PostComment

@@ -1,16 +1,15 @@
 from dishka.integrations.fastapi import DishkaRoute, FromDishka
 from fastapi import APIRouter, Response, status
 
-from app.application.video_reactions.commands import CreateVideoReactionCommand, DeleteVideoReactionCommand
-from app.application.video_reactions.use_cases.create_video_reaction import CreateVideoReactionUseCase
-from app.application.video_reactions.use_cases.delete_video_reaction import DeleteVideoReactionUseCase
+from app.application.videos.commands.video_reactions import CreateVideoReactionCommand, DeleteVideoReactionCommand
+from app.application.videos.use_cases import CreateVideoReactionUseCase, DeleteVideoReactionUseCase
 from app.domain.auth.exceptions import JWTTokenExpiredError, JWTTokenInvalidError, NotAuthenticatedError
 from app.domain.channels.exceptions import ChannelNotActiveError, ChannelNotFoundByIdError
 from app.domain.video_reactions.exceptions import VideoReactionNotFoundError
 from app.domain.videos.exceptions import VideoAccessForbiddenError, VideoNotFoundError
 from app.presentation.api.openapi.common import error_response
-from app.presentation.api.v1.di.current_channel_id import CurrentChannelID
-from app.presentation.api.v1.handlers.common.params import PathVideoId
+from app.presentation.api.v1.di import CurrentChannelID
+from app.presentation.api.v1.handlers.common.path_params import PathVideoId
 from app.presentation.api.v1.schemas.requests.video_reactions import CreateVideoReactionInSchema
 from app.presentation.api.v1.schemas.responses.video_reactions import VideoReactionOutSchema
 

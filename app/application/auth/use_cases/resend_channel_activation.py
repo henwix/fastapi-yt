@@ -1,8 +1,8 @@
 from dataclasses import dataclass
 
 from app.application.auth.commands import ResendChannelActivationCodeCommand
-from app.application.common.interfaces.email.service import IEmailService
-from app.application.common.interfaces.security.auth_code_service import IAuthCodeService
+from app.application.common.interfaces.email import IEmailService
+from app.application.common.interfaces.security import IAuthCodeService
 from app.domain.auth.exceptions import ChannelAlreadyActivatedError
 from app.domain.channels.service import IChannelService
 

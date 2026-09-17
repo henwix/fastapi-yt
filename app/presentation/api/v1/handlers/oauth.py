@@ -3,10 +3,12 @@ from fastapi import APIRouter, Response, status
 
 from app.application.oauth.commands import OAuthDisconnectAccountCommand, OAuthVerifyCodeCommand
 from app.application.oauth.queries import OAuthGetConnectedAccountsQuery, OAuthGetLoginUrlQuery
-from app.application.oauth.use_cases.disconnect_account import OAuthDisconnectAccountUseCase
-from app.application.oauth.use_cases.get_connected_accounts import OAuthGetConnectedAccountsUseCase
-from app.application.oauth.use_cases.get_login_url import OAuthGetLoginUrlUseCase
-from app.application.oauth.use_cases.verify_code import OAuthVerifyCodeUseCase
+from app.application.oauth.use_cases import (
+    OAuthDisconnectAccountUseCase,
+    OAuthGetConnectedAccountsUseCase,
+    OAuthGetLoginUrlUseCase,
+    OAuthVerifyCodeUseCase,
+)
 from app.domain.auth.exceptions import JWTTokenExpiredError, JWTTokenInvalidError, NotAuthenticatedError
 from app.domain.channels.exceptions import (
     ChannelEmailAlreadyExistsError,
@@ -29,7 +31,7 @@ from app.domain.oauth.exceptions import (
     OAuthProviderResponseError,
 )
 from app.presentation.api.openapi.common import error_response
-from app.presentation.api.v1.di.current_channel_id import CurrentChannelID, OptionalCurrentChannelID
+from app.presentation.api.v1.di import CurrentChannelID, OptionalCurrentChannelID
 from app.presentation.api.v1.schemas.requests.oauth import OAuthVerifyCodeInSchema
 from app.presentation.api.v1.schemas.responses.auth import JWTTokensOutSchema
 from app.presentation.api.v1.schemas.responses.oauth import OAuthAccountOutSchema, OAuthLoginUrlOutSchema

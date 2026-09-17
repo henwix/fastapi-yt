@@ -131,7 +131,7 @@ def get_http_status_code(exc: AppException):
         ChannelAlreadyActivatedError: status.HTTP_409_CONFLICT,
         ChannelInvalidEmailUIDError: status.HTTP_400_BAD_REQUEST,
         ChannelInvalidEmailCodeError: status.HTTP_400_BAD_REQUEST,
-        ChannelEmailAlreadyAssociatedWithThisAcccountError: status.HTTP_400_BAD_REQUEST,
+        ChannelEmailAlreadyAssociatedWithThisAcccountError: status.HTTP_409_CONFLICT,
         IncorrectEmailOrPasswordError: status.HTTP_401_UNAUTHORIZED,
         NotAuthenticatedError: status.HTTP_401_UNAUTHORIZED,
         JWTTokenInvalidError: status.HTTP_401_UNAUTHORIZED,

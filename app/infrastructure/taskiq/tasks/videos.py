@@ -1,6 +1,6 @@
 from dishka.integrations.taskiq import FromDishka, inject
 
-from app.application.videos.use_cases.delete_not_completed_videos import DeleteNotCompletedVideosUseCase
+from app.application.videos.use_cases import DeleteNotCompletedVideosUseCase
 from app.infrastructure.taskiq.broker import get_broker
 
 broker = get_broker()

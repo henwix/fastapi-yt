@@ -3,7 +3,7 @@ from dishka import AsyncContainer
 from sqlalchemy import exists, select
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from app.application.channels.use_cases.delete_channel import DeleteChannelUseCase
+from app.application.channels.use_cases import DeleteChannelUseCase
 from app.domain.channels.exceptions import ChannelNotActiveError, ChannelNotFoundByIdError
 from app.infrastructure.sqlalchemy.models.channels import ChannelORM
 from tests.factories.commands.channels import DeleteChannelCommandFactory

@@ -7,24 +7,26 @@ from fastapi import APIRouter, Depends, Request, status
 from pydantic import HttpUrl
 
 from app.application.common.pagination import CursorPagination
-from app.application.post_comments.commands import (
+from app.application.posts.commands import (
     CreatePostCommentCommand,
     DeletePostCommentCommand,
     UpdatePostCommentCommand,
 )
-from app.application.post_comments.queries import GetPostCommentRepliesQuery, GetPostCommentsQuery, PostCommentsSorting
-from app.application.post_comments.use_cases.create_post_comment import CreatePostCommentUseCase
-from app.application.post_comments.use_cases.delete_post_comment import DeletePostCommentUseCase
-from app.application.post_comments.use_cases.get_post_comment_replies import GetPostCommentRepliesUseCase
-from app.application.post_comments.use_cases.get_post_comments import GetPostCommentsUseCase
-from app.application.post_comments.use_cases.update_post_comment import UpdatePostCommentUseCase
+from app.application.posts.queries import GetPostCommentRepliesQuery, GetPostCommentsQuery, PostCommentsSorting
+from app.application.posts.use_cases import (
+    CreatePostCommentUseCase,
+    DeletePostCommentUseCase,
+    GetPostCommentRepliesUseCase,
+    GetPostCommentsUseCase,
+    UpdatePostCommentUseCase,
+)
 from app.domain.auth.exceptions import JWTTokenExpiredError, JWTTokenInvalidError, NotAuthenticatedError
 from app.domain.channels.exceptions import ChannelNotActiveError, ChannelNotFoundByIdError
 from app.domain.common.exceptions.pagination import InvalidCursorError
 from app.domain.post_comments.exceptions import PostCommentAccessForbiddenError, PostCommentNotFoundError
 from app.domain.posts.exceptions import PostNotFoundError
 from app.presentation.api.openapi.common import error_response
-from app.presentation.api.v1.di.current_channel_id import CurrentChannelID
+from app.presentation.api.v1.di import CurrentChannelID
 from app.presentation.api.v1.schemas.requests.common import CursorPaginationParams
 from app.presentation.api.v1.schemas.requests.post_comments import (
     CreatePostCommentInSchema,

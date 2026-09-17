@@ -1,6 +1,6 @@
 from dataclasses import dataclass
 
-from app.application.oauth.interfaces.service import IOAuthServiceFactory
+from app.application.oauth.interfaces import IOAuthServiceFactory
 from app.application.oauth.queries import OAuthGetLoginUrlQuery
 
 

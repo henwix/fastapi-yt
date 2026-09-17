@@ -3,7 +3,7 @@ from dishka import AsyncContainer
 from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from app.application.videos.use_cases.create_video import CreateVideoUseCase
+from app.application.videos.use_cases import CreateVideoUseCase
 from app.domain.channels.exceptions import ChannelNotActiveError, ChannelNotFoundByIdError
 from app.domain.videos.entities import Video
 from app.domain.videos.enums import VideoUploadStatusEnum

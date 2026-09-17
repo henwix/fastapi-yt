@@ -5,7 +5,7 @@ from dishka import AsyncContainer
 from sqlalchemy import exists, select
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from app.application.oauth.use_cases.disconnect_account import OAuthDisconnectAccountUseCase
+from app.application.oauth.use_cases import OAuthDisconnectAccountUseCase
 from app.domain.channels.exceptions import ChannelNotActiveError, ChannelNotFoundByIdError
 from app.domain.oauth.enums import OAuthProviderEnum
 from app.domain.oauth.exceptions import (

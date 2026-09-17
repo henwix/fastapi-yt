@@ -5,7 +5,7 @@ import pytest
 from dishka import AsyncContainer
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from app.application.auth.use_cases.set_channel_email import SetChannelEmailUseCase
+from app.application.auth.use_cases import SetChannelEmailUseCase
 from app.domain.auth.exceptions import ChannelEmailAlreadyAssociatedWithThisAcccountError
 from app.domain.channels.exceptions import (
     ChannelEmailAlreadyExistsError,

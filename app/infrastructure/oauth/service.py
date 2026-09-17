@@ -2,8 +2,7 @@ import secrets
 from dataclasses import dataclass
 
 from app.application.oauth.dto import OAuthProviderUserData
-from app.application.oauth.interfaces.provider import IOAuthProvider, IOAuthProviderFactory
-from app.application.oauth.interfaces.service import IOAuthService, IOAuthServiceFactory
+from app.application.oauth.interfaces import IOAuthProvider, IOAuthProviderFactory, IOAuthService, IOAuthServiceFactory
 from app.domain.common.repos.kv import IKVRepo
 from app.domain.oauth.enums import OAuthProviderEnum
 from app.domain.oauth.exceptions import OAuthInvalidStateError

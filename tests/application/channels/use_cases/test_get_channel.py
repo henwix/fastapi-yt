@@ -2,7 +2,7 @@ import pytest
 from dishka import AsyncContainer
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from app.application.channels.use_cases.get_channel import GetChannelUseCase
+from app.application.channels.use_cases import GetChannelUseCase
 from app.domain.channels.entities import Channel
 from app.domain.channels.exceptions import ChannelNotFoundByIdError
 from tests.factories.models.channels import ChannelORMFactory

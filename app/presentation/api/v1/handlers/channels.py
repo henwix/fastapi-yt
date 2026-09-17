@@ -9,13 +9,15 @@ from app.application.channels.commands import (
     UpdateChannelCommand,
 )
 from app.application.channels.queries import GetChannelAboutInfoQuery, GetChannelQuery
-from app.application.channels.use_cases.confirm_channel_avatar_upload import ConfirmChannelAvatarUploadUseCase
-from app.application.channels.use_cases.delete_channel import DeleteChannelUseCase
-from app.application.channels.use_cases.delete_channel_avatar import DeleteChannelAvatarUseCase
-from app.application.channels.use_cases.generate_channel_avatar_upload_url import GenerateChannelAvatarUploadUrlUseCase
-from app.application.channels.use_cases.get_channel import GetChannelUseCase
-from app.application.channels.use_cases.get_channel_about_info import GetChannelAboutInfoUseCase
-from app.application.channels.use_cases.update_channel import UpdateChannelUseCase
+from app.application.channels.use_cases import (
+    ConfirmChannelAvatarUploadUseCase,
+    DeleteChannelAvatarUseCase,
+    DeleteChannelUseCase,
+    GenerateChannelAvatarUploadUrlUseCase,
+    GetChannelAboutInfoUseCase,
+    GetChannelUseCase,
+    UpdateChannelUseCase,
+)
 from app.domain.auth.exceptions import JWTTokenExpiredError, JWTTokenInvalidError, NotAuthenticatedError
 from app.domain.channels.exceptions import (
     ChannelAvatarAlreadySetError,
@@ -36,8 +38,8 @@ from app.domain.common.exceptions.s3 import (
     S3ResponseError,
 )
 from app.presentation.api.openapi.common import error_response
-from app.presentation.api.v1.di.current_channel_id import CurrentChannelID
-from app.presentation.api.v1.handlers.common.params import PathChannelSlug
+from app.presentation.api.v1.di import CurrentChannelID
+from app.presentation.api.v1.handlers.common.path_params import PathChannelSlug
 from app.presentation.api.v1.schemas.requests.channels import (
     ChannelAvatarUploadConfirmInSchema,
     GenerateChannelAvatarUploadUrlInSchema,

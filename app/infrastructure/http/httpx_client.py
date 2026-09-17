@@ -8,7 +8,7 @@ from app.infrastructure.http.base import IHttpClient
 
 
 @dataclass
-class HttpxHttpClient(IHttpClient):
+class HttpxClient(IHttpClient):
     _httpx_client: httpx.AsyncClient
 
     async def _request(

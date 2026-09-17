@@ -6,9 +6,9 @@ from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.application.common.dto.jwt import JWTTokens
-from app.application.common.interfaces.security.jwt_service import IJWTService
-from app.application.oauth.interfaces.service import IOAuthServiceFactory
-from app.application.oauth.use_cases.verify_code import OAuthVerifyCodeUseCase
+from app.application.common.interfaces.security import IJWTService
+from app.application.oauth.interfaces import IOAuthServiceFactory
+from app.application.oauth.use_cases import OAuthVerifyCodeUseCase
 from app.domain.channels.exceptions import (
     ChannelEmailAlreadyExistsError,
     ChannelNotActiveError,

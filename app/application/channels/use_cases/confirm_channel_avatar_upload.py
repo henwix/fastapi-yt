@@ -3,7 +3,7 @@ from pathlib import Path
 
 from app.application.channels.commands import ConfirmChannelAvatarUploadCommand
 from app.application.common.interfaces.file_type_detector import IFileTypeDetector
-from app.application.common.interfaces.s3.service import IS3Service
+from app.application.common.interfaces.s3 import IS3Service
 from app.application.common.interfaces.transaction_manager import ITransactionManager
 from app.core.configs import settings
 from app.domain.channels.constants import CHANNEL_AVATAR_MAX_SIZE

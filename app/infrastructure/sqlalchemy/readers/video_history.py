@@ -5,9 +5,9 @@ from sqlalchemy import select, tuple_
 
 from app.application.common.pagination import CursorPagination
 from app.application.common.sorting import SortingOrderEnum
-from app.application.video_history.dto import PreviewVideoHistory
-from app.application.video_history.interfaces.reader import IVideoHistoryReader
-from app.application.video_history.queries import VideoHistorySorting, VideoHistorySortingFieldsEnum
+from app.application.videos.dtos import PreviewVideoHistory
+from app.application.videos.interfaces import IVideoHistoryReader
+from app.application.videos.queries import VideoHistorySorting, VideoHistorySortingFieldsEnum
 from app.infrastructure.sqlalchemy.converters.video_history import convert_row_to_preview_video_history_dto
 from app.infrastructure.sqlalchemy.models.channels import ChannelORM
 from app.infrastructure.sqlalchemy.models.videos import VideoHistoryItemORM, VideoORM

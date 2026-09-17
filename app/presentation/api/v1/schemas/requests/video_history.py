@@ -1,5 +1,5 @@
 from app.application.common.sorting import SortingOrderEnum
-from app.application.video_history.queries import VideoHistorySortingFieldsEnum
+from app.application.videos.queries import VideoHistorySortingFieldsEnum
 from app.presentation.api.v1.schemas.base import BaseSchema
 
 

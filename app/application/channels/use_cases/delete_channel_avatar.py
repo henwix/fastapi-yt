@@ -1,7 +1,7 @@
 from dataclasses import dataclass
 
 from app.application.channels.commands import DeleteChannelAvatarCommand
-from app.application.common.interfaces.s3.service import IS3Service
+from app.application.common.interfaces.s3 import IS3Service
 from app.application.common.interfaces.transaction_manager import ITransactionManager
 from app.core.configs import settings
 from app.domain.channels.exceptions import ChannelAvatarNotFoundError

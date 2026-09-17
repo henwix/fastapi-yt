@@ -9,18 +9,20 @@ from pydantic import HttpUrl
 from app.application.common.pagination import CursorPagination
 from app.application.posts.commands import CreatePostCommand, DeletePostCommand, UpdatePostCommand
 from app.application.posts.queries import GetPostQuery, GetPostsQuery, PostsSorting
-from app.application.posts.use_cases.create_post import CreatePostUseCase
-from app.application.posts.use_cases.delete_post import DeletePostUseCase
-from app.application.posts.use_cases.get_post import GetPostUseCase
-from app.application.posts.use_cases.get_posts import GetPostsUseCase
-from app.application.posts.use_cases.update_post import UpdatePostUseCase
+from app.application.posts.use_cases import (
+    CreatePostUseCase,
+    DeletePostUseCase,
+    GetPostsUseCase,
+    GetPostUseCase,
+    UpdatePostUseCase,
+)
 from app.domain.auth.exceptions import JWTTokenExpiredError, JWTTokenInvalidError, NotAuthenticatedError
 from app.domain.channels.exceptions import ChannelNotActiveError, ChannelNotFoundByIdError, ChannelNotFoundBySlugError
 from app.domain.common.exceptions.pagination import InvalidCursorError
 from app.domain.posts.exceptions import PostAccessForbiddenError, PostNotFoundError
 from app.presentation.api.openapi.common import error_response
-from app.presentation.api.v1.di.current_channel_id import CurrentChannelID
-from app.presentation.api.v1.handlers.common.params import PathChannelSlug
+from app.presentation.api.v1.di import CurrentChannelID
+from app.presentation.api.v1.handlers.common.path_params import PathChannelSlug
 from app.presentation.api.v1.schemas.requests.common import CursorPaginationParams
 from app.presentation.api.v1.schemas.requests.posts import CreatePostInSchema, PostsSortingParams, UpdatePostInSchema
 from app.presentation.api.v1.schemas.responses.common import CursorPaginationResponse

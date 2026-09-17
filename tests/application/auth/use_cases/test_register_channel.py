@@ -5,9 +5,8 @@ from dishka import AsyncContainer
 from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from app.application.auth.use_cases.register_channel import RegisterChannelUseCase
-from app.application.common.interfaces.security.jwt_service import IJWTService
-from app.application.common.interfaces.security.password_hasher import IPasswordHasher
+from app.application.auth.use_cases import RegisterChannelUseCase
+from app.application.common.interfaces.security import IJWTService, IPasswordHasher
 from app.core.configs import Settings
 from app.domain.channels.entities import Channel
 from app.domain.channels.exceptions import ChannelEmailAlreadyExistsError, ChannelSlugAlreadyExistsError

@@ -3,7 +3,7 @@ from uuid import UUID
 
 from pydantic import HttpUrl
 
-from app.application.videos.dto import ChannelPreviewVideo, DetailedVideo, PersonalPreviewVideo
+from app.application.videos.dtos import ChannelPreviewVideo, DetailedVideo, PersonalPreviewVideo
 from app.domain.videos.entities import Video
 from app.domain.videos.enums import VideoPrivacyStatusEnum, VideoUploadStatusEnum
 from app.presentation.api.v1.schemas.base import BaseSchema

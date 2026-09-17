@@ -21,15 +21,17 @@ from app.application.playlists.queries import (
     PlaylistsPreviewSorting,
     PlaylistVideosSorting,
 )
-from app.application.playlists.use_cases.add_video_to_playlist import AddVideoToPlaylistUseCase
-from app.application.playlists.use_cases.create_playlist import CreatePlaylistUseCase
-from app.application.playlists.use_cases.delete_playlist import DeletePlaylistUseCase
-from app.application.playlists.use_cases.delete_video_from_playlist import DeleteVideoFromPlaylistUseCase
-from app.application.playlists.use_cases.get_channel_playlists import GetChannelPlaylistsUseCase
-from app.application.playlists.use_cases.get_personal_playlists import GetPersonalPlaylistsUseCase
-from app.application.playlists.use_cases.get_playlist import GetPlaylistUseCase
-from app.application.playlists.use_cases.get_playlist_videos import GetPlaylistVideosUseCase
-from app.application.playlists.use_cases.update_playlist import UpdatePlaylistUseCase
+from app.application.playlists.use_cases import (
+    AddVideoToPlaylistUseCase,
+    CreatePlaylistUseCase,
+    DeletePlaylistUseCase,
+    DeleteVideoFromPlaylistUseCase,
+    GetChannelPlaylistsUseCase,
+    GetPersonalPlaylistsUseCase,
+    GetPlaylistUseCase,
+    GetPlaylistVideosUseCase,
+    UpdatePlaylistUseCase,
+)
 from app.domain.auth.exceptions import JWTTokenExpiredError, JWTTokenInvalidError, NotAuthenticatedError
 from app.domain.channels.exceptions import ChannelNotActiveError, ChannelNotFoundByIdError, ChannelNotFoundBySlugError
 from app.domain.common.exceptions.pagination import InvalidCursorError
@@ -41,8 +43,8 @@ from app.domain.playlists.exceptions import (
 )
 from app.domain.videos.exceptions import VideoAccessForbiddenError, VideoNotFoundError
 from app.presentation.api.openapi.common import error_response
-from app.presentation.api.v1.di.current_channel_id import CurrentChannelID, OptionalCurrentChannelID
-from app.presentation.api.v1.handlers.common.params import PathChannelSlug, PathVideoId
+from app.presentation.api.v1.di import CurrentChannelID, OptionalCurrentChannelID
+from app.presentation.api.v1.handlers.common.path_params import PathChannelSlug, PathVideoId
 from app.presentation.api.v1.schemas.requests.common import CursorPaginationParams
 from app.presentation.api.v1.schemas.requests.playlists import (
     CreatePlaylistInSchema,

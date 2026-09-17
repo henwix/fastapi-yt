@@ -1,6 +1,6 @@
 from sqlalchemy import RowMapping
 
-from app.application.videos.dto import ChannelPreviewVideo, DetailedVideo, PersonalPreviewVideo
+from app.application.videos.dtos import ChannelPreviewVideo, DetailedVideo, PersonalPreviewVideo
 from app.domain.videos.enums import VideoPrivacyStatusEnum, VideoUploadStatusEnum
 
 

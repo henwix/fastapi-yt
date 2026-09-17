@@ -3,7 +3,7 @@ from uuid import UUID
 from sqlalchemy import select
 
 from app.application.oauth.dto import OAuthAccount
-from app.application.oauth.interfaces.reader import IOAuthAccountReader
+from app.application.oauth.interfaces import IOAuthAccountReader
 from app.infrastructure.sqlalchemy.converters.oauth import convert_row_to_oauth_account_dto
 from app.infrastructure.sqlalchemy.models.oauth import OAuthAccountORM
 from app.infrastructure.sqlalchemy.readers.base import SAReader

@@ -1,5 +1,5 @@
 from app.application.oauth.dto import OAuthProviderUserData
-from app.application.oauth.interfaces.provider import IOAuthProvider
+from app.application.oauth.interfaces import IOAuthProvider
 from app.domain.oauth.enums import OAuthProviderEnum
 from tests.factories.dto.oauth import OAuthProviderUserDataFactory
 

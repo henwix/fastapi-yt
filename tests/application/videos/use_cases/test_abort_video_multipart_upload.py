@@ -5,7 +5,7 @@ import pytest
 from dishka import AsyncContainer
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from app.application.videos.use_cases.abort_video_multipart_upload import AbortVideoMultipartUploadUseCase
+from app.application.videos.use_cases import AbortVideoMultipartUploadUseCase
 from app.domain.channels.exceptions import ChannelNotActiveError, ChannelNotFoundByIdError
 from app.domain.videos.enums import VideoUploadStatusEnum
 from app.domain.videos.exceptions import (

@@ -1,7 +1,7 @@
 from datetime import datetime
 from uuid import UUID
 
-from app.application.post_comments.dto import DetailedPostComment
+from app.application.posts.dtos import DetailedPostComment
 from app.domain.post_comments.entities import PostComment
 from app.presentation.api.v1.schemas.base import BaseSchema
 

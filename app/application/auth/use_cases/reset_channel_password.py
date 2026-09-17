@@ -1,8 +1,8 @@
 from dataclasses import dataclass
 
 from app.application.auth.commands import ResetChannelPasswordCommand
-from app.application.common.interfaces.email.service import IEmailService
-from app.application.common.interfaces.security.auth_code_service import IAuthCodeService
+from app.application.common.interfaces.email import IEmailService
+from app.application.common.interfaces.security import IAuthCodeService
 from app.domain.channels.service import IChannelService
 from app.utils.base64url import base64url_encode
 

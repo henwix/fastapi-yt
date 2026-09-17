@@ -1,7 +1,7 @@
 import secrets
 from uuid import UUID, uuid7
 
-from app.application.common.interfaces.s3.provider import IS3Provider
+from app.application.common.interfaces.s3 import IS3Provider
 from app.infrastructure.s3.service import S3Service
 
 

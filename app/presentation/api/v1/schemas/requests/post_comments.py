@@ -3,7 +3,7 @@ from uuid import UUID
 from pydantic import Field
 
 from app.application.common.sorting import SortingOrderEnum
-from app.application.post_comments.queries import PostCommentsSortingFieldsEnum
+from app.application.posts.queries import PostCommentsSortingFieldsEnum
 from app.domain.post_comments.constants import POST_COMMENT_TEXT_MAX_LENGTH, POST_COMMENT_TEXT_MIN_LENGTH
 from app.presentation.api.v1.schemas.base import BaseSchema, BaseUpdateSchema
 

@@ -2,7 +2,7 @@ import sqlalchemy as sa
 from sqlalchemy import select
 
 from app.application.channels.dto import ChannelAboutInfo
-from app.application.channels.interfaces.reader import IChannelReader
+from app.application.channels.interfaces import IChannelReader
 from app.domain.channels.exceptions import ChannelNotFoundBySlugError
 from app.domain.videos.enums import VideoPrivacyStatusEnum, VideoUploadStatusEnum
 from app.infrastructure.sqlalchemy.converters.channels import convert_row_to_channel_about_info_dto

@@ -2,9 +2,8 @@ import secrets
 from dataclasses import dataclass
 
 from app.application.common.commands.s3 import AbortMultipartUploadCommand, DeleteS3ObjectCommand
-from app.application.common.interfaces.s3.provider import IS3Provider
-from app.application.common.interfaces.s3.service import IS3Service
-from app.infrastructure.taskiq.tasks.s3 import s3_abort_multipart_upload_task, s3_delete_object_task
+from app.application.common.interfaces.s3 import IS3Provider, IS3Service
+from app.infrastructure.taskiq.tasks import s3_abort_multipart_upload_task, s3_delete_object_task
 
 
 @dataclass

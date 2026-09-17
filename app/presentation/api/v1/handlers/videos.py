@@ -18,12 +18,14 @@ from app.application.videos.queries import (
     PersonalVideosFilters,
     PreviewVideosSorting,
 )
-from app.application.videos.use_cases.create_video import CreateVideoUseCase
-from app.application.videos.use_cases.delete_video import DeleteVideoUseCase
-from app.application.videos.use_cases.get_channel_videos import GetChannelVideosUseCase
-from app.application.videos.use_cases.get_personal_videos import GetPersonalVideosUseCase
-from app.application.videos.use_cases.get_video import GetVideoUseCase
-from app.application.videos.use_cases.update_video import UpdateVideoUseCase
+from app.application.videos.use_cases import (
+    CreateVideoUseCase,
+    DeleteVideoUseCase,
+    GetChannelVideosUseCase,
+    GetPersonalVideosUseCase,
+    GetVideoUseCase,
+    UpdateVideoUseCase,
+)
 from app.domain.auth.exceptions import JWTTokenExpiredError, JWTTokenInvalidError, NotAuthenticatedError
 from app.domain.channels.exceptions import ChannelNotActiveError, ChannelNotFoundByIdError, ChannelNotFoundBySlugError
 from app.domain.common.exceptions.pagination import InvalidCursorError
@@ -32,8 +34,8 @@ from app.domain.videos.exceptions import (
     VideoNotFoundError,
 )
 from app.presentation.api.openapi.common import error_response
-from app.presentation.api.v1.di.current_channel_id import CurrentChannelID, OptionalCurrentChannelID
-from app.presentation.api.v1.handlers.common.params import PathChannelSlug, PathVideoId
+from app.presentation.api.v1.di import CurrentChannelID, OptionalCurrentChannelID
+from app.presentation.api.v1.handlers.common.path_params import PathChannelSlug, PathVideoId
 from app.presentation.api.v1.schemas.requests.common import CursorPaginationParams
 from app.presentation.api.v1.schemas.requests.videos import (
     CreateVideoInSchema,

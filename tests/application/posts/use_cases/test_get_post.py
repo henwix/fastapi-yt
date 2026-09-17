@@ -2,7 +2,7 @@ import pytest
 from dishka import AsyncContainer
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from app.application.posts.use_cases.get_post import GetPostUseCase
+from app.application.posts.use_cases import GetPostUseCase
 from app.domain.posts.entities import Post
 from app.domain.posts.exceptions import PostNotFoundError
 from tests.factories.models.channels import ChannelORMFactory

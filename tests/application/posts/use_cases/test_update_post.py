@@ -3,7 +3,7 @@ from dishka import AsyncContainer
 from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from app.application.posts.use_cases.update_post import UpdatePostUseCase
+from app.application.posts.use_cases import UpdatePostUseCase
 from app.domain.channels.exceptions import (
     ChannelNotActiveError,
     ChannelNotFoundByIdError,

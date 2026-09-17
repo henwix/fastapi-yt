@@ -1,10 +1,10 @@
 from dataclasses import dataclass
 
 from app.application.common.dto.jwt import JWTTokens
-from app.application.common.interfaces.security.auth_service import IAuthService
+from app.application.common.interfaces.security import IAuthService
 from app.application.common.interfaces.transaction_manager import ITransactionManager
 from app.application.oauth.commands import OAuthVerifyCodeCommand
-from app.application.oauth.interfaces.service import IOAuthServiceFactory
+from app.application.oauth.interfaces import IOAuthServiceFactory
 from app.domain.channels.entities import Channel
 from app.domain.channels.service import IChannelService
 from app.domain.oauth.entities import OAuthAccount

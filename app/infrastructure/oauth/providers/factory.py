@@ -1,6 +1,6 @@
 from dataclasses import dataclass
 
-from app.application.oauth.interfaces.provider import IOAuthProvider, IOAuthProviderFactory
+from app.application.oauth.interfaces import IOAuthProvider, IOAuthProviderFactory
 from app.domain.oauth.enums import OAuthProviderEnum
 from app.domain.oauth.exceptions import OAuthProviderNotSupportedError
 

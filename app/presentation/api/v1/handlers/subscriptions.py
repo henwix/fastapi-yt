@@ -12,10 +12,12 @@ from app.application.subscriptions.queries import (
     GetSubscriptionsQuery,
     SubscriptionsSorting,
 )
-from app.application.subscriptions.use_cases.get_subscribers import GetSubscribersUseCase
-from app.application.subscriptions.use_cases.get_subscriptions import GetSubscriptionsUseCase
-from app.application.subscriptions.use_cases.subscribe import SubscribeUseCase
-from app.application.subscriptions.use_cases.unsubscribe import UnsubscribeUseCase
+from app.application.subscriptions.use_cases import (
+    GetSubscribersUseCase,
+    GetSubscriptionsUseCase,
+    SubscribeUseCase,
+    UnsubscribeUseCase,
+)
 from app.domain.auth.exceptions import JWTTokenExpiredError, JWTTokenInvalidError, NotAuthenticatedError
 from app.domain.channels.exceptions import ChannelNotActiveError, ChannelNotFoundByIdError, ChannelNotFoundBySlugError
 from app.domain.common.exceptions.pagination import InvalidCursorError
@@ -25,8 +27,8 @@ from app.domain.subscriptions.exceptions import (
     SubscriptionNotFoundError,
 )
 from app.presentation.api.openapi.common import error_response
-from app.presentation.api.v1.di.current_channel_id import CurrentChannelID
-from app.presentation.api.v1.handlers.common.params import PathChannelSlug
+from app.presentation.api.v1.di import CurrentChannelID
+from app.presentation.api.v1.handlers.common.path_params import PathChannelSlug
 from app.presentation.api.v1.schemas.requests.common import CursorPaginationParams
 from app.presentation.api.v1.schemas.requests.subscriptions import SubscriptionsSortingParams
 from app.presentation.api.v1.schemas.responses.common import CursorPaginationResponse

@@ -2,7 +2,7 @@ from dataclasses import asdict, dataclass
 from logging import getLogger
 
 from app.application.common.commands.s3 import AbortMultipartUploadCommand
-from app.application.common.interfaces.s3.provider import IS3Provider
+from app.application.common.interfaces.s3 import IS3Provider
 from app.domain.common.exceptions.base import AppException
 
 logger = getLogger(__name__)

@@ -14,14 +14,16 @@ from app.application.videos.commands import (
     GenerateVideoPartUploadUrlCommand,
     GenerateVideoThumbnailUploadUrlCommand,
 )
-from app.application.videos.use_cases.abort_video_multipart_upload import AbortVideoMultipartUploadUseCase
-from app.application.videos.use_cases.complete_video_multipart_upload import CompleteVideoMultipartUploadUseCase
-from app.application.videos.use_cases.confirm_video_thumbnail_upload import ConfirmVideoThumbnailUploadUseCase
-from app.application.videos.use_cases.create_video_multipart_upload import CreateVideoMultipartUploadUseCase
-from app.application.videos.use_cases.delete_video_thumbnail import DeleteVideoThumbnailUseCase
-from app.application.videos.use_cases.generate_video_download_url import GenerateVideoDownloadUrlUseCase
-from app.application.videos.use_cases.generate_video_part_upload_url import GenerateVideoPartUploadUrlUseCase
-from app.application.videos.use_cases.generate_video_thumbnail_upload_url import GenerateVideoThumbnailUploadUrlUseCase
+from app.application.videos.use_cases import (
+    AbortVideoMultipartUploadUseCase,
+    CompleteVideoMultipartUploadUseCase,
+    ConfirmVideoThumbnailUploadUseCase,
+    CreateVideoMultipartUploadUseCase,
+    DeleteVideoThumbnailUseCase,
+    GenerateVideoDownloadUrlUseCase,
+    GenerateVideoPartUploadUrlUseCase,
+    GenerateVideoThumbnailUploadUrlUseCase,
+)
 from app.domain.auth.exceptions import JWTTokenExpiredError, JWTTokenInvalidError, NotAuthenticatedError
 from app.domain.channels.exceptions import ChannelNotActiveError, ChannelNotFoundByIdError
 from app.domain.common.exceptions.s3 import (
@@ -49,8 +51,8 @@ from app.domain.videos.exceptions import (
     VideoUploadNotCreatedError,
 )
 from app.presentation.api.openapi.common import error_response
-from app.presentation.api.v1.di.current_channel_id import CurrentChannelID, OptionalCurrentChannelID
-from app.presentation.api.v1.handlers.common.params import PathVideoId
+from app.presentation.api.v1.di import CurrentChannelID, OptionalCurrentChannelID
+from app.presentation.api.v1.handlers.common.path_params import PathVideoId
 from app.presentation.api.v1.schemas.requests.common import CompleteMultipartUploadInSchema
 from app.presentation.api.v1.schemas.requests.videos import (
     ConfirmVideoThumbnailUploadInSchema,

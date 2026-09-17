@@ -1,8 +1,8 @@
 from urllib.parse import unquote, urlencode
 
-from app.application.common.interfaces.security.jwt_service import IJWTService
+from app.application.common.interfaces.security import IJWTService
 from app.application.oauth.dto import OAuthProviderUserData
-from app.application.oauth.interfaces.provider import IOAuthProvider
+from app.application.oauth.interfaces import IOAuthProvider
 from app.core.configs import settings
 from app.domain.auth.exceptions import JWTTokenInvalidError
 from app.domain.common.exceptions.http import HttpRequestError, HttpResponseError

@@ -2,7 +2,7 @@ from dataclasses import dataclass
 from datetime import datetime
 
 from app.application.playlists.dto import PlaylistPreviewVideo
-from app.application.playlists.interfaces.reader import IPlaylistReader
+from app.application.playlists.interfaces import IPlaylistReader
 from app.application.playlists.queries import GetPlaylistVideosQuery, PlaylistVideosSortingFieldsEnum
 from app.domain.channels.service import IChannelService
 from app.domain.common.constants import Empty

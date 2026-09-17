@@ -5,9 +5,9 @@ from sqlalchemy import select, tuple_
 
 from app.application.common.pagination import CursorPagination
 from app.application.common.sorting import SortingOrderEnum
-from app.application.post_comments.dto import DetailedPostComment
-from app.application.post_comments.interfaces.reader import IPostCommentReader
-from app.application.post_comments.queries import PostCommentsSorting
+from app.application.posts.dtos import DetailedPostComment
+from app.application.posts.interfaces import IPostCommentReader
+from app.application.posts.queries import PostCommentsSorting
 from app.infrastructure.sqlalchemy.converters.post_comments import convert_row_to_detailed_post_comment_dto
 from app.infrastructure.sqlalchemy.models.channels import ChannelORM
 from app.infrastructure.sqlalchemy.models.posts import PostCommentORM

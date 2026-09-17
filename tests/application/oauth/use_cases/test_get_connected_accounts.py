@@ -3,7 +3,7 @@ from dishka import AsyncContainer
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.application.oauth.dto import OAuthAccount
-from app.application.oauth.use_cases.get_connected_accounts import OAuthGetConnectedAccountsUseCase
+from app.application.oauth.use_cases import OAuthGetConnectedAccountsUseCase
 from app.domain.channels.exceptions import ChannelNotActiveError, ChannelNotFoundByIdError
 from app.domain.oauth.enums import OAuthProviderEnum
 from tests.factories.models.channels import ChannelORMFactory

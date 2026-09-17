@@ -15,17 +15,19 @@ from app.application.auth.commands import (
     SetChannelEmailConfirmCommand,
     SetChannelPasswordCommand,
 )
-from app.application.auth.use_cases.activate_channel import ActivateChannelUseCase
-from app.application.auth.use_cases.login_channel import LoginChannelUseCase
-from app.application.auth.use_cases.logout import LogoutUseCase
-from app.application.auth.use_cases.refresh_jwt_token import RefreshJWTTokenUseCase
-from app.application.auth.use_cases.register_channel import RegisterChannelUseCase
-from app.application.auth.use_cases.resend_channel_activation import ResendChannelActivationCodeUseCase
-from app.application.auth.use_cases.reset_channel_password import ResetChannelPasswordUseCase
-from app.application.auth.use_cases.reset_channel_password_confirm import ResetChannelPasswordConfirmUseCase
-from app.application.auth.use_cases.set_channel_email import SetChannelEmailUseCase
-from app.application.auth.use_cases.set_channel_email_confirm import SetChannelEmailConfirmUseCase
-from app.application.auth.use_cases.set_channel_password import SetChannelPasswordUseCase
+from app.application.auth.use_cases import (
+    ActivateChannelUseCase,
+    LoginChannelUseCase,
+    LogoutUseCase,
+    RefreshJWTTokenUseCase,
+    RegisterChannelUseCase,
+    ResendChannelActivationCodeUseCase,
+    ResetChannelPasswordConfirmUseCase,
+    ResetChannelPasswordUseCase,
+    SetChannelEmailConfirmUseCase,
+    SetChannelEmailUseCase,
+    SetChannelPasswordUseCase,
+)
 from app.domain.auth.exceptions import (
     ChannelAlreadyActivatedError,
     ChannelEmailAlreadyAssociatedWithThisAcccountError,
@@ -45,7 +47,7 @@ from app.domain.channels.exceptions import (
     ChannelSlugAlreadyExistsError,
 )
 from app.presentation.api.openapi.common import error_response
-from app.presentation.api.v1.di.current_channel_id import CurrentChannelID
+from app.presentation.api.v1.di import CurrentChannelID
 from app.presentation.api.v1.schemas.requests.auth import (
     ActivateChannelInSchema,
     LoginInSchema,
@@ -208,9 +210,6 @@ async def resend_channel_activation_code(
     path='/set_email',
     status_code=status.HTTP_204_NO_CONTENT,
     responses={
-        status.HTTP_400_BAD_REQUEST: error_response(
-            ChannelEmailAlreadyAssociatedWithThisAcccountError,
-        ),
         status.HTTP_401_UNAUTHORIZED: error_response(
             NotAuthenticatedError,
             JWTTokenExpiredError,
@@ -224,6 +223,7 @@ async def resend_channel_activation_code(
         ),
         status.HTTP_409_CONFLICT: error_response(
             ChannelEmailAlreadyExistsError,
+            ChannelEmailAlreadyAssociatedWithThisAcccountError,
         ),
     },
 )

@@ -4,16 +4,11 @@ from dishka import FromDishka
 from dishka.integrations.fastapi import DishkaRoute
 from fastapi import APIRouter, Response, status
 
-from app.application.post_comment_reactions.commands import (
+from app.application.posts.commands import (
     CreatePostCommentReactionCommand,
     DeletePostCommentReactionCommand,
 )
-from app.application.post_comment_reactions.use_cases.create_post_comment_reaction import (
-    CreatePostCommentReactionUseCase,
-)
-from app.application.post_comment_reactions.use_cases.delete_post_comment_reaction import (
-    DeletePostCommentReactionUseCase,
-)
+from app.application.posts.use_cases import CreatePostCommentReactionUseCase, DeletePostCommentReactionUseCase
 from app.domain.auth.exceptions import JWTTokenExpiredError, JWTTokenInvalidError, NotAuthenticatedError
 from app.domain.channels.exceptions import ChannelNotActiveError, ChannelNotFoundByIdError
 from app.domain.post_comment_reactions.exceptions import (
@@ -21,7 +16,7 @@ from app.domain.post_comment_reactions.exceptions import (
 )
 from app.domain.post_comments.exceptions import PostCommentNotFoundError
 from app.presentation.api.openapi.common import error_response
-from app.presentation.api.v1.di.current_channel_id import CurrentChannelID
+from app.presentation.api.v1.di import CurrentChannelID
 from app.presentation.api.v1.schemas.requests.post_comment_reactions import CreatePostCommentReactionInSchema
 from app.presentation.api.v1.schemas.responses.post_comment_reactions import PostCommentReactionOutSchema
 

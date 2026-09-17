@@ -2,7 +2,7 @@ import pytest
 from dishka import AsyncContainer
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from app.application.channels.use_cases.generate_channel_avatar_upload_url import GenerateChannelAvatarUploadUrlUseCase
+from app.application.channels.use_cases import GenerateChannelAvatarUploadUrlUseCase
 from app.core.configs import settings
 from app.domain.channels.exceptions import (
     ChannelAvatarInvalidFilenameError,

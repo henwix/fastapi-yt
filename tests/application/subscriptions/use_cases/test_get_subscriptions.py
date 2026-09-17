@@ -11,9 +11,7 @@ from app.application.subscriptions.queries import (
     SubscriptionsSorting,
     SubscriptionsSortingFieldsEnum,
 )
-from app.application.subscriptions.use_cases.get_subscriptions import (
-    GetSubscriptionsUseCase,
-)
+from app.application.subscriptions.use_cases import GetSubscriptionsUseCase
 from app.domain.channels.exceptions import ChannelNotActiveError, ChannelNotFoundByIdError
 from app.domain.common.constants import Empty
 from app.domain.common.exceptions.pagination import InvalidCursorError

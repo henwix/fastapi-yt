@@ -1,0 +1,58 @@
+from dataclasses import dataclass
+from datetime import datetime
+from uuid import UUID
+
+from app.application.posts.dtos import DetailedPostComment
+from app.application.posts.interfaces import IPostCommentReader
+from app.application.posts.queries import GetPostCommentRepliesQuery, PostCommentsSortingFieldsEnum
+from app.domain.common.constants import Empty
+from app.domain.common.exceptions.pagination import InvalidCursorError
+from app.domain.post_comments.service import IPostCommentService
+from app.utils.base64url import base64url_decode, base64url_encode
+
+
+@dataclass
+class GetPostCommentRepliesUseCase:
+    _post_comment_service: IPostCommentService
+    _post_comment_reader: IPostCommentReader
+
+    async def execute(self, query: GetPostCommentRepliesQuery) -> tuple[list[DetailedPostComment], str | None]:
+        cursor_sort_value = None
+        cursor_id_value = None
+
+        if query.pagination.cursor is not Empty.UNSET:
+            try:
+                decoded_cursor: dict[str, str] = base64url_decode(value=query.pagination.cursor)
+
+                cursor_id_value = UUID(decoded_cursor['id'])
+
+                match query.sorting.sort_by:
+                    case PostCommentsSortingFieldsEnum.CREATED_AT:
+                        cursor_sort_value = datetime.fromisoformat(
+                            decoded_cursor[PostCommentsSortingFieldsEnum.CREATED_AT.value]
+                        )
+
+            except Exception as e:
+                raise InvalidCursorError(cursor=query.pagination.cursor, exc_details=str(e)) from e
+
+        post_comment = await self._post_comment_service.try_get_by_id(id=query.post_comment_id)
+        replies = await self._post_comment_reader.get_replies(
+            post_comment_id=post_comment.id,
+            cursor_sort_value=cursor_sort_value,
+            cursor_id_value=cursor_id_value,
+            sorting=query.sorting,
+            pagination=query.pagination,
+        )
+
+        next_cursor = None
+
+        if len(replies) > query.pagination.per_page:
+            replies = replies[: query.pagination.per_page]
+            last_item = replies[-1]
+            next_cursor = {'id': str(last_item.id)}
+
+            match query.sorting.sort_by:
+                case PostCommentsSortingFieldsEnum.CREATED_AT:
+                    next_cursor[PostCommentsSortingFieldsEnum.CREATED_AT.value] = last_item.created_at.isoformat()
+
+        return replies, base64url_encode(value=next_cursor) if next_cursor else None

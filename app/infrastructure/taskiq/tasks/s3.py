@@ -1,8 +1,7 @@
 from dishka.integrations.taskiq import FromDishka, inject
 
 from app.application.common.commands.s3 import AbortMultipartUploadCommand, DeleteS3ObjectCommand
-from app.application.common.use_cases.s3.abort_multipart_upload import AbortMultipartUploadUseCase
-from app.application.common.use_cases.s3.delete_s3_object import DeleteS3ObjectUseCase
+from app.application.common.use_cases.s3 import AbortMultipartUploadUseCase, DeleteS3ObjectUseCase
 from app.infrastructure.taskiq.broker import get_broker
 
 broker = get_broker()

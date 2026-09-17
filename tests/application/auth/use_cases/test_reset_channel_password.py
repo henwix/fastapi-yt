@@ -4,7 +4,7 @@ import pytest
 from dishka import AsyncContainer
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from app.application.auth.use_cases.reset_channel_password import ResetChannelPasswordUseCase
+from app.application.auth.use_cases import ResetChannelPasswordUseCase
 from app.domain.common.repos.kv import IKVRepo
 from tests.factories.commands.auth import ResetChannelPasswordCommandFactory
 from tests.factories.models.channels import ChannelORMFactory

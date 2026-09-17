@@ -8,17 +8,9 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from app.application.common.pagination import CursorPagination
 from app.application.common.sorting import SortingOrderEnum
 from app.application.subscriptions.dto import DetailedSubscription
-from app.application.subscriptions.queries import (
-    SubscriptionsSorting,
-    SubscriptionsSortingFieldsEnum,
-)
-from app.application.subscriptions.use_cases.get_subscribers import (
-    GetSubscribersUseCase,
-)
-from app.domain.channels.exceptions import (
-    ChannelNotActiveError,
-    ChannelNotFoundByIdError,
-)
+from app.application.subscriptions.queries import SubscriptionsSorting, SubscriptionsSortingFieldsEnum
+from app.application.subscriptions.use_cases import GetSubscribersUseCase
+from app.domain.channels.exceptions import ChannelNotActiveError, ChannelNotFoundByIdError
 from app.domain.common.constants import Empty
 from app.domain.common.exceptions.pagination import InvalidCursorError
 from app.utils.base64url import base64url_decode

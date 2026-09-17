@@ -3,7 +3,7 @@ from datetime import datetime
 from uuid import UUID
 
 from app.application.subscriptions.dto import DetailedSubscription
-from app.application.subscriptions.interfaces.reader import ISubscriptionReader
+from app.application.subscriptions.interfaces import ISubscriptionReader
 from app.application.subscriptions.queries import GetSubscriptionsQuery, SubscriptionsSortingFieldsEnum
 from app.domain.channels.service import IChannelService
 from app.domain.common.constants import Empty

@@ -5,8 +5,8 @@ from app.application.common.commands.email import (
     SendChannelResetPasswordCodeCommand,
     SendChannelSetEmailCodeCommand,
 )
-from app.application.common.interfaces.email.service import IEmailService
-from app.infrastructure.taskiq.tasks.email import (
+from app.application.common.interfaces.email import IEmailService
+from app.infrastructure.taskiq.tasks import (
     send_channel_activation_code_task,
     send_channel_reset_password_code_task,
     send_channel_set_email_code_task,

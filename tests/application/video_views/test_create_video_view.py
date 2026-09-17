@@ -6,7 +6,7 @@ from dishka import AsyncContainer
 from sqlalchemy import exists, select
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from app.application.video_views.use_cases.create_video_view import CreateVideoViewUseCase
+from app.application.videos.use_cases import CreateVideoViewUseCase
 from app.domain.channels.exceptions import ChannelNotActiveError, ChannelNotFoundByIdError
 from app.domain.video_views.exceptions import VideoViewsLimitReachedError
 from app.domain.videos.enums import VideoPrivacyStatusEnum, VideoUploadStatusEnum

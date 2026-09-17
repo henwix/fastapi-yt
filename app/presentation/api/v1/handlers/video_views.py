@@ -1,16 +1,15 @@
 from dishka.integrations.fastapi import DishkaRoute, FromDishka
 from fastapi import APIRouter, status
 
-from app.application.video_views.commands import CreateVideoViewCommand
-from app.application.video_views.use_cases.create_video_view import CreateVideoViewUseCase
+from app.application.videos.commands.video_views import CreateVideoViewCommand
+from app.application.videos.use_cases import CreateVideoViewUseCase
 from app.domain.auth.exceptions import JWTTokenExpiredError, JWTTokenInvalidError, NotAuthenticatedError
 from app.domain.channels.exceptions import ChannelNotActiveError, ChannelNotFoundByIdError
 from app.domain.video_views.exceptions import VideoViewsLimitReachedError
 from app.domain.videos.exceptions import VideoAccessForbiddenError, VideoNotFoundError
 from app.presentation.api.openapi.common import error_response
-from app.presentation.api.v1.di.anonymous_id import AnonymousID
-from app.presentation.api.v1.di.current_channel_id import OptionalCurrentChannelID
-from app.presentation.api.v1.handlers.common.params import PathVideoId
+from app.presentation.api.v1.di import AnonymousID, OptionalCurrentChannelID
+from app.presentation.api.v1.handlers.common.path_params import PathVideoId
 
 router = APIRouter(
     prefix='/videos/{video_id}/views',

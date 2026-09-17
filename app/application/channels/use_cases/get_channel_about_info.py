@@ -1,7 +1,7 @@
 from dataclasses import dataclass
 
 from app.application.channels.dto import ChannelAboutInfo
-from app.application.channels.interfaces.reader import IChannelReader
+from app.application.channels.interfaces import IChannelReader
 from app.application.channels.queries import GetChannelAboutInfoQuery
 
 

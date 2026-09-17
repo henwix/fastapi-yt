@@ -3,12 +3,8 @@ from dishka import AsyncContainer
 from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from app.application.subscriptions.use_cases.unsubscribe import UnsubscribeUseCase
-from app.domain.channels.exceptions import (
-    ChannelNotActiveError,
-    ChannelNotFoundByIdError,
-    ChannelNotFoundBySlugError,
-)
+from app.application.subscriptions.use_cases import UnsubscribeUseCase
+from app.domain.channels.exceptions import ChannelNotActiveError, ChannelNotFoundByIdError, ChannelNotFoundBySlugError
 from app.domain.subscriptions.exceptions import SubscriptionNotFoundError
 from app.infrastructure.sqlalchemy.models.channels import SubscriptionORM
 from tests.factories.commands.subscriptions import UnsubscribeCommandFactory

@@ -5,7 +5,7 @@ from dishka import AsyncContainer
 from faker import Faker
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from app.application.channels.use_cases.update_channel import UpdateChannelUseCase
+from app.application.channels.use_cases import UpdateChannelUseCase
 from app.domain.channels.entities import Channel
 from app.domain.channels.exceptions import (
     ChannelNotActiveError,

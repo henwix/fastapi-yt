@@ -4,7 +4,7 @@ import pytest
 from dishka import AsyncContainer
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from app.application.channels.use_cases.confirm_channel_avatar_upload import ConfirmChannelAvatarUploadUseCase
+from app.application.channels.use_cases import ConfirmChannelAvatarUploadUseCase
 from app.core.configs import settings
 from app.domain.channels.exceptions import (
     ChannelAvatarAlreadySetError,

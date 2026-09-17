@@ -7,7 +7,7 @@ from sqlalchemy import select, tuple_
 from app.application.common.pagination import CursorPagination
 from app.application.common.sorting import SortingOrderEnum
 from app.application.playlists.dto import DetailedPlaylist, PlaylistPreviewVideo, PreviewPlaylist
-from app.application.playlists.interfaces.reader import IPlaylistReader
+from app.application.playlists.interfaces import IPlaylistReader
 from app.application.playlists.queries import (
     PlaylistsPreviewSorting,
     PlaylistVideosSorting,

@@ -3,7 +3,7 @@ from pathlib import Path
 from uuid import UUID
 
 from app.application.channels.commands import GenerateChannelAvatarUploadUrlCommand
-from app.application.common.interfaces.s3.service import IS3Service
+from app.application.common.interfaces.s3 import IS3Service
 from app.core.configs import settings
 from app.domain.channels.exceptions import ChannelAvatarInvalidFilenameError
 from app.domain.channels.service import IChannelService

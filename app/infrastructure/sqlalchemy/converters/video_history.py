@@ -1,6 +1,6 @@
 from sqlalchemy import RowMapping
 
-from app.application.video_history.dto import PreviewVideoHistory
+from app.application.videos.dtos import PreviewVideoHistory
 from app.domain.videos.enums import VideoPrivacyStatusEnum
 
 

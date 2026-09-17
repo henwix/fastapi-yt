@@ -6,7 +6,7 @@ from sqlalchemy import select, tuple_
 from app.application.common.pagination import CursorPagination
 from app.application.common.sorting import SortingOrderEnum
 from app.application.subscriptions.dto import DetailedSubscription
-from app.application.subscriptions.interfaces.reader import ISubscriptionReader
+from app.application.subscriptions.interfaces import ISubscriptionReader
 from app.application.subscriptions.queries import SubscriptionsSorting
 from app.infrastructure.sqlalchemy.models.channels import ChannelORM, SubscriptionORM
 from app.infrastructure.sqlalchemy.readers.base import SAReader

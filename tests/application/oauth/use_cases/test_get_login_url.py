@@ -3,7 +3,7 @@ from urllib.parse import parse_qs, urlencode, urlparse
 import pytest
 from dishka import AsyncContainer
 
-from app.application.oauth.use_cases.get_login_url import OAuthGetLoginUrlUseCase
+from app.application.oauth.use_cases import OAuthGetLoginUrlUseCase
 from app.core.configs import Settings
 from app.domain.common.repos.kv import IKVRepo
 from app.domain.oauth.enums import OAuthProviderEnum

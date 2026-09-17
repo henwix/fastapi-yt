@@ -4,7 +4,7 @@ import pytest
 from dishka import AsyncContainer
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from app.application.auth.use_cases.resend_channel_activation import ResendChannelActivationCodeUseCase
+from app.application.auth.use_cases import ResendChannelActivationCodeUseCase
 from app.domain.auth.exceptions import ChannelAlreadyActivatedError
 from app.domain.channels.exceptions import ChannelNotFoundByIdError
 from app.domain.common.repos.kv import IKVRepo

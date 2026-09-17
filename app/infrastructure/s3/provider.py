@@ -5,7 +5,7 @@ from botocore.exceptions import BotoCoreError, ClientError
 from types_aiobotocore_s3.client import S3Client
 from types_aiobotocore_s3.type_defs import CreateMultipartUploadOutputTypeDef
 
-from app.application.common.interfaces.s3.provider import IS3Provider
+from app.application.common.interfaces.s3 import IS3Provider
 from app.domain.common.exceptions.s3 import (
     S3MultipartUploadInvalidPartsError,
     S3MultipartUploadNotFoundError,
@@ -36,17 +36,17 @@ class BotoS3Provider(IS3Provider):
     async def create_multipart_upload(
         self, bucket: str, key: str, content_type: str, metadata: dict[str, str] | None = None
     ) -> str:
-        request_params: dict = {
+        params = {
             'Bucket': bucket,
             'Key': key,
             'ContentType': content_type,
         }
         if metadata is not None:
-            request_params['Metadata'] = metadata
+            params['Metadata'] = metadata
 
         resp: CreateMultipartUploadOutputTypeDef = await self._client_action(
             self._s3_client.create_multipart_upload,
-            **request_params,
+            **params,
         )
         return resp.get('UploadId')
 

@@ -14,7 +14,7 @@ from app.application.posts.use_cases.delete_post import DeletePostUseCase
 from app.application.posts.use_cases.get_post import GetPostUseCase
 from app.application.posts.use_cases.get_posts import GetPostsUseCase
 from app.application.posts.use_cases.update_post import UpdatePostUseCase
-from app.domain.auth.exceptions import JWTExpiredTokenError, JWTInvalidTokenError, NotAuthenticatedError
+from app.domain.auth.exceptions import JWTTokenExpiredError, JWTTokenInvalidError, NotAuthenticatedError
 from app.domain.channels.exceptions import ChannelNotActiveError, ChannelNotFoundByIdError, ChannelNotFoundBySlugError
 from app.domain.common.exceptions.pagination import InvalidCursorError
 from app.domain.posts.exceptions import PostAccessForbiddenError, PostNotFoundError
@@ -39,8 +39,8 @@ router = APIRouter(
     responses={
         status.HTTP_401_UNAUTHORIZED: error_response(
             NotAuthenticatedError,
-            JWTExpiredTokenError,
-            JWTInvalidTokenError,
+            JWTTokenExpiredError,
+            JWTTokenInvalidError,
         ),
         status.HTTP_403_FORBIDDEN: error_response(ChannelNotActiveError),
         status.HTTP_404_NOT_FOUND: error_response(ChannelNotFoundByIdError),
@@ -100,8 +100,8 @@ async def get_channel_posts(
     responses={
         status.HTTP_401_UNAUTHORIZED: error_response(
             NotAuthenticatedError,
-            JWTExpiredTokenError,
-            JWTInvalidTokenError,
+            JWTTokenExpiredError,
+            JWTTokenInvalidError,
         ),
         status.HTTP_403_FORBIDDEN: error_response(ChannelNotActiveError, PostAccessForbiddenError),
         status.HTTP_404_NOT_FOUND: error_response(ChannelNotFoundByIdError, PostNotFoundError),
@@ -128,8 +128,8 @@ async def update_post(
     responses={
         status.HTTP_401_UNAUTHORIZED: error_response(
             NotAuthenticatedError,
-            JWTExpiredTokenError,
-            JWTInvalidTokenError,
+            JWTTokenExpiredError,
+            JWTTokenInvalidError,
         ),
         status.HTTP_403_FORBIDDEN: error_response(ChannelNotActiveError, PostAccessForbiddenError),
         status.HTTP_404_NOT_FOUND: error_response(ChannelNotFoundByIdError, PostNotFoundError),

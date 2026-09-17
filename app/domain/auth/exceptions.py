@@ -10,13 +10,13 @@ class IncorrectEmailOrPasswordError(AppException):
 
 
 @dataclass(kw_only=True)
-class JWTInvalidTokenError(AppException):
+class JWTTokenInvalidError(AppException):
     message = 'JWT token is invalid'
     error_detail: str
 
 
 @dataclass
-class JWTExpiredTokenError(AppException):
+class JWTTokenExpiredError(AppException):
     message = 'JWT token is expired'
 
 

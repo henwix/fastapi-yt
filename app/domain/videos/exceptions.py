@@ -70,7 +70,7 @@ class VideoThumbnailInvalidFilenameError(AppException):
 
 
 @dataclass(kw_only=True)
-class VideoThumbnailInvalidFileContentTypeError(AppException):
+class VideoThumbnailInvalidContentTypeError(AppException):
     message = 'Video thumbnail invalid content type'
     key: str
     metadata_content_type: str

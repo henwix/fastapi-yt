@@ -10,7 +10,7 @@ from app.domain.channels.entities import Channel
 from app.domain.channels.exceptions import (
     ChannelNotActiveError,
     ChannelNotFoundByIdError,
-    ChannelWithSlugAlreadyExistsError,
+    ChannelSlugAlreadyExistsError,
 )
 from app.domain.common.constants import Empty
 from tests.factories.commands.channels import UpdateChannelCommandFactory
@@ -71,7 +71,7 @@ async def test_update_channel_raises_error_if_slug_exists(mock_container: AsyncC
         db_channel = await ChannelORMFactory.create(session=session)
         command = UpdateChannelCommandFactory.build(current_channel_id=db_channel.id, slug=db_channel.slug)
 
-        with pytest.raises(ChannelWithSlugAlreadyExistsError):
+        with pytest.raises(ChannelSlugAlreadyExistsError):
             await use_case.execute(command=command)
 
 

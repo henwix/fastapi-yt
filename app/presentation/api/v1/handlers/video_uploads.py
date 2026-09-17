@@ -22,7 +22,7 @@ from app.application.videos.use_cases.delete_video_thumbnail import DeleteVideoT
 from app.application.videos.use_cases.generate_video_download_url import GenerateVideoDownloadUrlUseCase
 from app.application.videos.use_cases.generate_video_part_upload_url import GenerateVideoPartUploadUrlUseCase
 from app.application.videos.use_cases.generate_video_thumbnail_upload_url import GenerateVideoThumbnailUploadUrlUseCase
-from app.domain.auth.exceptions import JWTExpiredTokenError, JWTInvalidTokenError, NotAuthenticatedError
+from app.domain.auth.exceptions import JWTTokenExpiredError, JWTTokenInvalidError, NotAuthenticatedError
 from app.domain.channels.exceptions import ChannelNotActiveError, ChannelNotFoundByIdError
 from app.domain.common.exceptions.s3 import (
     S3MultipartUploadInvalidPartsError,
@@ -38,7 +38,7 @@ from app.domain.videos.exceptions import (
     VideoInvalidFilenameError,
     VideoNotFoundError,
     VideoThumbnailAlreadySetError,
-    VideoThumbnailInvalidFileContentTypeError,
+    VideoThumbnailInvalidContentTypeError,
     VideoThumbnailInvalidFilenameError,
     VideoThumbnailInvalidKeyError,
     VideoThumbnailNotFoundError,
@@ -77,8 +77,8 @@ router = APIRouter(
         status.HTTP_400_BAD_REQUEST: error_response(VideoInvalidFilenameError),
         status.HTTP_401_UNAUTHORIZED: error_response(
             NotAuthenticatedError,
-            JWTExpiredTokenError,
-            JWTInvalidTokenError,
+            JWTTokenExpiredError,
+            JWTTokenInvalidError,
         ),
         status.HTTP_403_FORBIDDEN: error_response(
             ChannelNotActiveError,
@@ -120,8 +120,8 @@ async def create_video_mutipart_upload(
     responses={
         status.HTTP_401_UNAUTHORIZED: error_response(
             NotAuthenticatedError,
-            JWTExpiredTokenError,
-            JWTInvalidTokenError,
+            JWTTokenExpiredError,
+            JWTTokenInvalidError,
         ),
         status.HTTP_403_FORBIDDEN: error_response(
             ChannelNotActiveError,
@@ -167,8 +167,8 @@ async def generate_video_part_upload_url(
         ),
         status.HTTP_401_UNAUTHORIZED: error_response(
             NotAuthenticatedError,
-            JWTExpiredTokenError,
-            JWTInvalidTokenError,
+            JWTTokenExpiredError,
+            JWTTokenInvalidError,
         ),
         status.HTTP_403_FORBIDDEN: error_response(
             ChannelNotActiveError,
@@ -212,8 +212,8 @@ async def complete_video_multipart_upload(
     responses={
         status.HTTP_401_UNAUTHORIZED: error_response(
             NotAuthenticatedError,
-            JWTExpiredTokenError,
-            JWTInvalidTokenError,
+            JWTTokenExpiredError,
+            JWTTokenInvalidError,
         ),
         status.HTTP_403_FORBIDDEN: error_response(
             ChannelNotActiveError,
@@ -256,8 +256,8 @@ async def abort_video_multipart_upload(
         ),
         status.HTTP_401_UNAUTHORIZED: error_response(
             NotAuthenticatedError,
-            JWTExpiredTokenError,
-            JWTInvalidTokenError,
+            JWTTokenExpiredError,
+            JWTTokenInvalidError,
         ),
         status.HTTP_403_FORBIDDEN: error_response(
             ChannelNotActiveError,
@@ -297,8 +297,8 @@ async def generate_video_thumbnail_upload_url(
         ),
         status.HTTP_401_UNAUTHORIZED: error_response(
             NotAuthenticatedError,
-            JWTExpiredTokenError,
-            JWTInvalidTokenError,
+            JWTTokenExpiredError,
+            JWTTokenInvalidError,
         ),
         status.HTTP_403_FORBIDDEN: error_response(
             ChannelNotActiveError,
@@ -314,7 +314,7 @@ async def generate_video_thumbnail_upload_url(
             VideoThumbnailAlreadySetError,
             VideoThumbnailVideoIdMismatchError,
             VideoThumbnailSizeTooBigError,
-            VideoThumbnailInvalidFileContentTypeError,
+            VideoThumbnailInvalidContentTypeError,
         ),
     },
 )
@@ -338,8 +338,8 @@ async def video_thumbnail_upload_confirm(
     responses={
         status.HTTP_401_UNAUTHORIZED: error_response(
             NotAuthenticatedError,
-            JWTExpiredTokenError,
-            JWTInvalidTokenError,
+            JWTTokenExpiredError,
+            JWTTokenInvalidError,
         ),
         status.HTTP_403_FORBIDDEN: error_response(
             ChannelNotActiveError,
@@ -366,8 +366,8 @@ async def delete_video_thumbnail(
     responses={
         status.HTTP_401_UNAUTHORIZED: error_response(
             NotAuthenticatedError,
-            JWTExpiredTokenError,
-            JWTInvalidTokenError,
+            JWTTokenExpiredError,
+            JWTTokenInvalidError,
         ),
         status.HTTP_403_FORBIDDEN: error_response(
             ChannelNotActiveError,

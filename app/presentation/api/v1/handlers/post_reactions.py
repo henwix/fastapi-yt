@@ -7,7 +7,7 @@ from fastapi import APIRouter, Response, status
 from app.application.post_reactions.commands import CreatePostReactionCommand, DeletePostReactionCommand
 from app.application.post_reactions.use_cases.create_post_reaction import CreatePostReactionUseCase
 from app.application.post_reactions.use_cases.delete_post_reaction import DeletePostReactionUseCase
-from app.domain.auth.exceptions import JWTExpiredTokenError, JWTInvalidTokenError, NotAuthenticatedError
+from app.domain.auth.exceptions import JWTTokenExpiredError, JWTTokenInvalidError, NotAuthenticatedError
 from app.domain.channels.exceptions import ChannelNotActiveError, ChannelNotFoundByIdError
 from app.domain.post_reactions.exceptions import PostReactionNotFoundError
 from app.domain.posts.exceptions import PostNotFoundError
@@ -36,8 +36,8 @@ router = APIRouter(
         },
         status.HTTP_401_UNAUTHORIZED: error_response(
             NotAuthenticatedError,
-            JWTExpiredTokenError,
-            JWTInvalidTokenError,
+            JWTTokenExpiredError,
+            JWTTokenInvalidError,
         ),
         status.HTTP_403_FORBIDDEN: error_response(ChannelNotActiveError),
         status.HTTP_404_NOT_FOUND: error_response(
@@ -71,8 +71,8 @@ async def create_post_reaction(
     responses={
         status.HTTP_401_UNAUTHORIZED: error_response(
             NotAuthenticatedError,
-            JWTExpiredTokenError,
-            JWTInvalidTokenError,
+            JWTTokenExpiredError,
+            JWTTokenInvalidError,
         ),
         status.HTTP_403_FORBIDDEN: error_response(ChannelNotActiveError),
         status.HTTP_404_NOT_FOUND: error_response(

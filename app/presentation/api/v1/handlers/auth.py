@@ -32,17 +32,17 @@ from app.domain.auth.exceptions import (
     ChannelInvalidEmailCodeError,
     ChannelInvalidEmailUIDError,
     IncorrectEmailOrPasswordError,
-    JWTExpiredTokenError,
-    JWTInvalidTokenError,
+    JWTTokenExpiredError,
+    JWTTokenInvalidError,
     JWTTokenNotFoundError,
     NotAuthenticatedError,
 )
 from app.domain.channels.exceptions import (
     ChannelActivationFailedError,
+    ChannelEmailAlreadyExistsError,
     ChannelNotActiveError,
     ChannelNotFoundByIdError,
-    ChannelWithEmailAlreadyExistsError,
-    ChannelWithSlugAlreadyExistsError,
+    ChannelSlugAlreadyExistsError,
 )
 from app.presentation.api.openapi.common import error_response
 from app.presentation.api.v1.di.current_channel_id import CurrentChannelID
@@ -72,10 +72,10 @@ router = APIRouter(
     path='/register',
     status_code=status.HTTP_201_CREATED,
     responses={
-        status.HTTP_400_BAD_REQUEST: error_response(
-            ChannelWithEmailAlreadyExistsError,
-            ChannelWithSlugAlreadyExistsError,
-        )
+        status.HTTP_409_CONFLICT: error_response(
+            ChannelEmailAlreadyExistsError,
+            ChannelSlugAlreadyExistsError,
+        ),
     },
 )
 async def register_channel(
@@ -112,8 +112,8 @@ async def login_channel(
     status_code=status.HTTP_201_CREATED,
     responses={
         status.HTTP_401_UNAUTHORIZED: error_response(
-            JWTExpiredTokenError,
-            JWTInvalidTokenError,
+            JWTTokenExpiredError,
+            JWTTokenInvalidError,
         ),
         status.HTTP_404_NOT_FOUND: error_response(JWTTokenNotFoundError),
     },
@@ -132,8 +132,8 @@ async def refresh_jwt_token(
     status_code=status.HTTP_204_NO_CONTENT,
     responses={
         status.HTTP_401_UNAUTHORIZED: error_response(
-            JWTExpiredTokenError,
-            JWTInvalidTokenError,
+            JWTTokenExpiredError,
+            JWTTokenInvalidError,
         ),
         status.HTTP_404_NOT_FOUND: error_response(JWTTokenNotFoundError),
     },
@@ -151,17 +151,19 @@ async def logout(
     status_code=status.HTTP_204_NO_CONTENT,
     responses={
         status.HTTP_400_BAD_REQUEST: error_response(
-            ChannelAlreadyActivatedError,
             ChannelInvalidEmailCodeError,
-            ChannelActivationFailedError,
         ),
         status.HTTP_401_UNAUTHORIZED: error_response(
             NotAuthenticatedError,
-            JWTExpiredTokenError,
-            JWTInvalidTokenError,
+            JWTTokenExpiredError,
+            JWTTokenInvalidError,
         ),
         status.HTTP_404_NOT_FOUND: error_response(
             ChannelNotFoundByIdError,
+        ),
+        status.HTTP_409_CONFLICT: error_response(
+            ChannelAlreadyActivatedError,
+            ChannelActivationFailedError,
         ),
     },
 )
@@ -181,16 +183,16 @@ async def activate_channel(
     path='/resend_activation',
     status_code=status.HTTP_204_NO_CONTENT,
     responses={
-        status.HTTP_400_BAD_REQUEST: error_response(
-            ChannelAlreadyActivatedError,
-        ),
         status.HTTP_401_UNAUTHORIZED: error_response(
             NotAuthenticatedError,
-            JWTExpiredTokenError,
-            JWTInvalidTokenError,
+            JWTTokenExpiredError,
+            JWTTokenInvalidError,
         ),
         status.HTTP_404_NOT_FOUND: error_response(
             ChannelNotFoundByIdError,
+        ),
+        status.HTTP_409_CONFLICT: error_response(
+            ChannelAlreadyActivatedError,
         ),
     },
 )
@@ -208,18 +210,20 @@ async def resend_channel_activation_code(
     responses={
         status.HTTP_400_BAD_REQUEST: error_response(
             ChannelEmailAlreadyAssociatedWithThisAcccountError,
-            ChannelWithEmailAlreadyExistsError,
         ),
         status.HTTP_401_UNAUTHORIZED: error_response(
             NotAuthenticatedError,
-            JWTExpiredTokenError,
-            JWTInvalidTokenError,
+            JWTTokenExpiredError,
+            JWTTokenInvalidError,
         ),
         status.HTTP_403_FORBIDDEN: error_response(
             ChannelNotActiveError,
         ),
         status.HTTP_404_NOT_FOUND: error_response(
             ChannelNotFoundByIdError,
+        ),
+        status.HTTP_409_CONFLICT: error_response(
+            ChannelEmailAlreadyExistsError,
         ),
     },
 )
@@ -238,18 +242,20 @@ async def set_channel_email(
     responses={
         status.HTTP_400_BAD_REQUEST: error_response(
             ChannelInvalidEmailCodeError,
-            ChannelWithEmailAlreadyExistsError,
         ),
         status.HTTP_401_UNAUTHORIZED: error_response(
             NotAuthenticatedError,
-            JWTExpiredTokenError,
-            JWTInvalidTokenError,
+            JWTTokenExpiredError,
+            JWTTokenInvalidError,
         ),
         status.HTTP_403_FORBIDDEN: error_response(
             ChannelNotActiveError,
         ),
         status.HTTP_404_NOT_FOUND: error_response(
             ChannelNotFoundByIdError,
+        ),
+        status.HTTP_409_CONFLICT: error_response(
+            ChannelEmailAlreadyExistsError,
         ),
     },
 )
@@ -268,8 +274,8 @@ async def set_channel_email_confirm(
     responses={
         status.HTTP_401_UNAUTHORIZED: error_response(
             NotAuthenticatedError,
-            JWTExpiredTokenError,
-            JWTInvalidTokenError,
+            JWTTokenExpiredError,
+            JWTTokenInvalidError,
         ),
         status.HTTP_403_FORBIDDEN: error_response(ChannelNotActiveError),
         status.HTTP_404_NOT_FOUND: error_response(ChannelNotFoundByIdError),

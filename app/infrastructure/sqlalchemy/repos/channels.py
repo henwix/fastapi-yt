@@ -5,7 +5,7 @@ from sqlalchemy import delete, exists, select, update
 from sqlalchemy.exc import DBAPIError, IntegrityError
 
 from app.domain.channels.entities import Channel
-from app.domain.channels.exceptions import ChannelWithEmailAlreadyExistsError, ChannelWithSlugAlreadyExistsError
+from app.domain.channels.exceptions import ChannelEmailAlreadyExistsError, ChannelSlugAlreadyExistsError
 from app.domain.channels.repo import IChannelRepo
 from app.infrastructure.sqlalchemy.models.channels import ChannelORM
 from app.infrastructure.sqlalchemy.repos.base import SARepo
@@ -20,9 +20,9 @@ class SAChannelRepo(SARepo, IChannelRepo):
 
         match constraint_name:
             case 'channels_email_key':
-                raise ChannelWithEmailAlreadyExistsError(channel_email=channel.email.to_raw()) from error
+                raise ChannelEmailAlreadyExistsError(channel_email=channel.email.to_raw()) from error
             case 'channels_slug_key':
-                raise ChannelWithSlugAlreadyExistsError(channel_slug=channel.slug.to_raw()) from error
+                raise ChannelSlugAlreadyExistsError(channel_slug=channel.slug.to_raw()) from error
             case _:
                 raise error
 

@@ -4,7 +4,7 @@ from app.application.common.interfaces.security.jwt import IJWTService
 from app.application.oauth.dto import OAuthProviderUserData
 from app.application.oauth.interfaces.provider import IOAuthProvider
 from app.core.configs import settings
-from app.domain.auth.exceptions import JWTInvalidTokenError
+from app.domain.auth.exceptions import JWTTokenInvalidError
 from app.domain.common.exceptions.http import HttpRequestError, HttpResponseError
 from app.domain.oauth.enums import OAuthProviderEnum
 from app.domain.oauth.exceptions import (
@@ -72,7 +72,7 @@ class GoogleOAuthProvider(IOAuthProvider):
     async def get_user_data(self, token: str) -> OAuthProviderUserData:
         try:
             token_payload = self._jwt_service.decode_unverified_token(token=token)
-        except JWTInvalidTokenError as e:
+        except JWTTokenInvalidError as e:
             raise OAuthProviderReceivedInvalidResponseError(
                 provider=self.provider_name,
                 error='unable_to_decode_openid_token',

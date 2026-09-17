@@ -12,7 +12,7 @@ from app.domain.common.exceptions.s3 import S3ObjectAccessForbiddenError
 from app.domain.videos.constants import VIDEO_THUMBNAIL_MAX_SIZE
 from app.domain.videos.exceptions import (
     VideoThumbnailAlreadySetError,
-    VideoThumbnailInvalidFileContentTypeError,
+    VideoThumbnailInvalidContentTypeError,
     VideoThumbnailInvalidKeyError,
     VideoThumbnailSizeTooBigError,
     VideoThumbnailVideoIdMismatchError,
@@ -82,7 +82,7 @@ class ConfirmVideoThumbnailUploadUseCase:
             or thumbnail_actual_mime_type not in IMAGE_FILE_MIME_TYPES.values()
         ):
             await self._s3_service.schedule_delete_object(bucket=settings.s3_public_bucket_name, key=command.key)
-            raise VideoThumbnailInvalidFileContentTypeError(
+            raise VideoThumbnailInvalidContentTypeError(
                 key=command.key,
                 metadata_content_type=thumbnail_metadata_mime_type,
                 actual_content_type=thumbnail_actual_mime_type,

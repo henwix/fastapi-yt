@@ -8,9 +8,9 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from app.application.auth.use_cases.set_channel_email import SetChannelEmailUseCase
 from app.domain.auth.exceptions import ChannelEmailAlreadyAssociatedWithThisAcccountError
 from app.domain.channels.exceptions import (
+    ChannelEmailAlreadyExistsError,
     ChannelNotActiveError,
     ChannelNotFoundByIdError,
-    ChannelWithEmailAlreadyExistsError,
 )
 from app.domain.common.repos.kv import IKVRepo
 from tests.factories.commands.auth import SetChannelEmailCommandFactory
@@ -92,5 +92,5 @@ async def test_set_channel_email_raises_error_if_email_already_exists(mock_conta
             new_email=second_db_channel.email,
         )
 
-        with pytest.raises(ChannelWithEmailAlreadyExistsError):
+        with pytest.raises(ChannelEmailAlreadyExistsError):
             await use_case.execute(command=command)

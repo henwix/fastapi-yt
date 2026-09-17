@@ -9,27 +9,27 @@ from app.domain.auth.exceptions import (
     ChannelInvalidEmailCodeError,
     ChannelInvalidEmailUIDError,
     IncorrectEmailOrPasswordError,
-    JWTExpiredTokenError,
-    JWTInvalidTokenError,
+    JWTTokenExpiredError,
+    JWTTokenInvalidError,
     JWTTokenNotFoundError,
     NotAuthenticatedError,
 )
 from app.domain.channels.exceptions import (
     ChannelActivationFailedError,
     ChannelAvatarAlreadySetError,
-    ChannelAvatarInvalidFileContentTypeError,
+    ChannelAvatarInvalidContentTypeError,
     ChannelAvatarInvalidFilenameError,
     ChannelAvatarInvalidKeyError,
     ChannelAvatarNotFoundError,
     ChannelAvatarSizeTooBigError,
+    ChannelEmailAlreadyExistsError,
+    ChannelEmailInvalidFormatError,
     ChannelEmailTooLongError,
-    ChannelInvalidEmailFormatError,
-    ChannelInvalidSlugFormatError,
     ChannelNotActiveError,
     ChannelNotFoundByIdError,
     ChannelNotFoundBySlugError,
-    ChannelWithEmailAlreadyExistsError,
-    ChannelWithSlugAlreadyExistsError,
+    ChannelSlugAlreadyExistsError,
+    ChannelSlugInvalidFormatError,
 )
 from app.domain.common.exceptions.base import AppException
 from app.domain.common.exceptions.pagination import InvalidCursorError
@@ -79,14 +79,14 @@ from app.domain.video_comment_reactions.exceptions import (
 from app.domain.video_comments.exceptions import VideoCommentAccessForbiddenError, VideoCommentNotFoundError
 from app.domain.video_history.exceptions import VideoHistoryEmptyError, VideoNotFoundInHistoryError
 from app.domain.video_reactions.exceptions import VideoReactionNotFoundError
-from app.domain.video_views.exceptions import VideoViewsLimitReached
+from app.domain.video_views.exceptions import VideoViewsLimitReachedError
 from app.domain.videos.exceptions import (
     VideoAccessForbiddenError,
     VideoInvalidFileContentTypeError,
     VideoInvalidFilenameError,
     VideoNotFoundError,
     VideoThumbnailAlreadySetError,
-    VideoThumbnailInvalidFileContentTypeError,
+    VideoThumbnailInvalidContentTypeError,
     VideoThumbnailInvalidFilenameError,
     VideoThumbnailInvalidKeyError,
     VideoThumbnailNotFoundError,
@@ -112,36 +112,36 @@ def get_http_status_code(exc: AppException):
         S3RequestError: status.HTTP_500_INTERNAL_SERVER_ERROR,
         S3ResponseError: status.HTTP_502_BAD_GATEWAY,
         # Channels
-        ChannelWithEmailAlreadyExistsError: status.HTTP_400_BAD_REQUEST,
-        ChannelWithSlugAlreadyExistsError: status.HTTP_400_BAD_REQUEST,
-        ChannelInvalidEmailFormatError: status.HTTP_400_BAD_REQUEST,
+        ChannelEmailAlreadyExistsError: status.HTTP_409_CONFLICT,
+        ChannelEmailInvalidFormatError: status.HTTP_400_BAD_REQUEST,
         ChannelEmailTooLongError: status.HTTP_400_BAD_REQUEST,
-        ChannelInvalidSlugFormatError: status.HTTP_400_BAD_REQUEST,
+        ChannelSlugAlreadyExistsError: status.HTTP_409_CONFLICT,
+        ChannelSlugInvalidFormatError: status.HTTP_400_BAD_REQUEST,
         ChannelAvatarInvalidKeyError: status.HTTP_400_BAD_REQUEST,
         ChannelAvatarInvalidFilenameError: status.HTTP_400_BAD_REQUEST,
-        ChannelAvatarInvalidFileContentTypeError: status.HTTP_409_CONFLICT,
+        ChannelAvatarInvalidContentTypeError: status.HTTP_409_CONFLICT,
         ChannelAvatarSizeTooBigError: status.HTTP_409_CONFLICT,
         ChannelAvatarAlreadySetError: status.HTTP_409_CONFLICT,
-        ChannelActivationFailedError: status.HTTP_400_BAD_REQUEST,
+        ChannelActivationFailedError: status.HTTP_409_CONFLICT,
         ChannelNotActiveError: status.HTTP_403_FORBIDDEN,
         ChannelNotFoundByIdError: status.HTTP_404_NOT_FOUND,
         ChannelNotFoundBySlugError: status.HTTP_404_NOT_FOUND,
         ChannelAvatarNotFoundError: status.HTTP_404_NOT_FOUND,
         # Auth
-        ChannelAlreadyActivatedError: status.HTTP_400_BAD_REQUEST,
+        ChannelAlreadyActivatedError: status.HTTP_409_CONFLICT,
         ChannelInvalidEmailUIDError: status.HTTP_400_BAD_REQUEST,
         ChannelInvalidEmailCodeError: status.HTTP_400_BAD_REQUEST,
         ChannelEmailAlreadyAssociatedWithThisAcccountError: status.HTTP_400_BAD_REQUEST,
         IncorrectEmailOrPasswordError: status.HTTP_401_UNAUTHORIZED,
-        JWTInvalidTokenError: status.HTTP_401_UNAUTHORIZED,
-        JWTExpiredTokenError: status.HTTP_401_UNAUTHORIZED,
-        JWTTokenNotFoundError: status.HTTP_404_NOT_FOUND,
         NotAuthenticatedError: status.HTTP_401_UNAUTHORIZED,
+        JWTTokenInvalidError: status.HTTP_401_UNAUTHORIZED,
+        JWTTokenExpiredError: status.HTTP_401_UNAUTHORIZED,
+        JWTTokenNotFoundError: status.HTTP_404_NOT_FOUND,
         # OAuth
         OAuthInvalidStateError: status.HTTP_400_BAD_REQUEST,
         OAuthInvalidCodeError: status.HTTP_400_BAD_REQUEST,
-        OAuthProviderEmailNotVerifiedError: status.HTTP_400_BAD_REQUEST,
-        OAuthProviderAlreadyConnectedError: status.HTTP_400_BAD_REQUEST,
+        OAuthProviderEmailNotVerifiedError: status.HTTP_409_CONFLICT,
+        OAuthProviderAlreadyConnectedError: status.HTTP_409_CONFLICT,
         OAuthNoAccountsConnectedError: status.HTTP_404_NOT_FOUND,
         OAuthAccountNotConnectedError: status.HTTP_404_NOT_FOUND,
         OAuthAccountUnableToDisconnectError: status.HTTP_400_BAD_REQUEST,
@@ -153,7 +153,7 @@ def get_http_status_code(exc: AppException):
         VideoThumbnailInvalidFilenameError: status.HTTP_400_BAD_REQUEST,
         VideoThumbnailAlreadySetError: status.HTTP_409_CONFLICT,
         VideoThumbnailVideoIdMismatchError: status.HTTP_409_CONFLICT,
-        VideoThumbnailInvalidFileContentTypeError: status.HTTP_409_CONFLICT,
+        VideoThumbnailInvalidContentTypeError: status.HTTP_409_CONFLICT,
         VideoThumbnailNotFoundError: status.HTTP_404_NOT_FOUND,
         VideoThumbnailSizeTooBigError: status.HTTP_409_CONFLICT,
         VideoUploadAlreadyCompletedError: status.HTTP_409_CONFLICT,
@@ -164,7 +164,7 @@ def get_http_status_code(exc: AppException):
         VideoAccessForbiddenError: status.HTTP_403_FORBIDDEN,
         VideoNotFoundError: status.HTTP_404_NOT_FOUND,
         # Video views
-        VideoViewsLimitReached: status.HTTP_400_BAD_REQUEST,
+        VideoViewsLimitReachedError: status.HTTP_409_CONFLICT,
         # Video reactions
         VideoReactionNotFoundError: status.HTTP_404_NOT_FOUND,
         # Video comments
@@ -176,7 +176,7 @@ def get_http_status_code(exc: AppException):
         VideoNotFoundInHistoryError: status.HTTP_404_NOT_FOUND,
         VideoHistoryEmptyError: status.HTTP_404_NOT_FOUND,
         # Playlists
-        VideoAlreadyAddedToPlaylistError: status.HTTP_400_BAD_REQUEST,
+        VideoAlreadyAddedToPlaylistError: status.HTTP_409_CONFLICT,
         PlaylistAccessForbiddenError: status.HTTP_403_FORBIDDEN,
         PlaylistNotFoundError: status.HTTP_404_NOT_FOUND,
         VideoNotFoundInPlaylistError: status.HTTP_404_NOT_FOUND,
@@ -191,8 +191,8 @@ def get_http_status_code(exc: AppException):
         # Post comment reactions
         PostCommentReactionNotFoundError: status.HTTP_404_NOT_FOUND,
         # Subscriptions
-        SubscriptionAlreadyExistsError: status.HTTP_400_BAD_REQUEST,
-        SelfSubscriptionError: status.HTTP_400_BAD_REQUEST,
+        SubscriptionAlreadyExistsError: status.HTTP_409_CONFLICT,
+        SelfSubscriptionError: status.HTTP_409_CONFLICT,
         SubscriptionNotFoundError: status.HTTP_404_NOT_FOUND,
     }
     return exception_codes.get(type(exc), status.HTTP_500_INTERNAL_SERVER_ERROR)

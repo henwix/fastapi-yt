@@ -10,7 +10,7 @@ from app.application.common.interfaces.security.jwt import IJWTService
 from app.application.common.interfaces.security.password_hasher import IPasswordHasher
 from app.core.configs import Settings
 from app.domain.channels.entities import Channel
-from app.domain.channels.exceptions import ChannelWithEmailAlreadyExistsError, ChannelWithSlugAlreadyExistsError
+from app.domain.channels.exceptions import ChannelEmailAlreadyExistsError, ChannelSlugAlreadyExistsError
 from app.infrastructure.sqlalchemy.models.channels import ChannelORM
 from tests.factories.commands.auth import RegisterChannelCommandFactory
 from tests.factories.models.channels import ChannelORMFactory
@@ -128,7 +128,7 @@ async def test_register_channel_raises_error_if_email_exists(mock_container: Asy
         db_channel = await ChannelORMFactory.create(session=session)
         command = RegisterChannelCommandFactory.build(email=db_channel.email)
 
-        with pytest.raises(ChannelWithEmailAlreadyExistsError):
+        with pytest.raises(ChannelEmailAlreadyExistsError):
             await use_case.execute(command=command)
 
 
@@ -140,5 +140,5 @@ async def test_register_channel_raises_error_if_slug_exists(mock_container: Asyn
         db_channel = await ChannelORMFactory.create(session=session)
         command = RegisterChannelCommandFactory.build(slug=db_channel.slug)
 
-        with pytest.raises(ChannelWithSlugAlreadyExistsError):
+        with pytest.raises(ChannelSlugAlreadyExistsError):
             await use_case.execute(command=command)

@@ -10,9 +10,9 @@ from app.application.common.interfaces.security.jwt import IJWTService
 from app.application.oauth.interfaces.service import IOAuthServiceFactory
 from app.application.oauth.use_cases.verify_code import OAuthVerifyCodeUseCase
 from app.domain.channels.exceptions import (
+    ChannelEmailAlreadyExistsError,
     ChannelNotActiveError,
     ChannelNotFoundByIdError,
-    ChannelWithEmailAlreadyExistsError,
 )
 from app.domain.oauth.exceptions import OAuthProviderAlreadyConnectedError
 from app.infrastructure.sqlalchemy.models.channels import ChannelORM
@@ -91,7 +91,7 @@ async def test_verify_code_raises_error_if_channel_with_email_already_exists(moc
             provider=oauth_provider_user_data.provider,
         )
 
-        with pytest.raises(ChannelWithEmailAlreadyExistsError):
+        with pytest.raises(ChannelEmailAlreadyExistsError):
             await use_case.execute(command=command)
 
 

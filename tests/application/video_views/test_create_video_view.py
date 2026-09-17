@@ -8,7 +8,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.application.video_views.use_cases.create_video_view import CreateVideoViewUseCase
 from app.domain.channels.exceptions import ChannelNotActiveError, ChannelNotFoundByIdError
-from app.domain.video_views.exceptions import VideoViewsLimitReached
+from app.domain.video_views.exceptions import VideoViewsLimitReachedError
 from app.domain.videos.enums import VideoPrivacyStatusEnum, VideoUploadStatusEnum
 from app.domain.videos.exceptions import VideoAccessForbiddenError, VideoNotFoundError
 from app.infrastructure.sqlalchemy.models.videos import VideoViewORM
@@ -236,7 +236,7 @@ async def test_create_video_view_raises_error_if_video_views_limit_reached_and_c
         command = CreateVideoViewCommandFactory.build(current_channel_id=channel.id, video_id=video.id)
 
         with patch.object(use_case._video_service, 'try_increase_views_count') as mock_video_service:
-            with pytest.raises(VideoViewsLimitReached):
+            with pytest.raises(VideoViewsLimitReachedError):
                 await use_case.execute(command=command)
 
         mock_video_service.assert_not_called()
@@ -270,7 +270,7 @@ async def test_create_video_view_raises_error_if_video_views_limit_reached_and_c
         )
 
         with patch.object(use_case._video_service, 'try_increase_views_count') as mock_video_service:
-            with pytest.raises(VideoViewsLimitReached):
+            with pytest.raises(VideoViewsLimitReachedError):
                 await use_case.execute(command=command)
 
         mock_video_service.assert_not_called()

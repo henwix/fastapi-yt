@@ -9,7 +9,7 @@ from app.core.configs import settings
 from app.domain.channels.constants import CHANNEL_AVATAR_MAX_SIZE
 from app.domain.channels.exceptions import (
     ChannelAvatarAlreadySetError,
-    ChannelAvatarInvalidFileContentTypeError,
+    ChannelAvatarInvalidContentTypeError,
     ChannelAvatarInvalidKeyError,
     ChannelAvatarSizeTooBigError,
 )
@@ -70,7 +70,7 @@ class ConfirmChannelAvatarUploadUseCase:
             or avatar_metadata_mime_type not in IMAGE_FILE_MIME_TYPES.values()
         ):
             await self._s3_service.schedule_delete_object(bucket=settings.s3_public_bucket_name, key=command.key)
-            raise ChannelAvatarInvalidFileContentTypeError(
+            raise ChannelAvatarInvalidContentTypeError(
                 key=command.key,
                 metadata_content_type=avatar_metadata_mime_type,
                 actual_content_type=actual_avatar_mime_type,

@@ -18,7 +18,7 @@ from app.application.post_comments.use_cases.delete_post_comment import DeletePo
 from app.application.post_comments.use_cases.get_post_comment_replies import GetPostCommentRepliesUseCase
 from app.application.post_comments.use_cases.get_post_comments import GetPostCommentsUseCase
 from app.application.post_comments.use_cases.update_post_comment import UpdatePostCommentUseCase
-from app.domain.auth.exceptions import JWTExpiredTokenError, JWTInvalidTokenError, NotAuthenticatedError
+from app.domain.auth.exceptions import JWTTokenExpiredError, JWTTokenInvalidError, NotAuthenticatedError
 from app.domain.channels.exceptions import ChannelNotActiveError, ChannelNotFoundByIdError
 from app.domain.common.exceptions.pagination import InvalidCursorError
 from app.domain.post_comments.exceptions import PostCommentAccessForbiddenError, PostCommentNotFoundError
@@ -50,8 +50,8 @@ router = APIRouter(
     responses={
         status.HTTP_401_UNAUTHORIZED: error_response(
             NotAuthenticatedError,
-            JWTExpiredTokenError,
-            JWTInvalidTokenError,
+            JWTTokenExpiredError,
+            JWTTokenInvalidError,
         ),
         status.HTTP_403_FORBIDDEN: error_response(ChannelNotActiveError),
         status.HTTP_404_NOT_FOUND: error_response(
@@ -134,8 +134,8 @@ async def get_post_comment_replies(
     responses={
         status.HTTP_401_UNAUTHORIZED: error_response(
             NotAuthenticatedError,
-            JWTExpiredTokenError,
-            JWTInvalidTokenError,
+            JWTTokenExpiredError,
+            JWTTokenInvalidError,
         ),
         status.HTTP_403_FORBIDDEN: error_response(
             ChannelNotActiveError,
@@ -164,8 +164,8 @@ async def delete_post_comment(
     responses={
         status.HTTP_401_UNAUTHORIZED: error_response(
             NotAuthenticatedError,
-            JWTExpiredTokenError,
-            JWTInvalidTokenError,
+            JWTTokenExpiredError,
+            JWTTokenInvalidError,
         ),
         status.HTTP_403_FORBIDDEN: error_response(
             ChannelNotActiveError,

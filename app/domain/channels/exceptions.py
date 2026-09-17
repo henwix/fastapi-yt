@@ -5,19 +5,19 @@ from app.domain.common.exceptions.base import AppException
 
 
 @dataclass(kw_only=True)
-class ChannelWithSlugAlreadyExistsError(AppException):
+class ChannelSlugAlreadyExistsError(AppException):
     message = 'Channel with this slug already exists'
     channel_slug: str
 
 
 @dataclass(kw_only=True)
-class ChannelWithEmailAlreadyExistsError(AppException):
+class ChannelEmailAlreadyExistsError(AppException):
     message = 'Channel with this email already exists'
     channel_email: str
 
 
 @dataclass(kw_only=True)
-class ChannelInvalidEmailFormatError(AppException):
+class ChannelEmailInvalidFormatError(AppException):
     message = 'Invalid email format'
     pattern: str
     email: str
@@ -31,7 +31,7 @@ class ChannelEmailTooLongError(AppException):
 
 
 @dataclass(kw_only=True)
-class ChannelInvalidSlugFormatError(AppException):
+class ChannelSlugInvalidFormatError(AppException):
     message = 'Invalid slug format'
     pattern: str
     slug: str
@@ -76,7 +76,7 @@ class ChannelAvatarInvalidFilenameError(AppException):
 
 
 @dataclass(kw_only=True)
-class ChannelAvatarInvalidFileContentTypeError(AppException):
+class ChannelAvatarInvalidContentTypeError(AppException):
     message = 'Channel avatar invalid content type'
     key: str
     metadata_content_type: str

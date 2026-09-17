@@ -8,11 +8,11 @@ from slugify import slugify
 from app.domain.channels.entities import Channel
 from app.domain.channels.exceptions import (
     ChannelActivationFailedError,
+    ChannelEmailAlreadyExistsError,
     ChannelNotActiveError,
     ChannelNotFoundByIdError,
     ChannelNotFoundBySlugError,
-    ChannelWithEmailAlreadyExistsError,
-    ChannelWithSlugAlreadyExistsError,
+    ChannelSlugAlreadyExistsError,
 )
 from app.domain.channels.repo import IChannelRepo
 
@@ -67,11 +67,11 @@ class ChannelService(IChannelService):
 
     async def try_check_email_exists(self, email: str) -> None:
         if await self._repo.check_channel_exists_by_email(email=email):
-            raise ChannelWithEmailAlreadyExistsError(channel_email=email)
+            raise ChannelEmailAlreadyExistsError(channel_email=email)
 
     async def try_check_slug_exists(self, slug: str) -> None:
         if await self._repo.check_channel_exists_by_slug(slug=slug):
-            raise ChannelWithSlugAlreadyExistsError(channel_slug=slug)
+            raise ChannelSlugAlreadyExistsError(channel_slug=slug)
 
     async def check_slug_exists(self, slug: str) -> bool:
         return await self._repo.check_channel_exists_by_slug(slug=slug)

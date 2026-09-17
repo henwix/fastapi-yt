@@ -16,10 +16,14 @@ from app.application.subscriptions.use_cases.get_subscribers import GetSubscribe
 from app.application.subscriptions.use_cases.get_subscriptions import GetSubscriptionsUseCase
 from app.application.subscriptions.use_cases.subscribe import SubscribeUseCase
 from app.application.subscriptions.use_cases.unsubscribe import UnsubscribeUseCase
-from app.domain.auth.exceptions import JWTExpiredTokenError, JWTInvalidTokenError, NotAuthenticatedError
+from app.domain.auth.exceptions import JWTTokenExpiredError, JWTTokenInvalidError, NotAuthenticatedError
 from app.domain.channels.exceptions import ChannelNotActiveError, ChannelNotFoundByIdError, ChannelNotFoundBySlugError
 from app.domain.common.exceptions.pagination import InvalidCursorError
-from app.domain.subscriptions.exceptions import SubscriptionAlreadyExistsError, SubscriptionNotFoundError
+from app.domain.subscriptions.exceptions import (
+    SelfSubscriptionError,
+    SubscriptionAlreadyExistsError,
+    SubscriptionNotFoundError,
+)
 from app.presentation.api.openapi.common import error_response
 from app.presentation.api.v1.di.current_channel_id import CurrentChannelID
 from app.presentation.api.v1.handlers.common.params import PathChannelSlug
@@ -42,16 +46,21 @@ router = APIRouter(
     path='/{channel_slug}/subscriptions',
     status_code=status.HTTP_201_CREATED,
     responses={
-        status.HTTP_400_BAD_REQUEST: error_response(SubscriptionAlreadyExistsError),
         status.HTTP_401_UNAUTHORIZED: error_response(
             NotAuthenticatedError,
-            JWTExpiredTokenError,
-            JWTInvalidTokenError,
+            JWTTokenExpiredError,
+            JWTTokenInvalidError,
         ),
-        status.HTTP_403_FORBIDDEN: error_response(ChannelNotActiveError),
+        status.HTTP_403_FORBIDDEN: error_response(
+            ChannelNotActiveError,
+        ),
         status.HTTP_404_NOT_FOUND: error_response(
             ChannelNotFoundByIdError,
             ChannelNotFoundBySlugError,
+        ),
+        status.HTTP_409_CONFLICT: error_response(
+            SubscriptionAlreadyExistsError,
+            SelfSubscriptionError,
         ),
     },
 )
@@ -71,8 +80,8 @@ async def subscribe(
     responses={
         status.HTTP_401_UNAUTHORIZED: error_response(
             NotAuthenticatedError,
-            JWTExpiredTokenError,
-            JWTInvalidTokenError,
+            JWTTokenExpiredError,
+            JWTTokenInvalidError,
         ),
         status.HTTP_403_FORBIDDEN: error_response(ChannelNotActiveError),
         status.HTTP_404_NOT_FOUND: error_response(
@@ -97,8 +106,8 @@ async def unsubscribe(
         status.HTTP_400_BAD_REQUEST: error_response(InvalidCursorError),
         status.HTTP_401_UNAUTHORIZED: error_response(
             NotAuthenticatedError,
-            JWTExpiredTokenError,
-            JWTInvalidTokenError,
+            JWTTokenExpiredError,
+            JWTTokenInvalidError,
         ),
         status.HTTP_403_FORBIDDEN: error_response(ChannelNotActiveError),
         status.HTTP_404_NOT_FOUND: error_response(
@@ -131,8 +140,8 @@ async def get_subscribers(
         status.HTTP_400_BAD_REQUEST: error_response(InvalidCursorError),
         status.HTTP_401_UNAUTHORIZED: error_response(
             NotAuthenticatedError,
-            JWTExpiredTokenError,
-            JWTInvalidTokenError,
+            JWTTokenExpiredError,
+            JWTTokenInvalidError,
         ),
         status.HTTP_403_FORBIDDEN: error_response(ChannelNotActiveError),
         status.HTTP_404_NOT_FOUND: error_response(

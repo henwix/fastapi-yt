@@ -8,7 +8,7 @@ from app.application.channels.use_cases.confirm_channel_avatar_upload import Con
 from app.core.configs import settings
 from app.domain.channels.exceptions import (
     ChannelAvatarAlreadySetError,
-    ChannelAvatarInvalidFileContentTypeError,
+    ChannelAvatarInvalidContentTypeError,
     ChannelAvatarInvalidKeyError,
     ChannelAvatarSizeTooBigError,
     ChannelNotActiveError,
@@ -243,7 +243,7 @@ async def test_confirm_channel_avatar_upload_raises_error_if_s3_object_invalid_m
         use_case._s3_service.CONTENT_TYPE = expected_content_type
 
         with patch.object(use_case._s3_service, 'schedule_delete_object') as mock_delete_object:
-            with pytest.raises(ChannelAvatarInvalidFileContentTypeError) as e:
+            with pytest.raises(ChannelAvatarInvalidContentTypeError) as e:
                 await use_case.execute(command)
 
         assert e.value.metadata_content_type == expected_content_type
@@ -271,7 +271,7 @@ async def test_confirm_channel_avatar_upload_raises_error_if_s3_object_invalid_c
         use_case._file_type_detector.FILE_TYPE = expected_content_type
 
         with patch.object(use_case._s3_service, 'schedule_delete_object') as mock_delete_object:
-            with pytest.raises(ChannelAvatarInvalidFileContentTypeError) as e:
+            with pytest.raises(ChannelAvatarInvalidContentTypeError) as e:
                 await use_case.execute(command)
 
         assert e.value.actual_content_type == expected_content_type

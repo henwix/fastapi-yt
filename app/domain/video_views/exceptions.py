@@ -5,7 +5,7 @@ from app.domain.common.exceptions.base import AppException
 
 
 @dataclass(kw_only=True)
-class VideoViewsLimitReached(AppException):
+class VideoViewsLimitReachedError(AppException):
     message = 'Video views limit reached'
 
     video_id: str

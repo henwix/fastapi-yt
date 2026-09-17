@@ -6,7 +6,7 @@ import jwt
 from app.application.common.dto.jwt import JWTAccessToken, JWTRefreshToken, JWTTokenPayload
 from app.application.common.interfaces.security.jwt import IJWTService
 from app.core.configs import settings
-from app.domain.auth.exceptions import JWTExpiredTokenError, JWTInvalidTokenError
+from app.domain.auth.exceptions import JWTTokenExpiredError, JWTTokenInvalidError
 from app.utils.datetime import get_current_utc_datetime
 
 
@@ -48,22 +48,22 @@ class JWTService(IJWTService):
             payload_token_type = payload['token_type']
 
             if payload_token_type != token_type:
-                raise JWTInvalidTokenError(error_detail='invalid_token_type')
+                raise JWTTokenInvalidError(error_detail='invalid_token_type')
 
         except jwt.ExpiredSignatureError as e:
-            raise JWTExpiredTokenError from e
+            raise JWTTokenExpiredError from e
 
         except jwt.InvalidSignatureError as e:
-            raise JWTInvalidTokenError(error_detail='invalid_signature') from e
+            raise JWTTokenInvalidError(error_detail='invalid_signature') from e
 
         except jwt.MissingRequiredClaimError as e:
-            raise JWTInvalidTokenError(error_detail='missing_required_claim') from e
+            raise JWTTokenInvalidError(error_detail='missing_required_claim') from e
 
         except jwt.InvalidAlgorithmError:
             raise
 
         except jwt.InvalidTokenError as e:
-            raise JWTInvalidTokenError(error_detail='invalid_token') from e
+            raise JWTTokenInvalidError(error_detail='invalid_token') from e
 
         return JWTTokenPayload(token_type=payload_token_type, sub=payload_sub, jti=payload_jti)
 
@@ -108,4 +108,4 @@ class JWTService(IJWTService):
             payload = jwt.decode(jwt=token, options={'verify_signature': False})
             return payload
         except jwt.InvalidTokenError as e:
-            raise JWTInvalidTokenError(error_detail='invalid_token') from e
+            raise JWTTokenInvalidError(error_detail='invalid_token') from e

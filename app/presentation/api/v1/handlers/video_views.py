@@ -3,9 +3,9 @@ from fastapi import APIRouter, status
 
 from app.application.video_views.commands import CreateVideoViewCommand
 from app.application.video_views.use_cases.create_video_view import CreateVideoViewUseCase
-from app.domain.auth.exceptions import JWTExpiredTokenError, JWTInvalidTokenError, NotAuthenticatedError
+from app.domain.auth.exceptions import JWTTokenExpiredError, JWTTokenInvalidError, NotAuthenticatedError
 from app.domain.channels.exceptions import ChannelNotActiveError, ChannelNotFoundByIdError
-from app.domain.video_views.exceptions import VideoViewsLimitReached
+from app.domain.video_views.exceptions import VideoViewsLimitReachedError
 from app.domain.videos.exceptions import VideoAccessForbiddenError, VideoNotFoundError
 from app.presentation.api.openapi.common import error_response
 from app.presentation.api.v1.di.anonymous_id import AnonymousID
@@ -23,11 +23,10 @@ router = APIRouter(
     path='',
     status_code=status.HTTP_204_NO_CONTENT,
     responses={
-        status.HTTP_400_BAD_REQUEST: error_response(VideoViewsLimitReached),
         status.HTTP_401_UNAUTHORIZED: error_response(
             NotAuthenticatedError,
-            JWTExpiredTokenError,
-            JWTInvalidTokenError,
+            JWTTokenExpiredError,
+            JWTTokenInvalidError,
         ),
         status.HTTP_403_FORBIDDEN: error_response(
             ChannelNotActiveError,
@@ -36,6 +35,9 @@ router = APIRouter(
         status.HTTP_404_NOT_FOUND: error_response(
             ChannelNotFoundByIdError,
             VideoNotFoundError,
+        ),
+        status.HTTP_409_CONFLICT: error_response(
+            VideoViewsLimitReachedError,
         ),
     },
 )

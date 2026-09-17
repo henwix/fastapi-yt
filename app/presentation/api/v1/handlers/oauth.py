@@ -7,13 +7,13 @@ from app.application.oauth.use_cases.disconnect_account import OAuthDisconnectAc
 from app.application.oauth.use_cases.get_connected_accounts import OAuthGetConnectedAccountsUseCase
 from app.application.oauth.use_cases.get_login_url import OAuthGetLoginUrlUseCase
 from app.application.oauth.use_cases.verify_code import OAuthVerifyCodeUseCase
-from app.domain.auth.exceptions import JWTExpiredTokenError, JWTInvalidTokenError, NotAuthenticatedError
+from app.domain.auth.exceptions import JWTTokenExpiredError, JWTTokenInvalidError, NotAuthenticatedError
 from app.domain.channels.exceptions import (
+    ChannelEmailAlreadyExistsError,
+    ChannelEmailInvalidFormatError,
     ChannelEmailTooLongError,
-    ChannelInvalidEmailFormatError,
     ChannelNotActiveError,
     ChannelNotFoundByIdError,
-    ChannelWithEmailAlreadyExistsError,
 )
 from app.domain.oauth.enums import OAuthProviderEnum
 from app.domain.oauth.exceptions import (
@@ -68,10 +68,7 @@ async def get_login_url(
         status.HTTP_400_BAD_REQUEST: error_response(
             OAuthInvalidStateError,
             OAuthInvalidCodeError,
-            OAuthProviderEmailNotVerifiedError,
-            OAuthProviderAlreadyConnectedError,
-            ChannelWithEmailAlreadyExistsError,
-            ChannelInvalidEmailFormatError,
+            ChannelEmailInvalidFormatError,
             ChannelEmailTooLongError,
         ),
         status.HTTP_403_FORBIDDEN: error_response(
@@ -79,6 +76,11 @@ async def get_login_url(
         ),
         status.HTTP_404_NOT_FOUND: error_response(
             ChannelNotFoundByIdError,
+        ),
+        status.HTTP_409_CONFLICT: error_response(
+            ChannelEmailAlreadyExistsError,
+            OAuthProviderEmailNotVerifiedError,
+            OAuthProviderAlreadyConnectedError,
         ),
         status.HTTP_500_INTERNAL_SERVER_ERROR: error_response(
             OAuthProviderRequestError,
@@ -114,8 +116,8 @@ async def verify_code(
     responses={
         status.HTTP_401_UNAUTHORIZED: error_response(
             NotAuthenticatedError,
-            JWTExpiredTokenError,
-            JWTInvalidTokenError,
+            JWTTokenExpiredError,
+            JWTTokenInvalidError,
         ),
         status.HTTP_403_FORBIDDEN: error_response(ChannelNotActiveError),
         status.HTTP_404_NOT_FOUND: error_response(ChannelNotFoundByIdError),
@@ -136,19 +138,19 @@ async def get_oauth_connected_accounts(
     status_code=status.HTTP_204_NO_CONTENT,
     summary='Disconnect OAuth Account',
     responses={
-        status.HTTP_400_BAD_REQUEST: error_response(
-            OAuthAccountUnableToDisconnectError,
-        ),
         status.HTTP_401_UNAUTHORIZED: error_response(
             NotAuthenticatedError,
-            JWTExpiredTokenError,
-            JWTInvalidTokenError,
+            JWTTokenExpiredError,
+            JWTTokenInvalidError,
         ),
         status.HTTP_403_FORBIDDEN: error_response(ChannelNotActiveError),
         status.HTTP_404_NOT_FOUND: error_response(
             ChannelNotFoundByIdError,
             OAuthNoAccountsConnectedError,
             OAuthAccountNotConnectedError,
+        ),
+        status.HTTP_409_CONFLICT: error_response(
+            OAuthAccountUnableToDisconnectError,
         ),
     },
 )

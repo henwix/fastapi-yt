@@ -2,7 +2,7 @@ from dataclasses import dataclass
 
 from app.application.auth.commands import RefreshJWTTokenCommand
 from app.application.common.dto.jwt import JWTTokens
-from app.application.common.interfaces.security.auth import IAuthService
+from app.application.common.interfaces.security.auth_service import IAuthService
 
 
 @dataclass

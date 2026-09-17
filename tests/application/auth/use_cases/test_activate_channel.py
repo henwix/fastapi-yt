@@ -3,7 +3,7 @@ from dishka import AsyncContainer
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.application.auth.use_cases.activate_channel import ActivateChannelUseCase
-from app.application.common.interfaces.security.auth_code import IAuthCodeService
+from app.application.common.interfaces.security.auth_code_service import IAuthCodeService
 from app.domain.auth.exceptions import ChannelAlreadyActivatedError, ChannelInvalidEmailCodeError
 from app.domain.channels.exceptions import ChannelNotFoundByIdError
 from tests.factories.commands.auth import ActivateChannelCommandFactory

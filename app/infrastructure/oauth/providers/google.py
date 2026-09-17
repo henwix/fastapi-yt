@@ -1,6 +1,6 @@
 from urllib.parse import unquote, urlencode
 
-from app.application.common.interfaces.security.jwt import IJWTService
+from app.application.common.interfaces.security.jwt_service import IJWTService
 from app.application.oauth.dto import OAuthProviderUserData
 from app.application.oauth.interfaces.provider import IOAuthProvider
 from app.core.configs import settings
@@ -98,4 +98,4 @@ class GoogleOAuthProvider(IOAuthProvider):
         except KeyError as e:
             raise OAuthProviderReceivedInvalidResponseError(
                 provider=self.provider_name, error=f'{e.args[0]}_not_found_in_openid_token_payload'
-            )
+            ) from e

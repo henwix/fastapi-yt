@@ -1,7 +1,7 @@
 from dataclasses import dataclass
 
 from app.application.auth.commands import SetChannelEmailConfirmCommand
-from app.application.common.interfaces.security.auth_code import IAuthCodeService
+from app.application.common.interfaces.security.auth_code_service import IAuthCodeService
 from app.application.common.interfaces.transaction_manager import ITransactionManager
 from app.domain.channels.service import IChannelService
 

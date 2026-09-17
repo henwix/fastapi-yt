@@ -6,7 +6,7 @@ from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.application.auth.use_cases.register_channel import RegisterChannelUseCase
-from app.application.common.interfaces.security.jwt import IJWTService
+from app.application.common.interfaces.security.jwt_service import IJWTService
 from app.application.common.interfaces.security.password_hasher import IPasswordHasher
 from app.core.configs import Settings
 from app.domain.channels.entities import Channel

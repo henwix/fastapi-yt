@@ -3,7 +3,7 @@ from dataclasses import dataclass
 
 from app.application.auth.commands import LoginChannelCommand
 from app.application.common.dto.jwt import JWTTokens
-from app.application.common.interfaces.security.auth import IAuthService
+from app.application.common.interfaces.security.auth_service import IAuthService
 from app.application.common.interfaces.security.password_hasher import IPasswordHasher
 from app.domain.auth.exceptions import IncorrectEmailOrPasswordError
 from app.domain.channels.service import IChannelService

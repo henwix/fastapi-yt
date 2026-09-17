@@ -6,7 +6,7 @@ from pwdlib import PasswordHash
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.application.auth.use_cases.reset_channel_password_confirm import ResetChannelPasswordConfirmUseCase
-from app.application.common.interfaces.security.auth_code import IAuthCodeService
+from app.application.common.interfaces.security.auth_code_service import IAuthCodeService
 from app.domain.auth.exceptions import ChannelInvalidEmailCodeError, ChannelInvalidEmailUIDError
 from app.domain.channels.exceptions import ChannelNotFoundByIdError
 from app.utils.base64url import base64url_encode

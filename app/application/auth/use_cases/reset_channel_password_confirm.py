@@ -3,7 +3,7 @@ from dataclasses import dataclass
 from uuid import UUID
 
 from app.application.auth.commands import ResetChannelPasswordConfirmCommand
-from app.application.common.interfaces.security.auth_code import IAuthCodeService
+from app.application.common.interfaces.security.auth_code_service import IAuthCodeService
 from app.application.common.interfaces.security.password_hasher import IPasswordHasher
 from app.application.common.interfaces.transaction_manager import ITransactionManager
 from app.domain.auth.exceptions import ChannelInvalidEmailUIDError

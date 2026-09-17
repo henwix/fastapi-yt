@@ -31,9 +31,9 @@ from app.application.common.interfaces.email.service import IEmailService
 from app.application.common.interfaces.file_type_detector import IFileTypeDetector
 from app.application.common.interfaces.s3.provider import IS3Provider
 from app.application.common.interfaces.s3.service import IS3Service
-from app.application.common.interfaces.security.auth import IAuthService
-from app.application.common.interfaces.security.auth_code import IAuthCodeService
-from app.application.common.interfaces.security.jwt import IJWTService
+from app.application.common.interfaces.security.auth_code_service import IAuthCodeService
+from app.application.common.interfaces.security.auth_service import IAuthService
+from app.application.common.interfaces.security.jwt_service import IJWTService
 from app.application.common.interfaces.security.password_hasher import IPasswordHasher
 from app.application.common.interfaces.transaction_manager import ITransactionManager
 from app.application.common.use_cases.email.send_channel_activation_code import SendChannelActivationCodeUseCase
@@ -164,9 +164,9 @@ from app.infrastructure.redis.repo import RedisRepo
 from app.infrastructure.s3.config import get_s3_client
 from app.infrastructure.s3.provider import BotoS3Provider
 from app.infrastructure.s3.service import S3Service
-from app.infrastructure.security.auth import AuthService
-from app.infrastructure.security.auth_code import AuthCodeService
-from app.infrastructure.security.jwt import JWTService
+from app.infrastructure.security.auth_code_service import AuthCodeService
+from app.infrastructure.security.auth_service import AuthService
+from app.infrastructure.security.jwt_service import JWTService
 from app.infrastructure.security.password_hasher import PwdlibPasswordHasher
 from app.infrastructure.sqlalchemy.database import create_engine, create_session_factory
 from app.infrastructure.sqlalchemy.readers.channels import SAChannelReader

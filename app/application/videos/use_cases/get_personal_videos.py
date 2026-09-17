@@ -33,7 +33,7 @@ class GetPersonalVideosUseCase:
                         cursor_sort_value = int(decoded_cursor[PreviewVideosSortingFieldEnum.POPULAR.value])
 
             except Exception as e:
-                raise InvalidCursorError(cursor=query.pagination.cursor, exc_details=str(e))
+                raise InvalidCursorError(cursor=query.pagination.cursor, exc_details=str(e)) from e
 
         channel = await self._channel_service.try_get_active_by_id(id=query.current_channel_id)
         videos = await self._video_reader.get_personal_videos(

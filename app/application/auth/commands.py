@@ -19,12 +19,12 @@ class LoginChannelCommand:
 
 
 @dataclass(kw_only=True, frozen=True)
-class RefreshJWTTokenCommand:
+class LogoutCommand:
     refresh: str
 
 
 @dataclass(kw_only=True, frozen=True)
-class LogoutCommand:
+class RefreshJWTTokenCommand:
     refresh: str
 
 

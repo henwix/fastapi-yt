@@ -4,8 +4,8 @@ from dataclasses import dataclass
 from app.application.auth.commands import RegisterChannelCommand
 from app.application.common.dto.jwt import JWTTokens
 from app.application.common.interfaces.email.service import IEmailService
-from app.application.common.interfaces.security.auth import IAuthService
-from app.application.common.interfaces.security.auth_code import IAuthCodeService
+from app.application.common.interfaces.security.auth_code_service import IAuthCodeService
+from app.application.common.interfaces.security.auth_service import IAuthService
 from app.application.common.interfaces.security.password_hasher import IPasswordHasher
 from app.application.common.interfaces.transaction_manager import ITransactionManager
 from app.core.configs import settings

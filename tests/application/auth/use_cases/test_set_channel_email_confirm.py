@@ -3,7 +3,7 @@ from dishka import AsyncContainer
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.application.auth.use_cases.set_channel_email_confirm import SetChannelEmailConfirmUseCase
-from app.application.common.interfaces.security.auth_code import IAuthCodeService
+from app.application.common.interfaces.security.auth_code_service import IAuthCodeService
 from app.domain.auth.exceptions import ChannelInvalidEmailCodeError
 from app.domain.channels.exceptions import ChannelNotActiveError, ChannelNotFoundByIdError
 from tests.factories.commands.auth import SetChannelEmailConfirmCommandFactory

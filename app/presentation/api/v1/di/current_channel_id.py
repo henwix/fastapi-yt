@@ -6,7 +6,7 @@ from dishka.integrations.fastapi import inject
 from fastapi import Depends
 from fastapi.security import HTTPAuthorizationCredentials, HTTPBearer
 
-from app.application.common.interfaces.security.jwt import IJWTService
+from app.application.common.interfaces.security.jwt_service import IJWTService
 
 bearer_schema = HTTPBearer()
 optional_bearer_schema = HTTPBearer(auto_error=False)

@@ -6,7 +6,7 @@ from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.application.common.dto.jwt import JWTTokens
-from app.application.common.interfaces.security.jwt import IJWTService
+from app.application.common.interfaces.security.jwt_service import IJWTService
 from app.application.oauth.interfaces.service import IOAuthServiceFactory
 from app.application.oauth.use_cases.verify_code import OAuthVerifyCodeUseCase
 from app.domain.channels.exceptions import (

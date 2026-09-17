@@ -1,4 +1,5 @@
 from abc import ABC, abstractmethod
+from uuid import UUID
 
 
 class IAuthCodeService(ABC):
@@ -24,7 +25,7 @@ class IAuthCodeService(ABC):
     async def validate_activation_code(self, channel_id: UUID, code: str) -> None: ...
 
     @abstractmethod
-    async def validate_reset_password_code(self, channel_id: UUID, code: str) -> str: ...
+    async def validate_reset_password_code(self, channel_id: UUID, code: str) -> None: ...
 
     @abstractmethod
     async def validate_set_email_code(self, channel_id: UUID, code: str) -> str: ...

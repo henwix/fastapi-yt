@@ -16,18 +16,20 @@ class GenerateChannelAvatarUploadUrlUseCase:
     _s3_service: IS3Service
 
     async def execute(self, command: GenerateChannelAvatarUploadUrlCommand) -> tuple[str, str, UUID]:
-        key_extention = Path(command.filename).suffix.lower()
-        if key_extention not in IMAGE_FILE_MIME_TYPES:
+        filename_extension = Path(command.filename).suffix.lower()
+        if filename_extension not in IMAGE_FILE_MIME_TYPES:
             raise ChannelAvatarInvalidFilenameError(filename=command.filename)
-        content_type = IMAGE_FILE_MIME_TYPES[key_extention]
+        content_type = IMAGE_FILE_MIME_TYPES[filename_extension]
 
         channel = await self._channel_service.try_get_active_by_id(id=command.current_channel_id)
 
-        url, key = await self._s3_service.generate_upload_url(
+        key = self._s3_service.generate_unique_bucket_key(
+            filename=command.filename, key_prefix=settings.s3_tmp_channel_avatars_key_prefix
+        )
+        url = await self._s3_service.generate_upload_url(
             bucket=settings.s3_public_bucket_name,
-            filename=command.filename,
+            key=key,
             content_type=content_type,
-            key_prefix=settings.s3_tmp_channel_avatars_key_prefix,
             expires_in=120,
             metadata={'channel_id': str(channel.id)},
         )

@@ -34,11 +34,13 @@ class CreateVideoMultipartUploadUseCase:
         if video.upload_status is VideoUploadStatusEnum.UPLOADING:
             raise VideoUploadAlreadyCreatedError(video_id=video.id)
 
-        upload_id, key = await self._s3_service.create_multipart_upload(
+        key = self._s3_service.generate_unique_bucket_key(
+            filename=command.filename, key_prefix=settings.s3_videos_key_prefix
+        )
+        upload_id = await self._s3_service.create_multipart_upload(
             bucket=settings.s3_private_bucket_name,
-            filename=command.filename,
+            key=key,
             content_type=content_type,
-            key_prefix=settings.s3_videos_key_prefix,
             metadata={
                 'channel_id': str(channel.id),
                 'video_id': video.id,

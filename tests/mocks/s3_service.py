@@ -13,9 +13,6 @@ class MockS3Service(S3Service):
         self.CONTENT_LENGTH: int = 1024 * 1024 * 1
         self.UPLOAD_ID: str = secrets.token_hex(16)
 
-    def _generate_unique_bucket_key(self, filename: str, key_prefix: str) -> str:
-        return f'{key_prefix}/{secrets.token_hex(5)}_{filename}'
-
     async def get_object(self, bucket: str, key: str, range: str | None = None) -> dict:
         class DummyObjectBody:
             async def read(self) -> None:
@@ -32,13 +29,11 @@ class MockS3Service(S3Service):
     async def create_multipart_upload(
         self,
         bucket: str,
-        filename: str,
+        key: str,
         content_type: str,
-        key_prefix: str,
         metadata: dict[str, str] | None = None,
-    ) -> tuple[str, str]:
-        key = self._generate_unique_bucket_key(filename=filename, key_prefix=key_prefix)
-        return self.UPLOAD_ID, key
+    ) -> str:
+        return self.UPLOAD_ID
 
     async def complete_multipart_upload(
         self,

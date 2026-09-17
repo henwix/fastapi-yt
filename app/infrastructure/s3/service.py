@@ -11,18 +11,20 @@ from app.infrastructure.taskiq.tasks.s3 import s3_abort_multipart_upload_task, s
 class S3Service(IS3Service):
     _provider: IS3Provider
 
-    def _generate_unique_bucket_key(self, filename: str, key_prefix: str) -> str:
+    def generate_unique_bucket_key(
+        self,
+        filename: str,
+        key_prefix: str,
+    ) -> str:
         return f'{key_prefix}/{secrets.token_hex(5)}_{filename}'
 
     async def create_multipart_upload(
         self,
         bucket: str,
-        filename: str,
+        key: str,
         content_type: str,
-        key_prefix: str,
         metadata: dict[str, str] | None = None,
-    ) -> tuple[str, str]:
-        key = self._generate_unique_bucket_key(filename=filename, key_prefix=key_prefix)
+    ) -> str:
         return await self._provider.create_multipart_upload(
             bucket=bucket,
             key=key,
@@ -33,13 +35,11 @@ class S3Service(IS3Service):
     async def generate_upload_url(
         self,
         bucket: str,
-        filename: str,
+        key: str,
         content_type: str,
-        key_prefix: str,
         expires_in: int,
         metadata: dict[str, str] | None = None,
-    ) -> tuple[str, str]:
-        key = self._generate_unique_bucket_key(filename=filename, key_prefix=key_prefix)
+    ) -> str:
         return await self._provider.generate_upload_url(
             bucket=bucket,
             key=key,
@@ -62,12 +62,7 @@ class S3Service(IS3Service):
             parts=parts,
         )
 
-    async def schedule_abort_multipart_upload(
-        self,
-        bucket: str,
-        key: str,
-        upload_id: str,
-    ) -> None:
+    async def schedule_abort_multipart_upload(self, bucket: str, key: str, upload_id: str) -> None:
         command = AbortMultipartUploadCommand(bucket=bucket, key=key, upload_id=upload_id)
         await s3_abort_multipart_upload_task.kiq(command=command)
 
@@ -99,12 +94,26 @@ class S3Service(IS3Service):
             expires_in=expires_in,
         )
 
-    async def get_object(self, bucket: str, key: str, range: str | None = None) -> dict:
+    async def get_object(
+        self,
+        bucket: str,
+        key: str,
+        range: str | None = None,
+    ) -> dict:
         return await self._provider.get_object(bucket=bucket, key=key, range=range)
 
-    async def schedule_delete_object(self, bucket: str, key: str) -> None:
+    async def schedule_delete_object(
+        self,
+        bucket: str,
+        key: str,
+    ) -> None:
         command = DeleteS3ObjectCommand(bucket=bucket, key=key)
         await s3_delete_object_task.kiq(command)
 
-    async def copy_object(self, bucket: str, current_key: str, new_key: str) -> None:
+    async def copy_object(
+        self,
+        bucket: str,
+        current_key: str,
+        new_key: str,
+    ) -> None:
         await self._provider.copy_object(bucket=bucket, current_key=current_key, new_key=new_key)

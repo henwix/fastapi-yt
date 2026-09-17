@@ -27,11 +27,13 @@ class GenerateVideoThumbnailUploadUrlUseCase:
         video = await self._video_service.try_get_by_id(id=command.video_id)
         self._video_service.ensure_video_access(video=video, channel=channel)
 
-        url, key = await self._s3_service.generate_upload_url(
+        key = self._s3_service.generate_unique_bucket_key(
+            filename=command.filename, key_prefix=settings.s3_tmp_video_thumbnails_key_prefix
+        )
+        url = await self._s3_service.generate_upload_url(
             bucket=settings.s3_public_bucket_name,
-            filename=command.filename,
+            key=key,
             content_type=content_type,
-            key_prefix=settings.s3_tmp_video_thumbnails_key_prefix,
             expires_in=120,
             metadata={
                 'channel_id': str(channel.id),

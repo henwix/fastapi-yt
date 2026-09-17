@@ -34,12 +34,8 @@ class BotoS3Provider(IS3Provider):
             raise S3RequestError(exc_details=repr(e)) from e
 
     async def create_multipart_upload(
-        self,
-        bucket: str,
-        key: str,
-        content_type: str,
-        metadata: dict[str, str] | None = None,
-    ) -> tuple[str, str]:
+        self, bucket: str, key: str, content_type: str, metadata: dict[str, str] | None = None
+    ) -> str:
         request_params: dict = {
             'Bucket': bucket,
             'Key': key,
@@ -52,19 +48,12 @@ class BotoS3Provider(IS3Provider):
             self._s3_client.create_multipart_upload,
             **request_params,
         )
-
-        upload_id, key = resp.get('UploadId'), resp.get('Key')
-        return upload_id, key
+        return resp.get('UploadId')
 
     async def generate_upload_url(
-        self,
-        bucket: str,
-        key: str,
-        content_type: str,
-        expires_in: int,
-        metadata: dict[str, str] | None = None,
-    ) -> tuple[str, str]:
-        params: dict = {
+        self, bucket: str, key: str, content_type: str, expires_in: int, metadata: dict[str, str] | None = None
+    ) -> str:
+        params = {
             'Bucket': bucket,
             'Key': key,
             'ContentType': content_type,
@@ -78,15 +67,9 @@ class BotoS3Provider(IS3Provider):
             Params=params,
             ExpiresIn=expires_in,
         )
-        return url, key
+        return url
 
-    async def complete_multipart_upload(
-        self,
-        bucket: str,
-        key: str,
-        upload_id: str,
-        parts: list[dict],
-    ) -> dict:
+    async def complete_multipart_upload(self, bucket: str, key: str, upload_id: str, parts: list[dict]) -> dict:
         try:
             return await self._client_action(
                 self._s3_client.complete_multipart_upload,
@@ -119,12 +102,7 @@ class BotoS3Provider(IS3Provider):
                     raise
 
     async def generate_part_upload_url(
-        self,
-        bucket: str,
-        key: str,
-        upload_id: str,
-        part_number: int,
-        expires_in: int,
+        self, bucket: str, key: str, upload_id: str, part_number: int, expires_in: int
     ) -> str:
         return await self._client_action(
             self._s3_client.generate_presigned_url,

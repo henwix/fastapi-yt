@@ -3,25 +3,30 @@ from abc import ABC, abstractmethod
 
 class IS3Service(ABC):
     @abstractmethod
+    def generate_unique_bucket_key(
+        self,
+        filename: str,
+        key_prefix: str,
+    ) -> str: ...
+
+    @abstractmethod
     async def create_multipart_upload(
         self,
         bucket: str,
-        filename: str,
+        key: str,
         content_type: str,
-        key_prefix: str,
         metadata: dict[str, str] | None = None,
-    ) -> tuple[str, str]: ...
+    ) -> str: ...
 
     @abstractmethod
     async def generate_upload_url(
         self,
         bucket: str,
-        filename: str,
+        key: str,
         content_type: str,
-        key_prefix: str,
         expires_in: int,
         metadata: dict[str, str] | None = None,
-    ) -> tuple[str, str]: ...
+    ) -> str: ...
 
     @abstractmethod
     async def complete_multipart_upload(
@@ -59,10 +64,24 @@ class IS3Service(ABC):
     ) -> str: ...
 
     @abstractmethod
-    async def get_object(self, bucket: str, key: str, range: str | None = None) -> dict: ...
+    async def get_object(
+        self,
+        bucket: str,
+        key: str,
+        range: str | None = None,
+    ) -> dict: ...
 
     @abstractmethod
-    async def schedule_delete_object(self, bucket: str, key: str) -> None: ...
+    async def schedule_delete_object(
+        self,
+        bucket: str,
+        key: str,
+    ) -> None: ...
 
     @abstractmethod
-    async def copy_object(self, bucket: str, current_key: str, new_key: str) -> None: ...
+    async def copy_object(
+        self,
+        bucket: str,
+        current_key: str,
+        new_key: str,
+    ) -> None: ...

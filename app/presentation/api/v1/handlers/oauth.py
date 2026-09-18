@@ -3,7 +3,7 @@ from fastapi import APIRouter, Response, status
 
 from app.application.oauth.commands import OAuthDisconnectAccountCommand, OAuthVerifyCodeCommand
 from app.application.oauth.queries import OAuthGetConnectedAccountsQuery, OAuthGetLoginUrlQuery
-from app.application.oauth.use_cases import (
+from app.application.oauth.usecases import (
     OAuthDisconnectAccountUseCase,
     OAuthGetConnectedAccountsUseCase,
     OAuthGetLoginUrlUseCase,

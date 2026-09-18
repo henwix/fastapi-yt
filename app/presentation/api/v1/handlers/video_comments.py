@@ -6,17 +6,13 @@ from fastapi import APIRouter, Depends, Request, status
 from pydantic import HttpUrl
 
 from app.application.common.pagination import CursorPagination
-from app.application.videos.commands.video_comments import (
+from app.application.videos.commands import (
     CreateVideoCommentCommand,
     DeleteVideoCommentCommand,
     UpdateVideoCommentCommand,
 )
-from app.application.videos.queries import (
-    GetVideoCommentRepliesQuery,
-    GetVideoCommentsQuery,
-    VideoCommentsSorting,
-)
-from app.application.videos.use_cases import (
+from app.application.videos.queries import GetVideoCommentRepliesQuery, GetVideoCommentsQuery, VideoCommentsSorting
+from app.application.videos.usecases import (
     CreateVideoCommentUseCase,
     DeleteVideoCommentUseCase,
     GetVideoCommentRepliesUseCase,

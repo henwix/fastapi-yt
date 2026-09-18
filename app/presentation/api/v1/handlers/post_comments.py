@@ -13,7 +13,7 @@ from app.application.posts.commands import (
     UpdatePostCommentCommand,
 )
 from app.application.posts.queries import GetPostCommentRepliesQuery, GetPostCommentsQuery, PostCommentsSorting
-from app.application.posts.use_cases import (
+from app.application.posts.usecases import (
     CreatePostCommentUseCase,
     DeletePostCommentUseCase,
     GetPostCommentRepliesUseCase,

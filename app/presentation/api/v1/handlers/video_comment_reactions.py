@@ -3,11 +3,8 @@ from uuid import UUID
 from dishka.integrations.fastapi import DishkaRoute, FromDishka
 from fastapi import APIRouter, Response, status
 
-from app.application.videos.commands.video_comment_reactions import (
-    CreateVideoCommentReactionCommand,
-    DeleteVideoCommentReactionCommand,
-)
-from app.application.videos.use_cases import CreateVideoCommentReactionUseCase, DeleteVideoCommentReactionUseCase
+from app.application.videos.commands import CreateVideoCommentReactionCommand, DeleteVideoCommentReactionCommand
+from app.application.videos.usecases import CreateVideoCommentReactionUseCase, DeleteVideoCommentReactionUseCase
 from app.domain.auth.exceptions import JWTTokenExpiredError, JWTTokenInvalidError, NotAuthenticatedError
 from app.domain.channels.exceptions import ChannelNotActiveError, ChannelNotFoundByIdError
 from app.domain.video_comment_reactions.exceptions import VideoCommentReactionNotFoundError

@@ -9,7 +9,7 @@ from app.application.channels.commands import (
     UpdateChannelCommand,
 )
 from app.application.channels.queries import GetChannelAboutInfoQuery, GetChannelQuery
-from app.application.channels.use_cases import (
+from app.application.channels.usecases import (
     ConfirmChannelAvatarUploadUseCase,
     DeleteChannelAvatarUseCase,
     DeleteChannelUseCase,

@@ -15,7 +15,7 @@ from app.application.auth.commands import (
     SetChannelEmailConfirmCommand,
     SetChannelPasswordCommand,
 )
-from app.application.auth.use_cases import (
+from app.application.auth.usecases import (
     ActivateChannelUseCase,
     LoginChannelUseCase,
     LogoutUseCase,

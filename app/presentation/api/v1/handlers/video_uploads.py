@@ -14,7 +14,7 @@ from app.application.videos.commands import (
     GenerateVideoPartUploadUrlCommand,
     GenerateVideoThumbnailUploadUrlCommand,
 )
-from app.application.videos.use_cases import (
+from app.application.videos.usecases import (
     AbortVideoMultipartUploadUseCase,
     CompleteVideoMultipartUploadUseCase,
     ConfirmVideoThumbnailUploadUseCase,

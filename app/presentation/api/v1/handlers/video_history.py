@@ -5,13 +5,13 @@ from fastapi import APIRouter, Depends, Request, status
 from pydantic import HttpUrl
 
 from app.application.common.pagination import CursorPagination
-from app.application.videos.commands.video_history import (
+from app.application.videos.commands import (
     AddVideoToHistoryCommand,
     ClearVideoHistoryCommand,
     DeleteVideoFromHistoryCommand,
 )
 from app.application.videos.queries import GetVideoHistoryQuery, VideoHistorySorting
-from app.application.videos.use_cases import (
+from app.application.videos.usecases import (
     AddVideoToHistoryUseCase,
     ClearVideoHistoryUseCase,
     DeleteVideoFromHistoryUseCase,

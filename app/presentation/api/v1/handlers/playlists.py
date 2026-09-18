@@ -21,7 +21,7 @@ from app.application.playlists.queries import (
     PlaylistsPreviewSorting,
     PlaylistVideosSorting,
 )
-from app.application.playlists.use_cases import (
+from app.application.playlists.usecases import (
     AddVideoToPlaylistUseCase,
     CreatePlaylistUseCase,
     DeletePlaylistUseCase,

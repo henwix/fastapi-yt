@@ -1,6 +1,6 @@
 from datetime import datetime
 
-from app.application.videos.dtos import PreviewVideoHistory
+from app.application.videos.dto import PreviewVideoHistory
 from app.domain.videos.enums import VideoPrivacyStatusEnum
 from app.presentation.api.v1.schemas.base import BaseSchema
 

@@ -1,6 +1,6 @@
 from polyfactory.factories import DataclassFactory
 
-from app.application.videos.commands.video_views import CreateVideoViewCommand
+from app.application.videos.commands import CreateVideoViewCommand
 from app.utils.videos import generate_video_id
 
 

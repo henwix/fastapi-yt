@@ -7,7 +7,7 @@ from redis.asyncio import Redis
 from sqlalchemy.ext.asyncio import AsyncEngine, AsyncSession, async_sessionmaker
 from types_aiobotocore_s3.client import S3Client
 
-from app.application.auth.use_cases import (
+from app.application.auth.usecases import (
     ActivateChannelUseCase,
     LoginChannelUseCase,
     LogoutUseCase,
@@ -21,7 +21,7 @@ from app.application.auth.use_cases import (
     SetChannelPasswordUseCase,
 )
 from app.application.channels.interfaces import IChannelReader
-from app.application.channels.use_cases import (
+from app.application.channels.usecases import (
     ConfirmChannelAvatarUploadUseCase,
     DeleteChannelAvatarUseCase,
     DeleteChannelUseCase,
@@ -35,21 +35,21 @@ from app.application.common.interfaces.file_type_detector import IFileTypeDetect
 from app.application.common.interfaces.s3 import IS3Provider, IS3Service
 from app.application.common.interfaces.security import IAuthCodeService, IAuthService, IJWTService, IPasswordHasher
 from app.application.common.interfaces.transaction_manager import ITransactionManager
-from app.application.common.use_cases.email import (
+from app.application.common.usecases.email import (
     SendChannelActivationCodeUseCase,
     SendChannelResetPasswordCodeUseCase,
     SendChannelSetEmailCodeUseCase,
 )
-from app.application.common.use_cases.s3 import AbortMultipartUploadUseCase, DeleteS3ObjectUseCase
+from app.application.common.usecases.s3 import AbortMultipartUploadUseCase, DeleteS3ObjectUseCase
 from app.application.oauth.interfaces import IOAuthAccountReader, IOAuthProviderFactory, IOAuthServiceFactory
-from app.application.oauth.use_cases import (
+from app.application.oauth.usecases import (
     OAuthDisconnectAccountUseCase,
     OAuthGetConnectedAccountsUseCase,
     OAuthGetLoginUrlUseCase,
     OAuthVerifyCodeUseCase,
 )
 from app.application.playlists.interfaces import IPlaylistReader
-from app.application.playlists.use_cases import (
+from app.application.playlists.usecases import (
     AddVideoToPlaylistUseCase,
     CreatePlaylistUseCase,
     DeletePlaylistUseCase,
@@ -61,7 +61,7 @@ from app.application.playlists.use_cases import (
     UpdatePlaylistUseCase,
 )
 from app.application.posts.interfaces import IPostCommentReader, IPostReader
-from app.application.posts.use_cases import (
+from app.application.posts.usecases import (
     CreatePostCommentReactionUseCase,
     CreatePostCommentUseCase,
     CreatePostReactionUseCase,
@@ -78,14 +78,14 @@ from app.application.posts.use_cases import (
     UpdatePostUseCase,
 )
 from app.application.subscriptions.interfaces import ISubscriptionReader
-from app.application.subscriptions.use_cases import (
+from app.application.subscriptions.usecases import (
     GetSubscribersUseCase,
     GetSubscriptionsUseCase,
     SubscribeUseCase,
     UnsubscribeUseCase,
 )
 from app.application.videos.interfaces import IVideoCommentReader, IVideoHistoryReader, IVideoReader
-from app.application.videos.use_cases import (
+from app.application.videos.usecases import (
     AbortVideoMultipartUploadUseCase,
     AddVideoToHistoryUseCase,
     ClearVideoHistoryUseCase,

@@ -3,7 +3,7 @@ from datetime import datetime
 from uuid import UUID
 
 from app.application.common.pagination import CursorPagination
-from app.application.videos.dtos import ChannelPreviewVideo, DetailedVideo, PersonalPreviewVideo
+from app.application.videos.dto import ChannelPreviewVideo, DetailedVideo, PersonalPreviewVideo
 from app.application.videos.queries import PersonalVideosFilters, PreviewVideosSorting
 
 

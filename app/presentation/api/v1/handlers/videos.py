@@ -18,7 +18,7 @@ from app.application.videos.queries import (
     PersonalVideosFilters,
     PreviewVideosSorting,
 )
-from app.application.videos.use_cases import (
+from app.application.videos.usecases import (
     CreateVideoUseCase,
     DeleteVideoUseCase,
     GetChannelVideosUseCase,

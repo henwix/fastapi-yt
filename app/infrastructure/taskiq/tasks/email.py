@@ -5,7 +5,7 @@ from app.application.common.commands.email import (
     SendChannelResetPasswordCodeCommand,
     SendChannelSetEmailCodeCommand,
 )
-from app.application.common.use_cases.email import (
+from app.application.common.usecases.email import (
     SendChannelActivationCodeUseCase,
     SendChannelResetPasswordCodeUseCase,
     SendChannelSetEmailCodeUseCase,

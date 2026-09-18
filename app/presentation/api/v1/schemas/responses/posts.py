@@ -1,7 +1,7 @@
 from datetime import datetime
 from uuid import UUID
 
-from app.application.posts.dtos import DetailedPost
+from app.application.posts.dto import DetailedPost
 from app.domain.posts.entities import Post
 from app.presentation.api.v1.schemas.base import BaseSchema
 

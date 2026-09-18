@@ -12,7 +12,7 @@ from app.application.subscriptions.queries import (
     GetSubscriptionsQuery,
     SubscriptionsSorting,
 )
-from app.application.subscriptions.use_cases import (
+from app.application.subscriptions.usecases import (
     GetSubscribersUseCase,
     GetSubscriptionsUseCase,
     SubscribeUseCase,

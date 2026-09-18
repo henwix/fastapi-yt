@@ -3,7 +3,7 @@ from datetime import datetime
 from uuid import UUID
 
 from app.application.common.pagination import CursorPagination
-from app.application.posts.dtos import DetailedPost
+from app.application.posts.dto import DetailedPost
 from app.application.posts.queries import PostsSorting
 
 

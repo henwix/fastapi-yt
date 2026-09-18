@@ -9,7 +9,7 @@ from pydantic import HttpUrl
 from app.application.common.pagination import CursorPagination
 from app.application.posts.commands import CreatePostCommand, DeletePostCommand, UpdatePostCommand
 from app.application.posts.queries import GetPostQuery, GetPostsQuery, PostsSorting
-from app.application.posts.use_cases import (
+from app.application.posts.usecases import (
     CreatePostUseCase,
     DeletePostUseCase,
     GetPostsUseCase,

@@ -5,7 +5,7 @@ from sqlalchemy import select, tuple_
 
 from app.application.common.pagination import CursorPagination
 from app.application.common.sorting import SortingOrderEnum
-from app.application.videos.dtos import ChannelPreviewVideo, DetailedVideo, PersonalPreviewVideo
+from app.application.videos.dto import ChannelPreviewVideo, DetailedVideo, PersonalPreviewVideo
 from app.application.videos.interfaces import IVideoReader
 from app.application.videos.queries import (
     PersonalVideosFilters,

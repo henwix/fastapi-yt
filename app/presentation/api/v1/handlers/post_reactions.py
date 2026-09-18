@@ -5,7 +5,7 @@ from dishka.integrations.fastapi import DishkaRoute
 from fastapi import APIRouter, Response, status
 
 from app.application.posts.commands import CreatePostReactionCommand, DeletePostReactionCommand
-from app.application.posts.use_cases import CreatePostReactionUseCase, DeletePostReactionUseCase
+from app.application.posts.usecases import CreatePostReactionUseCase, DeletePostReactionUseCase
 from app.domain.auth.exceptions import JWTTokenExpiredError, JWTTokenInvalidError, NotAuthenticatedError
 from app.domain.channels.exceptions import ChannelNotActiveError, ChannelNotFoundByIdError
 from app.domain.post_reactions.exceptions import PostReactionNotFoundError

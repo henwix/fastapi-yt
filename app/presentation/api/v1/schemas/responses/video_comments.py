@@ -1,7 +1,7 @@
 from datetime import datetime
 from uuid import UUID
 
-from app.application.videos.dtos import DetailedVideoComment
+from app.application.videos.dto import DetailedVideoComment
 from app.domain.video_comments.entities import VideoComment
 from app.presentation.api.v1.schemas.base import BaseSchema
 

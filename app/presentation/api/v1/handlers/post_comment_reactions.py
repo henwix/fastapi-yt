@@ -8,7 +8,7 @@ from app.application.posts.commands import (
     CreatePostCommentReactionCommand,
     DeletePostCommentReactionCommand,
 )
-from app.application.posts.use_cases import CreatePostCommentReactionUseCase, DeletePostCommentReactionUseCase
+from app.application.posts.usecases import CreatePostCommentReactionUseCase, DeletePostCommentReactionUseCase
 from app.domain.auth.exceptions import JWTTokenExpiredError, JWTTokenInvalidError, NotAuthenticatedError
 from app.domain.channels.exceptions import ChannelNotActiveError, ChannelNotFoundByIdError
 from app.domain.post_comment_reactions.exceptions import (

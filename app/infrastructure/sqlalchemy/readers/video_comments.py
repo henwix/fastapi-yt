@@ -5,7 +5,7 @@ from sqlalchemy import select, tuple_
 
 from app.application.common.pagination import CursorPagination
 from app.application.common.sorting import SortingOrderEnum
-from app.application.videos.dtos import DetailedVideoComment
+from app.application.videos.dto import DetailedVideoComment
 from app.application.videos.interfaces import IVideoCommentReader
 from app.application.videos.queries import VideoCommentsSorting
 from app.infrastructure.sqlalchemy.converters.video_comments import convert_row_to_detailed_video_comment_dto

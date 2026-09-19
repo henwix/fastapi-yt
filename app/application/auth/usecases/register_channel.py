@@ -8,7 +8,7 @@ from app.application.common.interfaces.security import IAuthCodeService, IAuthSe
 from app.application.common.interfaces.transaction_manager import ITransactionManager
 from app.core.configs import settings
 from app.domain.channels.entities import Channel
-from app.domain.channels.service import IChannelService
+from app.domain.channels.services import IChannelService
 
 password_hash_semaphore = asyncio.Semaphore(2)
 

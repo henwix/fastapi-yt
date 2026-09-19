@@ -3,7 +3,7 @@ from logging import getLogger
 
 from app.application.common.commands.s3 import AbortMultipartUploadCommand
 from app.application.common.interfaces.s3 import IS3Provider
-from app.domain.common.exceptions.base import AppException
+from app.domain.common.exceptions.base import AppError
 
 logger = getLogger(__name__)
 
@@ -23,7 +23,7 @@ class AbortMultipartUploadUseCase:
             await self._s3_provider.abort_multipart_upload(
                 bucket=command.bucket, key=command.key, upload_id=command.upload_id
             )
-        except AppException as e:
+        except AppError as e:
             logger.exception(msg=e.message, extra={'log_meta': asdict(e)})
             raise
         logger.info(

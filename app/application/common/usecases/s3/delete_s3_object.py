@@ -3,7 +3,7 @@ from logging import getLogger
 
 from app.application.common.commands.s3 import DeleteS3ObjectCommand
 from app.application.common.interfaces.s3 import IS3Provider
-from app.domain.common.exceptions.base import AppException
+from app.domain.common.exceptions.base import AppError
 
 logger = getLogger(__name__)
 
@@ -16,7 +16,7 @@ class DeleteS3ObjectUseCase:
         logger.info('Start S3 file deletion', extra={'log_meta': {'bucket': command.bucket, 'key': command.key}})
         try:
             await self._s3_provider.delete_object(bucket=command.bucket, key=command.key)
-        except AppException as e:
+        except AppError as e:
             logger.exception(msg=e.message, extra={'log_meta': asdict(e)})
             raise
         logger.info('Complete S3 file deletion', extra={'log_meta': {'bucket': command.bucket, 'key': command.key}})

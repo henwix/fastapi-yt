@@ -5,7 +5,7 @@ from polyfactory.factories.sqlalchemy_factory import SQLAlchemyFactory
 from pwdlib import PasswordHash
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from app.infrastructure.sqlalchemy.models.channels import ChannelORM, SubscriptionORM
+from app.infrastructure.sqlalchemy.models import ChannelORM, SubscriptionORM
 
 _password_hasher = PasswordHash.recommended()
 

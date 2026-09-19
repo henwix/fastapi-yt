@@ -1,31 +1,31 @@
 from dataclasses import dataclass
 from uuid import UUID
 
-from app.domain.common.exceptions.base import AppException
+from app.domain.common.exceptions.base import AppError
 
 
 @dataclass(kw_only=True)
-class PlaylistNotFoundError(AppException):
+class PlaylistNotFoundError(AppError):
     message = 'Playlist not found'
     playlist_id: UUID
 
 
 @dataclass(kw_only=True)
-class PlaylistAccessForbiddenError(AppException):
+class PlaylistAccessForbiddenError(AppError):
     message = 'Playlist access forbidden'
     playlist_id: UUID
     channel_id: UUID | None
 
 
 @dataclass(kw_only=True)
-class VideoAlreadyAddedToPlaylistError(AppException):
+class VideoAlreadyAddedToPlaylistError(AppError):
     message = 'Video already added to playlist'
     playlist_id: UUID
     video_id: str
 
 
 @dataclass(kw_only=True)
-class VideoNotFoundInPlaylistError(AppException):
+class VideoNotFoundInPlaylistError(AppError):
     message = 'Video not found in playlist'
     playlist_id: UUID
     video_id: str

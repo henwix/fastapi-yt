@@ -5,7 +5,7 @@ from faker import Faker
 from polyfactory.factories.sqlalchemy_factory import SQLAlchemyFactory
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from app.infrastructure.sqlalchemy.models.oauth import OAuthAccountORM
+from app.infrastructure.sqlalchemy.models import OAuthAccountORM
 
 
 class OAuthAcccountORMFactory(SQLAlchemyFactory[OAuthAccountORM]):

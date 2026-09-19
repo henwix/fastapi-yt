@@ -7,7 +7,7 @@ from app.application.videos.interfaces import IVideoCommentReader
 from app.application.videos.queries import GetVideoCommentRepliesQuery, VideoCommentsSortingFieldsEnum
 from app.domain.common.constants import Empty
 from app.domain.common.exceptions.pagination import InvalidCursorError
-from app.domain.video_comments.service import IVideoCommentService
+from app.domain.videos.services import IVideoCommentService
 from app.utils.base64url import base64url_decode, base64url_encode
 
 

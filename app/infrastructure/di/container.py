@@ -32,6 +32,7 @@ from app.application.channels.usecases import (
 )
 from app.application.common.interfaces.email import IEmailProvider, IEmailService
 from app.application.common.interfaces.file_type_detector import IFileTypeDetector
+from app.application.common.interfaces.http_client import IHttpClient
 from app.application.common.interfaces.s3 import IS3Provider, IS3Service
 from app.application.common.interfaces.security import IAuthCodeService, IAuthService, IJWTService, IPasswordHasher
 from app.application.common.interfaces.transaction_manager import ITransactionManager
@@ -116,42 +117,54 @@ from app.application.videos.usecases import (
     UpdateVideoCommentUseCase,
     UpdateVideoUseCase,
 )
-from app.domain.channels.repo import IChannelRepo
-from app.domain.channels.service import ChannelService, IChannelService
+from app.domain.channels.repos import IChannelRepo
+from app.domain.channels.services import ChannelService, IChannelService
 from app.domain.common.repos.kv import IKVRepo
-from app.domain.oauth.repo import IOAuthAccountRepo
-from app.domain.oauth.service import IOAuthAccountService, OAuthAccountService
-from app.domain.playlists.repo import IPlaylistItemRepo, IPlaylistRepo
-from app.domain.playlists.service import IPlaylistItemService, IPlaylistService, PlaylistItemService, PlaylistService
-from app.domain.post_comment_reactions.repo import IPostCommentReactionRepo
-from app.domain.post_comment_reactions.service import IPostCommentReactionService, PostCommentReactionService
-from app.domain.post_comments.repo import IPostCommentRepo
-from app.domain.post_comments.service import IPostCommentService, PostCommentService
-from app.domain.post_reactions.repo import IPostReactionRepo
-from app.domain.post_reactions.service import IPostReactionService, PostReactionService
-from app.domain.posts.repo import IPostRepo
-from app.domain.posts.service import IPostService, PostService
-from app.domain.subscriptions.repo import ISubscriptionRepo
-from app.domain.subscriptions.service import ISubscriptionService, SubscriptionService
-from app.domain.video_comment_reactions.repo import IVideoCommentReactionRepo
-from app.domain.video_comment_reactions.service import IVideoCommentReactionService, VideoCommentReactionService
-from app.domain.video_comments.repo import IVideoCommentRepo
-from app.domain.video_comments.service import IVideoCommentService, VideoCommentService
-from app.domain.video_history.repo import IVideoHistoryRepo
-from app.domain.video_history.service import IVideoHistoryService, VideoHistoryService
-from app.domain.video_reactions.repo import IVideoReactionRepo
-from app.domain.video_reactions.service import IVideoReactionService, VideoReactionService
-from app.domain.video_views.repo import IVideoViewRepo
-from app.domain.video_views.service import IVideoViewService, VideoViewService
-from app.domain.videos.repo import IVideoRepo
-from app.domain.videos.service import IVideoService, VideoService
+from app.domain.oauth.repos import IOAuthAccountRepo
+from app.domain.oauth.services import IOAuthAccountService, OAuthAccountService
+from app.domain.playlists.repos import IPlaylistItemRepo, IPlaylistRepo
+from app.domain.playlists.services import IPlaylistItemService, IPlaylistService, PlaylistItemService, PlaylistService
+from app.domain.posts.repos import IPostCommentReactionRepo, IPostCommentRepo, IPostReactionRepo, IPostRepo
+from app.domain.posts.services import (
+    IPostCommentReactionService,
+    IPostCommentService,
+    IPostReactionService,
+    IPostService,
+    PostCommentReactionService,
+    PostCommentService,
+    PostReactionService,
+    PostService,
+)
+from app.domain.subscriptions.repos import ISubscriptionRepo
+from app.domain.subscriptions.services import ISubscriptionService, SubscriptionService
+from app.domain.videos.repos import (
+    IVideoCommentReactionRepo,
+    IVideoCommentRepo,
+    IVideoHistoryRepo,
+    IVideoReactionRepo,
+    IVideoRepo,
+    IVideoViewRepo,
+)
+from app.domain.videos.services import (
+    IVideoCommentReactionService,
+    IVideoCommentService,
+    IVideoHistoryService,
+    IVideoReactionService,
+    IVideoService,
+    IVideoViewService,
+    VideoCommentReactionService,
+    VideoCommentService,
+    VideoHistoryService,
+    VideoReactionService,
+    VideoService,
+    VideoViewService,
+)
 from app.infrastructure.email.client import FastMailClient
 from app.infrastructure.email.provider import FastMailProvider
 from app.infrastructure.email.service import EmailService
 from app.infrastructure.files.file_type_detector import FileTypeDetector
-from app.infrastructure.http.base import IHttpClient
-from app.infrastructure.http.httpx_client import HttpxClient
-from app.infrastructure.http.httpx_config import get_httpx_client
+from app.infrastructure.http.client import HttpxClient
+from app.infrastructure.http.config import get_httpx_client
 from app.infrastructure.oauth.providers import GitHubOAuthProvider, GoogleOAuthProvider, OAuthProviderFactory
 from app.infrastructure.oauth.service import OAuthServiceFactory
 from app.infrastructure.redis.client import get_redis_client
@@ -164,29 +177,34 @@ from app.infrastructure.security.auth_service import AuthService
 from app.infrastructure.security.jwt_service import JWTService
 from app.infrastructure.security.password_hasher import PwdlibPasswordHasher
 from app.infrastructure.sqlalchemy.database import create_engine, create_session_factory
-from app.infrastructure.sqlalchemy.readers.channels import SAChannelReader
-from app.infrastructure.sqlalchemy.readers.oauth import SAOAuthAccountReader
-from app.infrastructure.sqlalchemy.readers.playlists import SAPlaylistReader
-from app.infrastructure.sqlalchemy.readers.post_comments import SAPostCommentReader
-from app.infrastructure.sqlalchemy.readers.posts import SAPostReader
-from app.infrastructure.sqlalchemy.readers.subscriptions import SASubscriptionReader
-from app.infrastructure.sqlalchemy.readers.video_comments import SAVideoCommentReader
-from app.infrastructure.sqlalchemy.readers.video_history import SAVideoHistoryReader
-from app.infrastructure.sqlalchemy.readers.videos import SAVideoReader
-from app.infrastructure.sqlalchemy.repos.channels import SAChannelRepo
-from app.infrastructure.sqlalchemy.repos.oauth import SAOAuthAccountRepo
-from app.infrastructure.sqlalchemy.repos.playlists import SAPlaylistItemRepo, SAPlaylistRepo
-from app.infrastructure.sqlalchemy.repos.post_comment_reactions import SAPostCommentReactionRepo
-from app.infrastructure.sqlalchemy.repos.post_comments import SAPostCommentRepo
-from app.infrastructure.sqlalchemy.repos.post_reactions import SAPostReactionRepo
-from app.infrastructure.sqlalchemy.repos.posts import SAPostRepo
-from app.infrastructure.sqlalchemy.repos.subscriptions import SASubscriptionRepo
-from app.infrastructure.sqlalchemy.repos.video_comment_reactions import SAVideoCommentReactionRepo
-from app.infrastructure.sqlalchemy.repos.video_comments import SAVideoCommentRepo
-from app.infrastructure.sqlalchemy.repos.video_history import SAVideoHistoryRepo
-from app.infrastructure.sqlalchemy.repos.video_reactions import SAVideoReactionRepo
-from app.infrastructure.sqlalchemy.repos.video_views import SAVideoViewRepo
-from app.infrastructure.sqlalchemy.repos.videos import SAVideoRepo
+from app.infrastructure.sqlalchemy.readers import (
+    SAChannelReader,
+    SAOAuthAccountReader,
+    SAPlaylistReader,
+    SAPostCommentReader,
+    SAPostReader,
+    SASubscriptionReader,
+    SAVideoCommentReader,
+    SAVideoHistoryReader,
+    SAVideoReader,
+)
+from app.infrastructure.sqlalchemy.repos import (
+    SAChannelRepo,
+    SAOAuthAccountRepo,
+    SAPlaylistItemRepo,
+    SAPlaylistRepo,
+    SAPostCommentReactionRepo,
+    SAPostCommentRepo,
+    SAPostReactionRepo,
+    SAPostRepo,
+    SASubscriptionRepo,
+    SAVideoCommentReactionRepo,
+    SAVideoCommentRepo,
+    SAVideoHistoryRepo,
+    SAVideoReactionRepo,
+    SAVideoRepo,
+    SAVideoViewRepo,
+)
 from app.infrastructure.sqlalchemy.transaction_manager import SATransactionManager
 
 
@@ -205,9 +223,9 @@ class AppProvider(Provider):
     http_client = provide(HttpxClient, scope=Scope.REQUEST, provides=IHttpClient)
     transaction_manager = provide(SATransactionManager, scope=Scope.REQUEST, provides=ITransactionManager)
     file_type_detector = provide(FileTypeDetector, scope=Scope.REQUEST, provides=IFileTypeDetector)
-    smtp_client = provide(FastMailClient, scope=Scope.APP)
     s3_provider = provide(BotoS3Provider, scope=Scope.REQUEST, provides=IS3Provider)
     s3_service = provide(S3Service, scope=Scope.REQUEST, provides=IS3Service)
+    smtp_client = provide(FastMailClient, scope=Scope.APP)
     email_provider = provide(FastMailProvider, scope=Scope.REQUEST, provides=IEmailProvider)
     email_service = provide(EmailService, scope=Scope.REQUEST, provides=IEmailService)
 

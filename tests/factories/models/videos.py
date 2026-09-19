@@ -7,9 +7,9 @@ from polyfactory.factories.sqlalchemy_factory import SQLAlchemyFactory
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.core.configs import settings
-from app.domain.video_views.constants import VIDEO_VIEWS_LIMIT_PER_DAY
+from app.domain.videos.constants import VIDEO_VIEWS_LIMIT_PER_DAY
 from app.domain.videos.enums import VideoPrivacyStatusEnum, VideoUploadStatusEnum
-from app.infrastructure.sqlalchemy.models.videos import VideoORM, VideoViewORM
+from app.infrastructure.sqlalchemy.models import VideoORM, VideoViewORM
 from app.utils.datetime import get_current_utc_date
 from app.utils.videos import generate_video_id
 

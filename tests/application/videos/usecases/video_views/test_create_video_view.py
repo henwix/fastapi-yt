@@ -8,15 +8,15 @@ from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.application.videos.usecases import CreateVideoViewUseCase
 from app.domain.channels.exceptions import ChannelNotActiveError, ChannelNotFoundByIdError
-from app.domain.video_views.exceptions import VideoViewsLimitReachedError
+from app.domain.videos.constants import VIDEO_VIEWS_LIMIT_PER_DAY
 from app.domain.videos.enums import VideoPrivacyStatusEnum, VideoUploadStatusEnum
-from app.domain.videos.exceptions import VideoAccessForbiddenError, VideoNotFoundError
-from app.infrastructure.sqlalchemy.models.videos import VideoViewORM
+from app.domain.videos.exceptions import VideoAccessForbiddenError, VideoNotFoundError, VideoViewsLimitReachedError
+from app.infrastructure.sqlalchemy.models import VideoViewORM
 from app.utils.datetime import get_current_utc_date
 from app.utils.videos import generate_video_id
-from tests.factories.commands.video_views import CreateVideoViewCommandFactory
+from tests.factories.commands.videos import CreateVideoViewCommandFactory
 from tests.factories.models.channels import ChannelORMFactory
-from tests.factories.models.videos import VIDEO_VIEWS_LIMIT_PER_DAY, VideoORMFactory, VideoViewORMFactory
+from tests.factories.models.videos import VideoORMFactory, VideoViewORMFactory
 
 
 @pytest.mark.asyncio
@@ -235,9 +235,11 @@ async def test_create_video_view_raises_error_if_video_views_limit_reached_and_c
 
         command = CreateVideoViewCommandFactory.build(current_channel_id=channel.id, video_id=video.id)
 
-        with patch.object(use_case._video_service, 'try_increase_views_count') as mock_video_service:
-            with pytest.raises(VideoViewsLimitReachedError):
-                await use_case.execute(command=command)
+        with (
+            patch.object(use_case._video_service, 'try_increase_views_count') as mock_video_service,
+            pytest.raises(VideoViewsLimitReachedError),
+        ):
+            await use_case.execute(command=command)
 
         mock_video_service.assert_not_called()
 
@@ -269,9 +271,11 @@ async def test_create_video_view_raises_error_if_video_views_limit_reached_and_c
             views_count=VIDEO_VIEWS_LIMIT_PER_DAY,
         )
 
-        with patch.object(use_case._video_service, 'try_increase_views_count') as mock_video_service:
-            with pytest.raises(VideoViewsLimitReachedError):
-                await use_case.execute(command=command)
+        with (
+            patch.object(use_case._video_service, 'try_increase_views_count') as mock_video_service,
+            pytest.raises(VideoViewsLimitReachedError),
+        ):
+            await use_case.execute(command=command)
 
         mock_video_service.assert_not_called()
 

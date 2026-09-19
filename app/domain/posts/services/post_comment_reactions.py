@@ -1,0 +1,42 @@
+from abc import ABC, abstractmethod
+from dataclasses import dataclass
+from uuid import UUID
+
+from app.domain.posts.entities import PostCommentReaction
+from app.domain.posts.exceptions import PostCommentReactionNotFoundError
+from app.domain.posts.repos import IPostCommentReactionRepo
+
+
+class IPostCommentReactionService(ABC):
+    @abstractmethod
+    async def upsert(self, post_comment_reaction: PostCommentReaction) -> PostCommentReaction | None: ...
+
+    @abstractmethod
+    async def try_delete_by_post_comment_id_and_channel_id(
+        self,
+        post_comment_id: UUID,
+        channel_id: UUID,
+    ) -> None: ...
+
+
+@dataclass
+class PostCommentReactionService(IPostCommentReactionService):
+    _repo: IPostCommentReactionRepo
+
+    async def upsert(self, post_comment_reaction: PostCommentReaction) -> PostCommentReaction | None:
+        return await self._repo.upsert(post_comment_reaction=post_comment_reaction)
+
+    async def try_delete_by_post_comment_id_and_channel_id(
+        self,
+        post_comment_id: UUID,
+        channel_id: UUID,
+    ) -> None:
+        is_deleted = await self._repo.delete_by_post_comment_id_and_channel_id(
+            post_comment_id=post_comment_id,
+            channel_id=channel_id,
+        )
+        if not is_deleted:
+            raise PostCommentReactionNotFoundError(
+                post_comment_id=post_comment_id,
+                channel_id=channel_id,
+            )

@@ -8,11 +8,10 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from app.application.posts.usecases import CreatePostCommentUseCase
 from app.domain.channels.exceptions import ChannelNotActiveError, ChannelNotFoundByIdError
 from app.domain.common.constants import Empty
-from app.domain.post_comments.entities import PostComment
-from app.domain.post_comments.exceptions import PostCommentNotFoundError
-from app.domain.posts.exceptions import PostNotFoundError
-from app.infrastructure.sqlalchemy.models.posts import PostCommentORM
-from tests.factories.commands.post_comments import CreatePostCommentCommandFactory
+from app.domain.posts.entities import PostComment
+from app.domain.posts.exceptions import PostCommentNotFoundError, PostNotFoundError
+from app.infrastructure.sqlalchemy.models import PostCommentORM
+from tests.factories.commands.posts import CreatePostCommentCommandFactory
 from tests.factories.models.channels import ChannelORMFactory
 from tests.factories.models.posts import PostCommentORMFactory, PostORMFactory
 

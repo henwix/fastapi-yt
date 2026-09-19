@@ -1,15 +1,15 @@
-from typing import NoReturn
+from typing import NoReturn, cast
 from uuid import UUID
 
-from sqlalchemy import delete, select, update
+from sqlalchemy import CursorResult, delete, select, update
 from sqlalchemy.exc import DBAPIError, IntegrityError
 
 from app.domain.channels.exceptions import ChannelNotFoundByIdError
 from app.domain.playlists.entities import Playlist, PlaylistItem
 from app.domain.playlists.exceptions import PlaylistNotFoundError, VideoAlreadyAddedToPlaylistError
-from app.domain.playlists.repo import IPlaylistItemRepo, IPlaylistRepo
+from app.domain.playlists.repos import IPlaylistItemRepo, IPlaylistRepo
 from app.domain.videos.exceptions import VideoNotFoundError
-from app.infrastructure.sqlalchemy.models.videos import PlaylistItemORM, PlaylistORM
+from app.infrastructure.sqlalchemy.models import PlaylistItemORM, PlaylistORM
 from app.infrastructure.sqlalchemy.repos.base import SARepo
 
 
@@ -59,7 +59,7 @@ class SAPlaylistRepo(SARepo, IPlaylistRepo):
     async def delete_by_id(self, id: UUID) -> bool:
         stmt = delete(PlaylistORM).where(PlaylistORM.id == id)
         result = await self._session.execute(statement=stmt)
-        return result.rowcount > 0
+        return cast(CursorResult, result).rowcount > 0
 
 
 class SAPlaylistItemRepo(SARepo, IPlaylistItemRepo):
@@ -97,4 +97,4 @@ class SAPlaylistItemRepo(SARepo, IPlaylistItemRepo):
             PlaylistItemORM.video_id == video_id,
         )
         result = await self._session.execute(statement=stmt)
-        return result.rowcount > 0
+        return cast(CursorResult, result).rowcount > 0

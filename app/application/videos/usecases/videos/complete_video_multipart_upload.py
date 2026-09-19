@@ -6,11 +6,11 @@ from app.application.common.interfaces.s3 import IS3Service
 from app.application.common.interfaces.transaction_manager import ITransactionManager
 from app.application.videos.commands import CompleteVideoMultipartUploadCommand
 from app.core.configs import settings
-from app.domain.channels.service import IChannelService
+from app.domain.channels.services import IChannelService
 from app.domain.common.constants import VIDEO_FILE_MIME_TYPES
 from app.domain.videos.enums import VideoUploadStatusEnum
 from app.domain.videos.exceptions import VideoInvalidFileContentTypeError
-from app.domain.videos.service import IVideoService
+from app.domain.videos.services import IVideoService
 
 
 @dataclass

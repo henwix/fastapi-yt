@@ -1,0 +1,56 @@
+from datetime import datetime
+from uuid import UUID
+
+from sqlalchemy import select, tuple_
+
+from app.application.common.pagination import CursorPagination
+from app.application.common.sorting import SortingOrderEnum
+from app.application.posts.dto import DetailedPost
+from app.application.posts.interfaces import IPostReader
+from app.application.posts.queries import PostsSorting
+from app.infrastructure.sqlalchemy.models import ChannelORM, PostORM
+from app.infrastructure.sqlalchemy.readers.base import SAReader
+
+
+class SAPostReader(SAReader, IPostReader):
+    async def get_many(
+        self,
+        channel_id: UUID,
+        cursor_sort_value: datetime | None,
+        cursor_id_value: UUID | None,
+        sorting: PostsSorting,
+        pagination: CursorPagination,
+    ) -> list[DetailedPost]:
+        stmt = (
+            select(
+                PostORM.id,
+                PostORM.text,
+                PostORM.created_at,
+                ChannelORM.name,
+                ChannelORM.slug,
+            )
+            .where(PostORM.channel_id == channel_id)
+            .join(ChannelORM, PostORM.channel_id == ChannelORM.id)
+        )
+
+        sort_field = getattr(PostORM, sorting.sort_by.value)
+
+        if cursor_sort_value is not None and cursor_id_value is not None:
+            cursor_tuple = tuple_(sort_field, PostORM.id)
+
+            if sorting.order is SortingOrderEnum.DESC:
+                stmt = stmt.where(cursor_tuple < (cursor_sort_value, cursor_id_value))
+            else:
+                stmt = stmt.where(cursor_tuple > (cursor_sort_value, cursor_id_value))
+
+        stmt = stmt.order_by(
+            sort_field.desc() if sorting.order is SortingOrderEnum.DESC else sort_field,
+            PostORM.id.desc() if sorting.order is SortingOrderEnum.DESC else PostORM.id,
+        )
+        stmt = stmt.limit(limit=pagination.per_page + 1)
+        result = await self._session.execute(statement=stmt)
+
+        return [
+            DetailedPost(id=id, text=text, created_at=created_at, channel_name=channel_name, channel_slug=channel_slug)
+            for id, text, created_at, channel_name, channel_slug in result.all()
+        ]

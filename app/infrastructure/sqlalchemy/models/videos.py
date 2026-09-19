@@ -6,14 +6,16 @@ from sqlalchemy.orm import Mapped, mapped_column
 from app.domain.common.enums import ReactionTypeEnum
 from app.domain.playlists.entities import Playlist, PlaylistItem
 from app.domain.playlists.enums import PlaylistPrivacyStatusEnum
-from app.domain.video_comment_reactions.entities import VideoCommentReaction
-from app.domain.video_comments.entities import VideoComment
-from app.domain.video_history.entities import VideoHistoryItem
-from app.domain.video_reactions.entities import VideoReaction
-from app.domain.video_views.entities import VideoView
-from app.domain.videos.entities import Video
+from app.domain.videos.entities import (
+    Video,
+    VideoComment,
+    VideoCommentReaction,
+    VideoHistoryItem,
+    VideoReaction,
+    VideoView,
+)
 from app.domain.videos.enums import VideoPrivacyStatusEnum, VideoUploadStatusEnum
-from app.infrastructure.sqlalchemy.models.base import BaseORM
+from app.infrastructure.sqlalchemy.models import BaseORM
 from app.infrastructure.sqlalchemy.models.mixins import CreatedAtDateMixin, CreatedAtDatetimeMixin, UUIDIdMixin
 from app.utils.videos import generate_video_id
 

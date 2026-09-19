@@ -1,6 +1,6 @@
-from .video_comments.reader import IVideoCommentReader
-from .video_history.reader import IVideoHistoryReader
-from .videos.reader import IVideoReader
+from .video_comments import IVideoCommentReader
+from .video_history import IVideoHistoryReader
+from .videos import IVideoReader
 
 __all__ = (
     'IVideoCommentReader',

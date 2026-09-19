@@ -1,0 +1,17 @@
+from dataclasses import dataclass
+from uuid import UUID
+
+from app.domain.common.exceptions.base import AppError
+
+
+@dataclass(kw_only=True)
+class VideoNotFoundInHistoryError(AppError):
+    message = 'Video not found in history'
+    channel_id: UUID
+    video_id: str
+
+
+@dataclass(kw_only=True)
+class VideoHistoryEmptyError(AppError):
+    message = 'Video history is empty'
+    channel_id: UUID

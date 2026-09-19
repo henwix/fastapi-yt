@@ -3,7 +3,7 @@ from logging import getLogger
 
 from app.application.common.commands.email import SendChannelSetEmailCodeCommand
 from app.application.common.interfaces.email import IEmailProvider
-from app.domain.common.exceptions.base import AppException
+from app.domain.common.exceptions.base import AppError
 
 logger = getLogger(__name__)
 
@@ -25,7 +25,7 @@ class SendChannelSetEmailCodeUseCase:
             await self._email_provider.send_channel_set_email_code(
                 recipient=command.email, template_context=template_context
             )
-        except AppException as e:
+        except AppError as e:
             logger.exception(msg=e.message, extra={'log_meta': asdict(e)})
             raise
         logger.info('Complete channel set email code sending', extra={'log_meta': {'recipient': command.email}})

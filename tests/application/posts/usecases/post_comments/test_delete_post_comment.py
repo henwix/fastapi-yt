@@ -9,8 +9,8 @@ from app.domain.channels.exceptions import (
     ChannelNotActiveError,
     ChannelNotFoundByIdError,
 )
-from app.domain.post_comments.exceptions import PostCommentAccessForbiddenError, PostCommentNotFoundError
-from tests.factories.commands.post_comments import DeletePostCommentCommandFactory
+from app.domain.posts.exceptions import PostCommentAccessForbiddenError, PostCommentNotFoundError
+from tests.factories.commands.posts import DeletePostCommentCommandFactory
 from tests.factories.models.channels import ChannelORMFactory
 from tests.factories.models.posts import PostCommentORMFactory, PostORMFactory
 

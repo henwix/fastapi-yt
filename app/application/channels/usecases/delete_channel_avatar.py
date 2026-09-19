@@ -5,7 +5,7 @@ from app.application.common.interfaces.s3 import IS3Service
 from app.application.common.interfaces.transaction_manager import ITransactionManager
 from app.core.configs import settings
 from app.domain.channels.exceptions import ChannelAvatarNotFoundError
-from app.domain.channels.service import IChannelService
+from app.domain.channels.services import IChannelService
 
 
 @dataclass

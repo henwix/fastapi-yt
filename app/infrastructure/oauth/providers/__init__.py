@@ -3,7 +3,7 @@ from .github import GitHubOAuthProvider
 from .google import GoogleOAuthProvider
 
 __all__ = (
-    'OAuthProviderFactory',
     'GitHubOAuthProvider',
     'GoogleOAuthProvider',
+    'OAuthProviderFactory',
 )

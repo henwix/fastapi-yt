@@ -4,7 +4,7 @@ from dataclasses import dataclass
 from app.application.oauth.dto import OAuthProviderUserData
 from app.application.oauth.interfaces import IOAuthProvider, IOAuthService, IOAuthServiceFactory
 from app.domain.oauth.enums import OAuthProviderEnum
-from tests.mocks.oauth.provider import MockOAuthProvider
+from tests.mocks.oauth import MockOAuthProvider
 
 
 @dataclass

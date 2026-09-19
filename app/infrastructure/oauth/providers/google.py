@@ -1,5 +1,6 @@
 from urllib.parse import unquote, urlencode
 
+from app.application.common.interfaces.http_client import IHttpClient
 from app.application.common.interfaces.security import IJWTService
 from app.application.oauth.dto import OAuthProviderUserData
 from app.application.oauth.interfaces import IOAuthProvider
@@ -13,7 +14,6 @@ from app.domain.oauth.exceptions import (
     OAuthProviderReceivedInvalidResponseError,
     OAuthProviderRequestError,
 )
-from app.infrastructure.http.base import IHttpClient
 
 
 class GoogleOAuthProvider(IOAuthProvider):

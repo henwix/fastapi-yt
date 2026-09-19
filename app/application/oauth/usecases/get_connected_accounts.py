@@ -3,7 +3,7 @@ from dataclasses import dataclass
 from app.application.oauth.dto import OAuthAccount
 from app.application.oauth.interfaces import IOAuthAccountReader
 from app.application.oauth.queries import OAuthGetConnectedAccountsQuery
-from app.domain.channels.service import IChannelService
+from app.domain.channels.services import IChannelService
 
 
 @dataclass

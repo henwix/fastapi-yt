@@ -2,12 +2,11 @@ from dataclasses import dataclass
 
 from app.application.common.interfaces.transaction_manager import ITransactionManager
 from app.application.videos.commands import CreateVideoCommentCommand
-from app.domain.channels.service import IChannelService
+from app.domain.channels.services import IChannelService
 from app.domain.common.constants import Empty
-from app.domain.video_comments.entities import VideoComment
-from app.domain.video_comments.service import IVideoCommentService
+from app.domain.videos.entities import VideoComment
 from app.domain.videos.enums import VideoPrivacyStatusEnum
-from app.domain.videos.service import IVideoService
+from app.domain.videos.services import IVideoCommentService, IVideoService
 
 
 @dataclass

@@ -2,9 +2,9 @@ from dataclasses import dataclass
 
 from app.application.common.interfaces.transaction_manager import ITransactionManager
 from app.application.oauth.commands import OAuthDisconnectAccountCommand
-from app.domain.channels.service import IChannelService
+from app.domain.channels.services import IChannelService
 from app.domain.oauth.exceptions import OAuthAccountNotConnectedError, OAuthAccountUnableToDisconnectError
-from app.domain.oauth.service import IOAuthAccountService
+from app.domain.oauth.services import IOAuthAccountService
 
 
 @dataclass

@@ -17,9 +17,9 @@ __all__ = (
     'RefreshJWTTokenUseCase',
     'RegisterChannelUseCase',
     'ResendChannelActivationCodeUseCase',
-    'ResetChannelPasswordUseCase',
     'ResetChannelPasswordConfirmUseCase',
-    'SetChannelEmailUseCase',
+    'ResetChannelPasswordUseCase',
     'SetChannelEmailConfirmUseCase',
+    'SetChannelEmailUseCase',
     'SetChannelPasswordUseCase',
 )

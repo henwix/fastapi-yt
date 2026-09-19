@@ -2,9 +2,8 @@ from dataclasses import dataclass
 
 from app.application.common.interfaces.transaction_manager import ITransactionManager
 from app.application.videos.commands import DeleteVideoCommentReactionCommand
-from app.domain.channels.service import IChannelService
-from app.domain.video_comment_reactions.service import IVideoCommentReactionService
-from app.domain.video_comments.service import IVideoCommentService
+from app.domain.channels.services import IChannelService
+from app.domain.videos.services import IVideoCommentReactionService, IVideoCommentService
 
 
 @dataclass

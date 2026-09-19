@@ -3,9 +3,9 @@ from .video_history import PreviewVideoHistory
 from .videos import ChannelPreviewVideo, DetailedVideo, PersonalPreviewVideo
 
 __all__ = (
-    'DetailedVideoComment',
-    'PreviewVideoHistory',
     'ChannelPreviewVideo',
     'DetailedVideo',
+    'DetailedVideoComment',
     'PersonalPreviewVideo',
+    'PreviewVideoHistory',
 )

@@ -1,62 +1,62 @@
 from dataclasses import dataclass
 from uuid import UUID
 
-from app.domain.common.exceptions.base import AppException
+from app.domain.common.exceptions.base import AppError
 
 
 @dataclass(kw_only=True)
-class ChannelSlugAlreadyExistsError(AppException):
+class ChannelSlugAlreadyExistsError(AppError):
     message = 'Channel with this slug already exists'
     channel_slug: str
 
 
 @dataclass(kw_only=True)
-class ChannelEmailAlreadyExistsError(AppException):
+class ChannelEmailAlreadyExistsError(AppError):
     message = 'Channel with this email already exists'
     channel_email: str
 
 
 @dataclass(kw_only=True)
-class ChannelEmailInvalidFormatError(AppException):
+class ChannelEmailInvalidFormatError(AppError):
     message = 'Invalid email format'
     pattern: str
     email: str
 
 
 @dataclass(kw_only=True)
-class ChannelEmailTooLongError(AppException):
+class ChannelEmailTooLongError(AppError):
     message = 'Email too long'
     email: str
     email_max_length: int
 
 
 @dataclass(kw_only=True)
-class ChannelSlugInvalidFormatError(AppException):
+class ChannelSlugInvalidFormatError(AppError):
     message = 'Invalid slug format'
     pattern: str
     slug: str
 
 
 @dataclass(kw_only=True)
-class ChannelNotFoundByIdError(AppException):
+class ChannelNotFoundByIdError(AppError):
     message = 'Channel not found by id'
     channel_id: UUID
 
 
 @dataclass(kw_only=True)
-class ChannelNotFoundBySlugError(AppException):
+class ChannelNotFoundBySlugError(AppError):
     message = 'Channel not found by slug'
     channel_slug: str
 
 
 @dataclass(kw_only=True)
-class ChannelNotActiveError(AppException):
+class ChannelNotActiveError(AppError):
     message = 'Channel not active'
     channel_id: UUID
 
 
 @dataclass(kw_only=True)
-class ChannelAvatarSizeTooBigError(AppException):
+class ChannelAvatarSizeTooBigError(AppError):
     message = 'Channel avatar size too big'
     key: str
     file_size: int
@@ -64,19 +64,19 @@ class ChannelAvatarSizeTooBigError(AppException):
 
 
 @dataclass(kw_only=True)
-class ChannelAvatarInvalidKeyError(AppException):
+class ChannelAvatarInvalidKeyError(AppError):
     message = 'Channel avatar invalid key'
     key: str
 
 
 @dataclass(kw_only=True)
-class ChannelAvatarInvalidFilenameError(AppException):
+class ChannelAvatarInvalidFilenameError(AppError):
     message = 'Channel avatar invalid filename'
     filename: str
 
 
 @dataclass(kw_only=True)
-class ChannelAvatarInvalidContentTypeError(AppException):
+class ChannelAvatarInvalidContentTypeError(AppError):
     message = 'Channel avatar invalid content type'
     key: str
     metadata_content_type: str
@@ -84,19 +84,19 @@ class ChannelAvatarInvalidContentTypeError(AppException):
 
 
 @dataclass(kw_only=True)
-class ChannelAvatarNotFoundError(AppException):
+class ChannelAvatarNotFoundError(AppError):
     message = 'Channel avatar not found'
     channel_id: UUID
 
 
 @dataclass(kw_only=True)
-class ChannelAvatarAlreadySetError(AppException):
+class ChannelAvatarAlreadySetError(AppError):
     message = 'This Channel avatar is already set'
     channel_id: UUID
     avatar_s3_key: str
 
 
 @dataclass(kw_only=True)
-class ChannelActivationFailedError(AppException):
+class ChannelActivationFailedError(AppError):
     message = 'Channel activation failed'
     channel_id: UUID

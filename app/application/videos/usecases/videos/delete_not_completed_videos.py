@@ -2,7 +2,7 @@ from dataclasses import dataclass
 from logging import getLogger
 
 from app.application.common.interfaces.transaction_manager import ITransactionManager
-from app.domain.videos.repo import IVideoRepo
+from app.domain.videos.repos import IVideoRepo
 
 logger = getLogger(__name__)
 

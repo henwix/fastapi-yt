@@ -5,10 +5,10 @@ from uuid import UUID
 from app.application.common.interfaces.s3 import IS3Service
 from app.application.videos.commands import GenerateVideoThumbnailUploadUrlCommand
 from app.core.configs import settings
-from app.domain.channels.service import IChannelService
+from app.domain.channels.services import IChannelService
 from app.domain.common.constants import IMAGE_FILE_MIME_TYPES
 from app.domain.videos.exceptions import VideoThumbnailInvalidFilenameError
-from app.domain.videos.service import IVideoService
+from app.domain.videos.services import IVideoService
 
 
 @dataclass

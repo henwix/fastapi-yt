@@ -5,7 +5,7 @@ from sqlalchemy.orm import Mapped, mapped_column
 
 from app.domain.oauth.entities import OAuthAccount
 from app.domain.oauth.enums import OAuthProviderEnum
-from app.infrastructure.sqlalchemy.models.base import BaseORM
+from app.infrastructure.sqlalchemy.models import BaseORM
 from app.infrastructure.sqlalchemy.models.mixins import CreatedAtDatetimeMixin, UUIDIdMixin
 
 

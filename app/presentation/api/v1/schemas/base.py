@@ -16,3 +16,7 @@ class BaseUpdateSchema(BaseSchema):
         if not self.model_fields_set:
             raise ValueError('At least one field must be provided')
         return self
+
+
+class DetailSchema(BaseModel):
+    detail: str

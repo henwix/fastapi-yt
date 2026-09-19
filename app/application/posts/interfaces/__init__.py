@@ -1,5 +1,5 @@
-from .post_comments.reader import IPostCommentReader
-from .posts.reader import IPostReader
+from .post_comments import IPostCommentReader
+from .posts import IPostReader
 
 __all__ = (
     'IPostCommentReader',

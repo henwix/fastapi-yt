@@ -7,8 +7,7 @@ from sqlalchemy.engine import Connection
 from sqlalchemy.ext.asyncio import async_engine_from_config
 
 from app.core.configs import settings
-from app.infrastructure.sqlalchemy.models import *  # noqa F403
-from app.infrastructure.sqlalchemy.models.base import BaseORM
+from app.infrastructure.sqlalchemy.models import BaseORM
 
 # this is the Alembic Config object, which provides
 # access to the values within the .ini file in use.

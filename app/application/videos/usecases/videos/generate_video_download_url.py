@@ -3,10 +3,10 @@ from dataclasses import dataclass
 from app.application.common.interfaces.s3 import IS3Service
 from app.application.videos.commands import GenerateVideoDownloadUrlCommand
 from app.core.configs import settings
-from app.domain.channels.service import IChannelService
+from app.domain.channels.services import IChannelService
 from app.domain.videos.enums import VideoPrivacyStatusEnum
 from app.domain.videos.exceptions import VideoAccessForbiddenError
-from app.domain.videos.service import IVideoService
+from app.domain.videos.services import IVideoService
 
 
 @dataclass

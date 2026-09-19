@@ -5,9 +5,8 @@ from app.application.channels.dto import ChannelAboutInfo
 from app.application.channels.interfaces import IChannelReader
 from app.domain.channels.exceptions import ChannelNotFoundBySlugError
 from app.domain.videos.enums import VideoPrivacyStatusEnum, VideoUploadStatusEnum
-from app.infrastructure.sqlalchemy.converters.channels import convert_row_to_channel_about_info_dto
-from app.infrastructure.sqlalchemy.models.channels import ChannelORM, SubscriptionORM
-from app.infrastructure.sqlalchemy.models.videos import VideoORM
+from app.infrastructure.sqlalchemy.converters import convert_row_to_channel_about_info_dto
+from app.infrastructure.sqlalchemy.models import ChannelORM, SubscriptionORM, VideoORM
 from app.infrastructure.sqlalchemy.readers.base import SAReader
 
 

@@ -29,11 +29,13 @@ async def test_reset_channel_password_confirm_returns_none_if_password_updated(m
             code=code, uid=base64url_encode(value=str(db_channel.id))
         )
 
+        assert isinstance(db_channel.password_hash, str)
         assert not _password_hasher.verify(password=command.new_password, hash=db_channel.password_hash)
 
         result = await use_case.execute(command=command)
 
         assert result is None
+        assert isinstance(db_channel.password_hash, str)
         assert _password_hasher.verify(password=command.new_password, hash=db_channel.password_hash)
 
 

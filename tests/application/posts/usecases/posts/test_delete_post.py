@@ -8,12 +8,9 @@ from app.domain.channels.exceptions import (
     ChannelNotActiveError,
     ChannelNotFoundByIdError,
 )
-from app.domain.posts.exceptions import (
-    PostAccessForbiddenError,
-    PostNotFoundError,
-)
-from app.infrastructure.sqlalchemy.models.posts import PostORM
-from tests.factories.commands.posts import DeletePostCommandFactory
+from app.domain.posts.exceptions import PostAccessForbiddenError, PostNotFoundError
+from app.infrastructure.sqlalchemy.models import PostORM
+from tests.factories.commands.posts.posts import DeletePostCommandFactory
 from tests.factories.models.channels import ChannelORMFactory
 from tests.factories.models.posts import PostORMFactory
 

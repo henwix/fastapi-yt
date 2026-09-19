@@ -5,7 +5,7 @@ from app.application.auth.commands import LoginChannelCommand
 from app.application.common.dto.jwt import JWTTokens
 from app.application.common.interfaces.security import IAuthService, IPasswordHasher
 from app.domain.auth.exceptions import IncorrectEmailOrPasswordError
-from app.domain.channels.service import IChannelService
+from app.domain.channels.services import IChannelService
 
 password_hash_semaphore = asyncio.Semaphore(2)
 

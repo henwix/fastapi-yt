@@ -10,12 +10,9 @@ from app.domain.channels.exceptions import (
 )
 from app.domain.common.constants import Empty
 from app.domain.posts.entities import Post
-from app.domain.posts.exceptions import (
-    PostAccessForbiddenError,
-    PostNotFoundError,
-)
-from app.infrastructure.sqlalchemy.models.posts import PostORM
-from tests.factories.commands.posts import UpdatePostCommandFactory
+from app.domain.posts.exceptions import PostAccessForbiddenError, PostNotFoundError
+from app.infrastructure.sqlalchemy.models import PostORM
+from tests.factories.commands.posts.posts import UpdatePostCommandFactory
 from tests.factories.models.channels import ChannelORMFactory
 from tests.factories.models.posts import PostORMFactory
 

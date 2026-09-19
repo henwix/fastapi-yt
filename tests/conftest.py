@@ -13,7 +13,7 @@ from app.application.common.interfaces.file_type_detector import IFileTypeDetect
 from app.application.common.interfaces.s3 import IS3Service
 from app.application.oauth.interfaces import IOAuthServiceFactory
 from app.core.configs import Settings, settings
-from app.domain.videos.service import IVideoService
+from app.domain.videos.services import IVideoService
 from app.infrastructure.di.container import (
     AppProvider,
     DatabaseProvider,
@@ -27,9 +27,9 @@ from app.infrastructure.di.container import (
 from app.infrastructure.redis.client import get_redis_client
 from app.infrastructure.sqlalchemy.database import create_engine, create_session_factory
 from app.infrastructure.sqlalchemy.models import *  # noqa F403
-from app.infrastructure.sqlalchemy.models.base import BaseORM
+from app.infrastructure.sqlalchemy.models import BaseORM
 from tests.mocks.file_type_detector import MockFileTypeDetector
-from tests.mocks.oauth.service import MockOAuthServiceFactory
+from tests.mocks.oauth import MockOAuthServiceFactory
 from tests.mocks.s3_service import MockS3Service
 from tests.mocks.video_service import MockVideoService
 

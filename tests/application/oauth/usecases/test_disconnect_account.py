@@ -13,7 +13,7 @@ from app.domain.oauth.exceptions import (
     OAuthAccountUnableToDisconnectError,
     OAuthNoAccountsConnectedError,
 )
-from app.infrastructure.sqlalchemy.models.oauth import OAuthAccountORM
+from app.infrastructure.sqlalchemy.models import OAuthAccountORM
 from tests.factories.commands.oauth import OAuthDisconnectAccountCommandFactory
 from tests.factories.models.channels import ChannelORMFactory
 from tests.factories.models.oauth import OAuthAcccountORMFactory
@@ -106,7 +106,7 @@ async def test_disconnect_oauth_account_raises_error_if_no_connected_oauth_accou
 
 @pytest.mark.asyncio
 @pytest.mark.parametrize(
-    argnames=['connected_provider', 'not_connected_provider'],
+    argnames=('connected_provider', 'not_connected_provider'),
     argvalues=[
         (OAuthProviderEnum.GITHUB, OAuthProviderEnum.GOOGLE),
         (OAuthProviderEnum.GOOGLE, OAuthProviderEnum.GITHUB),
@@ -194,7 +194,7 @@ async def test_disconnect_oauth_account_raises_error_if_channel_has_no_password_
 
 @pytest.mark.asyncio
 @pytest.mark.parametrize(
-    argnames=['first_provider', 'second_provider'],
+    argnames=('first_provider', 'second_provider'),
     argvalues=[
         (OAuthProviderEnum.GITHUB, OAuthProviderEnum.GOOGLE),
         (OAuthProviderEnum.GOOGLE, OAuthProviderEnum.GITHUB),

@@ -9,8 +9,8 @@ from app.domain.channels.exceptions import (
     ChannelNotFoundByIdError,
 )
 from app.domain.posts.entities import Post
-from app.infrastructure.sqlalchemy.models.posts import PostORM
-from tests.factories.commands.posts import CreatePostCommandFactory
+from app.infrastructure.sqlalchemy.models import PostORM
+from tests.factories.commands.posts.posts import CreatePostCommandFactory
 from tests.factories.models.channels import ChannelORMFactory
 
 

@@ -10,7 +10,7 @@ from app.application.common.interfaces.security import IJWTService, IPasswordHas
 from app.core.configs import Settings
 from app.domain.channels.entities import Channel
 from app.domain.channels.exceptions import ChannelEmailAlreadyExistsError, ChannelSlugAlreadyExistsError
-from app.infrastructure.sqlalchemy.models.channels import ChannelORM
+from app.infrastructure.sqlalchemy.models import ChannelORM
 from tests.factories.commands.auth import RegisterChannelCommandFactory
 from tests.factories.models.channels import ChannelORMFactory
 

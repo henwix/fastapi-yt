@@ -1,10 +1,10 @@
 from dataclasses import dataclass
 
-from app.domain.common.exceptions.base import AppException
+from app.domain.common.exceptions.base import AppError
 
 
 @dataclass(kw_only=True)
-class HttpRequestError(AppException):
+class HttpRequestError(AppError):
     message = 'Error occured during HTTP request'
     url: str
     method: str
@@ -12,7 +12,7 @@ class HttpRequestError(AppException):
 
 
 @dataclass(kw_only=True)
-class HttpResponseError(AppException):
+class HttpResponseError(AppError):
     message = 'Error occured in HTTP response'
     status_code: int
     url: str

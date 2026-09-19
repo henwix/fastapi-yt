@@ -4,7 +4,7 @@ from datetime import datetime
 from app.application.videos.dto import PreviewVideoHistory
 from app.application.videos.interfaces import IVideoHistoryReader
 from app.application.videos.queries import GetVideoHistoryQuery, VideoHistorySortingFieldsEnum
-from app.domain.channels.service import IChannelService
+from app.domain.channels.services import IChannelService
 from app.domain.common.constants import Empty
 from app.domain.common.exceptions.pagination import InvalidCursorError
 from app.utils.base64url import base64url_decode, base64url_encode

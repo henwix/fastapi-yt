@@ -5,13 +5,13 @@ from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 
 from app.core.configs import settings
-from app.domain.common.exceptions.base import AppException
+from app.domain.common.exceptions.base import AppError
 from app.infrastructure.di.container import get_container
 from app.infrastructure.logging.config import configure_logging
 from app.infrastructure.taskiq.broker import get_broker
 from app.presentation.api.exception_handler import exception_handler
 from app.presentation.api.responses.msgspec import MsgSpecJSONResponse
-from app.presentation.api.v1.router import v1_router
+from app.presentation.api.v1.handlers import v1_router
 
 
 def init_di(app: FastAPI) -> None:
@@ -54,7 +54,7 @@ def create_app() -> FastAPI:
         lifespan=lifespan,
         default_response_class=MsgSpecJSONResponse,
     )
-    app.add_exception_handler(AppException, exception_handler)
+    app.add_exception_handler(AppError, exception_handler)
 
     init_di(app=app)
     init_routers(app=app)

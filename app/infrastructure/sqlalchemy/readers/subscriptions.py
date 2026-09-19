@@ -8,7 +8,7 @@ from app.application.common.sorting import SortingOrderEnum
 from app.application.subscriptions.dto import DetailedSubscription
 from app.application.subscriptions.interfaces import ISubscriptionReader
 from app.application.subscriptions.queries import SubscriptionsSorting
-from app.infrastructure.sqlalchemy.models.channels import ChannelORM, SubscriptionORM
+from app.infrastructure.sqlalchemy.models import ChannelORM, SubscriptionORM
 from app.infrastructure.sqlalchemy.readers.base import SAReader
 
 

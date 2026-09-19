@@ -5,7 +5,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.application.channels.usecases import DeleteChannelUseCase
 from app.domain.channels.exceptions import ChannelNotActiveError, ChannelNotFoundByIdError
-from app.infrastructure.sqlalchemy.models.channels import ChannelORM
+from app.infrastructure.sqlalchemy.models import ChannelORM
 from tests.factories.commands.channels import DeleteChannelCommandFactory
 from tests.factories.models.channels import ChannelORMFactory
 

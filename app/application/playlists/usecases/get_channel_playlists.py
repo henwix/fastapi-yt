@@ -5,7 +5,7 @@ from uuid import UUID
 from app.application.playlists.dto import PreviewPlaylist
 from app.application.playlists.interfaces import IPlaylistReader
 from app.application.playlists.queries import GetChannelPlaylistsQuery, PlaylistsPreviewSortingFieldsEnum
-from app.domain.channels.service import IChannelService
+from app.domain.channels.services import IChannelService
 from app.domain.common.constants import Empty
 from app.domain.common.exceptions.pagination import InvalidCursorError
 from app.utils.base64url import base64url_decode, base64url_encode

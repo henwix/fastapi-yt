@@ -26,14 +26,14 @@ from tests.factories.models.videos import VideoORMFactory
 
 @pytest.mark.asyncio
 @pytest.mark.parametrize(
-    argnames=['expected_file_extension', 'expected_file_mime_type'],
-    argvalues=(
-        ['.mp4', 'video/mp4'],
-        ['.mov', 'video/quicktime'],
-        ['.mkv', 'video/matroska'],
-        ['.mkv', 'video/x-matroska'],
-        ['.webm', 'video/webm'],
-    ),
+    argnames=('expected_file_extension', 'expected_file_mime_type'),
+    argvalues=[
+        ('.mp4', 'video/mp4'),
+        ('.mov', 'video/quicktime'),
+        ('.mkv', 'video/matroska'),
+        ('.mkv', 'video/x-matroska'),
+        ('.webm', 'video/webm'),
+    ],
 )
 async def test_complete_video_multipart_upload_returns_none_if_completed(
     mock_container: AsyncContainer,
@@ -70,20 +70,19 @@ async def test_complete_video_multipart_upload_returns_none_if_completed(
 
 @pytest.mark.asyncio
 @pytest.mark.parametrize(
-    argnames=['expected_file_extension', 'expected_file_mime_type'],
-    argvalues=(
-        ['.mp4', 'image/png'],
-        ['.mp4', 'image/jpeg'],
-        ['.mp4', 'video/matroska'],
-        ['.mov', 'video/mp4'],
-        ['.mov', 'video/x-matroska'],
-        ['.mov', 'image/png'],
-        ['.mkv', 'video/webm'],
-        ['.mkv', 'video/mp4'],
-        ['.mkv', 'video/webm'],
-        ['.webm', 'image/gif'],
-        ['.webm', 'image/jpeg'],
-    ),
+    argnames=('expected_file_extension', 'expected_file_mime_type'),
+    argvalues=[
+        ('.mp4', 'image/png'),
+        ('.mp4', 'image/jpeg'),
+        ('.mp4', 'video/matroska'),
+        ('.mov', 'video/mp4'),
+        ('.mov', 'video/x-matroska'),
+        ('.mov', 'image/png'),
+        ('.mkv', 'video/webm'),
+        ('.mkv', 'video/mp4'),
+        ('.webm', 'image/gif'),
+        ('.webm', 'image/jpeg'),
+    ],
 )
 async def test_complete_video_multipart_upload_raises_error_if_video_file_metadata_mime_type_invalid(
     mock_container: AsyncContainer,
@@ -109,9 +108,11 @@ async def test_complete_video_multipart_upload_raises_error_if_video_file_metada
             video_id=video.id,
         )
 
-        with patch.object(use_case._s3_service, 'schedule_delete_object') as mock_s3_service:
-            with pytest.raises(VideoInvalidFileContentTypeError) as e:
-                await use_case.execute(command=command)
+        with (
+            patch.object(use_case._s3_service, 'schedule_delete_object') as mock_s3_service,
+            pytest.raises(VideoInvalidFileContentTypeError) as e,
+        ):
+            await use_case.execute(command=command)
 
         mock_s3_service.assert_called_once()
         assert e.value.actual_content_type == VIDEO_FILE_MIME_TYPES[expected_file_extension][0]
@@ -123,20 +124,19 @@ async def test_complete_video_multipart_upload_raises_error_if_video_file_metada
 
 @pytest.mark.asyncio
 @pytest.mark.parametrize(
-    argnames=['expected_file_extension', 'expected_file_mime_type'],
-    argvalues=(
-        ['.mp4', 'image/png'],
-        ['.mp4', 'image/jpeg'],
-        ['.mp4', 'video/matroska'],
-        ['.mov', 'video/mp4'],
-        ['.mov', 'video/x-matroska'],
-        ['.mov', 'image/png'],
-        ['.mkv', 'video/webm'],
-        ['.mkv', 'video/mp4'],
-        ['.mkv', 'video/webm'],
-        ['.webm', 'image/gif'],
-        ['.webm', 'image/jpeg'],
-    ),
+    argnames=('expected_file_extension', 'expected_file_mime_type'),
+    argvalues=[
+        ('.mp4', 'image/png'),
+        ('.mp4', 'image/jpeg'),
+        ('.mp4', 'video/matroska'),
+        ('.mov', 'video/mp4'),
+        ('.mov', 'video/x-matroska'),
+        ('.mov', 'image/png'),
+        ('.mkv', 'video/webm'),
+        ('.mkv', 'video/mp4'),
+        ('.webm', 'image/gif'),
+        ('.webm', 'image/jpeg'),
+    ],
 )
 async def test_complete_video_multipart_upload_raises_error_if_video_file_actual_mime_type_invalid(
     mock_container: AsyncContainer,
@@ -162,9 +162,11 @@ async def test_complete_video_multipart_upload_raises_error_if_video_file_actual
             video_id=video.id,
         )
 
-        with patch.object(use_case._s3_service, 'schedule_delete_object') as mock_s3_service:
-            with pytest.raises(VideoInvalidFileContentTypeError) as e:
-                await use_case.execute(command=command)
+        with (
+            patch.object(use_case._s3_service, 'schedule_delete_object') as mock_s3_service,
+            pytest.raises(VideoInvalidFileContentTypeError) as e,
+        ):
+            await use_case.execute(command=command)
 
         mock_s3_service.assert_called_once()
         assert e.value.actual_content_type == expected_file_mime_type

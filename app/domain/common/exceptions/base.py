@@ -2,5 +2,5 @@ from dataclasses import dataclass
 
 
 @dataclass
-class AppException(Exception):
-    message = 'Application exception occured'
+class AppError(Exception):
+    message = 'Application error occured'

@@ -31,7 +31,7 @@ from app.domain.channels.exceptions import (
     ChannelSlugAlreadyExistsError,
     ChannelSlugInvalidFormatError,
 )
-from app.domain.common.exceptions.base import AppException
+from app.domain.common.exceptions.base import AppError
 from app.domain.common.exceptions.pagination import InvalidCursorError
 from app.domain.common.exceptions.s3 import (
     S3MultipartUploadInvalidPartsError,
@@ -59,32 +59,30 @@ from app.domain.playlists.exceptions import (
     VideoAlreadyAddedToPlaylistError,
     VideoNotFoundInPlaylistError,
 )
-from app.domain.post_comment_reactions.exceptions import (
-    PostCommentReactionNotFoundError,
-)
-from app.domain.post_comments.exceptions import (
+from app.domain.posts.exceptions import (
+    PostAccessForbiddenError,
     PostCommentAccessForbiddenError,
     PostCommentNotFoundError,
+    PostCommentReactionNotFoundError,
+    PostNotFoundError,
+    PostReactionNotFoundError,
 )
-from app.domain.post_reactions.exceptions import PostReactionNotFoundError
-from app.domain.posts.exceptions import PostAccessForbiddenError, PostNotFoundError
 from app.domain.subscriptions.exceptions import (
     SelfSubscriptionError,
     SubscriptionAlreadyExistsError,
     SubscriptionNotFoundError,
 )
-from app.domain.video_comment_reactions.exceptions import (
-    VideoCommentReactionNotFoundError,
-)
-from app.domain.video_comments.exceptions import VideoCommentAccessForbiddenError, VideoCommentNotFoundError
-from app.domain.video_history.exceptions import VideoHistoryEmptyError, VideoNotFoundInHistoryError
-from app.domain.video_reactions.exceptions import VideoReactionNotFoundError
-from app.domain.video_views.exceptions import VideoViewsLimitReachedError
 from app.domain.videos.exceptions import (
     VideoAccessForbiddenError,
+    VideoCommentAccessForbiddenError,
+    VideoCommentNotFoundError,
+    VideoCommentReactionNotFoundError,
+    VideoHistoryEmptyError,
     VideoInvalidFileContentTypeError,
     VideoInvalidFilenameError,
     VideoNotFoundError,
+    VideoNotFoundInHistoryError,
+    VideoReactionNotFoundError,
     VideoThumbnailAlreadySetError,
     VideoThumbnailInvalidContentTypeError,
     VideoThumbnailInvalidFilenameError,
@@ -95,14 +93,15 @@ from app.domain.videos.exceptions import (
     VideoUploadAlreadyCompletedError,
     VideoUploadAlreadyCreatedError,
     VideoUploadNotCreatedError,
+    VideoViewsLimitReachedError,
 )
 from app.presentation.api.responses.msgspec import MsgSpecJSONResponse
 
 logger = getLogger(__name__)
 
 
-def get_http_status_code(exc: AppException):
-    exception_codes: dict[type[AppException], int] = {
+def get_http_status_code(exc: AppError):
+    exception_codes: dict[type[AppError], int] = {
         # Common
         InvalidCursorError: status.HTTP_400_BAD_REQUEST,
         S3ObjectAccessForbiddenError: status.HTTP_403_FORBIDDEN,
@@ -198,13 +197,13 @@ def get_http_status_code(exc: AppException):
     return exception_codes.get(type(exc), status.HTTP_500_INTERNAL_SERVER_ERROR)
 
 
-def get_exeptions_chain(exc: AppException) -> list:
+def get_exeptions_chain(exc: AppError) -> list:
     exceptions = []
 
     current_exc: BaseException | None = exc.__cause__
 
     while current_exc is not None:
-        if not isinstance(current_exc, AppException):
+        if not isinstance(current_exc, AppError):
             break
 
         exc_data = {
@@ -220,7 +219,7 @@ def get_exeptions_chain(exc: AppException) -> list:
 
 async def exception_handler(
     _: Request,
-    exc: AppException,
+    exc: AppError,
 ) -> MsgSpecJSONResponse:
     logger.error(
         msg=exc.message,

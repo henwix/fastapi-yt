@@ -2,11 +2,10 @@ from dataclasses import dataclass
 
 from app.application.common.interfaces.transaction_manager import ITransactionManager
 from app.application.posts.commands import CreatePostCommentCommand
-from app.domain.channels.service import IChannelService
+from app.domain.channels.services import IChannelService
 from app.domain.common.constants import Empty
-from app.domain.post_comments.entities import PostComment
-from app.domain.post_comments.service import IPostCommentService
-from app.domain.posts.service import IPostService
+from app.domain.posts.entities import PostComment
+from app.domain.posts.services import IPostCommentService, IPostService
 
 
 @dataclass

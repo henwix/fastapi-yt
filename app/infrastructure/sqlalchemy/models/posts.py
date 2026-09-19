@@ -4,11 +4,8 @@ import sqlalchemy as sa
 from sqlalchemy.orm import Mapped, mapped_column
 
 from app.domain.common.enums import ReactionTypeEnum
-from app.domain.post_comment_reactions.entities import PostCommentReaction
-from app.domain.post_comments.entities import PostComment
-from app.domain.post_reactions.entities import PostReaction
-from app.domain.posts.entities import Post
-from app.infrastructure.sqlalchemy.models.base import BaseORM
+from app.domain.posts.entities import Post, PostComment, PostCommentReaction, PostReaction
+from app.infrastructure.sqlalchemy.models import BaseORM
 from app.infrastructure.sqlalchemy.models.mixins import CreatedAtDatetimeMixin, UUIDIdMixin
 
 

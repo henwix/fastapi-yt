@@ -1,13 +1,13 @@
-from typing import Any, NoReturn
+from typing import Any, NoReturn, cast
 from uuid import UUID
 
-from sqlalchemy import delete, exists, select, update
+from sqlalchemy import CursorResult, delete, exists, select, update
 from sqlalchemy.exc import DBAPIError, IntegrityError
 
 from app.domain.channels.entities import Channel
 from app.domain.channels.exceptions import ChannelEmailAlreadyExistsError, ChannelSlugAlreadyExistsError
-from app.domain.channels.repo import IChannelRepo
-from app.infrastructure.sqlalchemy.models.channels import ChannelORM
+from app.domain.channels.repos import IChannelRepo
+from app.infrastructure.sqlalchemy.models import ChannelORM
 from app.infrastructure.sqlalchemy.repos.base import SARepo
 
 
@@ -82,17 +82,17 @@ class SAChannelRepo(SARepo, IChannelRepo):
     async def activate(self, id: UUID) -> bool:
         stmt = update(ChannelORM).where(ChannelORM.id == id, ChannelORM.is_active.is_(False)).values(is_active=True)
         result = await self._session.execute(statement=stmt)
-        return result.rowcount > 0
+        return cast(CursorResult, result).rowcount > 0
 
     async def set_password(self, id: UUID, password_hash: str) -> bool:
         stmt = update(ChannelORM).where(ChannelORM.id == id).values(password_hash=password_hash)
         result = await self._session.execute(statement=stmt)
-        return result.rowcount > 0
+        return cast(CursorResult, result).rowcount > 0
 
     async def delete_by_id(self, id: UUID) -> bool:
         stmt = delete(ChannelORM).where(ChannelORM.id == id)
         result = await self._session.execute(statement=stmt)
-        return result.rowcount > 0
+        return cast(CursorResult, result).rowcount > 0
 
     async def check_channel_exists_by_slug(self, slug: str) -> bool:
         return await self._check_channel_exists_by_field(field=ChannelORM.slug, value=slug)

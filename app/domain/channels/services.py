@@ -1,0 +1,132 @@
+import secrets
+from abc import ABC, abstractmethod
+from dataclasses import dataclass
+from uuid import UUID
+
+from slugify import slugify
+
+from app.domain.channels.entities import Channel
+from app.domain.channels.exceptions import (
+    ChannelActivationFailedError,
+    ChannelEmailAlreadyExistsError,
+    ChannelNotActiveError,
+    ChannelNotFoundByIdError,
+    ChannelNotFoundBySlugError,
+    ChannelSlugAlreadyExistsError,
+)
+from app.domain.channels.repos import IChannelRepo
+
+
+class IChannelService(ABC):
+    @abstractmethod
+    async def try_check_email_exists(self, email: str) -> None: ...
+
+    @abstractmethod
+    async def try_check_slug_exists(self, slug: str) -> None: ...
+
+    @abstractmethod
+    async def check_slug_exists(self, slug: str) -> bool: ...
+
+    @abstractmethod
+    def slugify(self, value: str) -> str: ...
+
+    @abstractmethod
+    def build_unique_slug(self, slug: str) -> str: ...
+
+    @abstractmethod
+    async def create(self, channel: Channel) -> Channel: ...
+
+    @abstractmethod
+    async def try_activate(self, id: UUID) -> None: ...
+
+    @abstractmethod
+    async def get_by_email(self, email: str) -> Channel | None: ...
+
+    @abstractmethod
+    async def try_get_by_slug(self, slug: str) -> Channel: ...
+
+    @abstractmethod
+    async def try_get_by_id(self, id: UUID) -> Channel: ...
+
+    @abstractmethod
+    async def try_get_active_by_id(self, id: UUID) -> Channel: ...
+
+    @abstractmethod
+    async def try_update(self, channel: Channel) -> Channel: ...
+
+    @abstractmethod
+    async def try_set_password(self, id: UUID, password_hash: str) -> None: ...
+
+    @abstractmethod
+    async def try_delete_by_id(self, id: UUID) -> None: ...
+
+
+@dataclass
+class ChannelService(IChannelService):
+    _repo: IChannelRepo
+
+    async def try_check_email_exists(self, email: str) -> None:
+        if await self._repo.check_channel_exists_by_email(email=email):
+            raise ChannelEmailAlreadyExistsError(channel_email=email)
+
+    async def try_check_slug_exists(self, slug: str) -> None:
+        if await self._repo.check_channel_exists_by_slug(slug=slug):
+            raise ChannelSlugAlreadyExistsError(channel_slug=slug)
+
+    async def check_slug_exists(self, slug: str) -> bool:
+        return await self._repo.check_channel_exists_by_slug(slug=slug)
+
+    def slugify(self, value: str) -> str:
+        return slugify(text=value)
+
+    def build_unique_slug(self, slug: str) -> str:
+        base_slug = slug[:29]
+        unique_slug = f'{base_slug}-{secrets.token_hex(5)}'
+        return unique_slug
+
+    async def create(self, channel: Channel) -> Channel:
+        return await self._repo.create(channel=channel)
+
+    async def try_activate(self, id: UUID) -> None:
+        is_activated = await self._repo.activate(id=id)
+        if not is_activated:
+            raise ChannelActivationFailedError(channel_id=id)
+
+    async def get_by_email(self, email: str) -> Channel | None:
+        return await self._repo.get_by_email(email=email)
+
+    async def try_get_by_slug(self, slug: str) -> Channel:
+        channel = await self._repo.get_by_slug(slug=slug)
+        if not channel:
+            raise ChannelNotFoundBySlugError(channel_slug=slug)
+        return channel
+
+    async def try_get_by_id(self, id: UUID) -> Channel:
+        channel = await self._repo.get_by_id(id=id)
+        if not channel:
+            raise ChannelNotFoundByIdError(channel_id=id)
+        return channel
+
+    async def try_get_active_by_id(self, id: UUID) -> Channel:
+        channel = await self._repo.get_by_id(id=id)
+        if not channel:
+            raise ChannelNotFoundByIdError(channel_id=id)
+        if not channel.is_active:
+            raise ChannelNotActiveError(channel_id=channel.id)
+        return channel
+
+    async def try_update(self, channel: Channel) -> Channel:
+        updated_channel = await self._repo.update(channel=channel)
+        if not updated_channel:
+            raise ChannelNotFoundByIdError(channel_id=channel.id)
+        return updated_channel
+
+    async def try_set_password(self, id: UUID, password_hash: str) -> None:
+        is_password_set = await self._repo.set_password(id=id, password_hash=password_hash)
+        if not is_password_set:
+            raise ChannelNotFoundByIdError(channel_id=id)
+
+    async def try_delete_by_id(self, id: UUID) -> None:
+        is_deleted = await self._repo.delete_by_id(id=id)
+        if not is_deleted:
+            raise ChannelNotFoundByIdError(channel_id=id)

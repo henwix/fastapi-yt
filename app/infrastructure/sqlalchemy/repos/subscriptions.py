@@ -1,14 +1,14 @@
-from typing import NoReturn
+from typing import NoReturn, cast
 from uuid import UUID
 
-from sqlalchemy import delete, exists, select
+from sqlalchemy import CursorResult, delete, exists, select
 from sqlalchemy.exc import DBAPIError, IntegrityError
 
 from app.domain.channels.exceptions import ChannelNotFoundByIdError
 from app.domain.subscriptions.entities import Subscription
 from app.domain.subscriptions.exceptions import SelfSubscriptionError, SubscriptionAlreadyExistsError
-from app.domain.subscriptions.repo import ISubscriptionRepo
-from app.infrastructure.sqlalchemy.models.channels import SubscriptionORM
+from app.domain.subscriptions.repos import ISubscriptionRepo
+from app.infrastructure.sqlalchemy.models import SubscriptionORM
 from app.infrastructure.sqlalchemy.repos.base import SARepo
 
 
@@ -59,4 +59,4 @@ class SASubscriptionRepo(SARepo, ISubscriptionRepo):
             SubscriptionORM.subscribed_to_id == subscribed_to_id,
         )
         result = await self._session.execute(statement=stmt)
-        return result.rowcount > 0
+        return cast(CursorResult, result).rowcount > 0

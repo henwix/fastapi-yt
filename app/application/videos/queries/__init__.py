@@ -15,17 +15,17 @@ from .videos import (
 )
 
 __all__ = (
-    'GetVideoCommentRepliesQuery',
-    'GetVideoCommentsQuery',
-    'VideoCommentsSorting',
-    'VideoCommentsSortingFieldsEnum',
-    'GetVideoHistoryQuery',
-    'VideoHistorySorting',
-    'VideoHistorySortingFieldsEnum',
     'GetChannelVideosQuery',
     'GetPersonalVideosQuery',
+    'GetVideoCommentRepliesQuery',
+    'GetVideoCommentsQuery',
+    'GetVideoHistoryQuery',
     'GetVideoQuery',
     'PersonalVideosFilters',
     'PreviewVideosSorting',
     'PreviewVideosSortingFieldEnum',
+    'VideoCommentsSorting',
+    'VideoCommentsSortingFieldsEnum',
+    'VideoHistorySorting',
+    'VideoHistorySortingFieldsEnum',
 )

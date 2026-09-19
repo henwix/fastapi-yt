@@ -55,7 +55,8 @@ async def test_create_video_multipart_upload_returns_none_if_created(
         assert result is None
         assert video.upload_id == expected_upload_id
         assert video.upload_status == VideoUploadStatusEnum.UPLOADING.value
-        assert video.s3_key.startswith(settings.s3_videos_key_prefix) and video.s3_key.endswith(command.filename)
+        assert video.s3_key.startswith(settings.s3_videos_key_prefix)
+        assert video.s3_key.endswith(command.filename)
 
 
 @pytest.mark.asyncio

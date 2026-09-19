@@ -7,12 +7,12 @@ from .post_comments import (
 from .posts import GetPostQuery, GetPostsQuery, PostsSorting, PostsSortingFieldsEnum
 
 __all__ = (
-    'PostCommentsSortingFieldsEnum',
-    'PostCommentsSorting',
-    'GetPostCommentsQuery',
     'GetPostCommentRepliesQuery',
+    'GetPostCommentsQuery',
     'GetPostQuery',
     'GetPostsQuery',
+    'PostCommentsSorting',
+    'PostCommentsSortingFieldsEnum',
     'PostsSorting',
     'PostsSortingFieldsEnum',
 )

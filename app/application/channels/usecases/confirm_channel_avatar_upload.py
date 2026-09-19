@@ -13,7 +13,7 @@ from app.domain.channels.exceptions import (
     ChannelAvatarInvalidKeyError,
     ChannelAvatarSizeTooBigError,
 )
-from app.domain.channels.service import IChannelService
+from app.domain.channels.services import IChannelService
 from app.domain.common.constants import IMAGE_FILE_MIME_TYPES
 from app.domain.common.exceptions.s3 import S3ObjectAccessForbiddenError
 

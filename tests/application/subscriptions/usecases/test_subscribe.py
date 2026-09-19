@@ -14,7 +14,7 @@ from app.domain.subscriptions.exceptions import (
     SelfSubscriptionError,
     SubscriptionAlreadyExistsError,
 )
-from app.infrastructure.sqlalchemy.models.channels import SubscriptionORM
+from app.infrastructure.sqlalchemy.models import SubscriptionORM
 from tests.factories.commands.subscriptions import SubscribeCommandFactory
 from tests.factories.models.channels import ChannelORMFactory, SubscriptionORMFactory
 

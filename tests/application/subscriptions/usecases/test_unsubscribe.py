@@ -6,7 +6,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from app.application.subscriptions.usecases import UnsubscribeUseCase
 from app.domain.channels.exceptions import ChannelNotActiveError, ChannelNotFoundByIdError, ChannelNotFoundBySlugError
 from app.domain.subscriptions.exceptions import SubscriptionNotFoundError
-from app.infrastructure.sqlalchemy.models.channels import SubscriptionORM
+from app.infrastructure.sqlalchemy.models import SubscriptionORM
 from tests.factories.commands.subscriptions import UnsubscribeCommandFactory
 from tests.factories.models.channels import ChannelORMFactory, SubscriptionORMFactory
 

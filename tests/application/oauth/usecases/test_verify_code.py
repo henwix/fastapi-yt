@@ -1,3 +1,4 @@
+from typing import cast
 from uuid import uuid7
 
 import pytest
@@ -15,13 +16,12 @@ from app.domain.channels.exceptions import (
     ChannelNotFoundByIdError,
 )
 from app.domain.oauth.exceptions import OAuthProviderAlreadyConnectedError
-from app.infrastructure.sqlalchemy.models.channels import ChannelORM
-from app.infrastructure.sqlalchemy.models.oauth import OAuthAccountORM
+from app.infrastructure.sqlalchemy.models import ChannelORM, OAuthAccountORM
 from tests.factories.commands.oauth import OAuthVerifyCodeCommandFactory
 from tests.factories.dto.oauth import OAuthProviderUserDataFactory
 from tests.factories.models.channels import ChannelORMFactory
 from tests.factories.models.oauth import OAuthAcccountORMFactory
-from tests.mocks.oauth.service import MockOAuthServiceFactory
+from tests.mocks.oauth import MockOAuthServiceFactory
 
 
 @pytest.mark.asyncio
@@ -30,7 +30,7 @@ async def test_verify_code_returns_tokens_if_new_channel_and_oauth_account_creat
         use_case = await di.get(OAuthVerifyCodeUseCase)
         session = await di.get(AsyncSession)
         jwt_service = await di.get(IJWTService)
-        oauth_service_factory: MockOAuthServiceFactory = await di.get(IOAuthServiceFactory)
+        oauth_service_factory = await di.get(IOAuthServiceFactory)
         oauth_provider_user_data = OAuthProviderUserDataFactory.build()
         oauth_service_factory.provider.user_data = oauth_provider_user_data
 
@@ -47,7 +47,9 @@ async def test_verify_code_returns_tokens_if_new_channel_and_oauth_account_creat
         assert db_channel is None
         assert db_oauth_account is None
 
-        tokens: JWTTokens = await use_case.execute(command=command)
+        tokens = await use_case.execute(command=command)
+
+        assert isinstance(tokens, JWTTokens)
 
         channel_stmt = select(ChannelORM).where(ChannelORM.email == oauth_provider_user_data.email)
         db_channel = (await session.execute(statement=channel_stmt)).scalar_one()
@@ -81,7 +83,9 @@ async def test_verify_code_raises_error_if_channel_with_email_already_exists(moc
     async with mock_container() as di:
         use_case = await di.get(OAuthVerifyCodeUseCase)
         session = await di.get(AsyncSession)
-        oauth_service_factory: MockOAuthServiceFactory = await di.get(IOAuthServiceFactory)
+        oauth_service_factory: MockOAuthServiceFactory = cast(
+            MockOAuthServiceFactory, await di.get(IOAuthServiceFactory)
+        )
         oauth_provider_user_data = OAuthProviderUserDataFactory.build()
         oauth_service_factory.provider.user_data = oauth_provider_user_data
         await ChannelORMFactory.create(session=session, email=oauth_provider_user_data.email)
@@ -103,7 +107,9 @@ async def test_verify_code_builds_unique_slug_and_creates_new_channel_if_base_sl
         use_case = await di.get(OAuthVerifyCodeUseCase)
         jwt_service = await di.get(IJWTService)
         session = await di.get(AsyncSession)
-        oauth_service_factory: MockOAuthServiceFactory = await di.get(IOAuthServiceFactory)
+        oauth_service_factory: MockOAuthServiceFactory = cast(
+            MockOAuthServiceFactory, await di.get(IOAuthServiceFactory)
+        )
         oauth_provider_user_data = OAuthProviderUserDataFactory.build()
         oauth_service_factory.provider.user_data = oauth_provider_user_data
         await ChannelORMFactory.create(session=session, slug=oauth_provider_user_data.login)
@@ -113,7 +119,9 @@ async def test_verify_code_builds_unique_slug_and_creates_new_channel_if_base_sl
             provider=oauth_provider_user_data.provider,
         )
 
-        tokens: JWTTokens = await use_case.execute(command=command)
+        tokens = await use_case.execute(command=command)
+
+        assert isinstance(tokens, JWTTokens)
 
         decoded_access_token = jwt_service.decode_access_token(tokens.access.token)
         decoded_refresh_token = jwt_service.decode_refresh_token(tokens.refresh.token)
@@ -151,7 +159,9 @@ async def test_verify_code_returns_tokens_if_oauth_account_already_connected_and
         use_case = await di.get(OAuthVerifyCodeUseCase)
         jwt_service = await di.get(IJWTService)
         session = await di.get(AsyncSession)
-        oauth_service_factory: MockOAuthServiceFactory = await di.get(IOAuthServiceFactory)
+        oauth_service_factory: MockOAuthServiceFactory = cast(
+            MockOAuthServiceFactory, await di.get(IOAuthServiceFactory)
+        )
         oauth_provider_user_data = OAuthProviderUserDataFactory.build()
         oauth_service_factory.provider.user_data = oauth_provider_user_data
 
@@ -168,7 +178,9 @@ async def test_verify_code_returns_tokens_if_oauth_account_already_connected_and
             provider=oauth_provider_user_data.provider,
         )
 
-        tokens: JWTTokens = await use_case.execute(command=command)
+        tokens = await use_case.execute(command=command)
+
+        assert isinstance(tokens, JWTTokens)
 
         decoded_access_token = jwt_service.decode_access_token(tokens.access.token)
         decoded_refresh_token = jwt_service.decode_refresh_token(tokens.refresh.token)
@@ -186,7 +198,9 @@ async def test_verify_code_returns_none_if_new_oauth_account_created_and_connect
     async with mock_container() as di:
         use_case = await di.get(OAuthVerifyCodeUseCase)
         session = await di.get(AsyncSession)
-        oauth_service_factory: MockOAuthServiceFactory = await di.get(IOAuthServiceFactory)
+        oauth_service_factory: MockOAuthServiceFactory = cast(
+            MockOAuthServiceFactory, await di.get(IOAuthServiceFactory)
+        )
         oauth_provider_user_data = OAuthProviderUserDataFactory.build()
         oauth_service_factory.provider.user_data = oauth_provider_user_data
 
@@ -218,7 +232,9 @@ async def test_verify_code_raises_error_if_authenticated_channel_not_active(
     async with mock_container() as di:
         use_case = await di.get(OAuthVerifyCodeUseCase)
         session = await di.get(AsyncSession)
-        oauth_service_factory: MockOAuthServiceFactory = await di.get(IOAuthServiceFactory)
+        oauth_service_factory: MockOAuthServiceFactory = cast(
+            MockOAuthServiceFactory, await di.get(IOAuthServiceFactory)
+        )
         oauth_provider_user_data = OAuthProviderUserDataFactory.build()
         oauth_service_factory.provider.user_data = oauth_provider_user_data
 
@@ -239,7 +255,9 @@ async def test_verify_code_raises_error_if_authenticated_channel_not_found(
 ):
     async with mock_container() as di:
         use_case = await di.get(OAuthVerifyCodeUseCase)
-        oauth_service_factory: MockOAuthServiceFactory = await di.get(IOAuthServiceFactory)
+        oauth_service_factory: MockOAuthServiceFactory = cast(
+            MockOAuthServiceFactory, await di.get(IOAuthServiceFactory)
+        )
         oauth_provider_user_data = OAuthProviderUserDataFactory.build()
         oauth_service_factory.provider.user_data = oauth_provider_user_data
 
@@ -261,7 +279,9 @@ async def test_verify_code_raises_error_if_provider_already_connected_and_channe
     async with mock_container() as di:
         use_case = await di.get(OAuthVerifyCodeUseCase)
         session = await di.get(AsyncSession)
-        oauth_service_factory: MockOAuthServiceFactory = await di.get(IOAuthServiceFactory)
+        oauth_service_factory: MockOAuthServiceFactory = cast(
+            MockOAuthServiceFactory, await di.get(IOAuthServiceFactory)
+        )
         oauth_provider_user_data = OAuthProviderUserDataFactory.build()
         oauth_service_factory.provider.user_data = oauth_provider_user_data
 

@@ -4,7 +4,7 @@ from app.application.auth.commands import ActivateChannelCommand
 from app.application.common.interfaces.security import IAuthCodeService
 from app.application.common.interfaces.transaction_manager import ITransactionManager
 from app.domain.auth.exceptions import ChannelAlreadyActivatedError
-from app.domain.channels.service import IChannelService
+from app.domain.channels.services import IChannelService
 
 
 @dataclass

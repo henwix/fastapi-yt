@@ -8,10 +8,10 @@ from .update_channel import UpdateChannelUseCase
 
 __all__ = (
     'ConfirmChannelAvatarUploadUseCase',
-    'DeleteChannelUseCase',
     'DeleteChannelAvatarUseCase',
+    'DeleteChannelUseCase',
     'GenerateChannelAvatarUploadUrlUseCase',
-    'GetChannelUseCase',
     'GetChannelAboutInfoUseCase',
+    'GetChannelUseCase',
     'UpdateChannelUseCase',
 )

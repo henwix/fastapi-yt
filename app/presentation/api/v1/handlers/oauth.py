@@ -100,7 +100,7 @@ async def verify_code(
     schema: OAuthVerifyCodeInSchema,
     use_case: FromDishka[OAuthVerifyCodeUseCase],
     response: Response,
-) -> None | JWTTokensOutSchema:
+) -> JWTTokensOutSchema | None:
     command = OAuthVerifyCodeCommand(
         current_channel_id=current_channel_id,
         provider=provider,

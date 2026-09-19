@@ -4,7 +4,7 @@ from app.application.auth.commands import SetChannelEmailCommand
 from app.application.common.interfaces.email import IEmailService
 from app.application.common.interfaces.security import IAuthCodeService
 from app.domain.auth.exceptions import ChannelEmailAlreadyAssociatedWithThisAcccountError
-from app.domain.channels.service import IChannelService
+from app.domain.channels.services import IChannelService
 
 
 @dataclass

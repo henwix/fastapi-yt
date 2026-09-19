@@ -3,9 +3,9 @@ from .reader import IOAuthAccountReader
 from .service import IOAuthService, IOAuthServiceFactory
 
 __all__ = (
+    'IOAuthAccountReader',
     'IOAuthProvider',
     'IOAuthProviderFactory',
-    'IOAuthAccountReader',
     'IOAuthService',
     'IOAuthServiceFactory',
 )

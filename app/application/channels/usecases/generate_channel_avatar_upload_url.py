@@ -6,7 +6,7 @@ from app.application.channels.commands import GenerateChannelAvatarUploadUrlComm
 from app.application.common.interfaces.s3 import IS3Service
 from app.core.configs import settings
 from app.domain.channels.exceptions import ChannelAvatarInvalidFilenameError
-from app.domain.channels.service import IChannelService
+from app.domain.channels.services import IChannelService
 from app.domain.common.constants import IMAGE_FILE_MIME_TYPES
 
 

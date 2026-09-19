@@ -7,7 +7,7 @@ from app.application.videos.usecases import CreateVideoUseCase
 from app.domain.channels.exceptions import ChannelNotActiveError, ChannelNotFoundByIdError
 from app.domain.videos.entities import Video
 from app.domain.videos.enums import VideoUploadStatusEnum
-from app.infrastructure.sqlalchemy.models.videos import VideoORM
+from app.infrastructure.sqlalchemy.models import VideoORM
 from app.utils.datetime import get_current_utc_datetime
 from tests.factories.commands.videos import CreateVideoCommandFactory
 from tests.factories.models.channels import ChannelORMFactory

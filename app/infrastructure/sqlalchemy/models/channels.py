@@ -6,7 +6,7 @@ from sqlalchemy.orm import Mapped, mapped_column, relationship
 from app.domain.channels.entities import Channel
 from app.domain.channels.value_objects import Email, Name, Slug
 from app.domain.subscriptions.entities import Subscription
-from app.infrastructure.sqlalchemy.models.base import BaseORM
+from app.infrastructure.sqlalchemy.models import BaseORM
 from app.infrastructure.sqlalchemy.models.mixins import CreatedAtDatetimeMixin, UpdatedAtDatetimeMixin, UUIDIdMixin
 
 

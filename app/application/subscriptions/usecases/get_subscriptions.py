@@ -5,7 +5,7 @@ from uuid import UUID
 from app.application.subscriptions.dto import DetailedSubscription
 from app.application.subscriptions.interfaces import ISubscriptionReader
 from app.application.subscriptions.queries import GetSubscriptionsQuery, SubscriptionsSortingFieldsEnum
-from app.domain.channels.service import IChannelService
+from app.domain.channels.services import IChannelService
 from app.domain.common.constants import Empty
 from app.domain.common.exceptions.pagination import InvalidCursorError
 from app.utils.base64url import base64url_decode, base64url_encode

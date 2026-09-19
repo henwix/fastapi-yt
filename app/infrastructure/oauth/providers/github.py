@@ -1,6 +1,7 @@
 from typing import Any
 from urllib.parse import urlencode
 
+from app.application.common.interfaces.http_client import IHttpClient
 from app.application.oauth.dto import OAuthProviderUserData
 from app.application.oauth.interfaces import IOAuthProvider
 from app.core.configs import settings
@@ -13,7 +14,6 @@ from app.domain.oauth.exceptions import (
     OAuthProviderRequestError,
     OAuthProviderResponseError,
 )
-from app.infrastructure.http.base import IHttpClient
 
 
 class GitHubOAuthProvider(IOAuthProvider):

@@ -11,15 +11,16 @@ from app.utils.datetime import get_current_utc_datetime
 
 
 class JWTService(IJWTService):
-    _ALGORITHM: str = settings.jwt_algorithm
-    _ACCESS_SECRET: str = settings.jwt_access_secret_key
-    _REFRESH_SECRET: str = settings.jwt_refresh_secret_key
-    _ACCESS_EXP_MINUTES: int = settings.jwt_access_exp_minutes
-    _REFRESH_EXP_DAYS: int = settings.jwt_refresh_exp_days
-    _ACCESS_TOKEN_TYPE: str = 'access'
-    _REFRESH_TOKEN_TYPE: str = 'refresh'
-    _ACCESS_REQUIRED_CLAIMS: list[str] = ['sub', 'token_type', 'exp']
-    _REFRESH_REQUIRED_CLAIMS: list[str] = ['sub', 'token_type', 'exp', 'jti']
+    def __init__(self) -> None:
+        self._ALGORITHM: str = settings.jwt_algorithm
+        self._ACCESS_SECRET: str = settings.jwt_access_secret_key
+        self._REFRESH_SECRET: str = settings.jwt_refresh_secret_key
+        self._ACCESS_EXP_MINUTES: int = settings.jwt_access_exp_minutes
+        self._REFRESH_EXP_DAYS: int = settings.jwt_refresh_exp_days
+        self._ACCESS_TOKEN_TYPE: str = 'access'
+        self._REFRESH_TOKEN_TYPE: str = 'refresh'
+        self._ACCESS_REQUIRED_CLAIMS: list[str] = ['sub', 'token_type', 'exp']
+        self._REFRESH_REQUIRED_CLAIMS: list[str] = ['sub', 'token_type', 'exp', 'jti']
 
     def _create_jti(self) -> str:
         return secrets.token_hex(8)

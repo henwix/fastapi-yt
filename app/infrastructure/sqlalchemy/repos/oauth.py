@@ -1,14 +1,14 @@
-from typing import NoReturn
+from typing import NoReturn, cast
 from uuid import UUID
 
-from sqlalchemy import delete, select
+from sqlalchemy import CursorResult, delete, select
 from sqlalchemy.exc import DBAPIError, IntegrityError
 
 from app.domain.oauth.entities import OAuthAccount
 from app.domain.oauth.enums import OAuthProviderEnum
 from app.domain.oauth.exceptions import OAuthProviderAlreadyConnectedError
-from app.domain.oauth.repo import IOAuthAccountRepo
-from app.infrastructure.sqlalchemy.models.oauth import OAuthAccountORM
+from app.domain.oauth.repos import IOAuthAccountRepo
+from app.infrastructure.sqlalchemy.models import OAuthAccountORM
 from app.infrastructure.sqlalchemy.repos.base import SARepo
 
 
@@ -71,4 +71,4 @@ class SAOAuthAccountRepo(SARepo, IOAuthAccountRepo):
             OAuthAccountORM.provider == provider.value,
         )
         result = await self._session.execute(statement=stmt)
-        return result.rowcount > 0
+        return cast(CursorResult, result).rowcount > 0

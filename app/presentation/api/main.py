@@ -5,25 +5,24 @@ from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 
 from app.core.configs import settings
-from app.domain.common.exceptions.base import AppError
 from app.infrastructure.di.container import get_container
 from app.infrastructure.logging.config import configure_logging
 from app.infrastructure.taskiq.broker import get_broker
-from app.presentation.api.exception_handler import exception_handler
+from app.presentation.api.exceptions.exception_handler import ExceptionHandler
 from app.presentation.api.responses.msgspec import MsgSpecJSONResponse
 from app.presentation.api.v1.handlers import v1_router
 
 
-def init_di(app: FastAPI) -> None:
+def setup_di(app: FastAPI) -> None:
     container = get_container()
     setup_dishka(container=container, app=app)
 
 
-def init_routers(app: FastAPI) -> None:
+def setup_routers(app: FastAPI) -> None:
     app.include_router(router=v1_router, prefix='/v1')
 
 
-def init_middlewares(app: FastAPI) -> None:
+def setup_middlewares(app: FastAPI) -> None:
     app.add_middleware(
         CORSMiddleware,
         allow_origins=settings.cors_allowed_origins,
@@ -31,6 +30,11 @@ def init_middlewares(app: FastAPI) -> None:
         allow_methods=['*'],
         allow_headers=['*'],
     )
+
+
+def setup_exception_handler(app: FastAPI) -> None:
+    exception_handler = ExceptionHandler()
+    exception_handler.setup_handler(app=app)
 
 
 @asynccontextmanager
@@ -54,10 +58,10 @@ def create_app() -> FastAPI:
         lifespan=lifespan,
         default_response_class=MsgSpecJSONResponse,
     )
-    app.add_exception_handler(AppError, exception_handler)
 
-    init_di(app=app)
-    init_routers(app=app)
-    init_middlewares(app=app)
+    setup_di(app=app)
+    setup_routers(app=app)
+    setup_middlewares(app=app)
+    setup_exception_handler(app=app)
 
     return app

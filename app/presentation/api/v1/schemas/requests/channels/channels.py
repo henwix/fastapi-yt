@@ -10,8 +10,8 @@ from app.domain.channels.constants import (
     CHANNEL_SLUG_MAX_LENGTH,
     CHANNEL_SLUG_MIN_LENGTH,
 )
-from app.domain.common.constants import FILENAME_MAX_LENGTH, FILENAME_PATTERN, SLUG_PATTERN
-from app.presentation.api.v1.schemas.base import BaseSchema, BaseUpdateSchema
+from app.domain.common.constants import SLUG_PATTERN
+from app.presentation.api.v1.schemas.base import BaseUpdateSchema
 
 
 class UpdateChannelInSchema(BaseUpdateSchema):
@@ -26,11 +26,3 @@ class UpdateChannelInSchema(BaseUpdateSchema):
         if v and not re.fullmatch(pattern=SLUG_PATTERN, string=v):
             raise ValueError(f"String should match pattern '{SLUG_PATTERN}'")
         return v
-
-
-class GenerateChannelAvatarUploadUrlInSchema(BaseSchema):
-    filename: str = Field(max_length=FILENAME_MAX_LENGTH, pattern=FILENAME_PATTERN, examples=['avatar_image.png'])
-
-
-class ChannelAvatarUploadConfirmInSchema(BaseSchema):
-    key: str

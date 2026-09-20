@@ -4,10 +4,10 @@ from fastapi import APIRouter, status
 
 from app.application.auth.commands import (
     ActivateChannelCommand,
-    LoginChannelCommand,
+    LoginWithPasswordCommand,
     LogoutCommand,
     RefreshJWTTokenCommand,
-    RegisterChannelCommand,
+    RegisterChannelWithPasswordCommand,
     ResendChannelActivationCodeCommand,
     ResetChannelPasswordCommand,
     ResetChannelPasswordConfirmCommand,
@@ -17,10 +17,10 @@ from app.application.auth.commands import (
 )
 from app.application.auth.usecases import (
     ActivateChannelUseCase,
-    LoginChannelUseCase,
+    LoginWithPasswordUseCase,
     LogoutUseCase,
     RefreshJWTTokenUseCase,
-    RegisterChannelUseCase,
+    RegisterChannelWithPasswordUseCase,
     ResendChannelActivationCodeUseCase,
     ResetChannelPasswordConfirmUseCase,
     ResetChannelPasswordUseCase,
@@ -50,10 +50,10 @@ from app.presentation.api.openapi.common import error_response
 from app.presentation.api.v1.di import CurrentChannelID
 from app.presentation.api.v1.schemas.requests.auth import (
     ActivateChannelInSchema,
-    LoginInSchema,
+    LoginWithPasswordInSchema,
     LogoutInSchema,
     RefreshJWTTokenInSchema,
-    RegisterChannelInSchema,
+    RegisterChannelWithPasswordInSchema,
     ResetChannelPasswordConfirmInSchema,
     ResetChannelPasswordInSchema,
     SetChannelEmailConfirmInSchema,
@@ -71,7 +71,7 @@ router = APIRouter(
 
 
 @router.post(
-    path='/register',
+    path='/register/password',
     status_code=status.HTTP_201_CREATED,
     responses={
         status.HTTP_409_CONFLICT: error_response(
@@ -80,11 +80,11 @@ router = APIRouter(
         ),
     },
 )
-async def register_channel(
-    schema: RegisterChannelInSchema,
-    use_case: FromDishka[RegisterChannelUseCase],
+async def register_channel_with_password(
+    schema: RegisterChannelWithPasswordInSchema,
+    use_case: FromDishka[RegisterChannelWithPasswordUseCase],
 ) -> RegisterChannelOutSchema:
-    command = RegisterChannelCommand(**schema.model_dump())
+    command = RegisterChannelWithPasswordCommand(**schema.model_dump())
     channel, tokens, activation_required = await use_case.execute(command=command)
     return RegisterChannelOutSchema(
         channel=ChannelOutSchema.from_entity(entity=channel),
@@ -94,23 +94,23 @@ async def register_channel(
 
 
 @router.post(
-    path='/login',
+    path='/login/password',
     status_code=status.HTTP_201_CREATED,
     responses={
         status.HTTP_401_UNAUTHORIZED: error_response(IncorrectEmailOrPasswordError),
     },
 )
-async def login_channel(
-    schema: LoginInSchema,
-    use_case: FromDishka[LoginChannelUseCase],
+async def login_with_password(
+    schema: LoginWithPasswordInSchema,
+    use_case: FromDishka[LoginWithPasswordUseCase],
 ) -> JWTTokensOutSchema:
-    command = LoginChannelCommand(**schema.model_dump())
+    command = LoginWithPasswordCommand(**schema.model_dump())
     tokens = await use_case.execute(command=command)
     return JWTTokensOutSchema.from_dto(dto=tokens)
 
 
 @router.post(
-    path='/jwt_refresh',
+    path='/token/refresh',
     status_code=status.HTTP_201_CREATED,
     responses={
         status.HTTP_401_UNAUTHORIZED: error_response(

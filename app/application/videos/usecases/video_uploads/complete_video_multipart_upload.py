@@ -9,7 +9,7 @@ from app.core.configs import settings
 from app.domain.channels.services import IChannelService
 from app.domain.common.constants import VIDEO_FILE_MIME_TYPES
 from app.domain.videos.enums import VideoUploadStatusEnum
-from app.domain.videos.exceptions import VideoInvalidFileContentTypeError
+from app.domain.videos.exceptions import VideoInvalidContentTypeError
 from app.domain.videos.services import IVideoService
 
 
@@ -62,7 +62,7 @@ class CompleteVideoMultipartUploadUseCase:
                 key=video_s3_key,
             )
 
-            raise VideoInvalidFileContentTypeError(
+            raise VideoInvalidContentTypeError(
                 key=video_s3_key,
                 metadata_content_type=video_metadata_mime_type,
                 actual_content_type=video_actual_mime_type,

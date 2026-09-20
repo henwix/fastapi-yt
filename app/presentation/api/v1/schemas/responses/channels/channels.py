@@ -1,7 +1,7 @@
 from datetime import datetime
 from uuid import UUID
 
-from pydantic import EmailStr, HttpUrl
+from pydantic import EmailStr
 
 from app.application.channels.dto import ChannelAboutInfo
 from app.domain.channels.entities import Channel
@@ -60,9 +60,3 @@ class ChannelAboutInfoOutSchema(BaseSchema):
             videos_count=dto.videos_count,
             views_count=dto.views_count,
         )
-
-
-class GenerateChannelAvatarUploadUrlOutSchema(BaseSchema):
-    upload_url: HttpUrl
-    key: str
-    channel_id: UUID

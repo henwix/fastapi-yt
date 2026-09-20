@@ -2,12 +2,14 @@ from .video_comment_reactions import VideoCommentReactionOutSchema
 from .video_comments import DetailedVideoCommentOutSchema, VideoCommentOutSchema
 from .video_history import PreviewVideoHistoryOutSchema
 from .video_reactions import VideoReactionOutSchema
-from .videos import (
-    ChannelPreviewVideoOutSchema,
-    DetailedVideoOutSchema,
+from .video_uploads import (
     GenerateVideoDownloadUrlOutSchema,
     GenerateVideoPartUploadUrlOutSchema,
     GenerateVideoThumbnailUploadUrlOutSchema,
+)
+from .videos import (
+    ChannelPreviewVideoOutSchema,
+    DetailedVideoOutSchema,
     PersonalPreviewVideoOutSchema,
     VideoOutSchema,
 )

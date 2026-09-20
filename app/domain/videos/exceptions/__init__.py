@@ -2,22 +2,24 @@ from .video_comment_reactions import VideoCommentReactionNotFoundError
 from .video_comments import VideoCommentAccessForbiddenError, VideoCommentNotFoundError
 from .video_history import VideoHistoryEmptyError, VideoNotFoundInHistoryError
 from .video_reactions import VideoReactionNotFoundError
-from .video_views import VideoViewsLimitReachedError
-from .videos import (
-    VideoAccessForbiddenError,
-    VideoInvalidFileContentTypeError,
+from .video_uploads import (
+    VideoInvalidContentTypeError,
     VideoInvalidFilenameError,
-    VideoNotFoundError,
     VideoThumbnailAlreadySetError,
     VideoThumbnailInvalidContentTypeError,
     VideoThumbnailInvalidFilenameError,
     VideoThumbnailInvalidKeyError,
-    VideoThumbnailNotFoundError,
     VideoThumbnailSizeTooBigError,
     VideoThumbnailVideoIdMismatchError,
     VideoUploadAlreadyCompletedError,
     VideoUploadAlreadyCreatedError,
     VideoUploadNotCreatedError,
+)
+from .video_views import VideoViewsLimitReachedError
+from .videos import (
+    VideoAccessForbiddenError,
+    VideoNotFoundError,
+    VideoThumbnailNotFoundError,
 )
 
 __all__ = (
@@ -26,7 +28,7 @@ __all__ = (
     'VideoCommentNotFoundError',
     'VideoCommentReactionNotFoundError',
     'VideoHistoryEmptyError',
-    'VideoInvalidFileContentTypeError',
+    'VideoInvalidContentTypeError',
     'VideoInvalidFilenameError',
     'VideoNotFoundError',
     'VideoNotFoundInHistoryError',

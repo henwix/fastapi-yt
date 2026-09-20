@@ -2,11 +2,13 @@ from .video_comment_reactions import CreateVideoCommentReactionInSchema
 from .video_comments import CreateVideoCommentInSchema, UpdateVideoCommentInSchema, VideoCommentsSortingParams
 from .video_history import VideoHistorySortingParams
 from .video_reactions import CreateVideoReactionInSchema
-from .videos import (
+from .video_uploads import (
     ConfirmVideoThumbnailUploadInSchema,
-    CreateVideoInSchema,
     CreateVideoMultipartUploadInSchema,
     GenerateVideoThumbnailUploadUrlInSchema,
+)
+from .videos import (
+    CreateVideoInSchema,
     PersonalPreviewVideosFiltersParams,
     PreviewVideosSortingParams,
     UpdateVideoInSchema,

@@ -14,7 +14,7 @@ from app.domain.channels.constants import (
 from app.domain.common.constants import SLUG_PATTERN
 
 
-class RegisterChannelInSchema(BaseModel):
+class RegisterChannelWithPasswordInSchema(BaseModel):
     model_config = ConfigDict(extra='forbid')
 
     email: EmailStr = Field(max_length=CHANNEL_EMAIL_MAX_LENGTH)
@@ -37,7 +37,7 @@ class RegisterChannelInSchema(BaseModel):
         return v
 
 
-class LoginInSchema(BaseModel):
+class LoginWithPasswordInSchema(BaseModel):
     email: EmailStr
     password: str
 

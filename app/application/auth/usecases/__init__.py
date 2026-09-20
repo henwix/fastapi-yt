@@ -1,8 +1,8 @@
 from .activate_channel import ActivateChannelUseCase
-from .login_channel import LoginChannelUseCase
+from .login_with_password import LoginWithPasswordUseCase
 from .logout import LogoutUseCase
 from .refresh_jwt_token import RefreshJWTTokenUseCase
-from .register_channel import RegisterChannelUseCase
+from .register_channel_with_password import RegisterChannelWithPasswordUseCase
 from .resend_channel_activation import ResendChannelActivationCodeUseCase
 from .reset_channel_password import ResetChannelPasswordUseCase
 from .reset_channel_password_confirm import ResetChannelPasswordConfirmUseCase
@@ -12,10 +12,10 @@ from .set_channel_password import SetChannelPasswordUseCase
 
 __all__ = (
     'ActivateChannelUseCase',
-    'LoginChannelUseCase',
+    'LoginWithPasswordUseCase',
     'LogoutUseCase',
     'RefreshJWTTokenUseCase',
-    'RegisterChannelUseCase',
+    'RegisterChannelWithPasswordUseCase',
     'ResendChannelActivationCodeUseCase',
     'ResetChannelPasswordConfirmUseCase',
     'ResetChannelPasswordUseCase',

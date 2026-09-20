@@ -13,19 +13,21 @@ from .video_history import (
     GetVideoHistoryUseCase,
 )
 from .video_reactions import CreateVideoReactionUseCase, DeleteVideoReactionUseCase
-from .video_views import CreateVideoViewUseCase
-from .videos import (
+from .video_uploads import (
     AbortVideoMultipartUploadUseCase,
     CompleteVideoMultipartUploadUseCase,
     ConfirmVideoThumbnailUploadUseCase,
     CreateVideoMultipartUploadUseCase,
+    GenerateVideoDownloadUrlUseCase,
+    GenerateVideoPartUploadUrlUseCase,
+    GenerateVideoThumbnailUploadUrlUseCase,
+)
+from .video_views import CreateVideoViewUseCase
+from .videos import (
     CreateVideoUseCase,
     DeleteNotCompletedVideosUseCase,
     DeleteVideoThumbnailUseCase,
     DeleteVideoUseCase,
-    GenerateVideoDownloadUrlUseCase,
-    GenerateVideoPartUploadUrlUseCase,
-    GenerateVideoThumbnailUploadUrlUseCase,
     GetChannelVideosUseCase,
     GetPersonalVideosUseCase,
     GetVideoUseCase,

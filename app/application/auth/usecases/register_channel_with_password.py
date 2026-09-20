@@ -1,7 +1,7 @@
 import asyncio
 from dataclasses import dataclass
 
-from app.application.auth.commands import RegisterChannelCommand
+from app.application.auth.commands import RegisterChannelWithPasswordCommand
 from app.application.common.dto.jwt import JWTTokens
 from app.application.common.interfaces.email import IEmailService
 from app.application.common.interfaces.security import IAuthCodeService, IAuthService, IPasswordHasher
@@ -14,7 +14,7 @@ password_hash_semaphore = asyncio.Semaphore(2)
 
 
 @dataclass
-class RegisterChannelUseCase:
+class RegisterChannelWithPasswordUseCase:
     _password_hasher: IPasswordHasher
     _channel_service: IChannelService
     _auth_code_service: IAuthCodeService
@@ -22,7 +22,7 @@ class RegisterChannelUseCase:
     _email_service: IEmailService
     _transaction_manager: ITransactionManager
 
-    async def execute(self, command: RegisterChannelCommand) -> tuple[Channel, JWTTokens, bool]:
+    async def execute(self, command: RegisterChannelWithPasswordCommand) -> tuple[Channel, JWTTokens, bool]:
         await self._channel_service.try_check_email_exists(email=command.email)
         await self._channel_service.try_check_slug_exists(slug=command.slug)
 

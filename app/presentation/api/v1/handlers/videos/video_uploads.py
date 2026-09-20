@@ -9,7 +9,6 @@ from app.application.videos.commands import (
     CompleteVideoMultipartUploadCommand,
     ConfirmVideoThumbnailUploadCommand,
     CreateVideoMultipartUploadCommand,
-    DeleteVideoThumbnailCommand,
     GenerateVideoDownloadUrlCommand,
     GenerateVideoPartUploadUrlCommand,
     GenerateVideoThumbnailUploadUrlCommand,
@@ -19,7 +18,6 @@ from app.application.videos.usecases import (
     CompleteVideoMultipartUploadUseCase,
     ConfirmVideoThumbnailUploadUseCase,
     CreateVideoMultipartUploadUseCase,
-    DeleteVideoThumbnailUseCase,
     GenerateVideoDownloadUrlUseCase,
     GenerateVideoPartUploadUrlUseCase,
     GenerateVideoThumbnailUploadUrlUseCase,
@@ -36,14 +34,13 @@ from app.domain.common.exceptions.s3 import (
 )
 from app.domain.videos.exceptions import (
     VideoAccessForbiddenError,
-    VideoInvalidFileContentTypeError,
+    VideoInvalidContentTypeError,
     VideoInvalidFilenameError,
     VideoNotFoundError,
     VideoThumbnailAlreadySetError,
     VideoThumbnailInvalidContentTypeError,
     VideoThumbnailInvalidFilenameError,
     VideoThumbnailInvalidKeyError,
-    VideoThumbnailNotFoundError,
     VideoThumbnailSizeTooBigError,
     VideoThumbnailVideoIdMismatchError,
     VideoUploadAlreadyCompletedError,
@@ -108,6 +105,13 @@ async def create_video_mutipart_upload(
     schema: CreateVideoMultipartUploadInSchema,
     use_case: FromDishka[CreateVideoMultipartUploadUseCase],
 ) -> None:
+    """
+    Allowed mime types for Video file:
+    - **.mp4**
+    - **.mov**
+    - **.mkv**
+    - **.webm**
+    """
     command = CreateVideoMultipartUploadCommand(
         current_channel_id=current_channel_id,
         video_id=video_id,
@@ -184,7 +188,7 @@ async def generate_video_part_upload_url(
         status.HTTP_409_CONFLICT: error_response(
             VideoUploadAlreadyCompletedError,
             VideoUploadNotCreatedError,
-            VideoInvalidFileContentTypeError,
+            VideoInvalidContentTypeError,
         ),
         status.HTTP_500_INTERNAL_SERVER_ERROR: error_response(
             S3RequestError,
@@ -278,8 +282,14 @@ async def generate_video_thumbnail_upload_url(
     use_case: FromDishka[GenerateVideoThumbnailUploadUrlUseCase],
 ) -> GenerateVideoThumbnailUploadUrlOutSchema:
     """
-    Pass the channel_id in the "x-amz-meta-channel_id" and video_id in the "x-amz-meta-video_id" headers to
-    upload the file using upload_url
+    Allowed mime types for Video Thumbnail file:
+    - **.png**
+    - **.jpg**
+    - **.jpeg**
+    - **.webp**
+
+    After the URL is generated, pass the **channel_id** in the *"x-amz-meta-channel_id"* and **video_id** in the
+    *"x-amz-meta-video_id"* headers to upload the file using **upload_url**
     """
     command = GenerateVideoThumbnailUploadUrlCommand(
         current_channel_id=current_channel_id,
@@ -331,35 +341,6 @@ async def video_thumbnail_upload_confirm(
         video_id=video_id,
         **schema.model_dump(),
     )
-    await use_case.execute(command=command)
-
-
-@router.delete(
-    path='/thumbnail_delete',
-    status_code=status.HTTP_204_NO_CONTENT,
-    responses={
-        status.HTTP_401_UNAUTHORIZED: error_response(
-            NotAuthenticatedError,
-            JWTTokenExpiredError,
-            JWTTokenInvalidError,
-        ),
-        status.HTTP_403_FORBIDDEN: error_response(
-            ChannelNotActiveError,
-            VideoAccessForbiddenError,
-        ),
-        status.HTTP_404_NOT_FOUND: error_response(
-            ChannelNotFoundByIdError,
-            VideoNotFoundError,
-            VideoThumbnailNotFoundError,
-        ),
-    },
-)
-async def delete_video_thumbnail(
-    current_channel_id: CurrentChannelID,
-    video_id: PathVideoId,
-    use_case: FromDishka[DeleteVideoThumbnailUseCase],
-) -> None:
-    command = DeleteVideoThumbnailCommand(current_channel_id=current_channel_id, video_id=video_id)
     await use_case.execute(command=command)
 
 

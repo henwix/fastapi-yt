@@ -7,7 +7,7 @@ from app.domain.videos.exceptions import (
     VideoCommentNotFoundError,
     VideoCommentReactionNotFoundError,
     VideoHistoryEmptyError,
-    VideoInvalidFileContentTypeError,
+    VideoInvalidContentTypeError,
     VideoInvalidFilenameError,
     VideoNotFoundError,
     VideoNotFoundInHistoryError,
@@ -28,21 +28,22 @@ from app.domain.videos.exceptions import (
 
 def init_videos() -> dict[type[AppError], int]:
     return {
-        # Videos
+        # Video uploads
         VideoThumbnailInvalidKeyError: status.HTTP_400_BAD_REQUEST,
         VideoThumbnailInvalidFilenameError: status.HTTP_400_BAD_REQUEST,
         VideoThumbnailAlreadySetError: status.HTTP_409_CONFLICT,
         VideoThumbnailVideoIdMismatchError: status.HTTP_409_CONFLICT,
         VideoThumbnailInvalidContentTypeError: status.HTTP_409_CONFLICT,
-        VideoThumbnailNotFoundError: status.HTTP_404_NOT_FOUND,
         VideoThumbnailSizeTooBigError: status.HTTP_409_CONFLICT,
         VideoUploadAlreadyCompletedError: status.HTTP_409_CONFLICT,
         VideoUploadAlreadyCreatedError: status.HTTP_409_CONFLICT,
         VideoUploadNotCreatedError: status.HTTP_409_CONFLICT,
         VideoInvalidFilenameError: status.HTTP_400_BAD_REQUEST,
-        VideoInvalidFileContentTypeError: status.HTTP_409_CONFLICT,
+        VideoInvalidContentTypeError: status.HTTP_409_CONFLICT,
+        # Videos
         VideoAccessForbiddenError: status.HTTP_403_FORBIDDEN,
         VideoNotFoundError: status.HTTP_404_NOT_FOUND,
+        VideoThumbnailNotFoundError: status.HTTP_404_NOT_FOUND,
         # Video views
         VideoViewsLimitReachedError: status.HTTP_409_CONFLICT,
         # Video reactions

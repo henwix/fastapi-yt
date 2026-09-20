@@ -2,7 +2,6 @@ from pydantic import Field
 
 from app.application.common.sorting import SortingOrderEnum
 from app.application.videos.queries import PreviewVideosSortingFieldEnum
-from app.domain.common.constants import FILENAME_MAX_LENGTH, FILENAME_PATTERN
 from app.domain.videos.constants import (
     VIDEO_DESCRIPTION_MAX_LENGTH,
     VIDEO_TITLE_MAX_LENGTH,
@@ -16,18 +15,6 @@ class CreateVideoInSchema(BaseSchema):
     title: str = Field(min_length=VIDEO_TITLE_MIN_LENGTH, max_length=VIDEO_TITLE_MAX_LENGTH)
     description: str = Field(default='', max_length=VIDEO_DESCRIPTION_MAX_LENGTH)
     privacy_status: VideoPrivacyStatusEnum
-
-
-class CreateVideoMultipartUploadInSchema(BaseSchema):
-    filename: str = Field(max_length=FILENAME_MAX_LENGTH, pattern=FILENAME_PATTERN, examples=['video.mp4'])
-
-
-class GenerateVideoThumbnailUploadUrlInSchema(BaseSchema):
-    filename: str = Field(max_length=FILENAME_MAX_LENGTH, pattern=FILENAME_PATTERN, examples=['video_thumbnail.png'])
-
-
-class ConfirmVideoThumbnailUploadInSchema(BaseSchema):
-    key: str
 
 
 class UpdateVideoInSchema(BaseUpdateSchema):

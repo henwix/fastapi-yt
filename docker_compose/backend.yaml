@@ -1,10 +1,6 @@
 x-base-backend:
   &base-backend
-  build:
-    context: ..
-    dockerfile: Dockerfile
   image: fastapi-yt-backend-dev
-  pull_policy: build
   volumes:
     - ..:/src/
     - backend_venv:/src/.venv
@@ -14,6 +10,10 @@ x-base-backend:
 services:
   backend:
     <<: *base-backend
+    build:
+      context: ..
+      dockerfile: Dockerfile
+    pull_policy: build
     container_name: fastapi-yt-backend-dev
     ports:
       - "${FASTAPI_PORT}:8000"

@@ -1,7 +1,7 @@
 import asyncio
 from dataclasses import dataclass
 
-from app.application.auth.commands import LoginChannelCommand
+from app.application.auth.commands import LoginWithPasswordCommand
 from app.application.common.dto.jwt import JWTTokens
 from app.application.common.interfaces.security import IAuthService, IPasswordHasher
 from app.domain.auth.exceptions import IncorrectEmailOrPasswordError
@@ -11,12 +11,12 @@ password_hash_semaphore = asyncio.Semaphore(2)
 
 
 @dataclass
-class LoginChannelUseCase:
+class LoginWithPasswordUseCase:
     _channel_service: IChannelService
     _password_hasher: IPasswordHasher
     _auth_service: IAuthService
 
-    async def execute(self, command: LoginChannelCommand) -> JWTTokens:
+    async def execute(self, command: LoginWithPasswordCommand) -> JWTTokens:
         channel = await self._channel_service.get_by_email(email=command.email)
         if not channel:
             async with password_hash_semaphore:

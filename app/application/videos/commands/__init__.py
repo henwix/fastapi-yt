@@ -2,18 +2,20 @@ from .video_comment_reactions import CreateVideoCommentReactionCommand, DeleteVi
 from .video_comments import CreateVideoCommentCommand, DeleteVideoCommentCommand, UpdateVideoCommentCommand
 from .video_history import AddVideoToHistoryCommand, ClearVideoHistoryCommand, DeleteVideoFromHistoryCommand
 from .video_reactions import CreateVideoReactionCommand, DeleteVideoReactionCommand
-from .video_views import CreateVideoViewCommand
-from .videos import (
+from .video_uploads import (
     AbortVideoMultipartUploadCommand,
     CompleteVideoMultipartUploadCommand,
     ConfirmVideoThumbnailUploadCommand,
-    CreateVideoCommand,
     CreateVideoMultipartUploadCommand,
-    DeleteVideoCommand,
-    DeleteVideoThumbnailCommand,
     GenerateVideoDownloadUrlCommand,
     GenerateVideoPartUploadUrlCommand,
     GenerateVideoThumbnailUploadUrlCommand,
+)
+from .video_views import CreateVideoViewCommand
+from .videos import (
+    CreateVideoCommand,
+    DeleteVideoCommand,
+    DeleteVideoThumbnailCommand,
     UpdateVideoCommand,
 )
 

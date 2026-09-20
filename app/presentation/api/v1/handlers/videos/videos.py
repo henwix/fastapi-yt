@@ -9,6 +9,7 @@ from app.application.common.pagination import CursorPagination
 from app.application.videos.commands import (
     CreateVideoCommand,
     DeleteVideoCommand,
+    DeleteVideoThumbnailCommand,
     UpdateVideoCommand,
 )
 from app.application.videos.queries import (
@@ -20,6 +21,7 @@ from app.application.videos.queries import (
 )
 from app.application.videos.usecases import (
     CreateVideoUseCase,
+    DeleteVideoThumbnailUseCase,
     DeleteVideoUseCase,
     GetChannelVideosUseCase,
     GetPersonalVideosUseCase,
@@ -29,7 +31,7 @@ from app.application.videos.usecases import (
 from app.domain.auth.exceptions import JWTTokenExpiredError, JWTTokenInvalidError, NotAuthenticatedError
 from app.domain.channels.exceptions import ChannelNotActiveError, ChannelNotFoundByIdError, ChannelNotFoundBySlugError
 from app.domain.common.exceptions.pagination import InvalidCursorError
-from app.domain.videos.exceptions import VideoAccessForbiddenError, VideoNotFoundError
+from app.domain.videos.exceptions import VideoAccessForbiddenError, VideoNotFoundError, VideoThumbnailNotFoundError
 from app.presentation.api.openapi.common import error_response
 from app.presentation.api.v1.di import CurrentChannelID, OptionalCurrentChannelID
 from app.presentation.api.v1.handlers.common.path_params import PathChannelSlug, PathVideoId
@@ -53,6 +55,32 @@ router = APIRouter(
     tags=['Videos'],
     route_class=DishkaRoute,
 )
+
+
+@router.post(
+    path='/videos',
+    status_code=status.HTTP_201_CREATED,
+    responses={
+        status.HTTP_401_UNAUTHORIZED: error_response(
+            NotAuthenticatedError,
+            JWTTokenExpiredError,
+            JWTTokenInvalidError,
+        ),
+        status.HTTP_403_FORBIDDEN: error_response(ChannelNotActiveError),
+        status.HTTP_404_NOT_FOUND: error_response(ChannelNotFoundByIdError),
+    },
+)
+async def create_video(
+    current_channel_id: CurrentChannelID,
+    schema: CreateVideoInSchema,
+    use_case: FromDishka[CreateVideoUseCase],
+) -> VideoOutSchema:
+    command = CreateVideoCommand(
+        current_channel_id=current_channel_id,
+        **schema.model_dump(),
+    )
+    video = await use_case.execute(command=command)
+    return VideoOutSchema.from_entity(entity=video)
 
 
 @router.get(
@@ -118,30 +146,32 @@ async def get_channel_videos(
     )
 
 
-@router.post(
-    path='/videos',
-    status_code=status.HTTP_201_CREATED,
+@router.get(
+    path='/videos/{video_id}',
     responses={
         status.HTTP_401_UNAUTHORIZED: error_response(
             NotAuthenticatedError,
             JWTTokenExpiredError,
             JWTTokenInvalidError,
         ),
-        status.HTTP_403_FORBIDDEN: error_response(ChannelNotActiveError),
-        status.HTTP_404_NOT_FOUND: error_response(ChannelNotFoundByIdError),
+        status.HTTP_403_FORBIDDEN: error_response(
+            ChannelNotActiveError,
+            VideoAccessForbiddenError,
+        ),
+        status.HTTP_404_NOT_FOUND: error_response(
+            ChannelNotFoundByIdError,
+            VideoNotFoundError,
+        ),
     },
 )
-async def create_video(
-    current_channel_id: CurrentChannelID,
-    schema: CreateVideoInSchema,
-    use_case: FromDishka[CreateVideoUseCase],
-) -> VideoOutSchema:
-    command = CreateVideoCommand(
-        current_channel_id=current_channel_id,
-        **schema.model_dump(),
-    )
-    video = await use_case.execute(command=command)
-    return VideoOutSchema.from_entity(entity=video)
+async def get_video(
+    current_channel_id: OptionalCurrentChannelID,
+    video_id: PathVideoId,
+    use_case: FromDishka[GetVideoUseCase],
+) -> DetailedVideoOutSchema:
+    query = GetVideoQuery(current_channel_id=current_channel_id, video_id=video_id)
+    video = await use_case.execute(query=query)
+    return DetailedVideoOutSchema.from_dto(dto=video)
 
 
 @router.delete(
@@ -170,34 +200,6 @@ async def delete_video(
 ) -> None:
     command = DeleteVideoCommand(current_channel_id=current_channel_id, video_id=video_id)
     await use_case.execute(command=command)
-
-
-@router.get(
-    path='/videos/{video_id}',
-    responses={
-        status.HTTP_401_UNAUTHORIZED: error_response(
-            NotAuthenticatedError,
-            JWTTokenExpiredError,
-            JWTTokenInvalidError,
-        ),
-        status.HTTP_403_FORBIDDEN: error_response(
-            ChannelNotActiveError,
-            VideoAccessForbiddenError,
-        ),
-        status.HTTP_404_NOT_FOUND: error_response(
-            ChannelNotFoundByIdError,
-            VideoNotFoundError,
-        ),
-    },
-)
-async def get_video(
-    current_channel_id: OptionalCurrentChannelID,
-    video_id: PathVideoId,
-    use_case: FromDishka[GetVideoUseCase],
-) -> DetailedVideoOutSchema:
-    query = GetVideoQuery(current_channel_id=current_channel_id, video_id=video_id)
-    video = await use_case.execute(query=query)
-    return DetailedVideoOutSchema.from_dto(dto=video)
 
 
 @router.patch(
@@ -231,3 +233,32 @@ async def update_video(
     )
     video = await use_case.execute(command=command)
     return VideoOutSchema.from_entity(entity=video)
+
+
+@router.delete(
+    path='/videos/{video_id}/thumbnail',
+    status_code=status.HTTP_204_NO_CONTENT,
+    responses={
+        status.HTTP_401_UNAUTHORIZED: error_response(
+            NotAuthenticatedError,
+            JWTTokenExpiredError,
+            JWTTokenInvalidError,
+        ),
+        status.HTTP_403_FORBIDDEN: error_response(
+            ChannelNotActiveError,
+            VideoAccessForbiddenError,
+        ),
+        status.HTTP_404_NOT_FOUND: error_response(
+            ChannelNotFoundByIdError,
+            VideoNotFoundError,
+            VideoThumbnailNotFoundError,
+        ),
+    },
+)
+async def delete_video_thumbnail(
+    current_channel_id: CurrentChannelID,
+    video_id: PathVideoId,
+    use_case: FromDishka[DeleteVideoThumbnailUseCase],
+) -> None:
+    command = DeleteVideoThumbnailCommand(current_channel_id=current_channel_id, video_id=video_id)
+    await use_case.execute(command=command)

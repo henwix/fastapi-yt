@@ -3,7 +3,7 @@ from uuid import UUID
 
 
 @dataclass(kw_only=True, frozen=True)
-class RegisterChannelCommand:
+class RegisterChannelWithPasswordCommand:
     email: str
     name: str
     slug: str
@@ -13,7 +13,7 @@ class RegisterChannelCommand:
 
 
 @dataclass(kw_only=True, frozen=True)
-class LoginChannelCommand:
+class LoginWithPasswordCommand:
     email: str
     password: str
 

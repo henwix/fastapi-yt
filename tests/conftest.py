@@ -3,7 +3,7 @@ from collections.abc import AsyncGenerator, Generator
 import pytest
 import pytest_asyncio
 from dishka import AsyncContainer, Scope, make_async_container, provide
-from pydantic import AnyHttpUrl
+from pydantic import HttpUrl
 from redis.asyncio import Redis
 from sqlalchemy.ext.asyncio import AsyncEngine, AsyncSession, async_sessionmaker, create_async_engine
 from testcontainers.postgres import PostgresContainer
@@ -162,7 +162,7 @@ def test_override_settings() -> None:
     settings.s3_endpoint = 'https://test-s3-endpoint.com'
     settings.s3_access_key = '123'
     settings.s3_secret_key = '123'
-    settings.frontend_origin = AnyHttpUrl('http://localhost/')
+    settings.frontend_origin = HttpUrl('http://localhost/')
     settings.oauth_redirect_path = 'oauth/activation'
     settings.oauth_github_client_id = '123'
     settings.oauth_github_client_secret = '456'

@@ -1,7 +1,4 @@
 from datetime import datetime
-from uuid import UUID
-
-from pydantic import HttpUrl
 
 from app.application.videos.dto import ChannelPreviewVideo, DetailedVideo, PersonalPreviewVideo
 from app.domain.videos.entities import Video
@@ -93,18 +90,3 @@ class PersonalPreviewVideoOutSchema(BaseSchema):
             thumbnail_s3_key=dto.thumbnail_s3_key,
             created_at=dto.created_at,
         )
-
-
-class GenerateVideoPartUploadUrlOutSchema(BaseSchema):
-    upload_url: HttpUrl
-
-
-class GenerateVideoDownloadUrlOutSchema(BaseSchema):
-    download_url: HttpUrl
-
-
-class GenerateVideoThumbnailUploadUrlOutSchema(BaseSchema):
-    upload_url: HttpUrl
-    key: str
-    channel_id: UUID
-    video_id: str

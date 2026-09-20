@@ -9,10 +9,10 @@ from types_aiobotocore_s3.client import S3Client
 
 from app.application.auth.usecases import (
     ActivateChannelUseCase,
-    LoginChannelUseCase,
+    LoginWithPasswordUseCase,
     LogoutUseCase,
     RefreshJWTTokenUseCase,
-    RegisterChannelUseCase,
+    RegisterChannelWithPasswordUseCase,
     ResendChannelActivationCodeUseCase,
     ResetChannelPasswordConfirmUseCase,
     ResetChannelPasswordUseCase,
@@ -351,8 +351,8 @@ class UseCasesProvider(Provider):
     delete_channel_avatar = provide(DeleteChannelAvatarUseCase)
 
     # Auth
-    register_channel = provide(RegisterChannelUseCase)
-    login_channel = provide(LoginChannelUseCase)
+    register_channel_with_password = provide(RegisterChannelWithPasswordUseCase)
+    login_with_password = provide(LoginWithPasswordUseCase)
     refresh_jwt_token = provide(RefreshJWTTokenUseCase)
     logout = provide(LogoutUseCase)
     activate_channel = provide(ActivateChannelUseCase)

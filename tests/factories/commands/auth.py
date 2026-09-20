@@ -6,8 +6,8 @@ from polyfactory.factories import DataclassFactory
 
 from app.application.auth.commands import (
     ActivateChannelCommand,
-    LoginChannelCommand,
-    RegisterChannelCommand,
+    LoginWithPasswordCommand,
+    RegisterChannelWithPasswordCommand,
     ResendChannelActivationCodeCommand,
     ResetChannelPasswordCommand,
     ResetChannelPasswordConfirmCommand,
@@ -18,8 +18,8 @@ from app.application.auth.commands import (
 from app.utils.base64url import base64url_encode
 
 
-class RegisterChannelCommandFactory(DataclassFactory[RegisterChannelCommand]):
-    __model__ = RegisterChannelCommand
+class RegisterChannelWithPasswordCommandFactory(DataclassFactory[RegisterChannelWithPasswordCommand]):
+    __model__ = RegisterChannelWithPasswordCommand
     __faker__ = Faker()
 
     @classmethod
@@ -31,8 +31,8 @@ class RegisterChannelCommandFactory(DataclassFactory[RegisterChannelCommand]):
         return cls.__faker__.slug()
 
 
-class LoginChannelCommandFactory(DataclassFactory[LoginChannelCommand]):
-    __model__ = LoginChannelCommand
+class LoginWithPasswordCommandFactory(DataclassFactory[LoginWithPasswordCommand]):
+    __model__ = LoginWithPasswordCommand
     __faker__ = Faker()
 
     @classmethod

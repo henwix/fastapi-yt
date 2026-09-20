@@ -5,28 +5,28 @@ from dishka import AsyncContainer
 from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from app.application.auth.usecases import RegisterChannelUseCase
+from app.application.auth.usecases import RegisterChannelWithPasswordUseCase
 from app.application.common.interfaces.security import IJWTService, IPasswordHasher
 from app.core.configs import Settings
 from app.domain.channels.entities import Channel
 from app.domain.channels.exceptions import ChannelEmailAlreadyExistsError, ChannelSlugAlreadyExistsError
 from app.infrastructure.sqlalchemy.models import ChannelORM
-from tests.factories.commands.auth import RegisterChannelCommandFactory
+from tests.factories.commands.auth import RegisterChannelWithPasswordCommandFactory
 from tests.factories.models.channels import ChannelORMFactory
 
 
 @pytest.mark.asyncio
-async def test_register_channel_returns_correct_entity_if_created_and_activation_is_required(
+async def test_register_channel_with_password_returns_correct_entity_if_created_and_activation_is_required(
     mock_container: AsyncContainer,
     test_settings: Settings,
 ):
     test_settings.auth_send_activation_email = True
     async with mock_container() as di:
-        use_case = await di.get(RegisterChannelUseCase)
+        use_case = await di.get(RegisterChannelWithPasswordUseCase)
         session = await di.get(AsyncSession)
         pwd_hasher = await di.get(IPasswordHasher)
         jwt_service = await di.get(IJWTService)
-        command = RegisterChannelCommandFactory.build()
+        command = RegisterChannelWithPasswordCommandFactory.build()
 
         with patch.object(use_case._email_service, 'schedule_send_channel_activation_code') as mock_email_service:
             created_channel, tokens, is_activation_required = await use_case.execute(command=command)
@@ -68,17 +68,17 @@ async def test_register_channel_returns_correct_entity_if_created_and_activation
 
 
 @pytest.mark.asyncio
-async def test_register_channel_returns_correct_entity_if_created_and_activation_is_not_required(
+async def test_register_channel_with_password_returns_correct_entity_if_created_and_activation_is_not_required(
     mock_container: AsyncContainer,
     test_settings: Settings,
 ):
     test_settings.auth_send_activation_email = False
     async with mock_container() as di:
-        use_case = await di.get(RegisterChannelUseCase)
+        use_case = await di.get(RegisterChannelWithPasswordUseCase)
         session = await di.get(AsyncSession)
         pwd_hasher = await di.get(IPasswordHasher)
         jwt_service = await di.get(IJWTService)
-        command = RegisterChannelCommandFactory.build()
+        command = RegisterChannelWithPasswordCommandFactory.build()
 
         with patch.object(use_case._email_service, 'schedule_send_channel_activation_code') as mock_email_service:
             created_channel, tokens, is_activation_required = await use_case.execute(command=command)
@@ -120,24 +120,24 @@ async def test_register_channel_returns_correct_entity_if_created_and_activation
 
 
 @pytest.mark.asyncio
-async def test_register_channel_raises_error_if_email_exists(mock_container: AsyncContainer):
+async def test_register_channel_with_password_raises_error_if_email_exists(mock_container: AsyncContainer):
     async with mock_container() as di:
-        use_case = await di.get(RegisterChannelUseCase)
+        use_case = await di.get(RegisterChannelWithPasswordUseCase)
         session = await di.get(AsyncSession)
         db_channel = await ChannelORMFactory.create(session=session)
-        command = RegisterChannelCommandFactory.build(email=db_channel.email)
+        command = RegisterChannelWithPasswordCommandFactory.build(email=db_channel.email)
 
         with pytest.raises(ChannelEmailAlreadyExistsError):
             await use_case.execute(command=command)
 
 
 @pytest.mark.asyncio
-async def test_register_channel_raises_error_if_slug_exists(mock_container: AsyncContainer):
+async def test_register_channel_with_password_raises_error_if_slug_exists(mock_container: AsyncContainer):
     async with mock_container() as di:
-        use_case = await di.get(RegisterChannelUseCase)
+        use_case = await di.get(RegisterChannelWithPasswordUseCase)
         session = await di.get(AsyncSession)
         db_channel = await ChannelORMFactory.create(session=session)
-        command = RegisterChannelCommandFactory.build(slug=db_channel.slug)
+        command = RegisterChannelWithPasswordCommandFactory.build(slug=db_channel.slug)
 
         with pytest.raises(ChannelSlugAlreadyExistsError):
             await use_case.execute(command=command)

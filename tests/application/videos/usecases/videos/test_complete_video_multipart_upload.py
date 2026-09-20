@@ -13,7 +13,7 @@ from app.domain.common.constants import VIDEO_FILE_MIME_TYPES
 from app.domain.videos.enums import VideoUploadStatusEnum
 from app.domain.videos.exceptions import (
     VideoAccessForbiddenError,
-    VideoInvalidFileContentTypeError,
+    VideoInvalidContentTypeError,
     VideoNotFoundError,
     VideoUploadAlreadyCompletedError,
     VideoUploadNotCreatedError,
@@ -110,7 +110,7 @@ async def test_complete_video_multipart_upload_raises_error_if_video_file_metada
 
         with (
             patch.object(use_case._s3_service, 'schedule_delete_object') as mock_s3_service,
-            pytest.raises(VideoInvalidFileContentTypeError) as e,
+            pytest.raises(VideoInvalidContentTypeError) as e,
         ):
             await use_case.execute(command=command)
 
@@ -164,7 +164,7 @@ async def test_complete_video_multipart_upload_raises_error_if_video_file_actual
 
         with (
             patch.object(use_case._s3_service, 'schedule_delete_object') as mock_s3_service,
-            pytest.raises(VideoInvalidFileContentTypeError) as e,
+            pytest.raises(VideoInvalidContentTypeError) as e,
         ):
             await use_case.execute(command=command)
 

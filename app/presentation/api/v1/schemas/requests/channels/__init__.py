@@ -1,8 +1,8 @@
-from .channel_uploads import ChannelAvatarUploadConfirmInSchema, GenerateChannelAvatarUploadUrlInSchema
+from .channel_uploads import ConfirmChannelAvatarUploadInSchema, GenerateChannelAvatarUploadUrlInSchema
 from .channels import UpdateChannelInSchema
 
 __all__ = (
-    'ChannelAvatarUploadConfirmInSchema',
+    'ConfirmChannelAvatarUploadInSchema',
     'GenerateChannelAvatarUploadUrlInSchema',
     'UpdateChannelInSchema',
 )

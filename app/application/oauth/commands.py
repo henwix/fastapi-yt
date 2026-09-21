@@ -5,7 +5,7 @@ from app.domain.oauth.enums import OAuthProviderEnum
 
 
 @dataclass(kw_only=True, frozen=True)
-class OAuthVerifyCodeCommand:
+class VerifyOAuthCodeCommand:
     current_channel_id: UUID | None
     provider: OAuthProviderEnum
     code: str
@@ -13,6 +13,6 @@ class OAuthVerifyCodeCommand:
 
 
 @dataclass(kw_only=True, frozen=True)
-class OAuthDisconnectAccountCommand:
+class DisconnectOAuthAccountCommand:
     current_channel_id: UUID
     provider: OAuthProviderEnum

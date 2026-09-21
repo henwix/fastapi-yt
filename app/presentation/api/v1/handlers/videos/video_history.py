@@ -29,8 +29,8 @@ from app.domain.videos.exceptions import (
 from app.presentation.api.openapi.common import error_response
 from app.presentation.api.v1.di import CurrentChannelID
 from app.presentation.api.v1.handlers.common.path_params import PathVideoId
-from app.presentation.api.v1.schemas.requests.common import CursorPaginationParams
-from app.presentation.api.v1.schemas.requests.videos import VideoHistorySortingParams
+from app.presentation.api.v1.handlers.common.query_params import CursorPaginationParams
+from app.presentation.api.v1.schemas.requests.videos import VideoHistorySortingParamsSchema
 from app.presentation.api.v1.schemas.responses.common import CursorPaginationResponse
 from app.presentation.api.v1.schemas.responses.videos import PreviewVideoHistoryOutSchema
 
@@ -131,7 +131,9 @@ async def clear_video_history(
 @router.get(
     '/history',
     responses={
-        status.HTTP_400_BAD_REQUEST: error_response(InvalidCursorError),
+        status.HTTP_400_BAD_REQUEST: error_response(
+            InvalidCursorError,
+        ),
         status.HTTP_401_UNAUTHORIZED: error_response(
             NotAuthenticatedError,
             JWTTokenExpiredError,
@@ -147,8 +149,8 @@ async def clear_video_history(
 )
 async def get_video_history(
     current_channel_id: CurrentChannelID,
-    sorting: Annotated[VideoHistorySortingParams, Depends()],
-    pagination: Annotated[CursorPaginationParams, Depends()],
+    sorting: Annotated[VideoHistorySortingParamsSchema, Depends()],
+    pagination: CursorPaginationParams,
     use_case: FromDishka[GetVideoHistoryUseCase],
     request: Request,
 ) -> CursorPaginationResponse[PreviewVideoHistoryOutSchema]:

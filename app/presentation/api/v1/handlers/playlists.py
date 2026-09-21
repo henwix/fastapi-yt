@@ -45,11 +45,11 @@ from app.domain.videos.exceptions import VideoAccessForbiddenError, VideoNotFoun
 from app.presentation.api.openapi.common import error_response
 from app.presentation.api.v1.di import CurrentChannelID, OptionalCurrentChannelID
 from app.presentation.api.v1.handlers.common.path_params import PathChannelSlug, PathVideoId
-from app.presentation.api.v1.schemas.requests.common import CursorPaginationParams
+from app.presentation.api.v1.handlers.common.query_params import CursorPaginationParams
 from app.presentation.api.v1.schemas.requests.playlists import (
     CreatePlaylistInSchema,
-    PlaylistsPreviewSortingParams,
-    PlaylistVideosSortingParams,
+    PlaylistsPreviewSortingParamsSchema,
+    PlaylistVideosSortingParamsSchema,
     UpdatePlaylistInSchema,
 )
 from app.presentation.api.v1.schemas.responses.common import CursorPaginationResponse
@@ -95,9 +95,11 @@ async def create_playlist(
 
 
 @router.get(
-    '/playlists/personal',
+    '/playlists',
     responses={
-        status.HTTP_400_BAD_REQUEST: error_response(InvalidCursorError),
+        status.HTTP_400_BAD_REQUEST: error_response(
+            InvalidCursorError,
+        ),
         status.HTTP_401_UNAUTHORIZED: error_response(
             NotAuthenticatedError,
             JWTTokenExpiredError,
@@ -113,8 +115,8 @@ async def create_playlist(
 )
 async def get_personal_playlists(
     current_channel_id: CurrentChannelID,
-    sorting: Annotated[PlaylistsPreviewSortingParams, Depends()],
-    pagination: Annotated[CursorPaginationParams, Depends()],
+    sorting: Annotated[PlaylistsPreviewSortingParamsSchema, Depends()],
+    pagination: CursorPaginationParams,
     use_case: FromDishka[GetPersonalPlaylistsUseCase],
     request: Request,
 ) -> CursorPaginationResponse[PreviewPlaylistOutSchema]:
@@ -135,7 +137,9 @@ async def get_personal_playlists(
 @router.get(
     path='/channels/{channel_slug}/playlists',
     responses={
-        status.HTTP_400_BAD_REQUEST: error_response(InvalidCursorError),
+        status.HTTP_400_BAD_REQUEST: error_response(
+            InvalidCursorError,
+        ),
         status.HTTP_404_NOT_FOUND: error_response(
             ChannelNotFoundBySlugError,
         ),
@@ -143,8 +147,8 @@ async def get_personal_playlists(
 )
 async def get_channel_playlists(
     channel_slug: PathChannelSlug,
-    sorting: Annotated[PlaylistsPreviewSortingParams, Depends()],
-    pagination: Annotated[CursorPaginationParams, Depends()],
+    sorting: Annotated[PlaylistsPreviewSortingParamsSchema, Depends()],
+    pagination: CursorPaginationParams,
     use_case: FromDishka[GetChannelPlaylistsUseCase],
     request: Request,
 ) -> CursorPaginationResponse[PreviewPlaylistOutSchema]:
@@ -196,7 +200,9 @@ async def get_playlist(
 @router.get(
     path='/playlists/{playlist_id}/videos',
     responses={
-        status.HTTP_400_BAD_REQUEST: error_response(InvalidCursorError),
+        status.HTTP_400_BAD_REQUEST: error_response(
+            InvalidCursorError,
+        ),
         status.HTTP_401_UNAUTHORIZED: error_response(
             NotAuthenticatedError,
             JWTTokenExpiredError,
@@ -215,8 +221,8 @@ async def get_playlist(
 async def get_playlist_videos(
     current_channel_id: OptionalCurrentChannelID,
     playlist_id: UUID,
-    sorting: Annotated[PlaylistVideosSortingParams, Depends()],
-    pagination: Annotated[CursorPaginationParams, Depends()],
+    sorting: Annotated[PlaylistVideosSortingParamsSchema, Depends()],
+    pagination: CursorPaginationParams,
     use_case: FromDishka[GetPlaylistVideosUseCase],
     request: Request,
 ) -> CursorPaginationResponse[PlaylistPreviewVideoOutSchema]:

@@ -17,6 +17,6 @@ class UpdatePostCommentInSchema(BaseUpdateSchema):
     text: str = Field(default='', min_length=POST_COMMENT_TEXT_MIN_LENGTH, max_length=POST_COMMENT_TEXT_MAX_LENGTH)
 
 
-class PostCommentsSortingParams(BaseSchema):
+class PostCommentsSortingParamsSchema(BaseSchema):
     sort_by: PostCommentsSortingFieldsEnum = PostCommentsSortingFieldsEnum.CREATED_AT
     order: SortingOrderEnum = SortingOrderEnum.DESC

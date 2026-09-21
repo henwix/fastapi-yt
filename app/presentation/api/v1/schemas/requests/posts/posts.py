@@ -14,6 +14,6 @@ class UpdatePostInSchema(BaseUpdateSchema):
     text: str = Field(default='', min_length=POST_TEXT_MIN_LENGTH, max_length=POST_TEXT_MAX_LENGTH)
 
 
-class PostsSortingParams(BaseSchema):
+class PostsSortingParamsSchema(BaseSchema):
     sort_by: PostsSortingFieldsEnum = PostsSortingFieldsEnum.CREATED_AT
     order: SortingOrderEnum = SortingOrderEnum.DESC

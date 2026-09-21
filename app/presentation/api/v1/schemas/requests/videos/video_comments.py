@@ -17,6 +17,6 @@ class UpdateVideoCommentInSchema(BaseUpdateSchema):
     text: str = Field(default='', min_length=VIDEO_COMMENT_TEXT_MIN_LENGTH, max_length=VIDEO_COMMENT_TEXT_MAX_LENGTH)
 
 
-class VideoCommentsSortingParams(BaseSchema):
+class VideoCommentsSortingParamsSchema(BaseSchema):
     sort_by: VideoCommentsSortingFieldsEnum = VideoCommentsSortingFieldsEnum.CREATED_AT
     order: SortingOrderEnum = SortingOrderEnum.DESC

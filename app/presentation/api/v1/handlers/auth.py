@@ -97,7 +97,9 @@ async def register_channel_with_password(
     path='/login/password',
     status_code=status.HTTP_201_CREATED,
     responses={
-        status.HTTP_401_UNAUTHORIZED: error_response(IncorrectEmailOrPasswordError),
+        status.HTTP_401_UNAUTHORIZED: error_response(
+            IncorrectEmailOrPasswordError,
+        ),
     },
 )
 async def login_with_password(
@@ -117,7 +119,9 @@ async def login_with_password(
             JWTTokenExpiredError,
             JWTTokenInvalidError,
         ),
-        status.HTTP_404_NOT_FOUND: error_response(JWTTokenNotFoundError),
+        status.HTTP_404_NOT_FOUND: error_response(
+            JWTTokenNotFoundError,
+        ),
     },
 )
 async def refresh_jwt_token(
@@ -137,7 +141,9 @@ async def refresh_jwt_token(
             JWTTokenExpiredError,
             JWTTokenInvalidError,
         ),
-        status.HTTP_404_NOT_FOUND: error_response(JWTTokenNotFoundError),
+        status.HTTP_404_NOT_FOUND: error_response(
+            JWTTokenNotFoundError,
+        ),
     },
 )
 async def logout(
@@ -149,7 +155,7 @@ async def logout(
 
 
 @router.post(
-    path='/activate',
+    path='/activation',
     status_code=status.HTTP_204_NO_CONTENT,
     responses={
         status.HTTP_400_BAD_REQUEST: error_response(
@@ -182,7 +188,7 @@ async def activate_channel(
 
 
 @router.post(
-    path='/resend_activation',
+    path='/activation/resend',
     status_code=status.HTTP_204_NO_CONTENT,
     responses={
         status.HTTP_401_UNAUTHORIZED: error_response(
@@ -207,7 +213,7 @@ async def resend_channel_activation_code(
 
 
 @router.post(
-    path='/set_email',
+    path='/email',
     status_code=status.HTTP_204_NO_CONTENT,
     responses={
         status.HTTP_401_UNAUTHORIZED: error_response(
@@ -237,7 +243,7 @@ async def set_channel_email(
 
 
 @router.post(
-    path='/set_email_confirm',
+    path='/email/confirm',
     status_code=status.HTTP_204_NO_CONTENT,
     responses={
         status.HTTP_400_BAD_REQUEST: error_response(
@@ -269,7 +275,7 @@ async def set_channel_email_confirm(
 
 
 @router.post(
-    path='/set_password',
+    path='/password',
     status_code=status.HTTP_204_NO_CONTENT,
     responses={
         status.HTTP_401_UNAUTHORIZED: error_response(
@@ -291,7 +297,7 @@ async def set_channel_password(
 
 
 @router.post(
-    path='/reset_password',
+    path='/password/reset',
     status_code=status.HTTP_204_NO_CONTENT,
     responses={
         status.HTTP_204_NO_CONTENT: {'description': 'If an channel with this email exists, a new email has been sent'},
@@ -306,7 +312,7 @@ async def reset_channel_password(
 
 
 @router.post(
-    path='/reset_password_confirm',
+    path='/password/reset/confirm',
     status_code=status.HTTP_204_NO_CONTENT,
     responses={
         status.HTTP_400_BAD_REQUEST: error_response(

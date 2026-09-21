@@ -29,13 +29,10 @@ from app.domain.subscriptions.exceptions import (
 from app.presentation.api.openapi.common import error_response
 from app.presentation.api.v1.di import CurrentChannelID
 from app.presentation.api.v1.handlers.common.path_params import PathChannelSlug
-from app.presentation.api.v1.schemas.requests.common import CursorPaginationParams
-from app.presentation.api.v1.schemas.requests.subscriptions import SubscriptionsSortingParams
+from app.presentation.api.v1.handlers.common.query_params import CursorPaginationParams
+from app.presentation.api.v1.schemas.requests.subscriptions import SubscriptionsSortingParamsSchema
 from app.presentation.api.v1.schemas.responses.common import CursorPaginationResponse
-from app.presentation.api.v1.schemas.responses.subscriptions import (
-    DetailedSubscriptionOutSchema,
-    SubscriptionOutSchema,
-)
+from app.presentation.api.v1.schemas.responses.subscriptions import DetailedSubscriptionOutSchema, SubscriptionOutSchema
 
 router = APIRouter(
     prefix='/channels',
@@ -85,7 +82,9 @@ async def subscribe(
             JWTTokenExpiredError,
             JWTTokenInvalidError,
         ),
-        status.HTTP_403_FORBIDDEN: error_response(ChannelNotActiveError),
+        status.HTTP_403_FORBIDDEN: error_response(
+            ChannelNotActiveError,
+        ),
         status.HTTP_404_NOT_FOUND: error_response(
             ChannelNotFoundByIdError,
             ChannelNotFoundBySlugError,
@@ -105,13 +104,17 @@ async def unsubscribe(
 @router.get(
     path='/subscribers',
     responses={
-        status.HTTP_400_BAD_REQUEST: error_response(InvalidCursorError),
+        status.HTTP_400_BAD_REQUEST: error_response(
+            InvalidCursorError,
+        ),
         status.HTTP_401_UNAUTHORIZED: error_response(
             NotAuthenticatedError,
             JWTTokenExpiredError,
             JWTTokenInvalidError,
         ),
-        status.HTTP_403_FORBIDDEN: error_response(ChannelNotActiveError),
+        status.HTTP_403_FORBIDDEN: error_response(
+            ChannelNotActiveError,
+        ),
         status.HTTP_404_NOT_FOUND: error_response(
             ChannelNotFoundByIdError,
         ),
@@ -119,9 +122,9 @@ async def unsubscribe(
 )
 async def get_subscribers(
     current_channel_id: CurrentChannelID,
+    sorting: Annotated[SubscriptionsSortingParamsSchema, Depends()],
+    pagination: CursorPaginationParams,
     use_case: FromDishka[GetSubscribersUseCase],
-    sorting: Annotated[SubscriptionsSortingParams, Depends()],
-    pagination: Annotated[CursorPaginationParams, Depends()],
     request: Request,
 ) -> CursorPaginationResponse[DetailedSubscriptionOutSchema]:
     query = GetSubscribersQuery(
@@ -139,13 +142,17 @@ async def get_subscribers(
 @router.get(
     '/subscriptions',
     responses={
-        status.HTTP_400_BAD_REQUEST: error_response(InvalidCursorError),
+        status.HTTP_400_BAD_REQUEST: error_response(
+            InvalidCursorError,
+        ),
         status.HTTP_401_UNAUTHORIZED: error_response(
             NotAuthenticatedError,
             JWTTokenExpiredError,
             JWTTokenInvalidError,
         ),
-        status.HTTP_403_FORBIDDEN: error_response(ChannelNotActiveError),
+        status.HTTP_403_FORBIDDEN: error_response(
+            ChannelNotActiveError,
+        ),
         status.HTTP_404_NOT_FOUND: error_response(
             ChannelNotFoundByIdError,
         ),
@@ -153,8 +160,8 @@ async def get_subscribers(
 )
 async def get_subscriptions(
     current_channel_id: CurrentChannelID,
-    sorting: Annotated[SubscriptionsSortingParams, Depends()],
-    pagination: Annotated[CursorPaginationParams, Depends()],
+    sorting: Annotated[SubscriptionsSortingParamsSchema, Depends()],
+    pagination: CursorPaginationParams,
     use_case: FromDishka[GetSubscriptionsUseCase],
     request: Request,
 ) -> CursorPaginationResponse[DetailedSubscriptionOutSchema]:

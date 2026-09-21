@@ -5,10 +5,10 @@ from app.domain.oauth.enums import OAuthProviderEnum
 
 
 @dataclass
-class OAuthGetLoginUrlQuery:
+class GenerateOAuthLoginUrlQuery:
     provider: OAuthProviderEnum
 
 
 @dataclass
-class OAuthGetConnectedAccountsQuery:
+class GetOAuthConnectedAccountsQuery:
     current_channel_id: UUID

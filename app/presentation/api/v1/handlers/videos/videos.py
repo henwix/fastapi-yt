@@ -35,11 +35,11 @@ from app.domain.videos.exceptions import VideoAccessForbiddenError, VideoNotFoun
 from app.presentation.api.openapi.common import error_response
 from app.presentation.api.v1.di import CurrentChannelID, OptionalCurrentChannelID
 from app.presentation.api.v1.handlers.common.path_params import PathChannelSlug, PathVideoId
-from app.presentation.api.v1.schemas.requests.common import CursorPaginationParams
+from app.presentation.api.v1.handlers.common.query_params import CursorPaginationParams
 from app.presentation.api.v1.schemas.requests.videos import (
     CreateVideoInSchema,
-    PersonalPreviewVideosFiltersParams,
-    PreviewVideosSortingParams,
+    PersonalPreviewVideosFiltersParamsSchema,
+    PreviewVideosSortingParamsSchema,
     UpdateVideoInSchema,
 )
 from app.presentation.api.v1.schemas.responses.common import CursorPaginationResponse
@@ -66,8 +66,12 @@ router = APIRouter(
             JWTTokenExpiredError,
             JWTTokenInvalidError,
         ),
-        status.HTTP_403_FORBIDDEN: error_response(ChannelNotActiveError),
-        status.HTTP_404_NOT_FOUND: error_response(ChannelNotFoundByIdError),
+        status.HTTP_403_FORBIDDEN: error_response(
+            ChannelNotActiveError,
+        ),
+        status.HTTP_404_NOT_FOUND: error_response(
+            ChannelNotFoundByIdError,
+        ),
     },
 )
 async def create_video(
@@ -84,9 +88,11 @@ async def create_video(
 
 
 @router.get(
-    path='/videos/personal',
+    path='/videos',
     responses={
-        status.HTTP_400_BAD_REQUEST: error_response(InvalidCursorError),
+        status.HTTP_400_BAD_REQUEST: error_response(
+            InvalidCursorError,
+        ),
         status.HTTP_401_UNAUTHORIZED: error_response(
             NotAuthenticatedError,
             JWTTokenExpiredError,
@@ -103,9 +109,9 @@ async def create_video(
 async def get_personal_videos(
     current_channel_id: CurrentChannelID,
     use_case: FromDishka[GetPersonalVideosUseCase],
-    filters: Annotated[PersonalPreviewVideosFiltersParams, Depends()],
-    sorting: Annotated[PreviewVideosSortingParams, Depends()],
-    pagination: Annotated[CursorPaginationParams, Depends()],
+    filters: Annotated[PersonalPreviewVideosFiltersParamsSchema, Depends()],
+    sorting: Annotated[PreviewVideosSortingParamsSchema, Depends()],
+    pagination: CursorPaginationParams,
     request: Request,
 ) -> CursorPaginationResponse[PersonalPreviewVideoOutSchema]:
     query = GetPersonalVideosQuery(
@@ -124,13 +130,15 @@ async def get_personal_videos(
 @router.get(
     path='/channels/{channel_slug}/videos',
     responses={
-        status.HTTP_404_NOT_FOUND: error_response(ChannelNotFoundBySlugError),
+        status.HTTP_404_NOT_FOUND: error_response(
+            ChannelNotFoundBySlugError,
+        ),
     },
 )
 async def get_channel_videos(
     channel_slug: PathChannelSlug,
-    sorting: Annotated[PreviewVideosSortingParams, Depends()],
-    pagination: Annotated[CursorPaginationParams, Depends()],
+    sorting: Annotated[PreviewVideosSortingParamsSchema, Depends()],
+    pagination: CursorPaginationParams,
     use_case: FromDishka[GetChannelVideosUseCase],
     request: Request,
 ) -> CursorPaginationResponse[ChannelPreviewVideoOutSchema]:
@@ -198,7 +206,10 @@ async def delete_video(
     video_id: PathVideoId,
     use_case: FromDishka[DeleteVideoUseCase],
 ) -> None:
-    command = DeleteVideoCommand(current_channel_id=current_channel_id, video_id=video_id)
+    command = DeleteVideoCommand(
+        current_channel_id=current_channel_id,
+        video_id=video_id,
+    )
     await use_case.execute(command=command)
 
 
@@ -260,5 +271,8 @@ async def delete_video_thumbnail(
     video_id: PathVideoId,
     use_case: FromDishka[DeleteVideoThumbnailUseCase],
 ) -> None:
-    command = DeleteVideoThumbnailCommand(current_channel_id=current_channel_id, video_id=video_id)
+    command = DeleteVideoThumbnailCommand(
+        current_channel_id=current_channel_id,
+        video_id=video_id,
+    )
     await use_case.execute(command=command)

@@ -8,11 +8,11 @@ from pydantic import HttpUrl
 
 from app.application.common.pagination import CursorPagination
 from app.application.posts.commands import CreatePostCommand, DeletePostCommand, UpdatePostCommand
-from app.application.posts.queries import GetPostQuery, GetPostsQuery, PostsSorting
+from app.application.posts.queries import GetChannelPostsQuery, GetPostQuery, PostsSorting
 from app.application.posts.usecases import (
     CreatePostUseCase,
     DeletePostUseCase,
-    GetPostsUseCase,
+    GetChannelPostsUseCase,
     GetPostUseCase,
     UpdatePostUseCase,
 )
@@ -23,8 +23,12 @@ from app.domain.posts.exceptions import PostAccessForbiddenError, PostNotFoundEr
 from app.presentation.api.openapi.common import error_response
 from app.presentation.api.v1.di import CurrentChannelID
 from app.presentation.api.v1.handlers.common.path_params import PathChannelSlug
-from app.presentation.api.v1.schemas.requests.common import CursorPaginationParams
-from app.presentation.api.v1.schemas.requests.posts import CreatePostInSchema, PostsSortingParams, UpdatePostInSchema
+from app.presentation.api.v1.handlers.common.query_params import CursorPaginationParams
+from app.presentation.api.v1.schemas.requests.posts import (
+    CreatePostInSchema,
+    PostsSortingParamsSchema,
+    UpdatePostInSchema,
+)
 from app.presentation.api.v1.schemas.responses.common import CursorPaginationResponse
 from app.presentation.api.v1.schemas.responses.posts import DetailedPostOutSchema, PostOutSchema
 
@@ -44,8 +48,12 @@ router = APIRouter(
             JWTTokenExpiredError,
             JWTTokenInvalidError,
         ),
-        status.HTTP_403_FORBIDDEN: error_response(ChannelNotActiveError),
-        status.HTTP_404_NOT_FOUND: error_response(ChannelNotFoundByIdError),
+        status.HTTP_403_FORBIDDEN: error_response(
+            ChannelNotActiveError,
+        ),
+        status.HTTP_404_NOT_FOUND: error_response(
+            ChannelNotFoundByIdError,
+        ),
     },
 )
 async def create_post(
@@ -53,14 +61,21 @@ async def create_post(
     current_channel_id: CurrentChannelID,
     use_case: FromDishka[CreatePostUseCase],
 ) -> PostOutSchema:
-    command = CreatePostCommand(current_channel_id=current_channel_id, **schema.model_dump())
+    command = CreatePostCommand(
+        current_channel_id=current_channel_id,
+        **schema.model_dump(),
+    )
     post = await use_case.execute(command=command)
     return PostOutSchema.from_entity(entity=post)
 
 
 @router.get(
     path='/posts/{post_id}',
-    responses={status.HTTP_404_NOT_FOUND: error_response(PostNotFoundError)},
+    responses={
+        status.HTTP_404_NOT_FOUND: error_response(
+            PostNotFoundError,
+        ),
+    },
 )
 async def get_post(
     post_id: UUID,
@@ -74,18 +89,22 @@ async def get_post(
 @router.get(
     path='/channels/{channel_slug}/posts',
     responses={
-        status.HTTP_400_BAD_REQUEST: error_response(InvalidCursorError),
-        status.HTTP_404_NOT_FOUND: error_response(ChannelNotFoundBySlugError),
+        status.HTTP_400_BAD_REQUEST: error_response(
+            InvalidCursorError,
+        ),
+        status.HTTP_404_NOT_FOUND: error_response(
+            ChannelNotFoundBySlugError,
+        ),
     },
 )
 async def get_channel_posts(
     channel_slug: PathChannelSlug,
-    sorting: Annotated[PostsSortingParams, Depends()],
-    pagination: Annotated[CursorPaginationParams, Depends()],
-    use_case: FromDishka[GetPostsUseCase],
+    sorting: Annotated[PostsSortingParamsSchema, Depends()],
+    pagination: CursorPaginationParams,
+    use_case: FromDishka[GetChannelPostsUseCase],
     request: Request,
 ) -> CursorPaginationResponse[DetailedPostOutSchema]:
-    query = GetPostsQuery(
+    query = GetChannelPostsQuery(
         channel_slug=channel_slug,
         sorting=PostsSorting(**sorting.model_dump()),
         pagination=CursorPagination(**pagination.model_dump(exclude_none=True)),
@@ -105,8 +124,14 @@ async def get_channel_posts(
             JWTTokenExpiredError,
             JWTTokenInvalidError,
         ),
-        status.HTTP_403_FORBIDDEN: error_response(ChannelNotActiveError, PostAccessForbiddenError),
-        status.HTTP_404_NOT_FOUND: error_response(ChannelNotFoundByIdError, PostNotFoundError),
+        status.HTTP_403_FORBIDDEN: error_response(
+            ChannelNotActiveError,
+            PostAccessForbiddenError,
+        ),
+        status.HTTP_404_NOT_FOUND: error_response(
+            ChannelNotFoundByIdError,
+            PostNotFoundError,
+        ),
     },
 )
 async def update_post(
@@ -133,8 +158,14 @@ async def update_post(
             JWTTokenExpiredError,
             JWTTokenInvalidError,
         ),
-        status.HTTP_403_FORBIDDEN: error_response(ChannelNotActiveError, PostAccessForbiddenError),
-        status.HTTP_404_NOT_FOUND: error_response(ChannelNotFoundByIdError, PostNotFoundError),
+        status.HTTP_403_FORBIDDEN: error_response(
+            ChannelNotActiveError,
+            PostAccessForbiddenError,
+        ),
+        status.HTTP_404_NOT_FOUND: error_response(
+            ChannelNotFoundByIdError,
+            PostNotFoundError,
+        ),
     },
 )
 async def delete_post(

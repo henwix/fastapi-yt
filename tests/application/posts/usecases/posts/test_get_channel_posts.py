@@ -8,7 +8,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from app.application.common.sorting import SortingOrderEnum
 from app.application.posts.dto import DetailedPost
 from app.application.posts.queries import PostsSorting, PostsSortingFieldsEnum
-from app.application.posts.usecases import GetPostsUseCase
+from app.application.posts.usecases import GetChannelPostsUseCase
 from app.domain.channels.exceptions import ChannelNotFoundBySlugError
 from app.domain.common.constants import Empty
 from app.domain.common.exceptions.pagination import InvalidCursorError
@@ -16,13 +16,13 @@ from app.utils.base64url import base64url_decode
 from tests.factories.models.channels import ChannelORMFactory
 from tests.factories.models.posts import PostORMFactory
 from tests.factories.queries.common import CursorPaginationFactory
-from tests.factories.queries.posts import GetPostsQueryFactory
+from tests.factories.queries.posts import GetChannelPostsQueryFactory
 
 
 @pytest.mark.asyncio
 async def test_get_posts_returns_posts_without_next_cursor_if_last_page(mock_container: AsyncContainer):
     async with mock_container() as di:
-        use_case = await di.get(GetPostsUseCase)
+        use_case = await di.get(GetChannelPostsUseCase)
         session = await di.get(AsyncSession)
 
         channel = await ChannelORMFactory.create(session=session)
@@ -33,7 +33,7 @@ async def test_get_posts_returns_posts_without_next_cursor_if_last_page(mock_con
             channel_id=channel.id,
         )
 
-        query = GetPostsQueryFactory.build(
+        query = GetChannelPostsQueryFactory.build(
             channel_slug=channel.slug,
             pagination=CursorPaginationFactory.build(
                 cursor=Empty.UNSET,
@@ -55,7 +55,7 @@ async def test_get_posts_returns_next_cursor_if_more_items_exist(
     expected_order: SortingOrderEnum,
 ):
     async with mock_container() as di:
-        use_case = await di.get(GetPostsUseCase)
+        use_case = await di.get(GetChannelPostsUseCase)
         session = await di.get(AsyncSession)
 
         channel = await ChannelORMFactory.create(session=session)
@@ -71,7 +71,7 @@ async def test_get_posts_returns_next_cursor_if_more_items_exist(
             order=expected_order,
         )
 
-        query = GetPostsQueryFactory.build(
+        query = GetChannelPostsQueryFactory.build(
             channel_slug=channel.slug,
             sorting=sorting,
             pagination=CursorPaginationFactory.build(
@@ -94,7 +94,7 @@ async def test_get_posts_returns_next_cursor_if_more_items_exist(
 @pytest.mark.asyncio
 async def test_get_posts_returns_correct_page_by_cursor(mock_container: AsyncContainer):
     async with mock_container() as di:
-        use_case = await di.get(GetPostsUseCase)
+        use_case = await di.get(GetChannelPostsUseCase)
         session = await di.get(AsyncSession)
 
         channel = await ChannelORMFactory.create(session=session)
@@ -110,7 +110,7 @@ async def test_get_posts_returns_correct_page_by_cursor(mock_container: AsyncCon
             order=SortingOrderEnum.ASC,
         )
 
-        first_query = GetPostsQueryFactory.build(
+        first_query = GetChannelPostsQueryFactory.build(
             channel_slug=channel.slug,
             sorting=sorting,
             pagination=CursorPaginationFactory.build(
@@ -124,7 +124,7 @@ async def test_get_posts_returns_correct_page_by_cursor(mock_container: AsyncCon
         assert len(first_page) == 2
         assert cursor is not None
 
-        second_query = GetPostsQueryFactory.build(
+        second_query = GetChannelPostsQueryFactory.build(
             channel_slug=channel.slug,
             sorting=sorting,
             pagination=CursorPaginationFactory.build(
@@ -144,9 +144,9 @@ async def test_get_posts_returns_correct_page_by_cursor(mock_container: AsyncCon
 @pytest.mark.asyncio
 async def test_get_posts_raises_error_if_cursor_invalid(mock_container: AsyncContainer):
     async with mock_container() as di:
-        use_case = await di.get(GetPostsUseCase)
+        use_case = await di.get(GetChannelPostsUseCase)
 
-        query = GetPostsQueryFactory.build(
+        query = GetChannelPostsQueryFactory.build(
             pagination=CursorPaginationFactory.build(
                 cursor='invalid cursor',
                 per_page=10,
@@ -162,9 +162,9 @@ async def test_get_posts_raises_error_if_channel_not_found_by_slug(
     mock_container: AsyncContainer,
 ):
     async with mock_container() as di:
-        use_case = await di.get(GetPostsUseCase)
+        use_case = await di.get(GetChannelPostsUseCase)
 
-        query = GetPostsQueryFactory.build(
+        query = GetChannelPostsQueryFactory.build(
             channel_slug='non-existing-slug',
             pagination=CursorPaginationFactory.build(),
         )

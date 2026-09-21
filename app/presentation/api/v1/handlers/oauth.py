@@ -1,13 +1,13 @@
 from dishka.integrations.fastapi import DishkaRoute, FromDishka
 from fastapi import APIRouter, Response, status
 
-from app.application.oauth.commands import OAuthDisconnectAccountCommand, OAuthVerifyCodeCommand
-from app.application.oauth.queries import OAuthGetConnectedAccountsQuery, OAuthGetLoginUrlQuery
+from app.application.oauth.commands import DisconnectOAuthAccountCommand, VerifyOAuthCodeCommand
+from app.application.oauth.queries import GenerateOAuthLoginUrlQuery, GetOAuthConnectedAccountsQuery
 from app.application.oauth.usecases import (
-    OAuthDisconnectAccountUseCase,
-    OAuthGetConnectedAccountsUseCase,
-    OAuthGetLoginUrlUseCase,
-    OAuthVerifyCodeUseCase,
+    DisconnectOAuthAccountUseCase,
+    GenerateOAuthLoginUrlUseCase,
+    GetOAuthConnectedAccountsUseCase,
+    VerifyOAuthCodeUseCase,
 )
 from app.domain.auth.exceptions import JWTTokenExpiredError, JWTTokenInvalidError, NotAuthenticatedError
 from app.domain.channels.exceptions import (
@@ -32,7 +32,7 @@ from app.domain.oauth.exceptions import (
 )
 from app.presentation.api.openapi.common import error_response
 from app.presentation.api.v1.di import CurrentChannelID, OptionalCurrentChannelID
-from app.presentation.api.v1.schemas.requests.oauth import OAuthVerifyCodeInSchema
+from app.presentation.api.v1.schemas.requests.oauth import VerifyOAuthCodeInSchema
 from app.presentation.api.v1.schemas.responses.auth import JWTTokensOutSchema
 from app.presentation.api.v1.schemas.responses.oauth import OAuthAccountOutSchema, OAuthLoginUrlOutSchema
 
@@ -44,20 +44,20 @@ router = APIRouter(
 
 
 @router.get(
-    path='/{provider}/login_url',
-    summary='Get OAuth Login Url',
+    path='/{oauth_provider}/login/url',
+    summary='Generate OAuth Login Url',
 )
-async def get_login_url(
-    provider: OAuthProviderEnum,
-    use_case: FromDishka[OAuthGetLoginUrlUseCase],
+async def generate_oauth_login_url(
+    oauth_provider: OAuthProviderEnum,
+    use_case: FromDishka[GenerateOAuthLoginUrlUseCase],
 ) -> OAuthLoginUrlOutSchema:
-    query = OAuthGetLoginUrlQuery(provider=provider)
+    query = GenerateOAuthLoginUrlQuery(provider=oauth_provider)
     login_url = await use_case.execute(query=query)
     return OAuthLoginUrlOutSchema(login_url=login_url)
 
 
 @router.post(
-    path='/{provider}/verify_code',
+    path='/{oauth_provider}/login/verify',
     status_code=status.HTTP_201_CREATED,
     responses={
         status.HTTP_201_CREATED: {
@@ -94,16 +94,16 @@ async def get_login_url(
     },
     summary='Verify OAuth Code',
 )
-async def verify_code(
+async def verify_oauth_code(
     current_channel_id: OptionalCurrentChannelID,
-    provider: OAuthProviderEnum,
-    schema: OAuthVerifyCodeInSchema,
-    use_case: FromDishka[OAuthVerifyCodeUseCase],
+    oauth_provider: OAuthProviderEnum,
+    schema: VerifyOAuthCodeInSchema,
+    use_case: FromDishka[VerifyOAuthCodeUseCase],
     response: Response,
 ) -> JWTTokensOutSchema | None:
-    command = OAuthVerifyCodeCommand(
+    command = VerifyOAuthCodeCommand(
         current_channel_id=current_channel_id,
-        provider=provider,
+        provider=oauth_provider,
         **schema.model_dump(),
     )
     result = await use_case.execute(command=command)
@@ -121,22 +121,26 @@ async def verify_code(
             JWTTokenExpiredError,
             JWTTokenInvalidError,
         ),
-        status.HTTP_403_FORBIDDEN: error_response(ChannelNotActiveError),
-        status.HTTP_404_NOT_FOUND: error_response(ChannelNotFoundByIdError),
+        status.HTTP_403_FORBIDDEN: error_response(
+            ChannelNotActiveError,
+        ),
+        status.HTTP_404_NOT_FOUND: error_response(
+            ChannelNotFoundByIdError,
+        ),
     },
     summary='Get OAuth Connected Accounts',
 )
 async def get_oauth_connected_accounts(
     current_channel_id: CurrentChannelID,
-    use_case: FromDishka[OAuthGetConnectedAccountsUseCase],
+    use_case: FromDishka[GetOAuthConnectedAccountsUseCase],
 ) -> list[OAuthAccountOutSchema]:
-    query = OAuthGetConnectedAccountsQuery(current_channel_id=current_channel_id)
+    query = GetOAuthConnectedAccountsQuery(current_channel_id=current_channel_id)
     accounts = await use_case.execute(query=query)
     return [OAuthAccountOutSchema.from_dto(dto=account) for account in accounts]
 
 
 @router.delete(
-    path='/{provider}',
+    path='/{oauth_provider}',
     status_code=status.HTTP_204_NO_CONTENT,
     summary='Disconnect OAuth Account',
     responses={
@@ -145,7 +149,9 @@ async def get_oauth_connected_accounts(
             JWTTokenExpiredError,
             JWTTokenInvalidError,
         ),
-        status.HTTP_403_FORBIDDEN: error_response(ChannelNotActiveError),
+        status.HTTP_403_FORBIDDEN: error_response(
+            ChannelNotActiveError,
+        ),
         status.HTTP_404_NOT_FOUND: error_response(
             ChannelNotFoundByIdError,
             OAuthNoAccountsConnectedError,
@@ -158,11 +164,11 @@ async def get_oauth_connected_accounts(
 )
 async def disconnect_oauth_account(
     current_channel_id: CurrentChannelID,
-    provider: OAuthProviderEnum,
-    use_case: FromDishka[OAuthDisconnectAccountUseCase],
+    oauth_provider: OAuthProviderEnum,
+    use_case: FromDishka[DisconnectOAuthAccountUseCase],
 ) -> None:
-    command = OAuthDisconnectAccountCommand(
+    command = DisconnectOAuthAccountCommand(
         current_channel_id=current_channel_id,
-        provider=provider,
+        provider=oauth_provider,
     )
     await use_case.execute(command=command)

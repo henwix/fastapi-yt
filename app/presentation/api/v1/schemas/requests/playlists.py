@@ -23,11 +23,11 @@ class UpdatePlaylistInSchema(BaseUpdateSchema):
     privacy_status: PlaylistPrivacyStatusEnum = PlaylistPrivacyStatusEnum.PUBLIC
 
 
-class PlaylistsPreviewSortingParams(BaseSchema):
+class PlaylistsPreviewSortingParamsSchema(BaseSchema):
     sort_by: PlaylistsPreviewSortingFieldsEnum = PlaylistsPreviewSortingFieldsEnum.CREATED_AT
     order: SortingOrderEnum = SortingOrderEnum.DESC
 
 
-class PlaylistVideosSortingParams(BaseSchema):
+class PlaylistVideosSortingParamsSchema(BaseSchema):
     sort_by: PlaylistVideosSortingFieldsEnum = PlaylistVideosSortingFieldsEnum.ADDED_AT
     order: SortingOrderEnum = SortingOrderEnum.DESC

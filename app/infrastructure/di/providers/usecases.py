@@ -29,10 +29,10 @@ from app.application.common.usecases.email import (
 )
 from app.application.common.usecases.s3 import AbortMultipartUploadUseCase, DeleteS3ObjectUseCase
 from app.application.oauth.usecases import (
-    OAuthDisconnectAccountUseCase,
-    OAuthGetConnectedAccountsUseCase,
-    OAuthGetLoginUrlUseCase,
-    OAuthVerifyCodeUseCase,
+    DisconnectOAuthAccountUseCase,
+    GenerateOAuthLoginUrlUseCase,
+    GetOAuthConnectedAccountsUseCase,
+    VerifyOAuthCodeUseCase,
 )
 from app.application.playlists.usecases import (
     AddVideoToPlaylistUseCase,
@@ -54,9 +54,9 @@ from app.application.posts.usecases import (
     DeletePostCommentUseCase,
     DeletePostReactionUseCase,
     DeletePostUseCase,
+    GetChannelPostsUseCase,
     GetPostCommentRepliesUseCase,
     GetPostCommentsUseCase,
-    GetPostsUseCase,
     GetPostUseCase,
     UpdatePostCommentUseCase,
     UpdatePostUseCase,
@@ -126,10 +126,10 @@ class UseCasesProvider(Provider):
     reset_channel_password_confirm = provide(ResetChannelPasswordConfirmUseCase)
 
     # OAuth
-    get_login_url = provide(OAuthGetLoginUrlUseCase)
-    verify_code = provide(OAuthVerifyCodeUseCase)
-    get_connected_accounts = provide(OAuthGetConnectedAccountsUseCase)
-    disconnect_account = provide(OAuthDisconnectAccountUseCase)
+    generate_oauth_login_url = provide(GenerateOAuthLoginUrlUseCase)
+    verify_oauth_code = provide(VerifyOAuthCodeUseCase)
+    get_oauth_connected_accounts = provide(GetOAuthConnectedAccountsUseCase)
+    disconnect_oauth_account = provide(DisconnectOAuthAccountUseCase)
 
     # Videos
     create_video = provide(CreateVideoUseCase)
@@ -189,7 +189,7 @@ class UseCasesProvider(Provider):
     # Posts
     create_post = provide(CreatePostUseCase)
     get_post = provide(GetPostUseCase)
-    get_posts = provide(GetPostsUseCase)
+    get_channel_posts = provide(GetChannelPostsUseCase)
     update_post = provide(UpdatePostUseCase)
     delete_post = provide(DeletePostUseCase)
 

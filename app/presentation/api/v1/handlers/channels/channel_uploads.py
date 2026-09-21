@@ -1,14 +1,8 @@
 from dishka.integrations.fastapi import DishkaRoute, FromDishka
 from fastapi import APIRouter, status
 
-from app.application.channels.commands import (
-    ConfirmChannelAvatarUploadCommand,
-    GenerateChannelAvatarUploadUrlCommand,
-)
-from app.application.channels.usecases import (
-    ConfirmChannelAvatarUploadUseCase,
-    GenerateChannelAvatarUploadUrlUseCase,
-)
+from app.application.channels.commands import ConfirmChannelAvatarUploadCommand, GenerateChannelAvatarUploadUrlCommand
+from app.application.channels.usecases import ConfirmChannelAvatarUploadUseCase, GenerateChannelAvatarUploadUrlUseCase
 from app.domain.auth.exceptions import JWTTokenExpiredError, JWTTokenInvalidError, NotAuthenticatedError
 from app.domain.channels.exceptions import (
     ChannelAvatarAlreadySetError,
@@ -28,21 +22,20 @@ from app.domain.common.exceptions.s3 import (
 from app.presentation.api.openapi.common import error_response
 from app.presentation.api.v1.di import CurrentChannelID
 from app.presentation.api.v1.schemas.requests.channels import (
-    ChannelAvatarUploadConfirmInSchema,
+    ConfirmChannelAvatarUploadInSchema,
     GenerateChannelAvatarUploadUrlInSchema,
 )
-from app.presentation.api.v1.schemas.responses.channels import GenerateChannelAvatarUploadUrlOutSchema
+from app.presentation.api.v1.schemas.responses.channels import ChannelAvatarUploadUrlOutSchema
 
 router = APIRouter(
-    prefix='/channels',
+    prefix='/channels/avatar',
     tags=['Channel Uploads'],
     route_class=DishkaRoute,
 )
 
 
 @router.post(
-    path='/avatar_upload_url',
-    status_code=status.HTTP_201_CREATED,
+    path='/upload/url',
     responses={
         status.HTTP_400_BAD_REQUEST: error_response(
             ChannelAvatarInvalidFilenameError,
@@ -70,7 +63,7 @@ async def generate_channel_avatar_upload_url(
     current_channel_id: CurrentChannelID,
     schema: GenerateChannelAvatarUploadUrlInSchema,
     use_case: FromDishka[GenerateChannelAvatarUploadUrlUseCase],
-) -> GenerateChannelAvatarUploadUrlOutSchema:
+) -> ChannelAvatarUploadUrlOutSchema:
     """
     Allowed mime types for Channel Avatar file:
     - **.png**
@@ -86,7 +79,7 @@ async def generate_channel_avatar_upload_url(
         **schema.model_dump(),
     )
     url, key, channel_id = await use_case.execute(command=command)
-    return GenerateChannelAvatarUploadUrlOutSchema(
+    return ChannelAvatarUploadUrlOutSchema(
         upload_url=url,
         key=key,
         channel_id=channel_id,
@@ -94,7 +87,7 @@ async def generate_channel_avatar_upload_url(
 
 
 @router.post(
-    '/avatar_upload_confirm',
+    '/upload/confirm',
     status_code=status.HTTP_204_NO_CONTENT,
     responses={
         status.HTTP_400_BAD_REQUEST: error_response(
@@ -105,8 +98,14 @@ async def generate_channel_avatar_upload_url(
             JWTTokenExpiredError,
             JWTTokenInvalidError,
         ),
-        status.HTTP_403_FORBIDDEN: error_response(ChannelNotActiveError, S3ObjectAccessForbiddenError),
-        status.HTTP_404_NOT_FOUND: error_response(ChannelNotFoundByIdError, S3ObjectNotFoundError),
+        status.HTTP_403_FORBIDDEN: error_response(
+            ChannelNotActiveError,
+            S3ObjectAccessForbiddenError,
+        ),
+        status.HTTP_404_NOT_FOUND: error_response(
+            ChannelNotFoundByIdError,
+            S3ObjectNotFoundError,
+        ),
         status.HTTP_409_CONFLICT: error_response(
             ChannelAvatarAlreadySetError,
             ChannelAvatarInvalidContentTypeError,
@@ -120,10 +119,13 @@ async def generate_channel_avatar_upload_url(
         ),
     },
 )
-async def channel_avatar_upload_confirm(
+async def confirm_channel_avatar_upload(
     current_channel_id: CurrentChannelID,
-    schema: ChannelAvatarUploadConfirmInSchema,
+    schema: ConfirmChannelAvatarUploadInSchema,
     use_case: FromDishka[ConfirmChannelAvatarUploadUseCase],
 ) -> None:
-    command = ConfirmChannelAvatarUploadCommand(current_channel_id=current_channel_id, **schema.model_dump())
+    command = ConfirmChannelAvatarUploadCommand(
+        current_channel_id=current_channel_id,
+        **schema.model_dump(),
+    )
     await use_case.execute(command=command)

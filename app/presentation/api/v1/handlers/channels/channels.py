@@ -1,11 +1,7 @@
 from dishka.integrations.fastapi import DishkaRoute, FromDishka
 from fastapi import APIRouter, status
 
-from app.application.channels.commands import (
-    DeleteChannelAvatarCommand,
-    DeleteChannelCommand,
-    UpdateChannelCommand,
-)
+from app.application.channels.commands import DeleteChannelAvatarCommand, DeleteChannelCommand, UpdateChannelCommand
 from app.application.channels.queries import GetChannelAboutInfoQuery, GetChannelQuery
 from app.application.channels.usecases import (
     DeleteChannelAvatarUseCase,
@@ -22,18 +18,12 @@ from app.domain.channels.exceptions import (
     ChannelNotFoundBySlugError,
     ChannelSlugAlreadyExistsError,
 )
-from app.domain.common.exceptions.s3 import (
-    S3RequestError,
-    S3ResponseError,
-)
+from app.domain.common.exceptions.s3 import S3RequestError, S3ResponseError
 from app.presentation.api.openapi.common import error_response
 from app.presentation.api.v1.di import CurrentChannelID
 from app.presentation.api.v1.handlers.common.path_params import PathChannelSlug
 from app.presentation.api.v1.schemas.requests.channels import UpdateChannelInSchema
-from app.presentation.api.v1.schemas.responses.channels import (
-    ChannelAboutInfoOutSchema,
-    ChannelOutSchema,
-)
+from app.presentation.api.v1.schemas.responses.channels import ChannelAboutInfoOutSchema, ChannelOutSchema
 
 router = APIRouter(
     prefix='/channels',
@@ -50,7 +40,9 @@ router = APIRouter(
             JWTTokenExpiredError,
             JWTTokenInvalidError,
         ),
-        status.HTTP_404_NOT_FOUND: error_response(ChannelNotFoundByIdError),
+        status.HTTP_404_NOT_FOUND: error_response(
+            ChannelNotFoundByIdError,
+        ),
     },
 )
 async def get_channel(
@@ -70,9 +62,15 @@ async def get_channel(
             JWTTokenExpiredError,
             JWTTokenInvalidError,
         ),
-        status.HTTP_403_FORBIDDEN: error_response(ChannelNotActiveError),
-        status.HTTP_404_NOT_FOUND: error_response(ChannelNotFoundByIdError),
-        status.HTTP_409_CONFLICT: error_response(ChannelSlugAlreadyExistsError),
+        status.HTTP_403_FORBIDDEN: error_response(
+            ChannelNotActiveError,
+        ),
+        status.HTTP_404_NOT_FOUND: error_response(
+            ChannelNotFoundByIdError,
+        ),
+        status.HTTP_409_CONFLICT: error_response(
+            ChannelSlugAlreadyExistsError,
+        ),
     },
 )
 async def update_channel(
@@ -80,7 +78,10 @@ async def update_channel(
     current_channel_id: CurrentChannelID,
     use_case: FromDishka[UpdateChannelUseCase],
 ) -> ChannelOutSchema:
-    command = UpdateChannelCommand(current_channel_id=current_channel_id, **schema.model_dump(exclude_unset=True))
+    command = UpdateChannelCommand(
+        current_channel_id=current_channel_id,
+        **schema.model_dump(exclude_unset=True),
+    )
     channel = await use_case.execute(command=command)
     return ChannelOutSchema.from_entity(entity=channel)
 
@@ -94,8 +95,12 @@ async def update_channel(
             JWTTokenExpiredError,
             JWTTokenInvalidError,
         ),
-        status.HTTP_403_FORBIDDEN: error_response(ChannelNotActiveError),
-        status.HTTP_404_NOT_FOUND: error_response(ChannelNotFoundByIdError),
+        status.HTTP_403_FORBIDDEN: error_response(
+            ChannelNotActiveError,
+        ),
+        status.HTTP_404_NOT_FOUND: error_response(
+            ChannelNotFoundByIdError,
+        ),
     },
 )
 async def delete_channel(
@@ -130,8 +135,13 @@ async def get_channel_about_info(
             JWTTokenExpiredError,
             JWTTokenInvalidError,
         ),
-        status.HTTP_403_FORBIDDEN: error_response(ChannelNotActiveError),
-        status.HTTP_404_NOT_FOUND: error_response(ChannelNotFoundByIdError, ChannelAvatarNotFoundError),
+        status.HTTP_403_FORBIDDEN: error_response(
+            ChannelNotActiveError,
+        ),
+        status.HTTP_404_NOT_FOUND: error_response(
+            ChannelNotFoundByIdError,
+            ChannelAvatarNotFoundError,
+        ),
         status.HTTP_500_INTERNAL_SERVER_ERROR: error_response(
             S3RequestError,
         ),

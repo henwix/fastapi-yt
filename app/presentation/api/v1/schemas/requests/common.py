@@ -3,7 +3,7 @@ from pydantic import Field
 from app.presentation.api.v1.schemas.base import BaseSchema
 
 
-class CursorPaginationParams(BaseSchema):
+class CursorPaginationParamsSchema(BaseSchema):
     cursor: str | None = None
     per_page: int = Field(default=25, ge=1, le=100)
 

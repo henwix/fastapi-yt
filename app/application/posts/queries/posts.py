@@ -17,7 +17,7 @@ class PostsSorting:
 
 
 @dataclass(kw_only=True, frozen=True)
-class GetPostsQuery:
+class GetChannelPostsQuery:
     channel_slug: str
     sorting: PostsSorting
     pagination: CursorPagination

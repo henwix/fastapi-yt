@@ -1,11 +1,11 @@
-from .disconnect_account import OAuthDisconnectAccountUseCase
-from .get_connected_accounts import OAuthGetConnectedAccountsUseCase
-from .get_login_url import OAuthGetLoginUrlUseCase
-from .verify_code import OAuthVerifyCodeUseCase
+from .disconnect_account import DisconnectOAuthAccountUseCase
+from .get_connected_accounts import GetOAuthConnectedAccountsUseCase
+from .get_login_url import GenerateOAuthLoginUrlUseCase
+from .verify_code import VerifyOAuthCodeUseCase
 
 __all__ = (
-    'OAuthDisconnectAccountUseCase',
-    'OAuthGetConnectedAccountsUseCase',
-    'OAuthGetLoginUrlUseCase',
-    'OAuthVerifyCodeUseCase',
+    'DisconnectOAuthAccountUseCase',
+    'GenerateOAuthLoginUrlUseCase',
+    'GetOAuthConnectedAccountsUseCase',
+    'VerifyOAuthCodeUseCase',
 )

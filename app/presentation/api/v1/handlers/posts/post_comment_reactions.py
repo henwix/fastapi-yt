@@ -40,7 +40,9 @@ router = APIRouter(
             JWTTokenExpiredError,
             JWTTokenInvalidError,
         ),
-        status.HTTP_403_FORBIDDEN: error_response(ChannelNotActiveError),
+        status.HTTP_403_FORBIDDEN: error_response(
+            ChannelNotActiveError,
+        ),
         status.HTTP_404_NOT_FOUND: error_response(
             ChannelNotFoundByIdError,
             PostCommentNotFoundError,
@@ -75,7 +77,9 @@ async def create_post_comment_reaction(
             JWTTokenExpiredError,
             JWTTokenInvalidError,
         ),
-        status.HTTP_403_FORBIDDEN: error_response(ChannelNotActiveError),
+        status.HTTP_403_FORBIDDEN: error_response(
+            ChannelNotActiveError,
+        ),
         status.HTTP_404_NOT_FOUND: error_response(
             ChannelNotFoundByIdError,
             PostCommentNotFoundError,

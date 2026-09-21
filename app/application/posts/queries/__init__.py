@@ -4,13 +4,13 @@ from .post_comments import (
     PostCommentsSorting,
     PostCommentsSortingFieldsEnum,
 )
-from .posts import GetPostQuery, GetPostsQuery, PostsSorting, PostsSortingFieldsEnum
+from .posts import GetChannelPostsQuery, GetPostQuery, PostsSorting, PostsSortingFieldsEnum
 
 __all__ = (
+    'GetChannelPostsQuery',
     'GetPostCommentRepliesQuery',
     'GetPostCommentsQuery',
     'GetPostQuery',
-    'GetPostsQuery',
     'PostCommentsSorting',
     'PostCommentsSortingFieldsEnum',
     'PostsSorting',

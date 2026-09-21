@@ -23,11 +23,11 @@ class UpdateVideoInSchema(BaseUpdateSchema):
     privacy_status: VideoPrivacyStatusEnum = VideoPrivacyStatusEnum.PUBLIC
 
 
-class PersonalPreviewVideosFiltersParams(BaseSchema):
+class PersonalPreviewVideosFiltersParamsSchema(BaseSchema):
     privacy_status: VideoPrivacyStatusEnum | None = None
     upload_status: VideoUploadStatusEnum | None = None
 
 
-class PreviewVideosSortingParams(BaseSchema):
+class PreviewVideosSortingParamsSchema(BaseSchema):
     sort_by: PreviewVideosSortingFieldEnum = PreviewVideosSortingFieldEnum.CREATED_AT
     order: SortingOrderEnum = SortingOrderEnum.DESC

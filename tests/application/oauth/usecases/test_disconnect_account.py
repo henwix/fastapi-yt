@@ -5,7 +5,7 @@ from dishka import AsyncContainer
 from sqlalchemy import exists, select
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from app.application.oauth.usecases import OAuthDisconnectAccountUseCase
+from app.application.oauth.usecases import DisconnectOAuthAccountUseCase
 from app.domain.channels.exceptions import ChannelNotActiveError, ChannelNotFoundByIdError
 from app.domain.oauth.enums import OAuthProviderEnum
 from app.domain.oauth.exceptions import (
@@ -14,7 +14,7 @@ from app.domain.oauth.exceptions import (
     OAuthNoAccountsConnectedError,
 )
 from app.infrastructure.sqlalchemy.models import OAuthAccountORM
-from tests.factories.commands.oauth import OAuthDisconnectAccountCommandFactory
+from tests.factories.commands.oauth import DisconnectOAuthAccountCommandFactory
 from tests.factories.models.channels import ChannelORMFactory
 from tests.factories.models.oauth import OAuthAcccountORMFactory
 
@@ -24,13 +24,13 @@ async def test_disconnect_oauth_account_returns_none_if_account_disconnected_and
     mock_container: AsyncContainer,
 ):
     async with mock_container() as di:
-        use_case = await di.get(OAuthDisconnectAccountUseCase)
+        use_case = await di.get(DisconnectOAuthAccountUseCase)
         session = await di.get(AsyncSession)
 
         db_channel = await ChannelORMFactory.create(session=session)
         db_oauth_account = await OAuthAcccountORMFactory.create(session=session, channel_id=db_channel.id)
 
-        command = OAuthDisconnectAccountCommandFactory.build(
+        command = DisconnectOAuthAccountCommandFactory.build(
             current_channel_id=db_channel.id,
             provider=OAuthProviderEnum(db_oauth_account.provider),
         )
@@ -57,12 +57,12 @@ async def test_disconnect_oauth_account_returns_none_if_account_disconnected_and
 @pytest.mark.asyncio
 async def test_disconnect_oauth_account_raises_error_if_channel_not_active(mock_container: AsyncContainer):
     async with mock_container() as di:
-        use_case = await di.get(OAuthDisconnectAccountUseCase)
+        use_case = await di.get(DisconnectOAuthAccountUseCase)
         session = await di.get(AsyncSession)
 
         db_channel = await ChannelORMFactory.create(session=session, is_active=False)
 
-        command = OAuthDisconnectAccountCommandFactory.build(
+        command = DisconnectOAuthAccountCommandFactory.build(
             current_channel_id=db_channel.id,
             provider=OAuthProviderEnum.GITHUB,
         )
@@ -74,9 +74,9 @@ async def test_disconnect_oauth_account_raises_error_if_channel_not_active(mock_
 @pytest.mark.asyncio
 async def test_disconnect_oauth_account_raises_error_if_channel_not_found(mock_container: AsyncContainer):
     async with mock_container() as di:
-        use_case = await di.get(OAuthDisconnectAccountUseCase)
+        use_case = await di.get(DisconnectOAuthAccountUseCase)
 
-        command = OAuthDisconnectAccountCommandFactory.build(
+        command = DisconnectOAuthAccountCommandFactory.build(
             current_channel_id=uuid7(),
             provider=OAuthProviderEnum.GITHUB,
         )
@@ -90,12 +90,12 @@ async def test_disconnect_oauth_account_raises_error_if_no_connected_oauth_accou
     mock_container: AsyncContainer,
 ):
     async with mock_container() as di:
-        use_case = await di.get(OAuthDisconnectAccountUseCase)
+        use_case = await di.get(DisconnectOAuthAccountUseCase)
         session = await di.get(AsyncSession)
 
         db_channel = await ChannelORMFactory.create(session=session)
 
-        command = OAuthDisconnectAccountCommandFactory.build(
+        command = DisconnectOAuthAccountCommandFactory.build(
             current_channel_id=db_channel.id,
             provider=OAuthProviderEnum.GITHUB,
         )
@@ -118,7 +118,7 @@ async def test_disconnect_oauth_account_raises_error_if_oauth_account_not_connec
     not_connected_provider: OAuthProviderEnum,
 ):
     async with mock_container() as di:
-        use_case = await di.get(OAuthDisconnectAccountUseCase)
+        use_case = await di.get(DisconnectOAuthAccountUseCase)
         session = await di.get(AsyncSession)
 
         db_channel = await ChannelORMFactory.create(session=session)
@@ -128,7 +128,7 @@ async def test_disconnect_oauth_account_raises_error_if_oauth_account_not_connec
             provider=connected_provider.value,
         )
 
-        command = OAuthDisconnectAccountCommandFactory.build(
+        command = DisconnectOAuthAccountCommandFactory.build(
             current_channel_id=db_channel.id,
             provider=not_connected_provider,
         )
@@ -158,7 +158,7 @@ async def test_disconnect_oauth_account_raises_error_if_channel_has_no_password_
     mock_container: AsyncContainer,
 ):
     async with mock_container() as di:
-        use_case = await di.get(OAuthDisconnectAccountUseCase)
+        use_case = await di.get(DisconnectOAuthAccountUseCase)
         session = await di.get(AsyncSession)
 
         db_channel = await ChannelORMFactory.create(session=session, password_hash=None)
@@ -167,7 +167,7 @@ async def test_disconnect_oauth_account_raises_error_if_channel_has_no_password_
             channel_id=db_channel.id,
         )
 
-        command = OAuthDisconnectAccountCommandFactory.build(
+        command = DisconnectOAuthAccountCommandFactory.build(
             current_channel_id=db_channel.id,
             provider=OAuthProviderEnum(db_oauth_account.provider),
         )
@@ -206,7 +206,7 @@ async def test_disconnect_oauth_account_disconnected_without_password_if_more_th
     second_provider: OAuthProviderEnum,
 ):
     async with mock_container() as di:
-        use_case = await di.get(OAuthDisconnectAccountUseCase)
+        use_case = await di.get(DisconnectOAuthAccountUseCase)
         session = await di.get(AsyncSession)
 
         db_channel = await ChannelORMFactory.create(session=session, password_hash=None)
@@ -221,7 +221,7 @@ async def test_disconnect_oauth_account_disconnected_without_password_if_more_th
             provider=second_provider.value,
         )
 
-        command = OAuthDisconnectAccountCommandFactory.build(
+        command = DisconnectOAuthAccountCommandFactory.build(
             current_channel_id=db_channel.id,
             provider=OAuthProviderEnum(first_db_oauth_account.provider),
         )

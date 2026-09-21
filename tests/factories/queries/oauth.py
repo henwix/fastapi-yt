@@ -1,11 +1,11 @@
 from polyfactory.factories import DataclassFactory
 
-from app.application.oauth.queries import OAuthGetConnectedAccountsQuery, OAuthGetLoginUrlQuery
+from app.application.oauth.queries import GenerateOAuthLoginUrlQuery, GetOAuthConnectedAccountsQuery
 
 
-class OAuthGetLoginUrlQueryFactory(DataclassFactory[OAuthGetLoginUrlQuery]):
-    __model__ = OAuthGetLoginUrlQuery
+class GenerateOAuthLoginUrlQueryFactory(DataclassFactory[GenerateOAuthLoginUrlQuery]):
+    __model__ = GenerateOAuthLoginUrlQuery
 
 
-class OAuthGetConnectedAccountsQueryFactory(DataclassFactory[OAuthGetConnectedAccountsQuery]):
-    __model__ = OAuthGetConnectedAccountsQuery
+class GetOAuthConnectedAccountsQueryFactory(DataclassFactory[GetOAuthConnectedAccountsQuery]):
+    __model__ = GetOAuthConnectedAccountsQuery

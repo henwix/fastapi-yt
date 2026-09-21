@@ -1,6 +1,6 @@
 from polyfactory.factories import DataclassFactory
 
-from app.application.posts.queries import GetPostQuery, GetPostsQuery, PostsSorting
+from app.application.posts.queries import GetChannelPostsQuery, GetPostQuery, PostsSorting
 
 
 class GetPostQueryFactory(DataclassFactory[GetPostQuery]):
@@ -11,5 +11,5 @@ class PostsSortingFactory(DataclassFactory[PostsSorting]):
     __model__ = PostsSorting
 
 
-class GetPostsQueryFactory(DataclassFactory[GetPostsQuery]):
-    __model__ = GetPostsQuery
+class GetChannelPostsQueryFactory(DataclassFactory[GetChannelPostsQuery]):
+    __model__ = GetChannelPostsQuery

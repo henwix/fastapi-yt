@@ -7,7 +7,7 @@ from .post_comments import (
     UpdatePostCommentUseCase,
 )
 from .post_reactions import CreatePostReactionUseCase, DeletePostReactionUseCase
-from .posts import CreatePostUseCase, DeletePostUseCase, GetPostsUseCase, GetPostUseCase, UpdatePostUseCase
+from .posts import CreatePostUseCase, DeletePostUseCase, GetChannelPostsUseCase, GetPostUseCase, UpdatePostUseCase
 
 __all__ = (
     'CreatePostCommentReactionUseCase',
@@ -18,10 +18,10 @@ __all__ = (
     'DeletePostCommentUseCase',
     'DeletePostReactionUseCase',
     'DeletePostUseCase',
+    'GetChannelPostsUseCase',
     'GetPostCommentRepliesUseCase',
     'GetPostCommentsUseCase',
     'GetPostUseCase',
-    'GetPostsUseCase',
     'UpdatePostCommentUseCase',
     'UpdatePostUseCase',
 )

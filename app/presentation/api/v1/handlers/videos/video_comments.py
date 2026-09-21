@@ -31,11 +31,11 @@ from app.domain.videos.exceptions import (
 from app.presentation.api.openapi.common import error_response
 from app.presentation.api.v1.di import CurrentChannelID
 from app.presentation.api.v1.handlers.common.path_params import PathVideoId
-from app.presentation.api.v1.schemas.requests.common import CursorPaginationParams
+from app.presentation.api.v1.handlers.common.query_params import CursorPaginationParams
 from app.presentation.api.v1.schemas.requests.videos import (
     CreateVideoCommentInSchema,
     UpdateVideoCommentInSchema,
-    VideoCommentsSortingParams,
+    VideoCommentsSortingParamsSchema,
 )
 from app.presentation.api.v1.schemas.responses.common import CursorPaginationResponse
 from app.presentation.api.v1.schemas.responses.videos import DetailedVideoCommentOutSchema, VideoCommentOutSchema
@@ -85,14 +85,18 @@ async def create_video_comment(
 @router.get(
     path='/videos/{video_id}/comments',
     responses={
-        status.HTTP_400_BAD_REQUEST: error_response(InvalidCursorError),
-        status.HTTP_404_NOT_FOUND: error_response(VideoNotFoundError),
+        status.HTTP_400_BAD_REQUEST: error_response(
+            InvalidCursorError,
+        ),
+        status.HTTP_404_NOT_FOUND: error_response(
+            VideoNotFoundError,
+        ),
     },
 )
 async def get_video_comments(
     video_id: PathVideoId,
-    sorting: Annotated[VideoCommentsSortingParams, Depends()],
-    pagination: Annotated[CursorPaginationParams, Depends()],
+    sorting: Annotated[VideoCommentsSortingParamsSchema, Depends()],
+    pagination: CursorPaginationParams,
     use_case: FromDishka[GetVideoCommentsUseCase],
     request: Request,
 ) -> CursorPaginationResponse[DetailedVideoCommentOutSchema]:
@@ -111,14 +115,18 @@ async def get_video_comments(
 @router.get(
     path='/video_comments/{video_comment_id}/replies',
     responses={
-        status.HTTP_400_BAD_REQUEST: error_response(InvalidCursorError),
-        status.HTTP_404_NOT_FOUND: error_response(VideoCommentNotFoundError),
+        status.HTTP_400_BAD_REQUEST: error_response(
+            InvalidCursorError,
+        ),
+        status.HTTP_404_NOT_FOUND: error_response(
+            VideoCommentNotFoundError,
+        ),
     },
 )
 async def get_video_comment_replies(
     video_comment_id: UUID,
-    sorting: Annotated[VideoCommentsSortingParams, Depends()],
-    pagination: Annotated[CursorPaginationParams, Depends()],
+    sorting: Annotated[VideoCommentsSortingParamsSchema, Depends()],
+    pagination: CursorPaginationParams,
     use_case: FromDishka[GetVideoCommentRepliesUseCase],
     request: Request,
 ) -> CursorPaginationResponse[DetailedVideoCommentOutSchema]:

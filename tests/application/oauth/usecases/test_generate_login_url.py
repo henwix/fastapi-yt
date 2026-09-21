@@ -3,12 +3,12 @@ from urllib.parse import parse_qs, urlencode, urlparse
 import pytest
 from dishka import AsyncContainer
 
-from app.application.oauth.usecases import OAuthGetLoginUrlUseCase
+from app.application.oauth.usecases import GenerateOAuthLoginUrlUseCase
 from app.core.configs import Settings
 from app.domain.common.repos.kv import IKVRepo
 from app.domain.oauth.enums import OAuthProviderEnum
 from app.domain.oauth.exceptions import OAuthProviderNotSupportedError
-from tests.factories.queries.oauth import OAuthGetLoginUrlQueryFactory
+from tests.factories.queries.oauth import GenerateOAuthLoginUrlQueryFactory
 
 
 @pytest.mark.asyncio
@@ -17,10 +17,10 @@ async def test_oauth_get_login_url_returns_correct_github_provider_login_url(
     test_settings: Settings,
 ):
     async with container() as di:
-        use_case = await di.get(OAuthGetLoginUrlUseCase)
+        use_case = await di.get(GenerateOAuthLoginUrlUseCase)
         kv_repo = await di.get(IKVRepo)
 
-        query = OAuthGetLoginUrlQueryFactory.build(provider=OAuthProviderEnum.GITHUB)
+        query = GenerateOAuthLoginUrlQueryFactory.build(provider=OAuthProviderEnum.GITHUB)
 
         login_url = await use_case.execute(query=query)
         parsed_url = urlparse(url=login_url)
@@ -45,10 +45,10 @@ async def test_oauth_get_login_url_returns_correct_google_provider_login_url(
     test_settings: Settings,
 ):
     async with container() as di:
-        use_case = await di.get(OAuthGetLoginUrlUseCase)
+        use_case = await di.get(GenerateOAuthLoginUrlUseCase)
         kv_repo = await di.get(IKVRepo)
 
-        query = OAuthGetLoginUrlQueryFactory.build(provider=OAuthProviderEnum.GOOGLE)
+        query = GenerateOAuthLoginUrlQueryFactory.build(provider=OAuthProviderEnum.GOOGLE)
 
         login_url = await use_case.execute(query=query)
         parsed_url = urlparse(url=login_url)
@@ -72,9 +72,9 @@ async def test_oauth_get_login_url_returns_correct_google_provider_login_url(
 @pytest.mark.asyncio
 async def test_oauth_get_login_url_raises_error_if_invalid_provider(container: AsyncContainer):
     async with container() as di:
-        use_case = await di.get(OAuthGetLoginUrlUseCase)
+        use_case = await di.get(GenerateOAuthLoginUrlUseCase)
 
-        query = OAuthGetLoginUrlQueryFactory.build(provider='123')
+        query = GenerateOAuthLoginUrlQueryFactory.build(provider='123')
 
         with pytest.raises(OAuthProviderNotSupportedError):
             await use_case.execute(query=query)

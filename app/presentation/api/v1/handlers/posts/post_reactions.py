@@ -37,7 +37,9 @@ router = APIRouter(
             JWTTokenExpiredError,
             JWTTokenInvalidError,
         ),
-        status.HTTP_403_FORBIDDEN: error_response(ChannelNotActiveError),
+        status.HTTP_403_FORBIDDEN: error_response(
+            ChannelNotActiveError,
+        ),
         status.HTTP_404_NOT_FOUND: error_response(
             ChannelNotFoundByIdError,
             PostNotFoundError,
@@ -72,7 +74,9 @@ async def create_post_reaction(
             JWTTokenExpiredError,
             JWTTokenInvalidError,
         ),
-        status.HTTP_403_FORBIDDEN: error_response(ChannelNotActiveError),
+        status.HTTP_403_FORBIDDEN: error_response(
+            ChannelNotActiveError,
+        ),
         status.HTTP_404_NOT_FOUND: error_response(
             ChannelNotFoundByIdError,
             PostNotFoundError,
@@ -85,5 +89,8 @@ async def delete_post_reaction(
     post_id: UUID,
     use_case: FromDishka[DeletePostReactionUseCase],
 ) -> None:
-    command = DeletePostReactionCommand(current_channel_id=current_channel_id, post_id=post_id)
+    command = DeletePostReactionCommand(
+        current_channel_id=current_channel_id,
+        post_id=post_id,
+    )
     await use_case.execute(command=command)

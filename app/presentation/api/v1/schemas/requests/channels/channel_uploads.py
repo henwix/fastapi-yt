@@ -17,5 +17,5 @@ class GenerateChannelAvatarUploadUrlInSchema(BaseSchema):
     )
 
 
-class ChannelAvatarUploadConfirmInSchema(BaseSchema):
+class ConfirmChannelAvatarUploadInSchema(BaseSchema):
     key: str

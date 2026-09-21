@@ -7,11 +7,7 @@ from fastapi import APIRouter, Depends, Request, status
 from pydantic import HttpUrl
 
 from app.application.common.pagination import CursorPagination
-from app.application.posts.commands import (
-    CreatePostCommentCommand,
-    DeletePostCommentCommand,
-    UpdatePostCommentCommand,
-)
+from app.application.posts.commands import CreatePostCommentCommand, DeletePostCommentCommand, UpdatePostCommentCommand
 from app.application.posts.queries import GetPostCommentRepliesQuery, GetPostCommentsQuery, PostCommentsSorting
 from app.application.posts.usecases import (
     CreatePostCommentUseCase,
@@ -26,10 +22,10 @@ from app.domain.common.exceptions.pagination import InvalidCursorError
 from app.domain.posts.exceptions import PostCommentAccessForbiddenError, PostCommentNotFoundError, PostNotFoundError
 from app.presentation.api.openapi.common import error_response
 from app.presentation.api.v1.di import CurrentChannelID
-from app.presentation.api.v1.schemas.requests.common import CursorPaginationParams
+from app.presentation.api.v1.handlers.common.query_params import CursorPaginationParams
 from app.presentation.api.v1.schemas.requests.posts import (
     CreatePostCommentInSchema,
-    PostCommentsSortingParams,
+    PostCommentsSortingParamsSchema,
     UpdatePostCommentInSchema,
 )
 from app.presentation.api.v1.schemas.responses.common import CursorPaginationResponse
@@ -51,7 +47,9 @@ router = APIRouter(
             JWTTokenExpiredError,
             JWTTokenInvalidError,
         ),
-        status.HTTP_403_FORBIDDEN: error_response(ChannelNotActiveError),
+        status.HTTP_403_FORBIDDEN: error_response(
+            ChannelNotActiveError,
+        ),
         status.HTTP_404_NOT_FOUND: error_response(
             ChannelNotFoundByIdError,
             PostNotFoundError,
@@ -77,14 +75,18 @@ async def create_post_comment(
 @router.get(
     path='/posts/{post_id}/comments',
     responses={
-        status.HTTP_400_BAD_REQUEST: error_response(InvalidCursorError),
-        status.HTTP_404_NOT_FOUND: error_response(PostNotFoundError),
+        status.HTTP_400_BAD_REQUEST: error_response(
+            InvalidCursorError,
+        ),
+        status.HTTP_404_NOT_FOUND: error_response(
+            PostNotFoundError,
+        ),
     },
 )
 async def get_post_comments(
     post_id: UUID,
-    sorting: Annotated[PostCommentsSortingParams, Depends()],
-    pagination: Annotated[CursorPaginationParams, Depends()],
+    sorting: Annotated[PostCommentsSortingParamsSchema, Depends()],
+    pagination: CursorPaginationParams,
     use_case: FromDishka[GetPostCommentsUseCase],
     request: Request,
 ) -> CursorPaginationResponse[DetailedPostCommentOutSchema]:
@@ -103,14 +105,18 @@ async def get_post_comments(
 @router.get(
     path='/post_comments/{post_comment_id}/replies',
     responses={
-        status.HTTP_400_BAD_REQUEST: error_response(InvalidCursorError),
-        status.HTTP_404_NOT_FOUND: error_response(PostCommentNotFoundError),
+        status.HTTP_400_BAD_REQUEST: error_response(
+            InvalidCursorError,
+        ),
+        status.HTTP_404_NOT_FOUND: error_response(
+            PostCommentNotFoundError,
+        ),
     },
 )
 async def get_post_comment_replies(
     post_comment_id: UUID,
-    sorting: Annotated[PostCommentsSortingParams, Depends()],
-    pagination: Annotated[CursorPaginationParams, Depends()],
+    sorting: Annotated[PostCommentsSortingParamsSchema, Depends()],
+    pagination: CursorPaginationParams,
     use_case: FromDishka[GetPostCommentRepliesUseCase],
     request: Request,
 ) -> CursorPaginationResponse[DetailedPostCommentOutSchema]:

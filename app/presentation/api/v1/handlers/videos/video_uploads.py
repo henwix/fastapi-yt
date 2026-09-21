@@ -57,9 +57,9 @@ from app.presentation.api.v1.schemas.requests.videos import (
     GenerateVideoThumbnailUploadUrlInSchema,
 )
 from app.presentation.api.v1.schemas.responses.videos import (
-    GenerateVideoDownloadUrlOutSchema,
-    GenerateVideoPartUploadUrlOutSchema,
-    GenerateVideoThumbnailUploadUrlOutSchema,
+    VideoDownloadUrlOutSchema,
+    VideoPartUploadUrlOutSchema,
+    VideoThumbnailUploadUrlOutSchema,
 )
 
 router = APIRouter(
@@ -70,7 +70,7 @@ router = APIRouter(
 
 
 @router.post(
-    path='/create_upload',
+    path='/upload/create',
     status_code=status.HTTP_204_NO_CONTENT,
     responses={
         status.HTTP_400_BAD_REQUEST: error_response(VideoInvalidFilenameError),
@@ -121,8 +121,7 @@ async def create_video_mutipart_upload(
 
 
 @router.get(
-    '/part_upload_url',
-    status_code=status.HTTP_201_CREATED,
+    path='/upload/url',
     responses={
         status.HTTP_401_UNAUTHORIZED: error_response(
             NotAuthenticatedError,
@@ -154,18 +153,18 @@ async def generate_video_part_upload_url(
     video_id: PathVideoId,
     part_number: Annotated[int, Query(ge=1, le=10000)],
     use_case: FromDishka[GenerateVideoPartUploadUrlUseCase],
-) -> GenerateVideoPartUploadUrlOutSchema:
+) -> VideoPartUploadUrlOutSchema:
     command = GenerateVideoPartUploadUrlCommand(
         current_channel_id=current_channel_id,
         video_id=video_id,
         part_number=part_number,
     )
     upload_url = await use_case.execute(command=command)
-    return GenerateVideoPartUploadUrlOutSchema(upload_url=upload_url)
+    return VideoPartUploadUrlOutSchema(upload_url=upload_url)
 
 
 @router.post(
-    path='/complete_upload',
+    path='/upload/complete',
     status_code=status.HTTP_204_NO_CONTENT,
     responses={
         status.HTTP_400_BAD_REQUEST: error_response(
@@ -213,7 +212,7 @@ async def complete_video_multipart_upload(
 
 
 @router.delete(
-    path='/abort_upload',
+    path='/upload/abort',
     status_code=status.HTTP_204_NO_CONTENT,
     responses={
         status.HTTP_401_UNAUTHORIZED: error_response(
@@ -254,8 +253,7 @@ async def abort_video_multipart_upload(
 
 
 @router.post(
-    path='/thumbnail_upload_url',
-    status_code=status.HTTP_201_CREATED,
+    path='/thumbnail/upload/url',
     responses={
         status.HTTP_400_BAD_REQUEST: error_response(
             VideoThumbnailInvalidFilenameError,
@@ -280,7 +278,7 @@ async def generate_video_thumbnail_upload_url(
     video_id: PathVideoId,
     schema: GenerateVideoThumbnailUploadUrlInSchema,
     use_case: FromDishka[GenerateVideoThumbnailUploadUrlUseCase],
-) -> GenerateVideoThumbnailUploadUrlOutSchema:
+) -> VideoThumbnailUploadUrlOutSchema:
     """
     Allowed mime types for Video Thumbnail file:
     - **.png**
@@ -297,11 +295,16 @@ async def generate_video_thumbnail_upload_url(
         **schema.model_dump(),
     )
     url, key, channel_id, video_id = await use_case.execute(command=command)
-    return GenerateVideoThumbnailUploadUrlOutSchema(upload_url=url, key=key, channel_id=channel_id, video_id=video_id)
+    return VideoThumbnailUploadUrlOutSchema(
+        upload_url=url,
+        key=key,
+        channel_id=channel_id,
+        video_id=video_id,
+    )
 
 
 @router.post(
-    '/thumbnail_upload_confirm',
+    '/thumbnail/upload/confirm',
     status_code=status.HTTP_204_NO_CONTENT,
     responses={
         status.HTTP_400_BAD_REQUEST: error_response(
@@ -330,7 +333,7 @@ async def generate_video_thumbnail_upload_url(
         ),
     },
 )
-async def video_thumbnail_upload_confirm(
+async def confirm_video_thumbnail_upload(
     current_channel_id: CurrentChannelID,
     video_id: PathVideoId,
     schema: ConfirmVideoThumbnailUploadInSchema,
@@ -345,7 +348,7 @@ async def video_thumbnail_upload_confirm(
 
 
 @router.get(
-    path='/download_url',
+    path='/download',
     responses={
         status.HTTP_401_UNAUTHORIZED: error_response(
             NotAuthenticatedError,
@@ -366,7 +369,10 @@ async def generate_video_download_url(
     current_channel_id: OptionalCurrentChannelID,
     video_id: PathVideoId,
     use_case: FromDishka[GenerateVideoDownloadUrlUseCase],
-) -> GenerateVideoDownloadUrlOutSchema:
-    command = GenerateVideoDownloadUrlCommand(current_channel_id=current_channel_id, video_id=video_id)
+) -> VideoDownloadUrlOutSchema:
+    command = GenerateVideoDownloadUrlCommand(
+        current_channel_id=current_channel_id,
+        video_id=video_id,
+    )
     download_url = await use_case.execute(command=command)
-    return GenerateVideoDownloadUrlOutSchema(download_url=download_url)
+    return VideoDownloadUrlOutSchema(download_url=download_url)

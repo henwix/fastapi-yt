@@ -1,6 +1,6 @@
 from .video_comment_reactions import CreateVideoCommentReactionInSchema
-from .video_comments import CreateVideoCommentInSchema, UpdateVideoCommentInSchema, VideoCommentsSortingParams
-from .video_history import VideoHistorySortingParams
+from .video_comments import CreateVideoCommentInSchema, UpdateVideoCommentInSchema, VideoCommentsSortingParamsSchema
+from .video_history import VideoHistorySortingParamsSchema
 from .video_reactions import CreateVideoReactionInSchema
 from .video_uploads import (
     ConfirmVideoThumbnailUploadInSchema,
@@ -9,8 +9,8 @@ from .video_uploads import (
 )
 from .videos import (
     CreateVideoInSchema,
-    PersonalPreviewVideosFiltersParams,
-    PreviewVideosSortingParams,
+    PersonalPreviewVideosFiltersParamsSchema,
+    PreviewVideosSortingParamsSchema,
     UpdateVideoInSchema,
 )
 
@@ -22,10 +22,10 @@ __all__ = (
     'CreateVideoMultipartUploadInSchema',
     'CreateVideoReactionInSchema',
     'GenerateVideoThumbnailUploadUrlInSchema',
-    'PersonalPreviewVideosFiltersParams',
-    'PreviewVideosSortingParams',
+    'PersonalPreviewVideosFiltersParamsSchema',
+    'PreviewVideosSortingParamsSchema',
     'UpdateVideoCommentInSchema',
     'UpdateVideoInSchema',
-    'VideoCommentsSortingParams',
-    'VideoHistorySortingParams',
+    'VideoCommentsSortingParamsSchema',
+    'VideoHistorySortingParamsSchema',
 )

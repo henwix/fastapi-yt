@@ -14,13 +14,12 @@ from app.application.common.interfaces.s3 import IS3Service
 from app.application.oauth.interfaces import IOAuthServiceFactory
 from app.core.configs import Settings, settings
 from app.domain.videos.services import IVideoService
-from app.infrastructure.di.container import (
+from app.infrastructure.di.providers import (
     AppProvider,
     DatabaseProvider,
     OAuthProvider,
     ReadersProvider,
     ReposProvider,
-    SecurityProvider,
     ServicesProvider,
     UseCasesProvider,
 )
@@ -106,7 +105,6 @@ def mock_database_dishka_provider(postgres_url: str, redis_url: str) -> Database
 async def container(mock_database_dishka_provider: DatabaseProvider) -> AsyncGenerator[AsyncContainer]:
     container = make_async_container(
         AppProvider(),
-        SecurityProvider(),
         OAuthProvider(),
         mock_database_dishka_provider,
         ReposProvider(),
@@ -137,7 +135,6 @@ async def mock_container(mock_database_dishka_provider: DatabaseProvider) -> Asy
 
     container = make_async_container(
         MockAppProvider(),
-        SecurityProvider(),
         MockOAuthProvider(),
         mock_database_dishka_provider,
         ReposProvider(),

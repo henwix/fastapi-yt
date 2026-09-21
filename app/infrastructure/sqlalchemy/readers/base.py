@@ -4,5 +4,5 @@ from sqlalchemy.ext.asyncio import AsyncSession
 
 
 @dataclass
-class SAReader:
+class SQLAlchemyReader:
     _session: AsyncSession

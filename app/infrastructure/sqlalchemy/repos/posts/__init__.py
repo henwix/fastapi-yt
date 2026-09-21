@@ -1,11 +1,11 @@
-from .post_comment_reactions import SAPostCommentReactionRepo
-from .post_comments import SAPostCommentRepo
-from .post_reactions import SAPostReactionRepo
-from .posts import SAPostRepo
+from .post_comment_reactions import PostCommentReactionRepo
+from .post_comments import PostCommentRepo
+from .post_reactions import PostReactionRepo
+from .posts import PostRepo
 
 __all__ = (
-    'SAPostCommentReactionRepo',
-    'SAPostCommentRepo',
-    'SAPostReactionRepo',
-    'SAPostRepo',
+    'PostCommentReactionRepo',
+    'PostCommentRepo',
+    'PostReactionRepo',
+    'PostRepo',
 )

@@ -8,10 +8,10 @@ from app.domain.channels.entities import Channel
 from app.domain.channels.exceptions import ChannelEmailAlreadyExistsError, ChannelSlugAlreadyExistsError
 from app.domain.channels.repos import IChannelRepo
 from app.infrastructure.sqlalchemy.models import ChannelORM
-from app.infrastructure.sqlalchemy.repos.base import SARepo
+from app.infrastructure.sqlalchemy.repos.base import SQLAlchemyRepo
 
 
-class SAChannelRepo(SARepo, IChannelRepo):
+class ChannelRepo(SQLAlchemyRepo, IChannelRepo):
     def _parse_db_error(self, error: DBAPIError, channel: Channel) -> NoReturn:
         cause: BaseException | None = getattr(error.orig, '__cause__', None)
         constraint_name: str | None = getattr(cause, 'constraint_name', None)

@@ -8,10 +8,10 @@ from app.domain.channels.exceptions import ChannelNotFoundByIdError
 from app.domain.posts.entities import Post
 from app.domain.posts.repos import IPostRepo
 from app.infrastructure.sqlalchemy.models import PostORM
-from app.infrastructure.sqlalchemy.repos.base import SARepo
+from app.infrastructure.sqlalchemy.repos.base import SQLAlchemyRepo
 
 
-class SAPostRepo(SARepo, IPostRepo):
+class PostRepo(SQLAlchemyRepo, IPostRepo):
     def _parse_db_error(self, error: DBAPIError, post: Post) -> NoReturn:
         cause = getattr(error.orig, '__cause__', None)
         constraint_name = getattr(cause, 'constraint_name', None)

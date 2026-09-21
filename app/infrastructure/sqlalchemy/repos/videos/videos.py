@@ -7,11 +7,11 @@ from app.domain.videos.entities import Video
 from app.domain.videos.enums import VideoUploadStatusEnum
 from app.domain.videos.repos import IVideoRepo
 from app.infrastructure.sqlalchemy.models import VideoORM
-from app.infrastructure.sqlalchemy.repos.base import SARepo
+from app.infrastructure.sqlalchemy.repos.base import SQLAlchemyRepo
 from app.utils.datetime import get_current_utc_datetime
 
 
-class SAVideoRepo(SARepo, IVideoRepo):
+class VideoRepo(SQLAlchemyRepo, IVideoRepo):
     async def _get_one_by_query(self, query) -> Video | None:
         result = await self._session.execute(statement=query)
         video = result.scalar_one_or_none()

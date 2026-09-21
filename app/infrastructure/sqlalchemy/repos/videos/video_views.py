@@ -9,10 +9,10 @@ from app.domain.videos.entities import VideoView
 from app.domain.videos.exceptions import VideoNotFoundError
 from app.domain.videos.repos import IVideoViewRepo
 from app.infrastructure.sqlalchemy.models import VideoViewORM
-from app.infrastructure.sqlalchemy.repos.base import SARepo
+from app.infrastructure.sqlalchemy.repos.base import SQLAlchemyRepo
 
 
-class SAVideoViewRepo(SARepo, IVideoViewRepo):
+class VideoViewRepo(SQLAlchemyRepo, IVideoViewRepo):
     def _parse_db_error(self, error: DBAPIError, video_view: VideoView) -> NoReturn:
         cause = getattr(error.orig, '__cause__', None)
         constraint_name = getattr(cause, 'constraint_name', None)

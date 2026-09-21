@@ -10,10 +10,10 @@ from app.application.posts.interfaces import IPostCommentReader
 from app.application.posts.queries import PostCommentsSorting
 from app.infrastructure.sqlalchemy.converters import convert_row_to_detailed_post_comment_dto
 from app.infrastructure.sqlalchemy.models import ChannelORM, PostCommentORM
-from app.infrastructure.sqlalchemy.readers.base import SAReader
+from app.infrastructure.sqlalchemy.readers.base import SQLAlchemyReader
 
 
-class SAPostCommentReader(SAReader, IPostCommentReader):
+class PostCommentReader(SQLAlchemyReader, IPostCommentReader):
     async def _get_many_by_filters(
         self,
         *filters,

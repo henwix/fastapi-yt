@@ -9,10 +9,10 @@ from app.domain.posts.entities import PostComment
 from app.domain.posts.exceptions import PostCommentNotFoundError, PostNotFoundError
 from app.domain.posts.repos import IPostCommentRepo
 from app.infrastructure.sqlalchemy.models import PostCommentORM
-from app.infrastructure.sqlalchemy.repos.base import SARepo
+from app.infrastructure.sqlalchemy.repos.base import SQLAlchemyRepo
 
 
-class SAPostCommentRepo(SARepo, IPostCommentRepo):
+class PostCommentRepo(SQLAlchemyRepo, IPostCommentRepo):
     def _parse_db_error(self, error: DBAPIError, post_comment: PostComment) -> NoReturn:
         cause: BaseException | None = getattr(error.orig, '__cause__', None)
         constraint_name: str | None = getattr(cause, 'constraint_name', None)

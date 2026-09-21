@@ -4,5 +4,5 @@ from sqlalchemy.ext.asyncio import AsyncSession
 
 
 @dataclass
-class SARepo:
+class SQLAlchemyRepo:
     _session: AsyncSession

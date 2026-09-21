@@ -9,10 +9,10 @@ from app.application.posts.dto import DetailedPost
 from app.application.posts.interfaces import IPostReader
 from app.application.posts.queries import PostsSorting
 from app.infrastructure.sqlalchemy.models import ChannelORM, PostORM
-from app.infrastructure.sqlalchemy.readers.base import SAReader
+from app.infrastructure.sqlalchemy.readers.base import SQLAlchemyReader
 
 
-class SAPostReader(SAReader, IPostReader):
+class PostReader(SQLAlchemyReader, IPostReader):
     async def get_many(
         self,
         channel_id: UUID,

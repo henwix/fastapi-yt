@@ -7,10 +7,10 @@ from app.domain.channels.exceptions import ChannelNotFoundBySlugError
 from app.domain.videos.enums import VideoPrivacyStatusEnum, VideoUploadStatusEnum
 from app.infrastructure.sqlalchemy.converters import convert_row_to_channel_about_info_dto
 from app.infrastructure.sqlalchemy.models import ChannelORM, SubscriptionORM, VideoORM
-from app.infrastructure.sqlalchemy.readers.base import SAReader
+from app.infrastructure.sqlalchemy.readers.base import SQLAlchemyReader
 
 
-class SAChannelReader(SAReader, IChannelReader):
+class ChannelReader(SQLAlchemyReader, IChannelReader):
     async def try_get_about_info(self, slug: str) -> ChannelAboutInfo:
         subscribers_count_subquery = (
             select(sa.func.count(SubscriptionORM.subscribed_to_id))

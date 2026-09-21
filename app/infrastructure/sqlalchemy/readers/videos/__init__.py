@@ -1,9 +1,9 @@
-from .video_comments import SAVideoCommentReader
-from .video_history import SAVideoHistoryReader
-from .videos import SAVideoReader
+from .video_comments import VideoCommentReader
+from .video_history import VideoHistoryReader
+from .videos import VideoReader
 
 __all__ = (
-    'SAVideoCommentReader',
-    'SAVideoHistoryReader',
-    'SAVideoReader',
+    'VideoCommentReader',
+    'VideoHistoryReader',
+    'VideoReader',
 )

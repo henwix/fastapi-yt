@@ -21,10 +21,10 @@ from app.infrastructure.sqlalchemy.converters import (
     convert_row_to_personal_preview_video_dto,
 )
 from app.infrastructure.sqlalchemy.models import ChannelORM, VideoORM
-from app.infrastructure.sqlalchemy.readers.base import SAReader
+from app.infrastructure.sqlalchemy.readers.base import SQLAlchemyReader
 
 
-class SAVideoReader(SAReader, IVideoReader):
+class VideoReader(SQLAlchemyReader, IVideoReader):
     async def try_get_detailed_video_by_id(self, id: str) -> DetailedVideo:
         stmt = (
             select(

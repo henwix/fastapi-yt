@@ -10,10 +10,10 @@ from app.domain.posts.entities import PostReaction
 from app.domain.posts.exceptions import PostNotFoundError
 from app.domain.posts.repos import IPostReactionRepo
 from app.infrastructure.sqlalchemy.models import PostReactionORM
-from app.infrastructure.sqlalchemy.repos.base import SARepo
+from app.infrastructure.sqlalchemy.repos.base import SQLAlchemyRepo
 
 
-class SAPostReactionRepo(SARepo, IPostReactionRepo):
+class PostReactionRepo(SQLAlchemyRepo, IPostReactionRepo):
     def _parse_db_error(self, error: DBAPIError, post_reaction: PostReaction) -> NoReturn:
         cause: BaseException | None = getattr(error.orig, '__cause__', None)
         constraint_name: str | None = getattr(cause, 'constraint_name', None)

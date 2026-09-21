@@ -10,10 +10,10 @@ from app.domain.playlists.exceptions import PlaylistNotFoundError, VideoAlreadyA
 from app.domain.playlists.repos import IPlaylistItemRepo, IPlaylistRepo
 from app.domain.videos.exceptions import VideoNotFoundError
 from app.infrastructure.sqlalchemy.models import PlaylistItemORM, PlaylistORM
-from app.infrastructure.sqlalchemy.repos.base import SARepo
+from app.infrastructure.sqlalchemy.repos.base import SQLAlchemyRepo
 
 
-class SAPlaylistRepo(SARepo, IPlaylistRepo):
+class PlaylistRepo(SQLAlchemyRepo, IPlaylistRepo):
     def _parse_db_error(self, error: DBAPIError, playlist: Playlist) -> NoReturn:
         cause: BaseException | None = getattr(error.orig, '__cause__', None)
         constraint_name: str | None = getattr(cause, 'constraint_name', None)
@@ -62,7 +62,7 @@ class SAPlaylistRepo(SARepo, IPlaylistRepo):
         return cast(CursorResult, result).rowcount > 0
 
 
-class SAPlaylistItemRepo(SARepo, IPlaylistItemRepo):
+class PlaylistItemRepo(SQLAlchemyRepo, IPlaylistItemRepo):
     def _parse_db_error(self, error: DBAPIError, playlist_item: PlaylistItem) -> NoReturn:
         cause: BaseException | None = getattr(error.orig, '__cause__', None)
         constraint_name: str | None = getattr(cause, 'constraint_name', None)

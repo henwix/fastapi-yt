@@ -7,7 +7,7 @@ from app.application.common.interfaces.transaction_manager import ITransactionMa
 
 
 @dataclass
-class SATransactionManager(ITransactionManager):
+class TransactionManager(ITransactionManager):
     _session: AsyncSession
 
     async def commit(self) -> None:

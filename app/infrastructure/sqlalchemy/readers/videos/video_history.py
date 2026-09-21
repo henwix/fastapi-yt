@@ -10,10 +10,10 @@ from app.application.videos.interfaces import IVideoHistoryReader
 from app.application.videos.queries import VideoHistorySorting, VideoHistorySortingFieldsEnum
 from app.infrastructure.sqlalchemy.converters import convert_row_to_preview_video_history_dto
 from app.infrastructure.sqlalchemy.models import ChannelORM, VideoHistoryItemORM, VideoORM
-from app.infrastructure.sqlalchemy.readers.base import SAReader
+from app.infrastructure.sqlalchemy.readers.base import SQLAlchemyReader
 
 
-class SAVideoHistoryReader(SAReader, IVideoHistoryReader):
+class VideoHistoryReader(SQLAlchemyReader, IVideoHistoryReader):
     async def get_many(
         self,
         channel_id: UUID,

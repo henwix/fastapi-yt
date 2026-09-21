@@ -10,10 +10,10 @@ from app.application.videos.interfaces import IVideoCommentReader
 from app.application.videos.queries import VideoCommentsSorting
 from app.infrastructure.sqlalchemy.converters import convert_row_to_detailed_video_comment_dto
 from app.infrastructure.sqlalchemy.models import ChannelORM, VideoCommentORM
-from app.infrastructure.sqlalchemy.readers.base import SAReader
+from app.infrastructure.sqlalchemy.readers.base import SQLAlchemyReader
 
 
-class SAVideoCommentReader(SAReader, IVideoCommentReader):
+class VideoCommentReader(SQLAlchemyReader, IVideoCommentReader):
     async def _get_many_by_filters(
         self,
         *filters,

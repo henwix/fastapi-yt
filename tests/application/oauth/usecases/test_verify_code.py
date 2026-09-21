@@ -30,7 +30,9 @@ async def test_verify_code_returns_tokens_if_new_channel_and_oauth_account_creat
         use_case = await di.get(OAuthVerifyCodeUseCase)
         session = await di.get(AsyncSession)
         jwt_service = await di.get(IJWTService)
-        oauth_service_factory = await di.get(IOAuthServiceFactory)
+        oauth_service_factory: MockOAuthServiceFactory = cast(
+            MockOAuthServiceFactory, await di.get(IOAuthServiceFactory)
+        )
         oauth_provider_user_data = OAuthProviderUserDataFactory.build()
         oauth_service_factory.provider.user_data = oauth_provider_user_data
 

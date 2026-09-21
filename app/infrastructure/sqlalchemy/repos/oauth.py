@@ -9,10 +9,10 @@ from app.domain.oauth.enums import OAuthProviderEnum
 from app.domain.oauth.exceptions import OAuthProviderAlreadyConnectedError
 from app.domain.oauth.repos import IOAuthAccountRepo
 from app.infrastructure.sqlalchemy.models import OAuthAccountORM
-from app.infrastructure.sqlalchemy.repos.base import SARepo
+from app.infrastructure.sqlalchemy.repos.base import SQLAlchemyRepo
 
 
-class SAOAuthAccountRepo(SARepo, IOAuthAccountRepo):
+class OAuthAccountRepo(SQLAlchemyRepo, IOAuthAccountRepo):
     def _parse_db_error(self, error: DBAPIError, oauth_account: OAuthAccount) -> NoReturn:
         cause: BaseException | None = getattr(error.orig, '__cause__', None)
         constraint_name: str | None = getattr(cause, 'constraint_name', None)

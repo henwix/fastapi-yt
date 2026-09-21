@@ -22,10 +22,10 @@ from app.infrastructure.sqlalchemy.converters import (
     convert_row_to_preview_playlist_dto,
 )
 from app.infrastructure.sqlalchemy.models import ChannelORM, PlaylistItemORM, PlaylistORM, VideoORM
-from app.infrastructure.sqlalchemy.readers.base import SAReader
+from app.infrastructure.sqlalchemy.readers.base import SQLAlchemyReader
 
 
-class SAPlaylistReader(SAReader, IPlaylistReader):
+class PlaylistReader(SQLAlchemyReader, IPlaylistReader):
     async def _get_playlists_preview(
         self,
         *filters,

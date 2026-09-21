@@ -10,10 +10,10 @@ from app.domain.videos.entities import VideoCommentReaction
 from app.domain.videos.exceptions import VideoCommentNotFoundError
 from app.domain.videos.repos import IVideoCommentReactionRepo
 from app.infrastructure.sqlalchemy.models import VideoCommentReactionORM
-from app.infrastructure.sqlalchemy.repos.base import SARepo
+from app.infrastructure.sqlalchemy.repos.base import SQLAlchemyRepo
 
 
-class SAVideoCommentReactionRepo(SARepo, IVideoCommentReactionRepo):
+class VideoCommentReactionRepo(SQLAlchemyRepo, IVideoCommentReactionRepo):
     def _parse_db_error(self, error: DBAPIError, video_comment_reaction: VideoCommentReaction) -> NoReturn:
         cause: BaseException | None = getattr(error.orig, '__cause__', None)
         constraint_name: str | None = getattr(cause, 'constraint_name', None)

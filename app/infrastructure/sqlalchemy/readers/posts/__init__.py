@@ -1,7 +1,7 @@
-from .post_comments import SAPostCommentReader
-from .posts import SAPostReader
+from .post_comments import PostCommentReader
+from .posts import PostReader
 
 __all__ = (
-    'SAPostCommentReader',
-    'SAPostReader',
+    'PostCommentReader',
+    'PostReader',
 )

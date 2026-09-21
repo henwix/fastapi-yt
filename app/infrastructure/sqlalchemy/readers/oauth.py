@@ -6,10 +6,10 @@ from app.application.oauth.dto import OAuthAccount
 from app.application.oauth.interfaces import IOAuthAccountReader
 from app.infrastructure.sqlalchemy.converters import convert_row_to_oauth_account_dto
 from app.infrastructure.sqlalchemy.models import OAuthAccountORM
-from app.infrastructure.sqlalchemy.readers.base import SAReader
+from app.infrastructure.sqlalchemy.readers.base import SQLAlchemyReader
 
 
-class SAOAuthAccountReader(SAReader, IOAuthAccountReader):
+class OAuthAccountReader(SQLAlchemyReader, IOAuthAccountReader):
     async def get_connected(self, channel_id: UUID) -> list[OAuthAccount]:
         stmt = select(
             OAuthAccountORM.provider,

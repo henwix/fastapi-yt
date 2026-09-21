@@ -9,10 +9,10 @@ from app.domain.subscriptions.entities import Subscription
 from app.domain.subscriptions.exceptions import SelfSubscriptionError, SubscriptionAlreadyExistsError
 from app.domain.subscriptions.repos import ISubscriptionRepo
 from app.infrastructure.sqlalchemy.models import SubscriptionORM
-from app.infrastructure.sqlalchemy.repos.base import SARepo
+from app.infrastructure.sqlalchemy.repos.base import SQLAlchemyRepo
 
 
-class SASubscriptionRepo(SARepo, ISubscriptionRepo):
+class SubscriptionRepo(SQLAlchemyRepo, ISubscriptionRepo):
     def _parse_db_error(self, error: DBAPIError, subscription: Subscription) -> NoReturn:
         cause: BaseException | None = getattr(error.orig, '__cause__', None)
         constraint_name: str | None = getattr(cause, 'constraint_name', None)

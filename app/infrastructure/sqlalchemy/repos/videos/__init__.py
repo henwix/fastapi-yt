@@ -1,15 +1,15 @@
-from .video_comment_reactions import SAVideoCommentReactionRepo
-from .video_comments import SAVideoCommentRepo
-from .video_history import SAVideoHistoryRepo
-from .video_reactions import SAVideoReactionRepo
-from .video_views import SAVideoViewRepo
-from .videos import SAVideoRepo
+from .video_comment_reactions import VideoCommentReactionRepo
+from .video_comments import VideoCommentRepo
+from .video_history import VideoHistoryRepo
+from .video_reactions import VideoReactionRepo
+from .video_views import VideoViewRepo
+from .videos import VideoRepo
 
 __all__ = (
-    'SAVideoCommentReactionRepo',
-    'SAVideoCommentRepo',
-    'SAVideoHistoryRepo',
-    'SAVideoReactionRepo',
-    'SAVideoRepo',
-    'SAVideoViewRepo',
+    'VideoCommentReactionRepo',
+    'VideoCommentRepo',
+    'VideoHistoryRepo',
+    'VideoReactionRepo',
+    'VideoRepo',
+    'VideoViewRepo',
 )

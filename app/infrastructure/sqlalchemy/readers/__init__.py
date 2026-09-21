@@ -1,18 +1,18 @@
-from .channels import SAChannelReader
-from .oauth import SAOAuthAccountReader
-from .playlists import SAPlaylistReader
-from .posts import SAPostCommentReader, SAPostReader
-from .subscriptions import SASubscriptionReader
-from .videos import SAVideoCommentReader, SAVideoHistoryReader, SAVideoReader
+from .channels import ChannelReader
+from .oauth import OAuthAccountReader
+from .playlists import PlaylistReader
+from .posts import PostCommentReader, PostReader
+from .subscriptions import SubscriptionReader
+from .videos import VideoCommentReader, VideoHistoryReader, VideoReader
 
 __all__ = (
-    'SAChannelReader',
-    'SAOAuthAccountReader',
-    'SAPlaylistReader',
-    'SAPostCommentReader',
-    'SAPostReader',
-    'SASubscriptionReader',
-    'SAVideoCommentReader',
-    'SAVideoHistoryReader',
-    'SAVideoReader',
+    'ChannelReader',
+    'OAuthAccountReader',
+    'PlaylistReader',
+    'PostCommentReader',
+    'PostReader',
+    'SubscriptionReader',
+    'VideoCommentReader',
+    'VideoHistoryReader',
+    'VideoReader',
 )

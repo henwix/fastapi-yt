@@ -24,26 +24,29 @@ class AuthCodeService(IAuthCodeService):
     def _build_reset_password_key(self, channel_id: UUID) -> str:
         return f'auth:reset_password:code:{channel_id}'
 
+    def _build_login_email_key(self, channel_id: UUID) -> str:
+        return f'auth:login_email:code:{channel_id}'
+
     async def _create_code(self, key: str, ttl: int) -> str:
         code = secrets.token_hex(16)
         await self._kv_repo.set(key=key, value=code, ttl_seconds=ttl)
         return code
 
-    async def _validate_code(self, key: str, channel_id: UUID, code: str) -> None:
+    async def _validate_code(self, key: str, channel_id: UUID, code: str, action: str) -> None:
         saved_code = await self._kv_repo.get(key=key)
 
         if saved_code is None:
             raise ChannelInvalidEmailCodeError(
                 channel_id=channel_id,
                 code=code,
-                reason='reset_password_code_not_found',
+                reason=f'{action}_code_not_found',
             )
 
         if saved_code != code:
             raise ChannelInvalidEmailCodeError(
                 channel_id=channel_id,
                 code=code,
-                reason='reset_password_code_mismatch',
+                reason=f'{action}_code_mismatch',
             )
 
         await self._kv_repo.delete(key=key)
@@ -60,6 +63,10 @@ class AuthCodeService(IAuthCodeService):
         query = urlencode({'code': code})
         return f'{settings.frontend_origin}{settings.frontend_set_email_confirm_path}?{query}'
 
+    def build_login_email_confirm_url(self, code: str, uid: str) -> str:
+        query = urlencode({'code': code, 'uid': uid})
+        return f'{settings.frontend_origin}{settings.frontend_login_email_confirm_path}?{query}'
+
     async def create_activation_code(self, channel_id: UUID) -> str:
         key = self._build_activation_key(channel_id=channel_id)
         return await self._create_code(key=key, ttl=60 * 5)
@@ -75,13 +82,21 @@ class AuthCodeService(IAuthCodeService):
         await self._kv_repo.set(key=key, value=encoded_code_and_email, ttl_seconds=60 * 5)
         return code
 
+    async def create_login_email_code(self, channel_id: UUID) -> str:
+        key = self._build_login_email_key(channel_id=channel_id)
+        return await self._create_code(key=key, ttl=60 * 5)
+
     async def validate_activation_code(self, channel_id: UUID, code: str) -> None:
         key = self._build_activation_key(channel_id=channel_id)
-        await self._validate_code(key=key, channel_id=channel_id, code=code)
+        await self._validate_code(key=key, channel_id=channel_id, code=code, action='activation')
 
     async def validate_reset_password_code(self, channel_id: UUID, code: str) -> None:
         key = self._build_reset_password_key(channel_id=channel_id)
-        await self._validate_code(key=key, channel_id=channel_id, code=code)
+        await self._validate_code(key=key, channel_id=channel_id, code=code, action='reset_password')
+
+    async def validate_login_email_code(self, channel_id: UUID, code: str) -> None:
+        key = self._build_login_email_key(channel_id=channel_id)
+        await self._validate_code(key=key, channel_id=channel_id, code=code, action='login_email')
 
     async def validate_set_email_code(self, channel_id: UUID, code: str) -> str:
         key = self._build_set_email_key(channel_id=channel_id)

@@ -6,7 +6,10 @@ from polyfactory.factories import DataclassFactory
 
 from app.application.auth.commands import (
     ActivateChannelCommand,
+    LoginWithEmailCodeCommand,
+    LoginWithEmailCodeConfirmCommand,
     LoginWithPasswordCommand,
+    RegisterChannelWithEmailCodeCommand,
     RegisterChannelWithPasswordCommand,
     ResendChannelActivationCodeCommand,
     ResetChannelPasswordCommand,
@@ -31,6 +34,19 @@ class RegisterChannelWithPasswordCommandFactory(DataclassFactory[RegisterChannel
         return cls.__faker__.slug()
 
 
+class RegisterChannelWithEmailCodeCommandFactory(DataclassFactory[RegisterChannelWithEmailCodeCommand]):
+    __model__ = RegisterChannelWithEmailCodeCommand
+    __faker__ = Faker()
+
+    @classmethod
+    def email(cls) -> str:
+        return cls.__faker__.email()
+
+    @classmethod
+    def slug(cls) -> str:
+        return cls.__faker__.slug()
+
+
 class LoginWithPasswordCommandFactory(DataclassFactory[LoginWithPasswordCommand]):
     __model__ = LoginWithPasswordCommand
     __faker__ = Faker()
@@ -38,6 +54,28 @@ class LoginWithPasswordCommandFactory(DataclassFactory[LoginWithPasswordCommand]
     @classmethod
     def email(cls) -> str:
         return cls.__faker__.email()
+
+
+class LoginWithEmailCodeCommandFactory(DataclassFactory[LoginWithEmailCodeCommand]):
+    __model__ = LoginWithEmailCodeCommand
+    __faker__ = Faker()
+
+    @classmethod
+    def email(cls) -> str:
+        return cls.__faker__.email()
+
+
+class LoginWithEmailCodeConfirmCommandFactory(DataclassFactory[LoginWithEmailCodeConfirmCommand]):
+    __faker__ = Faker()
+    __model__ = LoginWithEmailCodeConfirmCommand
+
+    @classmethod
+    def code(cls) -> str:
+        return secrets.token_hex(16)
+
+    @classmethod
+    def uid(cls) -> str:
+        return base64url_encode(value=str(uuid7()))
 
 
 class SetChannelPasswordCommandFactory(DataclassFactory[SetChannelPasswordCommand]):

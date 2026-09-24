@@ -43,3 +43,15 @@ class FastMailProvider(IEmailProvider):
             template_name='channel_reset_password_confirmation.html',
             template_context=template_context,
         )
+
+    async def send_login_email_code(
+        self,
+        recipient: str,
+        template_context: dict | None = None,
+    ) -> None:
+        await self._smtp_client.send_email(
+            subject='Login with email code',
+            recipients=[recipient],
+            template_name='login_email.html',
+            template_context=template_context,
+        )

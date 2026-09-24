@@ -13,6 +13,9 @@ class IAuthCodeService(ABC):
     def build_set_email_confirm_url(self, code: str) -> str: ...
 
     @abstractmethod
+    def build_login_email_confirm_url(self, code: str, uid: str) -> str: ...
+
+    @abstractmethod
     async def create_activation_code(self, channel_id: UUID) -> str: ...
 
     @abstractmethod
@@ -22,6 +25,9 @@ class IAuthCodeService(ABC):
     async def create_set_email_code(self, channel_id: UUID, new_email: str) -> str: ...
 
     @abstractmethod
+    async def create_login_email_code(self, channel_id: UUID) -> str: ...
+
+    @abstractmethod
     async def validate_activation_code(self, channel_id: UUID, code: str) -> None: ...
 
     @abstractmethod
@@ -29,3 +35,6 @@ class IAuthCodeService(ABC):
 
     @abstractmethod
     async def validate_set_email_code(self, channel_id: UUID, code: str) -> str: ...
+
+    @abstractmethod
+    async def validate_login_email_code(self, channel_id: UUID, code: str) -> None: ...

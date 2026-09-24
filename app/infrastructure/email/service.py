@@ -4,6 +4,7 @@ from app.application.common.commands.email import (
     SendChannelActivationCodeCommand,
     SendChannelResetPasswordCodeCommand,
     SendChannelSetEmailCodeCommand,
+    SendLoginEmailCodeCommand,
 )
 from app.application.common.interfaces.email import IEmailService
 from app.infrastructure.taskiq.tasks import (
@@ -11,6 +12,7 @@ from app.infrastructure.taskiq.tasks import (
     send_channel_reset_password_code_task,
     send_channel_set_email_code_task,
 )
+from app.infrastructure.taskiq.tasks.email import send_login_email_code_task
 
 
 @dataclass
@@ -38,3 +40,15 @@ class EmailService(IEmailService):
             uid=uid,
         )
         await send_channel_reset_password_code_task.kiq(command=command)
+
+    async def schedule_send_login_email_code(
+        self, email: str, name: str, confirmation_url: str, code: str, uid: str
+    ) -> None:
+        command = SendLoginEmailCodeCommand(
+            email=email,
+            name=name,
+            confirmation_url=confirmation_url,
+            code=code,
+            uid=uid,
+        )
+        await send_login_email_code_task.kiq(command=command)

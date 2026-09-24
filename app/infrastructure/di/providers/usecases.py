@@ -2,9 +2,12 @@ from dishka import Provider, Scope, provide
 
 from app.application.auth.usecases import (
     ActivateChannelUseCase,
+    LoginWithEmailCodeConfirmUseCase,
+    LoginWithEmailCodeUseCase,
     LoginWithPasswordUseCase,
     LogoutUseCase,
     RefreshJWTTokenUseCase,
+    RegisterChannelWithEmailCodeUseCase,
     RegisterChannelWithPasswordUseCase,
     ResendChannelActivationCodeUseCase,
     ResetChannelPasswordConfirmUseCase,
@@ -26,6 +29,7 @@ from app.application.common.usecases.email import (
     SendChannelActivationCodeUseCase,
     SendChannelResetPasswordCodeUseCase,
     SendChannelSetEmailCodeUseCase,
+    SendLoginEmailCodeUseCase,
 )
 from app.application.common.usecases.s3 import AbortMultipartUploadUseCase, DeleteS3ObjectUseCase
 from app.application.oauth.usecases import (
@@ -114,7 +118,10 @@ class UseCasesProvider(Provider):
 
     # Auth
     register_channel_with_password = provide(RegisterChannelWithPasswordUseCase)
+    register_channel_with_email_code = provide(RegisterChannelWithEmailCodeUseCase)
     login_with_password = provide(LoginWithPasswordUseCase)
+    login_with_email_code = provide(LoginWithEmailCodeUseCase)
+    login_with_email_code_comfirm = provide(LoginWithEmailCodeConfirmUseCase)
     refresh_jwt_token = provide(RefreshJWTTokenUseCase)
     logout = provide(LogoutUseCase)
     activate_channel = provide(ActivateChannelUseCase)
@@ -218,6 +225,7 @@ class UseCasesProvider(Provider):
     send_channel_activation_code = provide(SendChannelActivationCodeUseCase)
     send_channel_set_email_code = provide(SendChannelSetEmailCodeUseCase)
     send_channel_reset_password_code = provide(SendChannelResetPasswordCodeUseCase)
+    send_login_email_code = provide(SendLoginEmailCodeUseCase)
 
     # Common/S3
     delete_s3_object = provide(DeleteS3ObjectUseCase)

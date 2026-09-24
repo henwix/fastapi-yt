@@ -21,7 +21,7 @@
 
 #### Auth
 - [x] Register and Login with password
-- [ ] Register and Login with email code
+- [x] Register and Login with email code
 - [x] Account activation
 - [x] Logout logic
 - [x] JWT tokens whitelist

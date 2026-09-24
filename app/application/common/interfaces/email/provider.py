@@ -22,3 +22,10 @@ class IEmailProvider(ABC):
         recipient: str,
         template_context: dict | None = None,
     ) -> None: ...
+
+    @abstractmethod
+    async def send_login_email_code(
+        self,
+        recipient: str,
+        template_context: dict | None = None,
+    ) -> None: ...

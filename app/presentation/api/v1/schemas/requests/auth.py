@@ -1,5 +1,3 @@
-import re
-
 from pydantic import BaseModel, ConfigDict, EmailStr, Field, field_validator
 
 from app.domain.channels.constants import (
@@ -12,6 +10,7 @@ from app.domain.channels.constants import (
     CHANNEL_SLUG_MIN_LENGTH,
 )
 from app.domain.common.constants import SLUG_PATTERN
+from app.presentation.api.v1.schemas.base import BaseSchema
 
 
 class RegisterChannelWithPasswordInSchema(BaseModel):
@@ -19,7 +18,7 @@ class RegisterChannelWithPasswordInSchema(BaseModel):
 
     email: EmailStr = Field(max_length=CHANNEL_EMAIL_MAX_LENGTH)
     name: str = Field(min_length=CHANNEL_NAME_MIN_LENGTH, max_length=CHANNEL_NAME_MAX_LENGTH)
-    slug: str = Field(min_length=CHANNEL_SLUG_MIN_LENGTH, max_length=CHANNEL_SLUG_MAX_LENGTH)
+    slug: str = Field(min_length=CHANNEL_SLUG_MIN_LENGTH, max_length=CHANNEL_SLUG_MAX_LENGTH, pattern=SLUG_PATTERN)
     description: str = Field(default='', max_length=CHANNEL_DESCRIPTION_MAX_LENGTH)
     country: str = Field(default='', max_length=CHANNEL_COUNTRY_MAX_LENGTH)
     password: str
@@ -29,48 +28,64 @@ class RegisterChannelWithPasswordInSchema(BaseModel):
     def strip_whitespace_validator(cls, v: str) -> str:
         return v.strip()
 
-    @field_validator('slug', mode='after')
-    @classmethod
-    def slug_regex_validator(cls, v: str) -> str:
-        if not re.fullmatch(pattern=SLUG_PATTERN, string=v):
-            raise ValueError(f"String should match pattern '{SLUG_PATTERN}'")
-        return v
+
+class RegisterChannelWithEmailCodeInSchema(BaseSchema):
+    email: EmailStr = Field(max_length=CHANNEL_EMAIL_MAX_LENGTH)
+    name: str = Field(min_length=CHANNEL_NAME_MIN_LENGTH, max_length=CHANNEL_NAME_MAX_LENGTH)
+    slug: str = Field(min_length=CHANNEL_SLUG_MIN_LENGTH, max_length=CHANNEL_SLUG_MAX_LENGTH, pattern=SLUG_PATTERN)
+    description: str = Field(default='', max_length=CHANNEL_DESCRIPTION_MAX_LENGTH)
+    country: str = Field(default='', max_length=CHANNEL_COUNTRY_MAX_LENGTH)
 
 
 class LoginWithPasswordInSchema(BaseModel):
+    model_config = ConfigDict(extra='forbid')
+
     email: EmailStr
     password: str
 
 
-class RefreshJWTTokenInSchema(BaseModel):
+class LoginWithEmailCodeInSchema(BaseSchema):
+    email: EmailStr
+
+
+class LoginWithEmailCodeConfirmInSchema(BaseSchema):
+    code: str = Field(min_length=32, max_length=32)
+    uid: str = Field(min_length=51, max_length=51)
+
+
+class RefreshJWTTokenInSchema(BaseSchema):
     refresh: str
 
 
-class LogoutInSchema(BaseModel):
+class LogoutInSchema(BaseSchema):
     refresh: str
 
 
-class ActivateChannelInSchema(BaseModel):
+class ActivateChannelInSchema(BaseSchema):
     code: str = Field(min_length=32, max_length=32)
 
 
-class SetChannelEmailInSchema(BaseModel):
+class SetChannelEmailInSchema(BaseSchema):
     new_email: EmailStr
 
 
-class SetChannelEmailConfirmInSchema(BaseModel):
+class SetChannelEmailConfirmInSchema(BaseSchema):
     code: str = Field(min_length=32, max_length=32)
 
 
 class SetChannelPasswordInSchema(BaseModel):
+    model_config = ConfigDict(extra='forbid')
+
     new_password: str
 
 
-class ResetChannelPasswordInSchema(BaseModel):
+class ResetChannelPasswordInSchema(BaseSchema):
     email: EmailStr
 
 
 class ResetChannelPasswordConfirmInSchema(BaseModel):
+    model_config = ConfigDict(extra='forbid')
+
     code: str = Field(min_length=32, max_length=32)
     uid: str = Field(min_length=51, max_length=51)
     new_password: str

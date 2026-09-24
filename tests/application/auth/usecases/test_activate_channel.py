@@ -66,7 +66,7 @@ async def test_activate_channel_raises_error_if_activation_code_not_found(mock_c
 
         assert e.value.channel_id == db_channel.id
         assert e.value.code == command.code
-        assert e.value.reason == 'reset_password_code_not_found'
+        assert e.value.reason == 'activation_code_not_found'
 
 
 @pytest.mark.asyncio
@@ -85,4 +85,4 @@ async def test_activate_channel_raises_error_if_activation_code_mismatch(mock_co
 
         assert e.value.channel_id == db_channel.id
         assert e.value.code == command.code
-        assert e.value.reason == 'reset_password_code_mismatch'
+        assert e.value.reason == 'activation_code_mismatch'

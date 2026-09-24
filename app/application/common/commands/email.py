@@ -24,3 +24,12 @@ class SendChannelResetPasswordCodeCommand:
     confirmation_url: str
     code: str
     uid: str
+
+
+@dataclass(kw_only=True, frozen=True)
+class SendLoginEmailCodeCommand:
+    email: str
+    name: str
+    confirmation_url: str
+    code: str
+    uid: str

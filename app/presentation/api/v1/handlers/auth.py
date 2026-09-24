@@ -4,9 +4,12 @@ from fastapi import APIRouter, status
 
 from app.application.auth.commands import (
     ActivateChannelCommand,
+    LoginWithEmailCodeCommand,
+    LoginWithEmailCodeConfirmCommand,
     LoginWithPasswordCommand,
     LogoutCommand,
     RefreshJWTTokenCommand,
+    RegisterChannelWithEmailCodeCommand,
     RegisterChannelWithPasswordCommand,
     ResendChannelActivationCodeCommand,
     ResetChannelPasswordCommand,
@@ -17,9 +20,12 @@ from app.application.auth.commands import (
 )
 from app.application.auth.usecases import (
     ActivateChannelUseCase,
+    LoginWithEmailCodeConfirmUseCase,
+    LoginWithEmailCodeUseCase,
     LoginWithPasswordUseCase,
     LogoutUseCase,
     RefreshJWTTokenUseCase,
+    RegisterChannelWithEmailCodeUseCase,
     RegisterChannelWithPasswordUseCase,
     ResendChannelActivationCodeUseCase,
     ResetChannelPasswordConfirmUseCase,
@@ -50,9 +56,12 @@ from app.presentation.api.openapi.common import error_response
 from app.presentation.api.v1.di import CurrentChannelID
 from app.presentation.api.v1.schemas.requests.auth import (
     ActivateChannelInSchema,
+    LoginWithEmailCodeConfirmInSchema,
+    LoginWithEmailCodeInSchema,
     LoginWithPasswordInSchema,
     LogoutInSchema,
     RefreshJWTTokenInSchema,
+    RegisterChannelWithEmailCodeInSchema,
     RegisterChannelWithPasswordInSchema,
     ResetChannelPasswordConfirmInSchema,
     ResetChannelPasswordInSchema,
@@ -94,6 +103,29 @@ async def register_channel_with_password(
 
 
 @router.post(
+    path='/register/email',
+    status_code=status.HTTP_201_CREATED,
+    responses={
+        status.HTTP_409_CONFLICT: error_response(
+            ChannelEmailAlreadyExistsError,
+            ChannelSlugAlreadyExistsError,
+        ),
+    },
+)
+async def register_channel_with_email_code(
+    schema: RegisterChannelWithEmailCodeInSchema,
+    use_case: FromDishka[RegisterChannelWithEmailCodeUseCase],
+) -> RegisterChannelOutSchema:
+    command = RegisterChannelWithEmailCodeCommand(**schema.model_dump())
+    channel, tokens, activation_required = await use_case.execute(command=command)
+    return RegisterChannelOutSchema(
+        channel=ChannelOutSchema.from_entity(entity=channel),
+        tokens=JWTTokensOutSchema.from_dto(dto=tokens),
+        activation_required=activation_required,
+    )
+
+
+@router.post(
     path='/login/password',
     status_code=status.HTTP_201_CREATED,
     responses={
@@ -107,6 +139,40 @@ async def login_with_password(
     use_case: FromDishka[LoginWithPasswordUseCase],
 ) -> JWTTokensOutSchema:
     command = LoginWithPasswordCommand(**schema.model_dump())
+    tokens = await use_case.execute(command=command)
+    return JWTTokensOutSchema.from_dto(dto=tokens)
+
+
+@router.post(
+    path='/login/email',
+    status_code=status.HTTP_204_NO_CONTENT,
+)
+async def login_with_email_code(
+    schema: LoginWithEmailCodeInSchema,
+    use_case: FromDishka[LoginWithEmailCodeUseCase],
+) -> None:
+    command = LoginWithEmailCodeCommand(**schema.model_dump())
+    await use_case.execute(command=command)
+
+
+@router.post(
+    path='/login/email/confirm',
+    status_code=status.HTTP_201_CREATED,
+    responses={
+        status.HTTP_400_BAD_REQUEST: error_response(
+            ChannelInvalidEmailUIDError,
+            ChannelInvalidEmailCodeError,
+        ),
+        status.HTTP_404_NOT_FOUND: error_response(
+            ChannelNotFoundByIdError,
+        ),
+    },
+)
+async def login_with_email_code_confirm(
+    schema: LoginWithEmailCodeConfirmInSchema,
+    use_case: FromDishka[LoginWithEmailCodeConfirmUseCase],
+) -> JWTTokensOutSchema:
+    command = LoginWithEmailCodeConfirmCommand(**schema.model_dump())
     tokens = await use_case.execute(command=command)
     return JWTTokensOutSchema.from_dto(dto=tokens)
 

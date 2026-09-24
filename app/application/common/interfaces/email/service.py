@@ -16,3 +16,8 @@ class IEmailService(ABC):
     async def schedule_send_channel_reset_password_code(
         self, email: str, name: str, confirmation_url: str, code: str, uid: str
     ) -> None: ...
+
+    @abstractmethod
+    async def schedule_send_login_email_code(
+        self, email: str, name: str, confirmation_url: str, code: str, uid: str
+    ) -> None: ...

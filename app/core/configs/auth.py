@@ -12,5 +12,6 @@ class AuthSettings(BaseSettings):
     auth_send_activation_email: bool = False
 
     frontend_activation_path: str = 'auth/activation'
-    frontend_set_email_confirm_path: str = 'auth/set_email_confirm'
-    frontend_reset_password_confirm_path: str = 'auth/reset_password_confirm'
+    frontend_set_email_confirm_path: str = 'auth/email/confirm'
+    frontend_reset_password_confirm_path: str = 'auth/password/reset/confirm'
+    frontend_login_email_confirm_path: str = 'auth/login/email/confirm'

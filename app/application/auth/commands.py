@@ -13,9 +13,29 @@ class RegisterChannelWithPasswordCommand:
 
 
 @dataclass(kw_only=True, frozen=True)
+class RegisterChannelWithEmailCodeCommand:
+    email: str
+    name: str
+    slug: str
+    description: str
+    country: str
+
+
+@dataclass(kw_only=True, frozen=True)
 class LoginWithPasswordCommand:
     email: str
     password: str
+
+
+@dataclass(kw_only=True, frozen=True)
+class LoginWithEmailCodeCommand:
+    email: str
+
+
+@dataclass(kw_only=True, frozen=True)
+class LoginWithEmailCodeConfirmCommand:
+    code: str
+    uid: str
 
 
 @dataclass(kw_only=True, frozen=True)

@@ -29,7 +29,7 @@ class RegisterChannelWithPasswordInSchema(BaseModel):
         return v.strip()
 
 
-class RegisterChannelWithEmailCodeInSchema(BaseSchema):
+class RegisterChannelWithEmailInSchema(BaseSchema):
     email: EmailStr = Field(max_length=CHANNEL_EMAIL_MAX_LENGTH)
     name: str = Field(min_length=CHANNEL_NAME_MIN_LENGTH, max_length=CHANNEL_NAME_MAX_LENGTH)
     slug: str = Field(min_length=CHANNEL_SLUG_MIN_LENGTH, max_length=CHANNEL_SLUG_MAX_LENGTH, pattern=SLUG_PATTERN)
@@ -89,3 +89,8 @@ class ResetChannelPasswordConfirmInSchema(BaseModel):
     code: str = Field(min_length=32, max_length=32)
     uid: str = Field(min_length=51, max_length=51)
     new_password: str
+
+    @field_validator('code', 'uid', mode='before')
+    @classmethod
+    def strip_whitespace_validator(cls, v: str) -> str:
+        return v.strip()

@@ -9,7 +9,7 @@ from app.application.auth.commands import (
     LoginWithPasswordCommand,
     LogoutCommand,
     RefreshJWTTokenCommand,
-    RegisterChannelWithEmailCodeCommand,
+    RegisterChannelWithEmailCommand,
     RegisterChannelWithPasswordCommand,
     ResendChannelActivationCodeCommand,
     ResetChannelPasswordCommand,
@@ -25,7 +25,7 @@ from app.application.auth.usecases import (
     LoginWithPasswordUseCase,
     LogoutUseCase,
     RefreshJWTTokenUseCase,
-    RegisterChannelWithEmailCodeUseCase,
+    RegisterChannelWithEmailUseCase,
     RegisterChannelWithPasswordUseCase,
     ResendChannelActivationCodeUseCase,
     ResetChannelPasswordConfirmUseCase,
@@ -61,7 +61,7 @@ from app.presentation.api.v1.schemas.requests.auth import (
     LoginWithPasswordInSchema,
     LogoutInSchema,
     RefreshJWTTokenInSchema,
-    RegisterChannelWithEmailCodeInSchema,
+    RegisterChannelWithEmailInSchema,
     RegisterChannelWithPasswordInSchema,
     ResetChannelPasswordConfirmInSchema,
     ResetChannelPasswordInSchema,
@@ -112,11 +112,11 @@ async def register_channel_with_password(
         ),
     },
 )
-async def register_channel_with_email_code(
-    schema: RegisterChannelWithEmailCodeInSchema,
-    use_case: FromDishka[RegisterChannelWithEmailCodeUseCase],
+async def register_channel_with_email(
+    schema: RegisterChannelWithEmailInSchema,
+    use_case: FromDishka[RegisterChannelWithEmailUseCase],
 ) -> RegisterChannelOutSchema:
-    command = RegisterChannelWithEmailCodeCommand(**schema.model_dump())
+    command = RegisterChannelWithEmailCommand(**schema.model_dump())
     channel, tokens, activation_required = await use_case.execute(command=command)
     return RegisterChannelOutSchema(
         channel=ChannelOutSchema.from_entity(entity=channel),

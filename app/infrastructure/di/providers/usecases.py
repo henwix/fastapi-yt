@@ -7,7 +7,7 @@ from app.application.auth.usecases import (
     LoginWithPasswordUseCase,
     LogoutUseCase,
     RefreshJWTTokenUseCase,
-    RegisterChannelWithEmailCodeUseCase,
+    RegisterChannelWithEmailUseCase,
     RegisterChannelWithPasswordUseCase,
     ResendChannelActivationCodeUseCase,
     ResetChannelPasswordConfirmUseCase,
@@ -118,7 +118,7 @@ class UseCasesProvider(Provider):
 
     # Auth
     register_channel_with_password = provide(RegisterChannelWithPasswordUseCase)
-    register_channel_with_email_code = provide(RegisterChannelWithEmailCodeUseCase)
+    register_channel_with_email = provide(RegisterChannelWithEmailUseCase)
     login_with_password = provide(LoginWithPasswordUseCase)
     login_with_email_code = provide(LoginWithEmailCodeUseCase)
     login_with_email_code_comfirm = provide(LoginWithEmailCodeConfirmUseCase)

@@ -9,7 +9,7 @@ from app.application.auth.commands import (
     LoginWithEmailCodeCommand,
     LoginWithEmailCodeConfirmCommand,
     LoginWithPasswordCommand,
-    RegisterChannelWithEmailCodeCommand,
+    RegisterChannelWithEmailCommand,
     RegisterChannelWithPasswordCommand,
     ResendChannelActivationCodeCommand,
     ResetChannelPasswordCommand,
@@ -34,8 +34,8 @@ class RegisterChannelWithPasswordCommandFactory(DataclassFactory[RegisterChannel
         return cls.__faker__.slug()
 
 
-class RegisterChannelWithEmailCodeCommandFactory(DataclassFactory[RegisterChannelWithEmailCodeCommand]):
-    __model__ = RegisterChannelWithEmailCodeCommand
+class RegisterChannelWithEmailCommandFactory(DataclassFactory[RegisterChannelWithEmailCommand]):
+    __model__ = RegisterChannelWithEmailCommand
     __faker__ = Faker()
 
     @classmethod

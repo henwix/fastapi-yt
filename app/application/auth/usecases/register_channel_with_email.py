@@ -1,6 +1,6 @@
 from dataclasses import dataclass
 
-from app.application.auth.commands import RegisterChannelWithEmailCodeCommand
+from app.application.auth.commands import RegisterChannelWithEmailCommand
 from app.application.common.dto.jwt import JWTTokens
 from app.application.common.interfaces.email import IEmailService
 from app.application.common.interfaces.security import IAuthCodeService, IAuthService
@@ -11,14 +11,14 @@ from app.domain.channels.services import IChannelService
 
 
 @dataclass
-class RegisterChannelWithEmailCodeUseCase:
+class RegisterChannelWithEmailUseCase:
     _channel_service: IChannelService
     _auth_service: IAuthService
     _auth_code_service: IAuthCodeService
     _email_service: IEmailService
     _transaction_manager: ITransactionManager
 
-    async def execute(self, command: RegisterChannelWithEmailCodeCommand) -> tuple[Channel, JWTTokens, bool]:
+    async def execute(self, command: RegisterChannelWithEmailCommand) -> tuple[Channel, JWTTokens, bool]:
         await self._channel_service.try_check_email_exists(email=command.email)
         await self._channel_service.try_check_slug_exists(slug=command.slug)
 

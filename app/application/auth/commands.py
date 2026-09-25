@@ -13,7 +13,7 @@ class RegisterChannelWithPasswordCommand:
 
 
 @dataclass(kw_only=True, frozen=True)
-class RegisterChannelWithEmailCodeCommand:
+class RegisterChannelWithEmailCommand:
     email: str
     name: str
     slug: str

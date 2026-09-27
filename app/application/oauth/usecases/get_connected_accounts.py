@@ -12,6 +12,6 @@ class GetOAuthConnectedAccountsUseCase:
     _oauth_account_reader: IOAuthAccountReader
 
     async def execute(self, query: GetOAuthConnectedAccountsQuery) -> list[OAuthAccount]:
-        channel = await self._channel_service.try_get_active_by_id(id=query.current_channel_id)
+        channel = await self._channel_service.try_get_existing_by_id_for_auth(id=query.current_channel_id)
         accounts = await self._oauth_account_reader.get_connected(channel_id=channel.id)
         return accounts

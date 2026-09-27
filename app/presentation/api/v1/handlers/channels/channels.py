@@ -1,19 +1,27 @@
 from dishka.integrations.fastapi import DishkaRoute, FromDishka
 from fastapi import APIRouter, status
 
-from app.application.channels.commands import DeleteChannelAvatarCommand, DeleteChannelCommand, UpdateChannelCommand
+from app.application.channels.commands import (
+    DeleteChannelAvatarCommand,
+    DeleteChannelCommand,
+    RestoreChannelCommand,
+    UpdateChannelCommand,
+)
 from app.application.channels.queries import GetChannelAboutInfoQuery, GetChannelQuery
 from app.application.channels.usecases import (
     DeleteChannelAvatarUseCase,
     DeleteChannelUseCase,
     GetChannelAboutInfoUseCase,
     GetChannelUseCase,
+    RestoreChannelUseCase,
     UpdateChannelUseCase,
 )
 from app.domain.auth.exceptions import JWTTokenExpiredError, JWTTokenInvalidError, NotAuthenticatedError
 from app.domain.channels.exceptions import (
     ChannelAvatarNotFoundError,
+    ChannelDeletedError,
     ChannelNotActiveError,
+    ChannelNotDeletedError,
     ChannelNotFoundByIdError,
     ChannelNotFoundBySlugError,
     ChannelSlugAlreadyExistsError,
@@ -64,6 +72,7 @@ async def get_channel(
         ),
         status.HTTP_403_FORBIDDEN: error_response(
             ChannelNotActiveError,
+            ChannelDeletedError,
         ),
         status.HTTP_404_NOT_FOUND: error_response(
             ChannelNotFoundByIdError,
@@ -97,6 +106,7 @@ async def update_channel(
         ),
         status.HTTP_403_FORBIDDEN: error_response(
             ChannelNotActiveError,
+            ChannelDeletedError,
         ),
         status.HTTP_404_NOT_FOUND: error_response(
             ChannelNotFoundByIdError,
@@ -126,6 +136,26 @@ async def get_channel_about_info(
     return ChannelAboutInfoOutSchema.from_dto(dto=channel_about_info_dto)
 
 
+@router.post(
+    path='/restore',
+    status_code=status.HTTP_204_NO_CONTENT,
+    responses={
+        status.HTTP_404_NOT_FOUND: error_response(
+            ChannelNotFoundByIdError,
+        ),
+        status.HTTP_409_CONFLICT: error_response(
+            ChannelNotDeletedError,
+        ),
+    },
+)
+async def restore_channel(
+    current_channel_id: CurrentChannelID,
+    use_case: FromDishka[RestoreChannelUseCase],
+) -> None:
+    command = RestoreChannelCommand(current_channel_id=current_channel_id)
+    await use_case.execute(command=command)
+
+
 @router.delete(
     '/avatar',
     status_code=status.HTTP_204_NO_CONTENT,
@@ -137,6 +167,7 @@ async def get_channel_about_info(
         ),
         status.HTTP_403_FORBIDDEN: error_response(
             ChannelNotActiveError,
+            ChannelDeletedError,
         ),
         status.HTTP_404_NOT_FOUND: error_response(
             ChannelNotFoundByIdError,

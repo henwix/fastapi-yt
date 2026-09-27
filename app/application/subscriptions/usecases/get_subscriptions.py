@@ -35,7 +35,7 @@ class GetSubscriptionsUseCase:
             except Exception as e:
                 raise InvalidCursorError(cursor=query.pagination.cursor, exc_details=str(e)) from e
 
-        channel = await self._channel_service.try_get_active_by_id(id=query.current_channel_id)
+        channel = await self._channel_service.try_get_existing_by_id_for_auth(id=query.current_channel_id)
         subscriptions = await self._subscription_reader.get_subscriptions_by_id(
             subscriber_id=channel.id,
             cursor_sort_value=cursor_sort_value,

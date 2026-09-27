@@ -1,3 +1,5 @@
+from datetime import datetime
+
 import pytest
 from dishka import AsyncContainer
 from sqlalchemy.ext.asyncio import AsyncSession
@@ -5,12 +7,24 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from app.application.auth.usecases import LoginWithPasswordUseCase
 from app.application.common.interfaces.security import IJWTService, IPasswordHasher
 from app.domain.auth.exceptions import IncorrectEmailOrPasswordError
+from app.utils.datetime import get_current_utc_datetime
 from tests.factories.commands.auth import LoginWithPasswordCommandFactory
 from tests.factories.models.channels import ChannelORMFactory
 
 
 @pytest.mark.asyncio
-async def test_login_with_password_returns_tokens_if_credentials_are_correct(mock_container: AsyncContainer):
+@pytest.mark.parametrize(
+    ('is_channel_active', 'deleted_at'),
+    [
+        (False, get_current_utc_datetime()),
+        (True, None),
+    ],
+)
+async def test_login_with_password_returns_tokens_if_credentials_are_correct(
+    mock_container: AsyncContainer,
+    is_channel_active: bool,
+    deleted_at: datetime | None,
+):
     async with mock_container() as di:
         use_case = await di.get(LoginWithPasswordUseCase)
         session = await di.get(AsyncSession)
@@ -22,6 +36,8 @@ async def test_login_with_password_returns_tokens_if_credentials_are_correct(moc
         db_channel = await ChannelORMFactory.create(
             session=session,
             password_hash=password_hasher.get_password_hash(password),
+            is_active=is_channel_active,
+            deleted_at=deleted_at,
         )
 
         command = LoginWithPasswordCommandFactory.build(

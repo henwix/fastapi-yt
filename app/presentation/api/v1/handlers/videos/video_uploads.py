@@ -23,7 +23,7 @@ from app.application.videos.usecases import (
     GenerateVideoThumbnailUploadUrlUseCase,
 )
 from app.domain.auth.exceptions import JWTTokenExpiredError, JWTTokenInvalidError, NotAuthenticatedError
-from app.domain.channels.exceptions import ChannelNotActiveError, ChannelNotFoundByIdError
+from app.domain.channels.exceptions import ChannelDeletedError, ChannelNotActiveError, ChannelNotFoundByIdError
 from app.domain.common.exceptions.s3 import (
     S3MultipartUploadInvalidPartsError,
     S3MultipartUploadNotFoundError,
@@ -81,6 +81,7 @@ router = APIRouter(
         ),
         status.HTTP_403_FORBIDDEN: error_response(
             ChannelNotActiveError,
+            ChannelDeletedError,
             VideoAccessForbiddenError,
         ),
         status.HTTP_404_NOT_FOUND: error_response(
@@ -130,6 +131,7 @@ async def create_video_mutipart_upload(
         ),
         status.HTTP_403_FORBIDDEN: error_response(
             ChannelNotActiveError,
+            ChannelDeletedError,
             VideoAccessForbiddenError,
         ),
         status.HTTP_404_NOT_FOUND: error_response(
@@ -177,6 +179,7 @@ async def generate_video_part_upload_url(
         ),
         status.HTTP_403_FORBIDDEN: error_response(
             ChannelNotActiveError,
+            ChannelDeletedError,
             VideoAccessForbiddenError,
         ),
         status.HTTP_404_NOT_FOUND: error_response(
@@ -222,6 +225,7 @@ async def complete_video_multipart_upload(
         ),
         status.HTTP_403_FORBIDDEN: error_response(
             ChannelNotActiveError,
+            ChannelDeletedError,
             VideoAccessForbiddenError,
         ),
         status.HTTP_404_NOT_FOUND: error_response(
@@ -265,6 +269,7 @@ async def abort_video_multipart_upload(
         ),
         status.HTTP_403_FORBIDDEN: error_response(
             ChannelNotActiveError,
+            ChannelDeletedError,
             VideoAccessForbiddenError,
         ),
         status.HTTP_404_NOT_FOUND: error_response(
@@ -317,6 +322,7 @@ async def generate_video_thumbnail_upload_url(
         ),
         status.HTTP_403_FORBIDDEN: error_response(
             ChannelNotActiveError,
+            ChannelDeletedError,
             VideoAccessForbiddenError,
             S3ObjectAccessForbiddenError,
         ),

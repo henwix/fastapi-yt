@@ -18,7 +18,7 @@ from app.application.videos.usecases import (
     GetVideoHistoryUseCase,
 )
 from app.domain.auth.exceptions import JWTTokenExpiredError, JWTTokenInvalidError, NotAuthenticatedError
-from app.domain.channels.exceptions import ChannelNotActiveError, ChannelNotFoundByIdError
+from app.domain.channels.exceptions import ChannelDeletedError, ChannelNotActiveError, ChannelNotFoundByIdError
 from app.domain.common.exceptions.pagination import InvalidCursorError
 from app.domain.videos.exceptions import (
     VideoAccessForbiddenError,
@@ -52,6 +52,7 @@ router = APIRouter(
         ),
         status.HTTP_403_FORBIDDEN: error_response(
             ChannelNotActiveError,
+            ChannelDeletedError,
             VideoAccessForbiddenError,
         ),
         status.HTTP_404_NOT_FOUND: error_response(
@@ -83,6 +84,7 @@ async def add_video_to_history(
         ),
         status.HTTP_403_FORBIDDEN: error_response(
             ChannelNotActiveError,
+            ChannelDeletedError,
         ),
         status.HTTP_404_NOT_FOUND: error_response(
             ChannelNotFoundByIdError,
@@ -113,6 +115,7 @@ async def delete_video_from_history(
         ),
         status.HTTP_403_FORBIDDEN: error_response(
             ChannelNotActiveError,
+            ChannelDeletedError,
         ),
         status.HTTP_404_NOT_FOUND: error_response(
             ChannelNotFoundByIdError,
@@ -141,6 +144,7 @@ async def clear_video_history(
         ),
         status.HTTP_403_FORBIDDEN: error_response(
             ChannelNotActiveError,
+            ChannelDeletedError,
         ),
         status.HTTP_404_NOT_FOUND: error_response(
             ChannelNotFoundByIdError,

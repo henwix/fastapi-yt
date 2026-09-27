@@ -16,7 +16,7 @@ class DeleteVideoFromPlaylistUseCase:
     _transaction_manager: ITransactionManager
 
     async def execute(self, command: DeleteVideoFromPlaylistCommand) -> None:
-        channel = await self._channel_service.try_get_active_by_id(id=command.current_channel_id)
+        channel = await self._channel_service.try_get_existing_by_id_for_auth(id=command.current_channel_id)
         playlist = await self._playlist_service.try_get_by_id(id=command.playlist_id)
 
         self._playlist_service.ensure_playlist_access(playlist=playlist, channel=channel)

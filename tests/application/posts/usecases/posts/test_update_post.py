@@ -5,6 +5,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.application.posts.usecases import UpdatePostUseCase
 from app.domain.channels.exceptions import (
+    ChannelDeletedError,
     ChannelNotActiveError,
     ChannelNotFoundByIdError,
 )
@@ -12,6 +13,7 @@ from app.domain.common.constants import Empty
 from app.domain.posts.entities import Post
 from app.domain.posts.exceptions import PostAccessForbiddenError, PostNotFoundError
 from app.infrastructure.sqlalchemy.models import PostORM
+from app.utils.datetime import get_current_utc_datetime
 from tests.factories.commands.posts.posts import UpdatePostCommandFactory
 from tests.factories.models.channels import ChannelORMFactory
 from tests.factories.models.posts import PostORMFactory
@@ -63,23 +65,29 @@ async def test_update_post_raises_error_if_channel_not_active(mock_container: As
         use_case = await di.get(UpdatePostUseCase)
         session = await di.get(AsyncSession)
 
-        channel = await ChannelORMFactory.create(
-            session=session,
-            is_active=False,
-        )
+        channel = await ChannelORMFactory.create(session=session, is_active=False)
 
-        db_post = await PostORMFactory.create(
-            session=session,
-            channel_id=channel.id,
-        )
+        db_post = await PostORMFactory.create(session=session, channel_id=channel.id)
 
-        command = UpdatePostCommandFactory.build(
-            current_channel_id=channel.id,
-            post_id=db_post.id,
-            text='new text',
-        )
+        command = UpdatePostCommandFactory.build(current_channel_id=channel.id, post_id=db_post.id, text='new text')
 
         with pytest.raises(ChannelNotActiveError):
+            await use_case.execute(command=command)
+
+
+@pytest.mark.asyncio
+async def test_update_post_raises_error_if_channel_deleted(mock_container: AsyncContainer):
+    async with mock_container() as di:
+        use_case = await di.get(UpdatePostUseCase)
+        session = await di.get(AsyncSession)
+
+        channel = await ChannelORMFactory.create(session=session, deleted_at=get_current_utc_datetime())
+
+        db_post = await PostORMFactory.create(session=session, channel_id=channel.id)
+
+        command = UpdatePostCommandFactory.build(current_channel_id=channel.id, post_id=db_post.id, text='new text')
+
+        with pytest.raises(ChannelDeletedError):
             await use_case.execute(command=command)
 
 

@@ -7,12 +7,12 @@ from sqlalchemy import exists, select
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.application.videos.usecases import CreateVideoViewUseCase
-from app.domain.channels.exceptions import ChannelNotActiveError, ChannelNotFoundByIdError
+from app.domain.channels.exceptions import ChannelDeletedError, ChannelNotActiveError, ChannelNotFoundByIdError
 from app.domain.videos.constants import VIDEO_VIEWS_LIMIT_PER_DAY
 from app.domain.videos.enums import VideoPrivacyStatusEnum, VideoUploadStatusEnum
 from app.domain.videos.exceptions import VideoAccessForbiddenError, VideoNotFoundError, VideoViewsLimitReachedError
 from app.infrastructure.sqlalchemy.models import VideoViewORM
-from app.utils.datetime import get_current_utc_date
+from app.utils.datetime import get_current_utc_date, get_current_utc_datetime
 from app.utils.videos import generate_video_id
 from tests.factories.commands.videos import CreateVideoViewCommandFactory
 from tests.factories.models.channels import ChannelORMFactory
@@ -365,6 +365,32 @@ async def test_create_video_view_raises_error_if_channel_not_active(
         )
 
         with pytest.raises(ChannelNotActiveError):
+            await use_case.execute(command=command)
+
+
+@pytest.mark.asyncio
+async def test_create_video_view_raises_error_if_channel_deleted(
+    mock_container: AsyncContainer,
+):
+    async with mock_container() as di:
+        use_case = await di.get(CreateVideoViewUseCase)
+        session = await di.get(AsyncSession)
+
+        channel = await ChannelORMFactory.create(session=session, deleted_at=get_current_utc_datetime())
+        channel_video_author = await ChannelORMFactory.create(session=session)
+        video = await VideoORMFactory.create(
+            session=session,
+            channel_id=channel_video_author.id,
+            upload_status=VideoUploadStatusEnum.COMPLETED.value,
+            privacy_status=VideoPrivacyStatusEnum.PUBLIC.value,
+        )
+
+        command = CreateVideoViewCommandFactory.build(
+            current_channel_id=channel.id,
+            video_id=video.id,
+        )
+
+        with pytest.raises(ChannelDeletedError):
             await use_case.execute(command=command)
 
 

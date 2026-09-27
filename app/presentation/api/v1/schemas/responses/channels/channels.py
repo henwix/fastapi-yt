@@ -17,6 +17,7 @@ class ChannelOutSchema(BaseSchema):
     country: str
     avatar_s3_key: str | None
     is_active: bool
+    deleted_at: datetime | None
     created_at: datetime
     updated_at: datetime
 
@@ -31,6 +32,7 @@ class ChannelOutSchema(BaseSchema):
             country=entity.country,
             avatar_s3_key=entity.avatar_s3_key,
             is_active=entity.is_active,
+            deleted_at=entity.deleted_at.to_raw(),
             created_at=entity.created_at,
             updated_at=entity.updated_at,
         )

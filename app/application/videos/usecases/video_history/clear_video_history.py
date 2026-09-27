@@ -13,6 +13,6 @@ class ClearVideoHistoryUseCase:
     _transaction_manager: ITransactionManager
 
     async def execute(self, command: ClearVideoHistoryCommand) -> None:
-        channel = await self._channel_service.try_get_active_by_id(id=command.current_channel_id)
+        channel = await self._channel_service.try_get_existing_by_id_for_auth(id=command.current_channel_id)
         async with self._transaction_manager:
             await self._video_history_service.try_clear(channel_id=channel.id)

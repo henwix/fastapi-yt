@@ -49,8 +49,8 @@ class ChannelRepo(SQLAlchemyRepo, IChannelRepo):
         stmt = select(ChannelORM).where(ChannelORM.email == email)
         return await self._get_one_by_query(query=stmt)
 
-    async def get_by_slug(self, slug: str) -> Channel | None:
-        stmt = select(ChannelORM).where(ChannelORM.slug == slug)
+    async def get_existing_by_slug(self, slug: str) -> Channel | None:
+        stmt = select(ChannelORM).where(ChannelORM.slug == slug, ChannelORM.deleted_at.is_(None))
         return await self._get_one_by_query(query=stmt)
 
     async def get_by_id(self, id: UUID) -> Channel | None:
@@ -68,6 +68,7 @@ class ChannelRepo(SQLAlchemyRepo, IChannelRepo):
                 description=channel.description,
                 country=channel.country,
                 avatar_s3_key=channel.avatar_s3_key,
+                deleted_at=channel.deleted_at.to_raw(),
             )
             .returning(ChannelORM)
         )

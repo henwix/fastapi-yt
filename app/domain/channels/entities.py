@@ -5,6 +5,7 @@ from uuid import UUID, uuid7
 from app.domain.channels.value_objects import Email, Name, Slug
 from app.domain.common.constants import Empty
 from app.domain.common.entities import BaseEntity
+from app.domain.common.value_objects import DeletionTime
 from app.utils.datetime import get_current_utc_datetime
 
 
@@ -19,6 +20,7 @@ class Channel(BaseEntity):
     password_hash: str | None
     is_active: bool = True
     avatar_s3_key: str | None = None
+    deleted_at: DeletionTime = field(default_factory=DeletionTime.create_not_deleted)
     created_at: datetime = field(default_factory=get_current_utc_datetime)
     updated_at: datetime = field(default_factory=get_current_utc_datetime)
 

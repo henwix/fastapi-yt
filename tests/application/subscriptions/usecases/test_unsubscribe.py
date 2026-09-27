@@ -4,9 +4,15 @@ from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.application.subscriptions.usecases import UnsubscribeUseCase
-from app.domain.channels.exceptions import ChannelNotActiveError, ChannelNotFoundByIdError, ChannelNotFoundBySlugError
+from app.domain.channels.exceptions import (
+    ChannelDeletedError,
+    ChannelNotActiveError,
+    ChannelNotFoundByIdError,
+    ChannelNotFoundBySlugError,
+)
 from app.domain.subscriptions.exceptions import SubscriptionNotFoundError
 from app.infrastructure.sqlalchemy.models import SubscriptionORM
+from app.utils.datetime import get_current_utc_datetime
 from tests.factories.commands.subscriptions import UnsubscribeCommandFactory
 from tests.factories.models.channels import ChannelORMFactory, SubscriptionORMFactory
 
@@ -73,6 +79,24 @@ async def test_unsubscribe_raises_error_if_current_channel_not_active(mock_conta
 
 
 @pytest.mark.asyncio
+async def test_unsubscribe_raises_error_if_current_channel_deleted(mock_container: AsyncContainer):
+    async with mock_container() as di:
+        use_case = await di.get(UnsubscribeUseCase)
+        session = await di.get(AsyncSession)
+
+        subscriber = await ChannelORMFactory.create(session=session, deleted_at=get_current_utc_datetime())
+        subscribed_to = await ChannelORMFactory.create(session=session)
+
+        command = UnsubscribeCommandFactory.build(
+            current_channel_id=subscriber.id,
+            channel_slug=subscribed_to.slug,
+        )
+
+        with pytest.raises(ChannelDeletedError):
+            await use_case.execute(command=command)
+
+
+@pytest.mark.asyncio
 async def test_unsubscribe_raises_error_if_channel_slug_not_found(mock_container: AsyncContainer):
     async with mock_container() as di:
         use_case = await di.get(UnsubscribeUseCase)
@@ -80,9 +104,22 @@ async def test_unsubscribe_raises_error_if_channel_slug_not_found(mock_container
 
         subscriber = await ChannelORMFactory.create(session=session)
 
-        command = UnsubscribeCommandFactory.build(
-            current_channel_id=subscriber.id,
-        )
+        command = UnsubscribeCommandFactory.build(current_channel_id=subscriber.id)
+
+        with pytest.raises(ChannelNotFoundBySlugError):
+            await use_case.execute(command=command)
+
+
+@pytest.mark.asyncio
+async def test_unsubscribe_raises_error_if_channel_deleted(mock_container: AsyncContainer):
+    async with mock_container() as di:
+        use_case = await di.get(UnsubscribeUseCase)
+        session = await di.get(AsyncSession)
+
+        subscriber = await ChannelORMFactory.create(session=session)
+        subscribed_to = await ChannelORMFactory.create(session=session, deleted_at=get_current_utc_datetime())
+
+        command = UnsubscribeCommandFactory.build(current_channel_id=subscriber.id, channel_slug=subscribed_to.slug)
 
         with pytest.raises(ChannelNotFoundBySlugError):
             await use_case.execute(command=command)

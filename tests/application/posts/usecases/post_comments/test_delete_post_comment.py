@@ -6,10 +6,12 @@ from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.application.posts.usecases import DeletePostCommentUseCase
 from app.domain.channels.exceptions import (
+    ChannelDeletedError,
     ChannelNotActiveError,
     ChannelNotFoundByIdError,
 )
 from app.domain.posts.exceptions import PostCommentAccessForbiddenError, PostCommentNotFoundError
+from app.utils.datetime import get_current_utc_datetime
 from tests.factories.commands.posts import DeletePostCommentCommandFactory
 from tests.factories.models.channels import ChannelORMFactory
 from tests.factories.models.posts import PostCommentORMFactory, PostORMFactory
@@ -66,6 +68,31 @@ async def test_delete_post_comment_raises_if_channel_not_active(mock_container: 
         )
 
         with pytest.raises(ChannelNotActiveError):
+            await use_case.execute(command=command)
+
+
+@pytest.mark.asyncio
+async def test_delete_post_comment_raises_if_channel_deleted(mock_container: AsyncContainer):
+    async with mock_container() as di:
+        use_case = await di.get(DeletePostCommentUseCase)
+        session = await di.get(AsyncSession)
+
+        channel = await ChannelORMFactory.create(session=session, deleted_at=get_current_utc_datetime())
+        post = await PostORMFactory.create(session=session, channel_id=channel.id)
+
+        post_comment = await PostCommentORMFactory.create(
+            session=session,
+            channel_id=channel.id,
+            post_id=post.id,
+            reply_comment_id=None,
+        )
+
+        command = DeletePostCommentCommandFactory.build(
+            current_channel_id=channel.id,
+            post_comment_id=post_comment.id,
+        )
+
+        with pytest.raises(ChannelDeletedError):
             await use_case.execute(command=command)
 
 

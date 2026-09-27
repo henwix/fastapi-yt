@@ -33,7 +33,7 @@ class GetChannelPlaylistsUseCase:
             except Exception as e:
                 raise InvalidCursorError(cursor=query.pagination.cursor, exc_details=str(e)) from e
 
-        channel = await self._channel_service.try_get_by_slug(slug=query.channel_slug)
+        channel = await self._channel_service.try_get_existing_by_slug(slug=query.channel_slug)
         playlists = await self._playlist_reader.get_public_playlists_by_channel_id(
             channel_id=channel.id,
             cursor_sort_value=cursor_sort_value,

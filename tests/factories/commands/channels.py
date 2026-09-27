@@ -8,6 +8,7 @@ from app.application.channels.commands import (
     DeleteChannelAvatarCommand,
     DeleteChannelCommand,
     GenerateChannelAvatarUploadUrlCommand,
+    RestoreChannelCommand,
     UpdateChannelCommand,
 )
 from app.domain.common.constants import Empty
@@ -25,6 +26,10 @@ class UpdateChannelCommandFactory(DataclassFactory[UpdateChannelCommand]):
 
 class DeleteChannelCommandFactory(DataclassFactory[DeleteChannelCommand]):
     __model__ = DeleteChannelCommand
+
+
+class RestoreChannelCommandFactory(DataclassFactory[RestoreChannelCommand]):
+    __model__ = RestoreChannelCommand
 
 
 class GenerateChannelAvatarUploadUrlCommandFactory(DataclassFactory[GenerateChannelAvatarUploadUrlCommand]):

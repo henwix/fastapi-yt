@@ -22,7 +22,7 @@ class GetVideoUseCase:
             if query.current_channel_id is None:
                 raise VideoAccessForbiddenError(video_id=video.id)
 
-            channel = await self._channel_service.try_get_active_by_id(id=query.current_channel_id)
+            channel = await self._channel_service.try_get_existing_by_id_for_auth(id=query.current_channel_id)
 
             if video.channel_id != channel.id:
                 raise VideoAccessForbiddenError(video_id=video.id, channel_id=channel.id)

@@ -1,3 +1,4 @@
+from datetime import datetime
 from uuid import UUID
 
 import sqlalchemy as sa
@@ -5,6 +6,7 @@ from sqlalchemy.orm import Mapped, mapped_column, relationship
 
 from app.domain.channels.entities import Channel
 from app.domain.channels.value_objects import Email, Name, Slug
+from app.domain.common.value_objects import DeletionTime
 from app.domain.subscriptions.entities import Subscription
 from app.infrastructure.sqlalchemy.models import BaseORM
 from app.infrastructure.sqlalchemy.models.mixins import CreatedAtDatetimeMixin, UpdatedAtDatetimeMixin, UUIDIdMixin
@@ -25,6 +27,9 @@ class ChannelORM(
     country: Mapped[str] = mapped_column(sa.String(40))
     password_hash: Mapped[str | None]
     is_active: Mapped[bool] = mapped_column(default=True, server_default=sa.sql.true())
+    deleted_at: Mapped[datetime | None] = mapped_column(
+        sa.DateTime(timezone=True), default=None, server_default=sa.sql.null()
+    )
     avatar_s3_key: Mapped[str | None] = mapped_column(
         sa.String(length=255), nullable=True, default=None, server_default=sa.sql.null()
     )
@@ -55,6 +60,7 @@ class ChannelORM(
             password_hash=self.password_hash,
             is_active=self.is_active,
             avatar_s3_key=self.avatar_s3_key,
+            deleted_at=DeletionTime(self.deleted_at),
             created_at=self.created_at,
             updated_at=self.updated_at,
         )
@@ -71,6 +77,7 @@ class ChannelORM(
             password_hash=entity.password_hash,
             is_active=entity.is_active,
             avatar_s3_key=entity.avatar_s3_key,
+            deleted_at=entity.deleted_at.to_raw(),
             created_at=entity.created_at,
             updated_at=entity.updated_at,
         )

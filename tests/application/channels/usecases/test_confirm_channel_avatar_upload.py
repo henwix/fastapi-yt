@@ -11,10 +11,12 @@ from app.domain.channels.exceptions import (
     ChannelAvatarInvalidContentTypeError,
     ChannelAvatarInvalidKeyError,
     ChannelAvatarSizeTooBigError,
+    ChannelDeletedError,
     ChannelNotActiveError,
     ChannelNotFoundByIdError,
 )
 from app.domain.common.exceptions.s3 import S3ObjectAccessForbiddenError
+from app.utils.datetime import get_current_utc_datetime
 from tests.factories.commands.channels import ConfirmChannelAvatarUploadCommandFactory
 from tests.factories.models.channels import ChannelORMFactory
 
@@ -177,6 +179,25 @@ async def test_confirm_channel_avatar_upload_raises_error_if_channel_not_active(
         )
 
         with pytest.raises(ChannelNotActiveError):
+            await use_case.execute(command)
+
+
+@pytest.mark.asyncio
+async def test_confirm_channel_avatar_upload_raises_error_if_channel_deleted(
+    mock_container: AsyncContainer,
+):
+    async with mock_container() as di:
+        use_case = await di.get(ConfirmChannelAvatarUploadUseCase)
+        session = await di.get(AsyncSession)
+
+        expected_avatar_s3_key = f'{settings.s3_tmp_channel_avatars_key_prefix}/new_avatar.png'
+
+        channel = await ChannelORMFactory.create(session=session, deleted_at=get_current_utc_datetime())
+        command = ConfirmChannelAvatarUploadCommandFactory.build(
+            current_channel_id=channel.id, key=expected_avatar_s3_key
+        )
+
+        with pytest.raises(ChannelDeletedError):
             await use_case.execute(command)
 
 

@@ -10,6 +10,7 @@ from app.domain.channels.exceptions import (
     ChannelAvatarInvalidFilenameError,
     ChannelAvatarInvalidKeyError,
     ChannelAvatarSizeTooBigError,
+    ChannelDeletedError,
     ChannelNotActiveError,
     ChannelNotFoundByIdError,
 )
@@ -47,6 +48,7 @@ router = APIRouter(
         ),
         status.HTTP_403_FORBIDDEN: error_response(
             ChannelNotActiveError,
+            ChannelDeletedError,
         ),
         status.HTTP_404_NOT_FOUND: error_response(
             ChannelNotFoundByIdError,
@@ -100,6 +102,7 @@ async def generate_channel_avatar_upload_url(
         ),
         status.HTTP_403_FORBIDDEN: error_response(
             ChannelNotActiveError,
+            ChannelDeletedError,
             S3ObjectAccessForbiddenError,
         ),
         status.HTTP_404_NOT_FOUND: error_response(

@@ -20,7 +20,7 @@ from app.application.videos.usecases import (
     UpdateVideoCommentUseCase,
 )
 from app.domain.auth.exceptions import JWTTokenExpiredError, JWTTokenInvalidError, NotAuthenticatedError
-from app.domain.channels.exceptions import ChannelNotActiveError, ChannelNotFoundByIdError
+from app.domain.channels.exceptions import ChannelDeletedError, ChannelNotActiveError, ChannelNotFoundByIdError
 from app.domain.common.exceptions.pagination import InvalidCursorError
 from app.domain.videos.exceptions import (
     VideoAccessForbiddenError,
@@ -58,6 +58,7 @@ router = APIRouter(
         ),
         status.HTTP_403_FORBIDDEN: error_response(
             ChannelNotActiveError,
+            ChannelDeletedError,
             VideoAccessForbiddenError,
         ),
         status.HTTP_404_NOT_FOUND: error_response(
@@ -153,6 +154,7 @@ async def get_video_comment_replies(
         ),
         status.HTTP_403_FORBIDDEN: error_response(
             ChannelNotActiveError,
+            ChannelDeletedError,
             VideoCommentAccessForbiddenError,
         ),
         status.HTTP_404_NOT_FOUND: error_response(
@@ -183,6 +185,7 @@ async def delete_video_comment(
         ),
         status.HTTP_403_FORBIDDEN: error_response(
             ChannelNotActiveError,
+            ChannelDeletedError,
             VideoCommentAccessForbiddenError,
         ),
         status.HTTP_404_NOT_FOUND: error_response(

@@ -23,6 +23,7 @@ from app.application.channels.usecases import (
     GenerateChannelAvatarUploadUrlUseCase,
     GetChannelAboutInfoUseCase,
     GetChannelUseCase,
+    RestoreChannelUseCase,
     UpdateChannelUseCase,
 )
 from app.application.common.usecases.email import (
@@ -114,6 +115,7 @@ class UseCasesProvider(Provider):
     delete_channel = provide(DeleteChannelUseCase)
     generate_channel_avatar_upload_url = provide(GenerateChannelAvatarUploadUrlUseCase)
     confirm_channel_avatar_upload = provide(ConfirmChannelAvatarUploadUseCase)
+    restore_channel = provide(RestoreChannelUseCase)
     delete_channel_avatar = provide(DeleteChannelAvatarUseCase)
 
     # Auth

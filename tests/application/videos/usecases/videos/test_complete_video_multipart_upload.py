@@ -8,7 +8,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.application.videos.usecases import CompleteVideoMultipartUploadUseCase
 from app.core.configs import Settings
-from app.domain.channels.exceptions import ChannelNotActiveError, ChannelNotFoundByIdError
+from app.domain.channels.exceptions import ChannelDeletedError, ChannelNotActiveError, ChannelNotFoundByIdError
 from app.domain.common.constants import VIDEO_FILE_MIME_TYPES
 from app.domain.videos.enums import VideoUploadStatusEnum
 from app.domain.videos.exceptions import (
@@ -18,6 +18,7 @@ from app.domain.videos.exceptions import (
     VideoUploadAlreadyCompletedError,
     VideoUploadNotCreatedError,
 )
+from app.utils.datetime import get_current_utc_datetime
 from app.utils.videos import generate_video_id
 from tests.factories.commands.videos import CompleteVideoMultipartUploadCommandFactory
 from tests.factories.models.channels import ChannelORMFactory
@@ -189,6 +190,22 @@ async def test_complete_video_multipart_upload_raises_error_if_channel_not_activ
         )
 
         with pytest.raises(ChannelNotActiveError):
+            await use_case.execute(command=command)
+
+
+@pytest.mark.asyncio
+async def test_complete_video_multipart_upload_raises_error_if_channel_deleted(mock_container: AsyncContainer):
+    async with mock_container() as di:
+        use_case = await di.get(CompleteVideoMultipartUploadUseCase)
+        session = await di.get(AsyncSession)
+
+        channel = await ChannelORMFactory.create(session=session, deleted_at=get_current_utc_datetime())
+        command = CompleteVideoMultipartUploadCommandFactory.build(
+            current_channel_id=channel.id,
+            video_id=generate_video_id(),
+        )
+
+        with pytest.raises(ChannelDeletedError):
             await use_case.execute(command=command)
 
 

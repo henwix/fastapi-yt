@@ -37,7 +37,7 @@ class VerifyOAuthCodeUseCase:
                     channel_id=command.current_channel_id,
                     provider=oauth_account.provider,
                 )
-            channel = await self._channel_service.try_get_active_by_id(id=command.current_channel_id)
+            channel = await self._channel_service.try_get_existing_by_id_for_auth(id=command.current_channel_id)
             new_oauth_account_entity = OAuthAccount.create(
                 channel_id=channel.id,
                 provider_uid=provider_user_data.uid,

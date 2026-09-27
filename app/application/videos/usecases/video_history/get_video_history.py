@@ -32,7 +32,7 @@ class GetVideoHistoryUseCase:
             except Exception as e:
                 raise InvalidCursorError(cursor=query.pagination.cursor, exc_details=str(e)) from e
 
-        channel = await self._channel_service.try_get_active_by_id(id=query.current_channel_id)
+        channel = await self._channel_service.try_get_existing_by_id_for_auth(id=query.current_channel_id)
         history_videos = await self._video_history_reader.get_many(
             channel_id=channel.id,
             cursor_sort_value=cursor_sort_value,

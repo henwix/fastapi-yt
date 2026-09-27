@@ -14,7 +14,7 @@ class DisconnectOAuthAccountUseCase:
     _transaction_manager: ITransactionManager
 
     async def execute(self, command: DisconnectOAuthAccountCommand) -> None:
-        channel = await self._channel_service.try_get_active_by_id(id=command.current_channel_id)
+        channel = await self._channel_service.try_get_existing_by_id_for_auth(id=command.current_channel_id)
 
         connected_accounts = await self._oauth_account_service.try_get_connected_for_update(channel_id=channel.id)
 

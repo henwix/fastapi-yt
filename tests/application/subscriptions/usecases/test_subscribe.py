@@ -5,6 +5,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.application.subscriptions.usecases import SubscribeUseCase
 from app.domain.channels.exceptions import (
+    ChannelDeletedError,
     ChannelNotActiveError,
     ChannelNotFoundByIdError,
     ChannelNotFoundBySlugError,
@@ -15,6 +16,7 @@ from app.domain.subscriptions.exceptions import (
     SubscriptionAlreadyExistsError,
 )
 from app.infrastructure.sqlalchemy.models import SubscriptionORM
+from app.utils.datetime import get_current_utc_datetime
 from tests.factories.commands.subscriptions import SubscribeCommandFactory
 from tests.factories.models.channels import ChannelORMFactory, SubscriptionORMFactory
 
@@ -99,6 +101,24 @@ async def test_subscribe_raises_error_if_current_channel_not_active(mock_contain
 
 
 @pytest.mark.asyncio
+async def test_subscribe_raises_error_if_current_channel_deleted(mock_container: AsyncContainer):
+    async with mock_container() as di:
+        use_case = await di.get(SubscribeUseCase)
+        session = await di.get(AsyncSession)
+
+        subscriber = await ChannelORMFactory.create(session=session, deleted_at=get_current_utc_datetime())
+        subscribed_to = await ChannelORMFactory.create(session=session)
+
+        command = SubscribeCommandFactory.build(
+            current_channel_id=subscriber.id,
+            channel_slug=subscribed_to.slug,
+        )
+
+        with pytest.raises(ChannelDeletedError):
+            await use_case.execute(command=command)
+
+
+@pytest.mark.asyncio
 async def test_subscribe_raises_error_if_channel_slug_not_found(mock_container: AsyncContainer):
     async with mock_container() as di:
         use_case = await di.get(SubscribeUseCase)
@@ -107,6 +127,21 @@ async def test_subscribe_raises_error_if_channel_slug_not_found(mock_container: 
         subscriber = await ChannelORMFactory.create(session=session)
 
         command = SubscribeCommandFactory.build(current_channel_id=subscriber.id)
+
+        with pytest.raises(ChannelNotFoundBySlugError):
+            await use_case.execute(command=command)
+
+
+@pytest.mark.asyncio
+async def test_subscribe_raises_error_if_channel_deleted(mock_container: AsyncContainer):
+    async with mock_container() as di:
+        use_case = await di.get(SubscribeUseCase)
+        session = await di.get(AsyncSession)
+
+        subscriber = await ChannelORMFactory.create(session=session)
+        subscribed_to = await ChannelORMFactory.create(session=session, deleted_at=get_current_utc_datetime())
+
+        command = SubscribeCommandFactory.build(current_channel_id=subscriber.id, channel_slug=subscribed_to.slug)
 
         with pytest.raises(ChannelNotFoundBySlugError):
             await use_case.execute(command=command)

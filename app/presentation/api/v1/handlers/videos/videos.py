@@ -29,7 +29,12 @@ from app.application.videos.usecases import (
     UpdateVideoUseCase,
 )
 from app.domain.auth.exceptions import JWTTokenExpiredError, JWTTokenInvalidError, NotAuthenticatedError
-from app.domain.channels.exceptions import ChannelNotActiveError, ChannelNotFoundByIdError, ChannelNotFoundBySlugError
+from app.domain.channels.exceptions import (
+    ChannelDeletedError,
+    ChannelNotActiveError,
+    ChannelNotFoundByIdError,
+    ChannelNotFoundBySlugError,
+)
 from app.domain.common.exceptions.pagination import InvalidCursorError
 from app.domain.videos.exceptions import VideoAccessForbiddenError, VideoNotFoundError, VideoThumbnailNotFoundError
 from app.presentation.api.openapi.common import error_response
@@ -68,6 +73,7 @@ router = APIRouter(
         ),
         status.HTTP_403_FORBIDDEN: error_response(
             ChannelNotActiveError,
+            ChannelDeletedError,
         ),
         status.HTTP_404_NOT_FOUND: error_response(
             ChannelNotFoundByIdError,
@@ -100,6 +106,7 @@ async def create_video(
         ),
         status.HTTP_403_FORBIDDEN: error_response(
             ChannelNotActiveError,
+            ChannelDeletedError,
         ),
         status.HTTP_404_NOT_FOUND: error_response(
             ChannelNotFoundByIdError,
@@ -164,6 +171,7 @@ async def get_channel_videos(
         ),
         status.HTTP_403_FORBIDDEN: error_response(
             ChannelNotActiveError,
+            ChannelDeletedError,
             VideoAccessForbiddenError,
         ),
         status.HTTP_404_NOT_FOUND: error_response(
@@ -193,6 +201,7 @@ async def get_video(
         ),
         status.HTTP_403_FORBIDDEN: error_response(
             ChannelNotActiveError,
+            ChannelDeletedError,
             VideoAccessForbiddenError,
         ),
         status.HTTP_404_NOT_FOUND: error_response(
@@ -223,6 +232,7 @@ async def delete_video(
         ),
         status.HTTP_403_FORBIDDEN: error_response(
             ChannelNotActiveError,
+            ChannelDeletedError,
             VideoAccessForbiddenError,
         ),
         status.HTTP_404_NOT_FOUND: error_response(
@@ -257,6 +267,7 @@ async def update_video(
         ),
         status.HTTP_403_FORBIDDEN: error_response(
             ChannelNotActiveError,
+            ChannelDeletedError,
             VideoAccessForbiddenError,
         ),
         status.HTTP_404_NOT_FOUND: error_response(

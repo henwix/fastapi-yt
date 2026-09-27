@@ -1,3 +1,5 @@
+from datetime import datetime
+
 import pytest
 from dishka import AsyncContainer
 from sqlalchemy.ext.asyncio import AsyncSession
@@ -6,18 +8,23 @@ from app.application.auth.usecases import ActivateChannelUseCase
 from app.application.common.interfaces.security import IAuthCodeService
 from app.domain.auth.exceptions import ChannelAlreadyActivatedError, ChannelInvalidEmailCodeError
 from app.domain.channels.exceptions import ChannelNotFoundByIdError
+from app.utils.datetime import get_current_utc_datetime
 from tests.factories.commands.auth import ActivateChannelCommandFactory
 from tests.factories.models.channels import ChannelORMFactory
 
 
 @pytest.mark.asyncio
-async def test_activate_channel_returns_none_if_activated(mock_container: AsyncContainer):
+@pytest.mark.parametrize('deleted_at', [None, get_current_utc_datetime()])
+async def test_activate_channel_returns_none_if_activated(
+    mock_container: AsyncContainer,
+    deleted_at: datetime | None,
+):
     async with mock_container() as di:
         auth_code_service = await di.get(IAuthCodeService)
         use_case = await di.get(ActivateChannelUseCase)
         session = await di.get(AsyncSession)
 
-        db_channel = await ChannelORMFactory.create(session=session, is_active=False)
+        db_channel = await ChannelORMFactory.create(session=session, is_active=False, deleted_at=deleted_at)
         code = await auth_code_service.create_activation_code(channel_id=db_channel.id)
         command = ActivateChannelCommandFactory.build(current_channel_id=db_channel.id, code=code)
 

@@ -4,7 +4,7 @@ from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.application.videos.usecases import CreateVideoUseCase
-from app.domain.channels.exceptions import ChannelNotActiveError, ChannelNotFoundByIdError
+from app.domain.channels.exceptions import ChannelDeletedError, ChannelNotActiveError, ChannelNotFoundByIdError
 from app.domain.videos.entities import Video
 from app.domain.videos.enums import VideoUploadStatusEnum
 from app.infrastructure.sqlalchemy.models import VideoORM
@@ -62,6 +62,19 @@ async def test_create_video_raises_error_if_channel_not_active(container: AsyncC
         command = CreateVideoCommandFactory.build(current_channel_id=channel.id)
 
         with pytest.raises(ChannelNotActiveError):
+            await use_case.execute(command=command)
+
+
+@pytest.mark.asyncio
+async def test_create_video_raises_error_if_channel_deleted(container: AsyncContainer):
+    async with container() as di:
+        use_case = await di.get(CreateVideoUseCase)
+        session = await di.get(AsyncSession)
+
+        channel = await ChannelORMFactory.create(session=session, deleted_at=get_current_utc_datetime())
+        command = CreateVideoCommandFactory.build(current_channel_id=channel.id)
+
+        with pytest.raises(ChannelDeletedError):
             await use_case.execute(command=command)
 
 

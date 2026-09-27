@@ -17,7 +17,12 @@ from app.application.posts.usecases import (
     UpdatePostUseCase,
 )
 from app.domain.auth.exceptions import JWTTokenExpiredError, JWTTokenInvalidError, NotAuthenticatedError
-from app.domain.channels.exceptions import ChannelNotActiveError, ChannelNotFoundByIdError, ChannelNotFoundBySlugError
+from app.domain.channels.exceptions import (
+    ChannelDeletedError,
+    ChannelNotActiveError,
+    ChannelNotFoundByIdError,
+    ChannelNotFoundBySlugError,
+)
 from app.domain.common.exceptions.pagination import InvalidCursorError
 from app.domain.posts.exceptions import PostAccessForbiddenError, PostNotFoundError
 from app.presentation.api.openapi.common import error_response
@@ -50,6 +55,7 @@ router = APIRouter(
         ),
         status.HTTP_403_FORBIDDEN: error_response(
             ChannelNotActiveError,
+            ChannelDeletedError,
         ),
         status.HTTP_404_NOT_FOUND: error_response(
             ChannelNotFoundByIdError,
@@ -126,6 +132,7 @@ async def get_channel_posts(
         ),
         status.HTTP_403_FORBIDDEN: error_response(
             ChannelNotActiveError,
+            ChannelDeletedError,
             PostAccessForbiddenError,
         ),
         status.HTTP_404_NOT_FOUND: error_response(
@@ -160,6 +167,7 @@ async def update_post(
         ),
         status.HTTP_403_FORBIDDEN: error_response(
             ChannelNotActiveError,
+            ChannelDeletedError,
             PostAccessForbiddenError,
         ),
         status.HTTP_404_NOT_FOUND: error_response(

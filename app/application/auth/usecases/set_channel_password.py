@@ -16,7 +16,7 @@ class SetChannelPasswordUseCase:
     _password_hasher: IPasswordHasher
 
     async def execute(self, command: SetChannelPasswordCommand) -> None:
-        channel = await self._channel_service.try_get_active_by_id(id=command.current_channel_id)
+        channel = await self._channel_service.try_get_existing_by_id_for_auth(id=command.current_channel_id)
 
         async with password_hash_semaphore:
             new_password_hash = await asyncio.to_thread(self._password_hasher.get_password_hash, command.new_password)

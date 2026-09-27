@@ -5,11 +5,13 @@ from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.application.posts.usecases import DeletePostUseCase
 from app.domain.channels.exceptions import (
+    ChannelDeletedError,
     ChannelNotActiveError,
     ChannelNotFoundByIdError,
 )
 from app.domain.posts.exceptions import PostAccessForbiddenError, PostNotFoundError
 from app.infrastructure.sqlalchemy.models import PostORM
+from app.utils.datetime import get_current_utc_datetime
 from tests.factories.commands.posts.posts import DeletePostCommandFactory
 from tests.factories.models.channels import ChannelORMFactory
 from tests.factories.models.posts import PostORMFactory
@@ -59,22 +61,29 @@ async def test_delete_post_raises_error_if_channel_not_active(mock_container: As
         use_case = await di.get(DeletePostUseCase)
         session = await di.get(AsyncSession)
 
-        db_channel = await ChannelORMFactory.create(
-            session=session,
-            is_active=False,
-        )
+        db_channel = await ChannelORMFactory.create(session=session, is_active=False)
 
-        db_post = await PostORMFactory.create(
-            session=session,
-            channel_id=db_channel.id,
-        )
+        db_post = await PostORMFactory.create(session=session, channel_id=db_channel.id)
 
-        command = DeletePostCommandFactory.build(
-            current_channel_id=db_channel.id,
-            post_id=db_post.id,
-        )
+        command = DeletePostCommandFactory.build(current_channel_id=db_channel.id, post_id=db_post.id)
 
         with pytest.raises(ChannelNotActiveError):
+            await use_case.execute(command=command)
+
+
+@pytest.mark.asyncio
+async def test_delete_post_raises_error_if_channel_deleted(mock_container: AsyncContainer):
+    async with mock_container() as di:
+        use_case = await di.get(DeletePostUseCase)
+        session = await di.get(AsyncSession)
+
+        db_channel = await ChannelORMFactory.create(session=session, deleted_at=get_current_utc_datetime())
+
+        db_post = await PostORMFactory.create(session=session, channel_id=db_channel.id)
+
+        command = DeletePostCommandFactory.build(current_channel_id=db_channel.id, post_id=db_post.id)
+
+        with pytest.raises(ChannelDeletedError):
             await use_case.execute(command=command)
 
 
@@ -104,15 +113,9 @@ async def test_delete_post_raises_error_if_no_post_access(mock_container: AsyncC
 
         another_channel = await ChannelORMFactory.create(session=session)
 
-        db_post = await PostORMFactory.create(
-            session=session,
-            channel_id=owner.id,
-        )
+        db_post = await PostORMFactory.create(session=session, channel_id=owner.id)
 
-        command = DeletePostCommandFactory.build(
-            current_channel_id=another_channel.id,
-            post_id=db_post.id,
-        )
+        command = DeletePostCommandFactory.build(current_channel_id=another_channel.id, post_id=db_post.id)
 
         with pytest.raises(PostAccessForbiddenError):
             await use_case.execute(command=command)

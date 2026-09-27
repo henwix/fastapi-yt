@@ -1,3 +1,4 @@
+from datetime import datetime
 from typing import cast
 from uuid import uuid7
 
@@ -17,6 +18,7 @@ from app.domain.channels.exceptions import (
 )
 from app.domain.oauth.exceptions import OAuthProviderAlreadyConnectedError
 from app.infrastructure.sqlalchemy.models import ChannelORM, OAuthAccountORM
+from app.utils.datetime import get_current_utc_datetime
 from tests.factories.commands.oauth import VerifyOAuthCodeCommandFactory
 from tests.factories.dto.oauth import OAuthProviderUserDataFactory
 from tests.factories.models.channels import ChannelORMFactory
@@ -154,8 +156,10 @@ async def test_verify_code_builds_unique_slug_and_creates_new_channel_if_base_sl
 
 
 @pytest.mark.asyncio
+@pytest.mark.parametrize('deleted_at', [None, get_current_utc_datetime()])
 async def test_verify_code_returns_tokens_if_oauth_account_already_connected_and_channel_not_authenticated(
     mock_container: AsyncContainer,
+    deleted_at: datetime | None,
 ):
     async with mock_container() as di:
         use_case = await di.get(VerifyOAuthCodeUseCase)
@@ -167,7 +171,7 @@ async def test_verify_code_returns_tokens_if_oauth_account_already_connected_and
         oauth_provider_user_data = OAuthProviderUserDataFactory.build()
         oauth_service_factory.provider.user_data = oauth_provider_user_data
 
-        db_channel = await ChannelORMFactory.create(session=session)
+        db_channel = await ChannelORMFactory.create(session=session, deleted_at=deleted_at)
         await OAuthAcccountORMFactory.create(
             session=session,
             channel_id=db_channel.id,

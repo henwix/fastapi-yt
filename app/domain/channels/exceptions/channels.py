@@ -56,6 +56,18 @@ class ChannelNotActiveError(AppError):
 
 
 @dataclass(kw_only=True)
+class ChannelDeletedError(AppError):
+    message = 'Channel is deleted'
+    channel_id: UUID
+
+
+@dataclass(kw_only=True)
+class ChannelNotDeletedError(AppError):
+    message = 'Channel is not deleted'
+    channel_id: UUID
+
+
+@dataclass(kw_only=True)
 class ChannelActivationFailedError(AppError):
     message = 'Channel activation failed'
     channel_id: UUID

@@ -14,11 +14,11 @@ class UnsubscribeUseCase:
     _transaction_manager: ITransactionManager
 
     async def execute(self, command: UnsubscribeCommand) -> None:
-        current_channel = await self._channel_service.try_get_active_by_id(id=command.current_channel_id)
+        current_channel = await self._channel_service.try_get_existing_by_id_for_auth(id=command.current_channel_id)
         if current_channel.slug.to_raw() == command.channel_slug:
             raise SubscriptionNotFoundError(subscriber_id=current_channel.id, subscribed_to_id=current_channel.id)
 
-        subscribe_to_channel = await self._channel_service.try_get_by_slug(slug=command.channel_slug)
+        subscribe_to_channel = await self._channel_service.try_get_existing_by_slug(slug=command.channel_slug)
 
         async with self._transaction_manager:
             await self._subscription_service.try_delete_by_ids(

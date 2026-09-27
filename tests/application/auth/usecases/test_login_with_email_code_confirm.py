@@ -1,3 +1,4 @@
+from datetime import datetime
 from uuid import uuid7
 
 import pytest
@@ -10,15 +11,24 @@ from app.application.common.interfaces.security import IAuthCodeService, IJWTSer
 from app.domain.auth.exceptions import ChannelInvalidEmailCodeError, ChannelInvalidEmailUIDError
 from app.domain.channels.exceptions import ChannelNotFoundByIdError
 from app.utils.base64url import base64url_encode
+from app.utils.datetime import get_current_utc_datetime
 from tests.factories.commands.auth import LoginWithEmailCodeConfirmCommandFactory
 from tests.factories.models.channels import ChannelORMFactory
 
 
 @pytest.mark.asyncio
-@pytest.mark.parametrize('has_password', [True, False])
+@pytest.mark.parametrize(
+    ('has_password', 'is_channel_active', 'deleted_at'),
+    [
+        (True, False, get_current_utc_datetime()),
+        (False, True, None),
+    ],
+)
 async def test_login_with_email_code_confirm_returns_tokens_if_code_and_uid_correct(
     container: AsyncContainer,
     has_password: bool,
+    is_channel_active: bool,
+    deleted_at: datetime | None,
 ):
     async with container() as di:
         use_case = await di.get(LoginWithEmailCodeConfirmUseCase)
@@ -27,9 +37,18 @@ async def test_login_with_email_code_confirm_returns_tokens_if_code_and_uid_corr
         session = await di.get(AsyncSession)
 
         if has_password:
-            channel = await ChannelORMFactory.create(session=session)
+            channel = await ChannelORMFactory.create(
+                session=session,
+                is_active=is_channel_active,
+                deleted_at=deleted_at,
+            )
         else:
-            channel = await ChannelORMFactory.create(session=session, password_hash=None)
+            channel = await ChannelORMFactory.create(
+                session=session,
+                password_hash=None,
+                is_active=is_channel_active,
+                deleted_at=deleted_at,
+            )
 
         code = await auth_code_service.create_login_email_code(channel_id=channel.id)
         uid = base64url_encode(value=str(channel.id))

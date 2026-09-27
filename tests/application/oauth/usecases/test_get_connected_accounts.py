@@ -4,8 +4,9 @@ from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.application.oauth.dto import OAuthAccount
 from app.application.oauth.usecases import GetOAuthConnectedAccountsUseCase
-from app.domain.channels.exceptions import ChannelNotActiveError, ChannelNotFoundByIdError
+from app.domain.channels.exceptions import ChannelDeletedError, ChannelNotActiveError, ChannelNotFoundByIdError
 from app.domain.oauth.enums import OAuthProviderEnum
+from app.utils.datetime import get_current_utc_datetime
 from tests.factories.models.channels import ChannelORMFactory
 from tests.factories.models.oauth import OAuthAcccountORMFactory
 from tests.factories.queries.oauth import GetOAuthConnectedAccountsQueryFactory
@@ -97,6 +98,19 @@ async def test_get_connected_accounts_raises_error_if_channel_not_active(mock_co
         query = GetOAuthConnectedAccountsQueryFactory.build(current_channel_id=db_channel.id)
 
         with pytest.raises(ChannelNotActiveError):
+            await use_case.execute(query=query)
+
+
+@pytest.mark.asyncio
+async def test_get_connected_accounts_raises_error_if_channel_deleted(mock_container: AsyncContainer):
+    async with mock_container() as di:
+        use_case = await di.get(GetOAuthConnectedAccountsUseCase)
+        session = await di.get(AsyncSession)
+
+        db_channel = await ChannelORMFactory.create(session=session, deleted_at=get_current_utc_datetime())
+        query = GetOAuthConnectedAccountsQueryFactory.build(current_channel_id=db_channel.id)
+
+        with pytest.raises(ChannelDeletedError):
             await use_case.execute(query=query)
 
 

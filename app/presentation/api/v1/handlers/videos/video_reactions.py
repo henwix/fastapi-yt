@@ -4,7 +4,7 @@ from fastapi import APIRouter, Response, status
 from app.application.videos.commands import CreateVideoReactionCommand, DeleteVideoReactionCommand
 from app.application.videos.usecases import CreateVideoReactionUseCase, DeleteVideoReactionUseCase
 from app.domain.auth.exceptions import JWTTokenExpiredError, JWTTokenInvalidError, NotAuthenticatedError
-from app.domain.channels.exceptions import ChannelNotActiveError, ChannelNotFoundByIdError
+from app.domain.channels.exceptions import ChannelDeletedError, ChannelNotActiveError, ChannelNotFoundByIdError
 from app.domain.videos.exceptions import VideoAccessForbiddenError, VideoNotFoundError, VideoReactionNotFoundError
 from app.presentation.api.openapi.common import error_response
 from app.presentation.api.v1.di import CurrentChannelID
@@ -37,6 +37,7 @@ router = APIRouter(
         ),
         status.HTTP_403_FORBIDDEN: error_response(
             ChannelNotActiveError,
+            ChannelDeletedError,
             VideoAccessForbiddenError,
         ),
         status.HTTP_404_NOT_FOUND: error_response(
@@ -75,6 +76,7 @@ async def create_video_reaction(
         ),
         status.HTTP_403_FORBIDDEN: error_response(
             ChannelNotActiveError,
+            ChannelDeletedError,
             VideoAccessForbiddenError,
         ),
         status.HTTP_404_NOT_FOUND: error_response(

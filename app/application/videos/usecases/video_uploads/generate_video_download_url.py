@@ -21,7 +21,7 @@ class GenerateVideoDownloadUrlUseCase:
         if video.privacy_status is VideoPrivacyStatusEnum.PRIVATE:
             if command.current_channel_id is None:
                 raise VideoAccessForbiddenError(video_id=video.id)
-            channel = await self._channel_service.try_get_active_by_id(id=command.current_channel_id)
+            channel = await self._channel_service.try_get_existing_by_id_for_auth(id=command.current_channel_id)
             self._video_service.ensure_video_access(video=video, channel=channel)
 
         return await self._s3_service.generate_download_url(

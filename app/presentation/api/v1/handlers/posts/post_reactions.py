@@ -7,7 +7,7 @@ from fastapi import APIRouter, Response, status
 from app.application.posts.commands import CreatePostReactionCommand, DeletePostReactionCommand
 from app.application.posts.usecases import CreatePostReactionUseCase, DeletePostReactionUseCase
 from app.domain.auth.exceptions import JWTTokenExpiredError, JWTTokenInvalidError, NotAuthenticatedError
-from app.domain.channels.exceptions import ChannelNotActiveError, ChannelNotFoundByIdError
+from app.domain.channels.exceptions import ChannelDeletedError, ChannelNotActiveError, ChannelNotFoundByIdError
 from app.domain.posts.exceptions import PostNotFoundError, PostReactionNotFoundError
 from app.presentation.api.openapi.common import error_response
 from app.presentation.api.v1.di import CurrentChannelID
@@ -39,6 +39,7 @@ router = APIRouter(
         ),
         status.HTTP_403_FORBIDDEN: error_response(
             ChannelNotActiveError,
+            ChannelDeletedError,
         ),
         status.HTTP_404_NOT_FOUND: error_response(
             ChannelNotFoundByIdError,
@@ -76,6 +77,7 @@ async def create_post_reaction(
         ),
         status.HTTP_403_FORBIDDEN: error_response(
             ChannelNotActiveError,
+            ChannelDeletedError,
         ),
         status.HTTP_404_NOT_FOUND: error_response(
             ChannelNotFoundByIdError,

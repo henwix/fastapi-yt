@@ -10,10 +10,11 @@ from app.application.common.sorting import SortingOrderEnum
 from app.application.subscriptions.dto import DetailedSubscription
 from app.application.subscriptions.queries import SubscriptionsSorting, SubscriptionsSortingFieldsEnum
 from app.application.subscriptions.usecases import GetSubscribersUseCase
-from app.domain.channels.exceptions import ChannelNotActiveError, ChannelNotFoundByIdError
+from app.domain.channels.exceptions import ChannelDeletedError, ChannelNotActiveError, ChannelNotFoundByIdError
 from app.domain.common.constants import Empty
 from app.domain.common.exceptions.pagination import InvalidCursorError
 from app.utils.base64url import base64url_decode
+from app.utils.datetime import get_current_utc_datetime
 from tests.factories.models.channels import ChannelORMFactory, SubscriptionORMFactory
 from tests.factories.queries.common import CursorPaginationFactory
 from tests.factories.queries.subscriptions import GetSubscribersQueryFactory
@@ -188,4 +189,23 @@ async def test_get_subscribers_raises_error_if_current_channel_not_active(
         )
 
         with pytest.raises(ChannelNotActiveError):
+            await use_case.execute(query=query)
+
+
+@pytest.mark.asyncio
+async def test_get_subscribers_raises_error_if_current_channel_deleted(
+    mock_container: AsyncContainer,
+):
+    async with mock_container() as di:
+        use_case = await di.get(GetSubscribersUseCase)
+        session = await di.get(AsyncSession)
+
+        channel = await ChannelORMFactory.create(session=session, deleted_at=get_current_utc_datetime())
+
+        query = GetSubscribersQueryFactory.build(
+            current_channel_id=channel.id,
+            pagination=CursorPaginationFactory.build(),
+        )
+
+        with pytest.raises(ChannelDeletedError):
             await use_case.execute(query=query)

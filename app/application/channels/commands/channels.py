@@ -19,5 +19,10 @@ class DeleteChannelCommand:
 
 
 @dataclass(kw_only=True, frozen=True)
+class RestoreChannelCommand:
+    current_channel_id: UUID
+
+
+@dataclass(kw_only=True, frozen=True)
 class DeleteChannelAvatarCommand:
     current_channel_id: UUID

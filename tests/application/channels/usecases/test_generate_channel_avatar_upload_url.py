@@ -6,9 +6,11 @@ from app.application.channels.usecases import GenerateChannelAvatarUploadUrlUseC
 from app.core.configs import settings
 from app.domain.channels.exceptions import (
     ChannelAvatarInvalidFilenameError,
+    ChannelDeletedError,
     ChannelNotActiveError,
     ChannelNotFoundByIdError,
 )
+from app.utils.datetime import get_current_utc_datetime
 from tests.factories.commands.channels import GenerateChannelAvatarUploadUrlCommandFactory
 from tests.factories.models.channels import ChannelORMFactory
 
@@ -88,4 +90,20 @@ async def test_generate_channel_avatar_upload_url_raises_error_if_channel_not_ac
         )
 
         with pytest.raises(ChannelNotActiveError):
+            await use_case.execute(command=command)
+
+
+@pytest.mark.asyncio
+async def test_generate_channel_avatar_upload_url_raises_error_if_channel_deleted(mock_container: AsyncContainer):
+    async with mock_container() as di:
+        use_case = await di.get(GenerateChannelAvatarUploadUrlUseCase)
+        session = await di.get(AsyncSession)
+
+        channel = await ChannelORMFactory.create(session=session, deleted_at=get_current_utc_datetime())
+        command = GenerateChannelAvatarUploadUrlCommandFactory.build(
+            current_channel_id=channel.id,
+            filename='test.png',
+        )
+
+        with pytest.raises(ChannelDeletedError):
             await use_case.execute(command=command)

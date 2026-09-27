@@ -15,7 +15,7 @@ class CreatePostCommentReactionUseCase:
     _transaction_manager: ITransactionManager
 
     async def execute(self, command: CreatePostCommentReactionCommand) -> PostCommentReaction | None:
-        channel = await self._channel_service.try_get_active_by_id(id=command.current_channel_id)
+        channel = await self._channel_service.try_get_existing_by_id_for_auth(id=command.current_channel_id)
         post_comment = await self._post_comment_service.try_get_by_id(id=command.post_comment_id)
         post_comment_reaction_entity = PostCommentReaction.create(
             post_comment_id=post_comment.id,

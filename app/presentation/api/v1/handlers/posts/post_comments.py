@@ -17,7 +17,7 @@ from app.application.posts.usecases import (
     UpdatePostCommentUseCase,
 )
 from app.domain.auth.exceptions import JWTTokenExpiredError, JWTTokenInvalidError, NotAuthenticatedError
-from app.domain.channels.exceptions import ChannelNotActiveError, ChannelNotFoundByIdError
+from app.domain.channels.exceptions import ChannelDeletedError, ChannelNotActiveError, ChannelNotFoundByIdError
 from app.domain.common.exceptions.pagination import InvalidCursorError
 from app.domain.posts.exceptions import PostCommentAccessForbiddenError, PostCommentNotFoundError, PostNotFoundError
 from app.presentation.api.openapi.common import error_response
@@ -49,6 +49,7 @@ router = APIRouter(
         ),
         status.HTTP_403_FORBIDDEN: error_response(
             ChannelNotActiveError,
+            ChannelDeletedError,
         ),
         status.HTTP_404_NOT_FOUND: error_response(
             ChannelNotFoundByIdError,
@@ -143,6 +144,7 @@ async def get_post_comment_replies(
         ),
         status.HTTP_403_FORBIDDEN: error_response(
             ChannelNotActiveError,
+            ChannelDeletedError,
             PostCommentAccessForbiddenError,
         ),
         status.HTTP_404_NOT_FOUND: error_response(
@@ -173,6 +175,7 @@ async def delete_post_comment(
         ),
         status.HTTP_403_FORBIDDEN: error_response(
             ChannelNotActiveError,
+            ChannelDeletedError,
             PostCommentAccessForbiddenError,
         ),
         status.HTTP_404_NOT_FOUND: error_response(

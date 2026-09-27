@@ -8,6 +8,7 @@ from slugify import slugify
 from app.domain.channels.entities import Channel
 from app.domain.channels.exceptions import (
     ChannelActivationFailedError,
+    ChannelDeletedError,
     ChannelEmailAlreadyExistsError,
     ChannelNotActiveError,
     ChannelNotFoundByIdError,
@@ -43,13 +44,13 @@ class IChannelService(ABC):
     async def get_by_email(self, email: str) -> Channel | None: ...
 
     @abstractmethod
-    async def try_get_by_slug(self, slug: str) -> Channel: ...
+    async def try_get_existing_by_slug(self, slug: str) -> Channel: ...
 
     @abstractmethod
     async def try_get_by_id(self, id: UUID) -> Channel: ...
 
     @abstractmethod
-    async def try_get_active_by_id(self, id: UUID) -> Channel: ...
+    async def try_get_existing_by_id_for_auth(self, id: UUID) -> Channel: ...
 
     @abstractmethod
     async def try_update(self, channel: Channel) -> Channel: ...
@@ -95,8 +96,8 @@ class ChannelService(IChannelService):
     async def get_by_email(self, email: str) -> Channel | None:
         return await self._repo.get_by_email(email=email)
 
-    async def try_get_by_slug(self, slug: str) -> Channel:
-        channel = await self._repo.get_by_slug(slug=slug)
+    async def try_get_existing_by_slug(self, slug: str) -> Channel:
+        channel = await self._repo.get_existing_by_slug(slug=slug)
         if not channel:
             raise ChannelNotFoundBySlugError(channel_slug=slug)
         return channel
@@ -107,10 +108,10 @@ class ChannelService(IChannelService):
             raise ChannelNotFoundByIdError(channel_id=id)
         return channel
 
-    async def try_get_active_by_id(self, id: UUID) -> Channel:
-        channel = await self._repo.get_by_id(id=id)
-        if not channel:
-            raise ChannelNotFoundByIdError(channel_id=id)
+    async def try_get_existing_by_id_for_auth(self, id: UUID) -> Channel:
+        channel = await self.try_get_by_id(id=id)
+        if channel.deleted_at.is_deleted():
+            raise ChannelDeletedError(channel_id=channel.id)
         if not channel.is_active:
             raise ChannelNotActiveError(channel_id=channel.id)
         return channel

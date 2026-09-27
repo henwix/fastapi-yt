@@ -1,3 +1,4 @@
+from datetime import datetime
 from uuid import uuid7
 
 import pytest
@@ -10,6 +11,7 @@ from app.application.common.interfaces.security import IAuthCodeService
 from app.domain.auth.exceptions import ChannelInvalidEmailCodeError, ChannelInvalidEmailUIDError
 from app.domain.channels.exceptions import ChannelNotFoundByIdError
 from app.utils.base64url import base64url_encode
+from app.utils.datetime import get_current_utc_datetime
 from tests.factories.commands.auth import ResetChannelPasswordConfirmCommandFactory
 from tests.factories.models.channels import ChannelORMFactory
 
@@ -17,13 +19,24 @@ _password_hasher = PasswordHash.recommended()
 
 
 @pytest.mark.asyncio
-async def test_reset_channel_password_confirm_returns_none_if_password_updated(mock_container: AsyncContainer):
+@pytest.mark.parametrize(
+    ('is_channel_active', 'deleted_at'),
+    [
+        (False, get_current_utc_datetime()),
+        (True, None),
+    ],
+)
+async def test_reset_channel_password_confirm_returns_none_if_password_updated(
+    mock_container: AsyncContainer,
+    is_channel_active: bool,
+    deleted_at: datetime | None,
+):
     async with mock_container() as di:
         use_case = await di.get(ResetChannelPasswordConfirmUseCase)
         auth_code_service = await di.get(IAuthCodeService)
         session = await di.get(AsyncSession)
 
-        db_channel = await ChannelORMFactory.create(session=session)
+        db_channel = await ChannelORMFactory.create(session=session, is_active=is_channel_active, deleted_at=deleted_at)
         code = await auth_code_service.create_reset_password_code(channel_id=db_channel.id)
         command = ResetChannelPasswordConfirmCommandFactory.build(
             code=code, uid=base64url_encode(value=str(db_channel.id))

@@ -47,6 +47,7 @@ from app.domain.auth.exceptions import (
 )
 from app.domain.channels.exceptions import (
     ChannelActivationFailedError,
+    ChannelDeletedError,
     ChannelEmailAlreadyExistsError,
     ChannelNotActiveError,
     ChannelNotFoundByIdError,
@@ -289,6 +290,7 @@ async def resend_channel_activation_code(
         ),
         status.HTTP_403_FORBIDDEN: error_response(
             ChannelNotActiveError,
+            ChannelDeletedError,
         ),
         status.HTTP_404_NOT_FOUND: error_response(
             ChannelNotFoundByIdError,
@@ -322,6 +324,7 @@ async def set_channel_email(
         ),
         status.HTTP_403_FORBIDDEN: error_response(
             ChannelNotActiveError,
+            ChannelDeletedError,
         ),
         status.HTTP_404_NOT_FOUND: error_response(
             ChannelNotFoundByIdError,
@@ -349,8 +352,13 @@ async def set_channel_email_confirm(
             JWTTokenExpiredError,
             JWTTokenInvalidError,
         ),
-        status.HTTP_403_FORBIDDEN: error_response(ChannelNotActiveError),
-        status.HTTP_404_NOT_FOUND: error_response(ChannelNotFoundByIdError),
+        status.HTTP_403_FORBIDDEN: error_response(
+            ChannelNotActiveError,
+            ChannelDeletedError,
+        ),
+        status.HTTP_404_NOT_FOUND: error_response(
+            ChannelNotFoundByIdError,
+        ),
     },
 )
 async def set_channel_password(

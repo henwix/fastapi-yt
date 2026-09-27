@@ -14,7 +14,7 @@ class SetChannelEmailUseCase:
     _email_service: IEmailService
 
     async def execute(self, command: SetChannelEmailCommand) -> None:
-        channel = await self._channel_service.try_get_active_by_id(id=command.current_channel_id)
+        channel = await self._channel_service.try_get_existing_by_id_for_auth(id=command.current_channel_id)
         if channel.email.to_raw() == command.new_email:
             raise ChannelEmailAlreadyAssociatedWithThisAcccountError(channel_id=channel.id)
 

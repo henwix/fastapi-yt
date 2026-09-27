@@ -19,7 +19,12 @@ from app.application.subscriptions.usecases import (
     UnsubscribeUseCase,
 )
 from app.domain.auth.exceptions import JWTTokenExpiredError, JWTTokenInvalidError, NotAuthenticatedError
-from app.domain.channels.exceptions import ChannelNotActiveError, ChannelNotFoundByIdError, ChannelNotFoundBySlugError
+from app.domain.channels.exceptions import (
+    ChannelDeletedError,
+    ChannelNotActiveError,
+    ChannelNotFoundByIdError,
+    ChannelNotFoundBySlugError,
+)
 from app.domain.common.exceptions.pagination import InvalidCursorError
 from app.domain.subscriptions.exceptions import (
     SelfSubscriptionError,
@@ -52,6 +57,7 @@ router = APIRouter(
         ),
         status.HTTP_403_FORBIDDEN: error_response(
             ChannelNotActiveError,
+            ChannelDeletedError,
         ),
         status.HTTP_404_NOT_FOUND: error_response(
             ChannelNotFoundByIdError,
@@ -84,6 +90,7 @@ async def subscribe(
         ),
         status.HTTP_403_FORBIDDEN: error_response(
             ChannelNotActiveError,
+            ChannelDeletedError,
         ),
         status.HTTP_404_NOT_FOUND: error_response(
             ChannelNotFoundByIdError,
@@ -114,6 +121,7 @@ async def unsubscribe(
         ),
         status.HTTP_403_FORBIDDEN: error_response(
             ChannelNotActiveError,
+            ChannelDeletedError,
         ),
         status.HTTP_404_NOT_FOUND: error_response(
             ChannelNotFoundByIdError,
@@ -152,6 +160,7 @@ async def get_subscribers(
         ),
         status.HTTP_403_FORBIDDEN: error_response(
             ChannelNotActiveError,
+            ChannelDeletedError,
         ),
         status.HTTP_404_NOT_FOUND: error_response(
             ChannelNotFoundByIdError,

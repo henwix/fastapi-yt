@@ -43,7 +43,7 @@ class ChannelReader(SQLAlchemyReader, IChannelReader):
                 videos_subquery.c.views_count,
             )
             .outerjoin(videos_subquery, sa.true())
-            .where(ChannelORM.slug == slug)
+            .where(ChannelORM.slug == slug, ChannelORM.deleted_at.is_(None))
         )
         result = await self._session.execute(statement=stmt)
         row = result.mappings().one_or_none()

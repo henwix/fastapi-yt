@@ -11,6 +11,7 @@ from app.application.oauth.usecases import (
 )
 from app.domain.auth.exceptions import JWTTokenExpiredError, JWTTokenInvalidError, NotAuthenticatedError
 from app.domain.channels.exceptions import (
+    ChannelDeletedError,
     ChannelEmailAlreadyExistsError,
     ChannelEmailInvalidFormatError,
     ChannelEmailTooLongError,
@@ -123,6 +124,7 @@ async def verify_oauth_code(
         ),
         status.HTTP_403_FORBIDDEN: error_response(
             ChannelNotActiveError,
+            ChannelDeletedError,
         ),
         status.HTTP_404_NOT_FOUND: error_response(
             ChannelNotFoundByIdError,
@@ -151,6 +153,7 @@ async def get_oauth_connected_accounts(
         ),
         status.HTTP_403_FORBIDDEN: error_response(
             ChannelNotActiveError,
+            ChannelDeletedError,
         ),
         status.HTTP_404_NOT_FOUND: error_response(
             ChannelNotFoundByIdError,

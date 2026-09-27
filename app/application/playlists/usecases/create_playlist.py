@@ -14,7 +14,7 @@ class CreatePlaylistUseCase:
     _transaction_manager: ITransactionManager
 
     async def execute(self, command: CreatePlaylistCommand) -> Playlist:
-        channel = await self._channel_service.try_get_active_by_id(id=command.current_channel_id)
+        channel = await self._channel_service.try_get_existing_by_id_for_auth(id=command.current_channel_id)
 
         playlist_entity = Playlist.create(
             title=command.title,

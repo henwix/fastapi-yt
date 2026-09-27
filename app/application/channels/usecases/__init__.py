@@ -4,6 +4,7 @@ from .channels import (
     DeleteChannelUseCase,
     GetChannelAboutInfoUseCase,
     GetChannelUseCase,
+    RestoreChannelUseCase,
     UpdateChannelUseCase,
 )
 
@@ -14,5 +15,6 @@ __all__ = (
     'GenerateChannelAvatarUploadUrlUseCase',
     'GetChannelAboutInfoUseCase',
     'GetChannelUseCase',
+    'RestoreChannelUseCase',
     'UpdateChannelUseCase',
 )

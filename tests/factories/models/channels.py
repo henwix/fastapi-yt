@@ -28,6 +28,10 @@ class ChannelORMFactory(SQLAlchemyFactory[ChannelORM]):
         return _password_hasher.hash(password=password)
 
     @classmethod
+    def deleted_at(cls) -> None:
+        return None
+
+    @classmethod
     def created_at(cls) -> datetime:
         return cls.__faker__.date_time(UTC)
 

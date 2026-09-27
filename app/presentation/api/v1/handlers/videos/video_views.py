@@ -4,7 +4,7 @@ from fastapi import APIRouter, status
 from app.application.videos.commands import CreateVideoViewCommand
 from app.application.videos.usecases import CreateVideoViewUseCase
 from app.domain.auth.exceptions import JWTTokenExpiredError, JWTTokenInvalidError, NotAuthenticatedError
-from app.domain.channels.exceptions import ChannelNotActiveError, ChannelNotFoundByIdError
+from app.domain.channels.exceptions import ChannelDeletedError, ChannelNotActiveError, ChannelNotFoundByIdError
 from app.domain.videos.exceptions import VideoAccessForbiddenError, VideoNotFoundError, VideoViewsLimitReachedError
 from app.presentation.api.openapi.common import error_response
 from app.presentation.api.v1.di import AnonymousID, OptionalCurrentChannelID
@@ -28,6 +28,7 @@ router = APIRouter(
         ),
         status.HTTP_403_FORBIDDEN: error_response(
             ChannelNotActiveError,
+            ChannelDeletedError,
             VideoAccessForbiddenError,
         ),
         status.HTTP_404_NOT_FOUND: error_response(

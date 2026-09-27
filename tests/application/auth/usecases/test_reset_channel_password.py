@@ -1,3 +1,4 @@
+from datetime import datetime
 from unittest.mock import patch
 
 import pytest
@@ -6,21 +7,30 @@ from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.application.auth.usecases import ResetChannelPasswordUseCase
 from app.domain.common.repos.kv import IKVRepo
+from app.utils.datetime import get_current_utc_datetime
 from tests.factories.commands.auth import ResetChannelPasswordCommandFactory
 from tests.factories.models.channels import ChannelORMFactory
 
 
 @pytest.mark.asyncio
-@pytest.mark.parametrize('is_channel_active', [True, False])
+@pytest.mark.parametrize(
+    ('is_channel_active', 'deleted_at'),
+    [
+        (False, get_current_utc_datetime()),
+        (True, None),
+    ],
+)
 async def test_reset_channel_password_returns_none_if_email_sent(
-    mock_container: AsyncContainer, is_channel_active: bool
+    mock_container: AsyncContainer,
+    is_channel_active: bool,
+    deleted_at: datetime | None,
 ):
     async with mock_container() as di:
         use_case = await di.get(ResetChannelPasswordUseCase)
         session = await di.get(AsyncSession)
         kv_repo = await di.get(IKVRepo)
 
-        db_channel = await ChannelORMFactory.create(session=session, is_active=is_channel_active)
+        db_channel = await ChannelORMFactory.create(session=session, is_active=is_channel_active, deleted_at=deleted_at)
 
         command = ResetChannelPasswordCommandFactory.build(email=db_channel.email)
 

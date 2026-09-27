@@ -49,7 +49,7 @@ class GetPlaylistVideosUseCase:
             if query.current_channel_id is None:
                 raise PlaylistAccessForbiddenError(playlist_id=query.playlist_id, channel_id=None)
 
-            channel = await self._channel_service.try_get_active_by_id(id=query.current_channel_id)
+            channel = await self._channel_service.try_get_existing_by_id_for_auth(id=query.current_channel_id)
             self._playlist_service.ensure_playlist_access(playlist=playlist, channel=channel)
 
         playlist_videos = await self._playlist_reader.get_playlist_videos_by_playlist_id(

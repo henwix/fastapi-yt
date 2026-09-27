@@ -21,7 +21,7 @@ class GenerateChannelAvatarUploadUrlUseCase:
             raise ChannelAvatarInvalidFilenameError(filename=command.filename)
         content_type = IMAGE_FILE_MIME_TYPES[filename_extension]
 
-        channel = await self._channel_service.try_get_active_by_id(id=command.current_channel_id)
+        channel = await self._channel_service.try_get_existing_by_id_for_auth(id=command.current_channel_id)
 
         key = self._s3_service.generate_unique_bucket_key(
             filename=command.filename, key_prefix=settings.s3_tmp_channel_avatars_key_prefix

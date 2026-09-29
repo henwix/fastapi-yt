@@ -27,5 +27,6 @@ class DeletionTime(BaseValueObject[datetime | None]):
     def create_not_deleted() -> DeletionTime:
         return DeletionTime(None)
 
+    @property
     def is_deleted(self) -> bool:
         return self.value is not None

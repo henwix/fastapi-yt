@@ -38,9 +38,9 @@ async def test_get_channel_returns_correct_channel_entity(
         assert retrieved_channel.created_at == db_channel.created_at
         assert retrieved_channel.updated_at == db_channel.updated_at
         if deleted_at is not None:
-            assert retrieved_channel.deleted_at.is_deleted()
+            assert retrieved_channel.deleted_at.is_deleted
         else:
-            assert not retrieved_channel.deleted_at.is_deleted()
+            assert not retrieved_channel.deleted_at.is_deleted
 
 
 @pytest.mark.asyncio

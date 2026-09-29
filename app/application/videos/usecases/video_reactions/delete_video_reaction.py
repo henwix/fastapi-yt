@@ -16,7 +16,7 @@ class DeleteVideoReactionUseCase:
 
     async def execute(self, command: DeleteVideoReactionCommand) -> None:
         channel = await self._channel_service.try_get_existing_by_id_for_auth(id=command.current_channel_id)
-        video = await self._video_service.try_get_by_id(id=command.video_id)
+        video = await self._video_service.try_get_completed_by_id(id=command.video_id)
 
         if video.privacy_status is VideoPrivacyStatusEnum.PRIVATE:
             self._video_service.ensure_video_access(video=video, channel=channel)

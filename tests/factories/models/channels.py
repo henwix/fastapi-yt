@@ -1,19 +1,15 @@
 from datetime import UTC, datetime
 
-from faker import Faker
 from polyfactory.factories.sqlalchemy_factory import SQLAlchemyFactory
 from pwdlib import PasswordHash
-from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.infrastructure.sqlalchemy.models import ChannelORM, SubscriptionORM
+from tests.factories.base import BaseORMFactory
 
 _password_hasher = PasswordHash.recommended()
 
 
-class ChannelORMFactory(SQLAlchemyFactory[ChannelORM]):
-    __set_relationships__ = False
-    __faker__ = Faker()
-
+class ChannelORMFactory(BaseORMFactory[ChannelORM], SQLAlchemyFactory[ChannelORM]):
     @classmethod
     def email(cls) -> str:
         return cls.__faker__.email()
@@ -43,33 +39,8 @@ class ChannelORMFactory(SQLAlchemyFactory[ChannelORM]):
     def is_active(cls) -> bool:
         return True
 
-    @classmethod
-    async def create(cls, session: AsyncSession, **kwargs) -> ChannelORM:
-        object = cls.build(**kwargs)
-        session.add(instance=object)
-        await session.commit()
-        return object
 
-    @classmethod
-    async def create_batch(cls, session: AsyncSession, size: int, **kwargs) -> list[ChannelORM]:
-        objects = cls.batch(size=size, **kwargs)
-        session.add_all(objects)
-        await session.commit()
-        return objects
-
-
-class SubscriptionORMFactory(SQLAlchemyFactory[SubscriptionORM]):
-    __model__ = SubscriptionORM
-    __set_relationships__ = False
-    __faker__ = Faker()
-
+class SubscriptionORMFactory(BaseORMFactory[SubscriptionORM], SQLAlchemyFactory[SubscriptionORM]):
     @classmethod
     def created_at(cls) -> datetime:
         return cls.__faker__.date_time(UTC)
-
-    @classmethod
-    async def create(cls, session: AsyncSession, **kwargs) -> SubscriptionORM:
-        obj = cls.build(**kwargs)
-        session.add(obj)
-        await session.commit()
-        return obj

@@ -9,6 +9,7 @@ from app.core.configs import settings
 from app.domain.channels.exceptions import ChannelNotActiveError, ChannelNotFoundByIdError
 from app.domain.videos.enums import VideoPrivacyStatusEnum, VideoUploadStatusEnum
 from app.domain.videos.exceptions import VideoAccessForbiddenError, VideoNotFoundError
+from app.utils.datetime import get_current_utc_datetime
 from app.utils.videos import generate_video_id
 from tests.factories.commands.videos import GenerateVideoDownloadUrlCommandFactory
 from tests.factories.models.channels import ChannelORMFactory
@@ -233,6 +234,27 @@ async def test_generate_video_download_url_raises_error_if_video_not_uploaded(
             current_channel_id=uuid7(),
             video_id=video.id,
         )
+
+        with pytest.raises(VideoNotFoundError):
+            await use_case.execute(command=command)
+
+
+@pytest.mark.asyncio
+async def test_generate_video_download_url_raises_error_if_video_channel_author_deleted(
+    mock_container: AsyncContainer,
+):
+    async with mock_container() as di:
+        use_case = await di.get(GenerateVideoDownloadUrlUseCase)
+        session = await di.get(AsyncSession)
+
+        channel = await ChannelORMFactory.create(session=session, deleted_at=get_current_utc_datetime())
+        video = await VideoORMFactory.create(
+            session=session,
+            channel_id=channel.id,
+            upload_status=VideoUploadStatusEnum.COMPLETED.value,
+            upload_id=None,
+        )
+        command = GenerateVideoDownloadUrlCommandFactory.build(current_channel_id=uuid7(), video_id=video.id)
 
         with pytest.raises(VideoNotFoundError):
             await use_case.execute(command=command)

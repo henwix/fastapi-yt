@@ -437,3 +437,26 @@ async def test_create_video_view_raises_error_if_video_not_found(
 
         with pytest.raises(VideoNotFoundError):
             await use_case.execute(command=command)
+
+
+@pytest.mark.asyncio
+async def test_create_video_view_raises_error_if_video_author_channel_deleted(
+    mock_container: AsyncContainer,
+):
+    async with mock_container() as di:
+        use_case = await di.get(CreateVideoViewUseCase)
+        session = await di.get(AsyncSession)
+
+        channel = await ChannelORMFactory.create(session=session)
+        channel_video_author = await ChannelORMFactory.create(session=session, deleted_at=get_current_utc_datetime())
+        video = await VideoORMFactory.create(
+            session=session,
+            channel_id=channel_video_author.id,
+            upload_status=VideoUploadStatusEnum.COMPLETED.value,
+            privacy_status=VideoPrivacyStatusEnum.PUBLIC.value,
+        )
+
+        command = CreateVideoViewCommandFactory.build(current_channel_id=channel.id, video_id=video.id)
+
+        with pytest.raises(VideoNotFoundError):
+            await use_case.execute(command=command)

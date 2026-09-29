@@ -1,24 +1,19 @@
 import secrets
 from datetime import UTC, date, datetime
-from random import Random
 
-from faker import Faker
 from polyfactory.factories.sqlalchemy_factory import SQLAlchemyFactory
-from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.core.configs import settings
+from app.domain.common.enums import ReactionTypeEnum
 from app.domain.videos.constants import VIDEO_VIEWS_LIMIT_PER_DAY
 from app.domain.videos.enums import VideoPrivacyStatusEnum, VideoUploadStatusEnum
-from app.infrastructure.sqlalchemy.models import VideoORM, VideoViewORM
-from app.utils.datetime import get_current_utc_date
+from app.infrastructure.sqlalchemy.models import VideoORM, VideoReactionORM, VideoViewORM
+from app.utils.datetime import get_current_utc_date, get_current_utc_datetime
 from app.utils.videos import generate_video_id
+from tests.factories.base import BaseORMFactory
 
 
-class VideoORMFactory(SQLAlchemyFactory[VideoORM]):
-    __set_relationships__ = False
-    __random__ = Random()
-    __faker__ = Faker()
-
+class VideoORMFactory(BaseORMFactory[VideoORM], SQLAlchemyFactory[VideoORM]):
     @classmethod
     def id(cls) -> str:
         return generate_video_id()
@@ -47,25 +42,8 @@ class VideoORMFactory(SQLAlchemyFactory[VideoORM]):
     def upload_id(cls) -> str:
         return secrets.token_hex(16)
 
-    @classmethod
-    async def create(cls, session: AsyncSession, **kwargs) -> VideoORM:
-        obj = cls.build(**kwargs)
-        session.add(obj)
-        await session.commit()
-        return obj
 
-    @classmethod
-    async def create_batch(cls, session: AsyncSession, size: int, **kwargs) -> list[VideoORM]:
-        objects = cls.batch(size=size, **kwargs)
-        session.add_all(objects)
-        await session.commit()
-        return objects
-
-
-class VideoViewORMFactory(SQLAlchemyFactory[VideoViewORM]):
-    __set_relationships__ = False
-    __random__ = Random()
-
+class VideoViewORMFactory(BaseORMFactory[VideoViewORM], SQLAlchemyFactory[VideoViewORM]):
     @classmethod
     def views_count(cls) -> int:
         return cls.__random__.choice(range(1, VIDEO_VIEWS_LIMIT_PER_DAY + 1))
@@ -74,9 +52,12 @@ class VideoViewORMFactory(SQLAlchemyFactory[VideoViewORM]):
     def created_at(cls) -> date:
         return get_current_utc_date()
 
+
+class VideoReactionORMFactory(BaseORMFactory[VideoReactionORM], SQLAlchemyFactory[VideoReactionORM]):
     @classmethod
-    async def create(cls, session: AsyncSession, **kwargs) -> VideoViewORM:
-        obj = cls.build(**kwargs)
-        session.add(obj)
-        await session.commit()
-        return obj
+    def reaction_type(cls) -> str:
+        return cls.__random__.choice([ReactionTypeEnum.NEGATIVE.value, ReactionTypeEnum.POSITIVE.value])
+
+    @classmethod
+    def created_at(cls) -> date:
+        return get_current_utc_datetime()

@@ -41,7 +41,11 @@ class VideoReader(SQLAlchemyReader, IVideoReader):
                 ChannelORM.slug.label('channel_slug'),
             )
             .join(ChannelORM, VideoORM.channel_id == ChannelORM.id)
-            .where(VideoORM.id == id, VideoORM.upload_status == VideoUploadStatusEnum.COMPLETED.value)
+            .where(
+                VideoORM.id == id,
+                VideoORM.upload_status == VideoUploadStatusEnum.COMPLETED.value,
+                ChannelORM.deleted_at.is_(None),
+            )
         )
         result = await self._session.execute(statement=stmt)
         video_row = result.mappings().one_or_none()

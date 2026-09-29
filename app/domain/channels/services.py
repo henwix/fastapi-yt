@@ -110,7 +110,7 @@ class ChannelService(IChannelService):
 
     async def try_get_existing_by_id_for_auth(self, id: UUID) -> Channel:
         channel = await self.try_get_by_id(id=id)
-        if channel.deleted_at.is_deleted():
+        if channel.deleted_at.is_deleted:
             raise ChannelDeletedError(channel_id=channel.id)
         if not channel.is_active:
             raise ChannelNotActiveError(channel_id=channel.id)

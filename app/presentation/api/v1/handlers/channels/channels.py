@@ -121,21 +121,6 @@ async def delete_channel(
     await use_case.execute(command=command)
 
 
-@router.get(
-    path='/{channel_slug}/about',
-    responses={
-        status.HTTP_404_NOT_FOUND: error_response(ChannelNotFoundBySlugError),
-    },
-)
-async def get_channel_about_info(
-    channel_slug: PathChannelSlug,
-    use_case: FromDishka[GetChannelAboutInfoUseCase],
-) -> ChannelAboutInfoOutSchema:
-    query = GetChannelAboutInfoQuery(channel_slug=channel_slug)
-    channel_about_info_dto = await use_case.execute(query=query)
-    return ChannelAboutInfoOutSchema.from_dto(dto=channel_about_info_dto)
-
-
 @router.post(
     path='/restore',
     status_code=status.HTTP_204_NO_CONTENT,
@@ -154,6 +139,21 @@ async def restore_channel(
 ) -> None:
     command = RestoreChannelCommand(current_channel_id=current_channel_id)
     await use_case.execute(command=command)
+
+
+@router.get(
+    path='/{channel_slug}/about',
+    responses={
+        status.HTTP_404_NOT_FOUND: error_response(ChannelNotFoundBySlugError),
+    },
+)
+async def get_channel_about_info(
+    channel_slug: PathChannelSlug,
+    use_case: FromDishka[GetChannelAboutInfoUseCase],
+) -> ChannelAboutInfoOutSchema:
+    query = GetChannelAboutInfoQuery(channel_slug=channel_slug)
+    channel_about_info_dto = await use_case.execute(query=query)
+    return ChannelAboutInfoOutSchema.from_dto(dto=channel_about_info_dto)
 
 
 @router.delete(

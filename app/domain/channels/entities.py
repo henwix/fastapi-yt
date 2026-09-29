@@ -44,6 +44,12 @@ class Channel(BaseEntity):
             is_active=is_active,
         )
 
+    def delete(self) -> None:
+        self.deleted_at = DeletionTime.create_deleted()
+
+    def restore(self) -> None:
+        self.deleted_at = DeletionTime.create_not_deleted()
+
     def set_email(self, value: str | Empty) -> None:
         if value is not Empty.UNSET:
             self.email = Email(value)

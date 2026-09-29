@@ -1,12 +1,12 @@
 from datetime import timedelta
 from typing import cast
 
-from sqlalchemy import CursorResult, delete, select, update
+from sqlalchemy import CursorResult, delete, exists, select, update
 
 from app.domain.videos.entities import Video
 from app.domain.videos.enums import VideoUploadStatusEnum
 from app.domain.videos.repos import IVideoRepo
-from app.infrastructure.sqlalchemy.models import VideoORM
+from app.infrastructure.sqlalchemy.models import ChannelORM, VideoORM
 from app.infrastructure.sqlalchemy.repos.base import SQLAlchemyRepo
 from app.utils.datetime import get_current_utc_datetime
 
@@ -55,6 +55,7 @@ class VideoRepo(SQLAlchemyRepo, IVideoRepo):
         stmt = select(VideoORM).where(
             VideoORM.id == id,
             VideoORM.upload_status == VideoUploadStatusEnum.COMPLETED.value,
+            exists().where(ChannelORM.id == VideoORM.channel_id, ChannelORM.deleted_at.is_(None)),
         )
         return await self._get_one_by_query(query=stmt)
 

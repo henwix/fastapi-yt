@@ -14,7 +14,7 @@ from app.domain.videos.enums import VideoPrivacyStatusEnum, VideoUploadStatusEnu
 from app.domain.videos.exceptions import VideoAccessForbiddenError, VideoNotFoundError
 from app.infrastructure.sqlalchemy.models import VideoReactionORM
 from app.utils.datetime import get_current_utc_datetime
-from tests.factories.commands.videos.video_reactions import CreateVideoReactionCommandFactory
+from tests.factories.commands.videos import CreateVideoReactionCommandFactory
 from tests.factories.models.channels import ChannelORMFactory
 from tests.factories.models.videos import VideoORMFactory, VideoReactionORMFactory
 

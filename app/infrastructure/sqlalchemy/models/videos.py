@@ -70,6 +70,7 @@ class VideoORM(CreatedAtDatetimeMixin, BaseORM):
             s3_key=entity.s3_key,
             thumbnail_s3_key=entity.thumbnail_s3_key,
             upload_status=entity.upload_status.value,
+            created_at=entity.created_at,
         )
 
     def to_entity(self) -> Video:
@@ -85,6 +86,7 @@ class VideoORM(CreatedAtDatetimeMixin, BaseORM):
             s3_key=self.s3_key,
             thumbnail_s3_key=self.thumbnail_s3_key,
             upload_status=VideoUploadStatusEnum(self.upload_status),
+            created_at=self.created_at,
         )
 
 
@@ -298,7 +300,7 @@ class VideoCommentORM(
     reply_level: Mapped[int] = mapped_column(default=0, server_default=sa.text('0'))
 
     __table_args__ = (
-        sa.CheckConstraint('reply_level IN (0, 1)', name='ck_video_comments_reply_level'),
+        sa.CheckConstraint('reply_level >= 0', name='ck_video_comments_reply_level'),
         sa.CheckConstraint('char_length(text) <= 10000', name='ck_video_comments_text_max_length'),
         sa.Index(
             'ix_video_comments_composite_comments',

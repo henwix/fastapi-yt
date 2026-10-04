@@ -7,7 +7,7 @@ from app.domain.common.exceptions.base import AppError
 @dataclass(kw_only=True)
 class VideoCommentNotFoundError(AppError):
     message = 'Video comment not found'
-    id: UUID
+    video_comment_id: UUID
 
 
 @dataclass(kw_only=True)

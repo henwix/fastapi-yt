@@ -1,13 +1,13 @@
 from typing import NoReturn, cast
 from uuid import UUID
 
-from sqlalchemy import CursorResult, delete, select, update
+from sqlalchemy import CursorResult, delete, exists, select, update
 from sqlalchemy.exc import DBAPIError
 
 from app.domain.channels.exceptions import ChannelNotFoundByIdError
 from app.domain.posts.entities import Post
 from app.domain.posts.repos import IPostRepo
-from app.infrastructure.sqlalchemy.models import PostORM
+from app.infrastructure.sqlalchemy.models import ChannelORM, PostORM
 from app.infrastructure.sqlalchemy.repos.base import SQLAlchemyRepo
 
 
@@ -37,7 +37,10 @@ class PostRepo(SQLAlchemyRepo, IPostRepo):
         return updated_post.to_entity() if updated_post else None
 
     async def get_by_id(self, id: UUID) -> Post | None:
-        stmt = select(PostORM).where(PostORM.id == id)
+        stmt = select(PostORM).where(
+            PostORM.id == id,
+            exists().where(ChannelORM.id == PostORM.channel_id, ChannelORM.deleted_at.is_(None)),
+        )
         result = await self._session.execute(statement=stmt)
         post = result.scalar_one_or_none()
         return post.to_entity() if post else None

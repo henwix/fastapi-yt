@@ -38,24 +38,24 @@ class VideoCommentService(IVideoCommentService):
     async def try_get_by_id(self, id: UUID) -> VideoComment:
         video_comment = await self._repo.get_by_id(id=id)
         if not video_comment:
-            raise VideoCommentNotFoundError(id=id)
+            raise VideoCommentNotFoundError(video_comment_id=id)
         return video_comment
 
     async def try_get_by_id_and_video_id(self, id: UUID, video_id: str) -> VideoComment:
         video_comment = await self._repo.get_by_id_and_video_id(id=id, video_id=video_id)
         if video_comment is None:
-            raise VideoCommentNotFoundError(id=id)
+            raise VideoCommentNotFoundError(video_comment_id=id)
         return video_comment
 
     async def try_delete_by_id(self, id: UUID) -> None:
         is_deleted = await self._repo.delete_by_id(id=id)
         if not is_deleted:
-            raise VideoCommentNotFoundError(id=id)
+            raise VideoCommentNotFoundError(video_comment_id=id)
 
     async def try_update(self, video_comment: VideoComment) -> VideoComment:
         updated_video_comment = await self._repo.update(video_comment=video_comment)
         if not updated_video_comment:
-            raise VideoCommentNotFoundError(id=video_comment.id)
+            raise VideoCommentNotFoundError(video_comment_id=video_comment.id)
         return updated_video_comment
 
     def ensure_video_comment_access(self, video_comment: VideoComment, channel: Channel) -> None:

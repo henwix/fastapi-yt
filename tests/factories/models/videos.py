@@ -7,7 +7,13 @@ from app.core.configs import settings
 from app.domain.common.enums import ReactionTypeEnum
 from app.domain.videos.constants import VIDEO_VIEWS_LIMIT_PER_DAY
 from app.domain.videos.enums import VideoPrivacyStatusEnum, VideoUploadStatusEnum
-from app.infrastructure.sqlalchemy.models import VideoORM, VideoReactionORM, VideoViewORM
+from app.infrastructure.sqlalchemy.models import (
+    VideoCommentORM,
+    VideoHistoryItemORM,
+    VideoORM,
+    VideoReactionORM,
+    VideoViewORM,
+)
 from app.utils.datetime import get_current_utc_date, get_current_utc_datetime
 from app.utils.videos import generate_video_id
 from tests.factories.base import BaseORMFactory
@@ -61,3 +67,23 @@ class VideoReactionORMFactory(BaseORMFactory[VideoReactionORM], SQLAlchemyFactor
     @classmethod
     def created_at(cls) -> date:
         return get_current_utc_datetime()
+
+
+class VideoCommentORMFactory(BaseORMFactory[VideoCommentORM], SQLAlchemyFactory[VideoCommentORM]):
+    @classmethod
+    def created_at(cls) -> date:
+        return get_current_utc_datetime()
+
+    @classmethod
+    def reply_comment_id(cls) -> None:
+        return None
+
+
+class VideoHistoryItemORMFactory(BaseORMFactory[VideoHistoryItemORM], SQLAlchemyFactory[VideoHistoryItemORM]):
+    @classmethod
+    def created_at(cls) -> date:
+        return get_current_utc_datetime()
+
+    @classmethod
+    def video_id(cls) -> str:
+        return generate_video_id()

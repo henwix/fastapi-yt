@@ -35,19 +35,19 @@ class PostService(IPostService):
     async def try_update(self, post: Post) -> Post:
         updated_post = await self._repo.update(post=post)
         if not updated_post:
-            raise PostNotFoundError(id=post.id)
+            raise PostNotFoundError(post_id=post.id)
         return updated_post
 
     async def try_get_by_id(self, id: UUID) -> Post:
         post = await self._repo.get_by_id(id=id)
         if not post:
-            raise PostNotFoundError(id=id)
+            raise PostNotFoundError(post_id=id)
         return post
 
     async def try_delete_by_id(self, id: UUID) -> None:
         is_deleted = await self._repo.delete_by_id(id=id)
         if not is_deleted:
-            raise PostNotFoundError(id=id)
+            raise PostNotFoundError(post_id=id)
 
     def ensure_post_access(self, post: Post, channel: Channel) -> None:
         if post.channel_id != channel.id:

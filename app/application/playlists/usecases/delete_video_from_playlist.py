@@ -4,7 +4,6 @@ from app.application.common.interfaces.transaction_manager import ITransactionMa
 from app.application.playlists.commands import DeleteVideoFromPlaylistCommand
 from app.domain.channels.services import IChannelService
 from app.domain.playlists.services import IPlaylistItemService, IPlaylistService
-from app.domain.videos.services import IVideoService
 
 
 @dataclass
@@ -12,7 +11,6 @@ class DeleteVideoFromPlaylistUseCase:
     _channel_service: IChannelService
     _playlist_service: IPlaylistService
     _playlist_item_service: IPlaylistItemService
-    _video_service: IVideoService
     _transaction_manager: ITransactionManager
 
     async def execute(self, command: DeleteVideoFromPlaylistCommand) -> None:
@@ -21,7 +19,5 @@ class DeleteVideoFromPlaylistUseCase:
 
         self._playlist_service.ensure_playlist_access(playlist=playlist, channel=channel)
 
-        video = await self._video_service.try_get_completed_by_id(id=command.video_id)
-
         async with self._transaction_manager:
-            await self._playlist_item_service.try_delete(playlist_id=playlist.id, video_id=video.id)
+            await self._playlist_item_service.try_delete(playlist_id=playlist.id, video_id=command.video_id)

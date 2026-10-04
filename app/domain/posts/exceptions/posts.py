@@ -7,7 +7,7 @@ from app.domain.common.exceptions.base import AppError
 @dataclass(kw_only=True)
 class PostNotFoundError(AppError):
     message = 'Post not found'
-    id: UUID
+    post_id: UUID
 
 
 @dataclass(kw_only=True)

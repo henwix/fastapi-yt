@@ -25,7 +25,7 @@ class VideoCommentRepo(SQLAlchemyRepo, IVideoCommentRepo):
             case 'video_comments_channel_id_fkey':
                 raise ChannelNotFoundByIdError(channel_id=video_comment.channel_id) from error
             case 'video_comments_reply_comment_id_fkey':
-                raise VideoCommentNotFoundError(id=video_comment.reply_comment_id) from error
+                raise VideoCommentNotFoundError(video_comment_id=video_comment.reply_comment_id) from error
             case _:
                 raise
 

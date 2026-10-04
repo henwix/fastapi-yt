@@ -163,7 +163,7 @@ async def test_create_post_comment_raises_if_channel_not_active(mock_container: 
 
 
 @pytest.mark.asyncio
-async def test_create_post_comment_raises_if_channel_deleted(mock_container: AsyncContainer):
+async def test_create_post_comment_raises_error_if_channel_deleted(mock_container: AsyncContainer):
     async with mock_container() as di:
         use_case = await di.get(CreatePostCommentUseCase)
         session = await di.get(AsyncSession)
@@ -181,7 +181,7 @@ async def test_create_post_comment_raises_if_channel_deleted(mock_container: Asy
 
 
 @pytest.mark.asyncio
-async def test_create_post_comment_raises_if_channel_not_found(mock_container: AsyncContainer):
+async def test_create_post_comment_raises_error_if_channel_not_found(mock_container: AsyncContainer):
     async with mock_container() as di:
         use_case = await di.get(CreatePostCommentUseCase)
 
@@ -189,3 +189,24 @@ async def test_create_post_comment_raises_if_channel_not_found(mock_container: A
 
         with pytest.raises(ChannelNotFoundByIdError):
             await use_case.execute(command=command)
+
+
+@pytest.mark.asyncio
+async def test_create_post_comment_raises_error_if_post_channel_author_deleted(mock_container: AsyncContainer):
+    async with mock_container() as di:
+        use_case = await di.get(CreatePostCommentUseCase)
+        session = await di.get(AsyncSession)
+
+        channel = await ChannelORMFactory.create(session=session)
+        post_author = await ChannelORMFactory.create(session=session, deleted_at=get_current_utc_datetime())
+        post = await PostORMFactory.create(session=session, channel_id=post_author.id)
+
+        command = CreatePostCommentCommandFactory.build(
+            current_channel_id=channel.id,
+            post_id=post.id,
+        )
+
+        with pytest.raises(PostNotFoundError) as e:
+            await use_case.execute(command=command)
+
+        assert e.value.post_id == post.id

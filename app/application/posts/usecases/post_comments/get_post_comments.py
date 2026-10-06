@@ -35,7 +35,7 @@ class GetPostCommentsUseCase:
             except Exception as e:
                 raise InvalidCursorError(cursor=query.pagination.cursor, exc_details=str(e)) from e
 
-        post = await self._post_service.try_get_by_id(id=query.post_id)
+        post = await self._post_service.try_get_existing_by_id(id=query.post_id)
         comments = await self._post_comment_reader.get_comments(
             post_id=post.id,
             cursor_sort_value=cursor_sort_value,

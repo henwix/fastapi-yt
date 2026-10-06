@@ -36,7 +36,7 @@ class PostRepo(SQLAlchemyRepo, IPostRepo):
         updated_post = result.scalar_one_or_none()
         return updated_post.to_entity() if updated_post else None
 
-    async def get_by_id(self, id: UUID) -> Post | None:
+    async def get_existing_by_id(self, id: UUID) -> Post | None:
         stmt = select(PostORM).where(
             PostORM.id == id,
             exists().where(ChannelORM.id == PostORM.channel_id, ChannelORM.deleted_at.is_(None)),

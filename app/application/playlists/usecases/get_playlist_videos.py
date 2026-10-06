@@ -43,7 +43,7 @@ class GetPlaylistVideosUseCase:
             except Exception as e:
                 raise InvalidCursorError(cursor=query.pagination.cursor, exc_details=str(e)) from e
 
-        playlist = await self._playlist_service.try_get_by_id(id=query.playlist_id)
+        playlist = await self._playlist_service.try_existing_get_by_id(id=query.playlist_id)
 
         if playlist.privacy_status is PlaylistPrivacyStatusEnum.PRIVATE:
             if query.current_channel_id is None:

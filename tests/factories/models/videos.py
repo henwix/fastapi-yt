@@ -5,9 +5,11 @@ from polyfactory.factories.sqlalchemy_factory import SQLAlchemyFactory
 
 from app.core.configs import settings
 from app.domain.common.enums import ReactionTypeEnum
+from app.domain.playlists.enums import PlaylistPrivacyStatusEnum
 from app.domain.videos.constants import VIDEO_VIEWS_LIMIT_PER_DAY
 from app.domain.videos.enums import VideoPrivacyStatusEnum, VideoUploadStatusEnum
 from app.infrastructure.sqlalchemy.models import (
+    PlaylistORM,
     VideoCommentORM,
     VideoHistoryItemORM,
     VideoORM,
@@ -87,3 +89,13 @@ class VideoHistoryItemORMFactory(BaseORMFactory[VideoHistoryItemORM], SQLAlchemy
     @classmethod
     def video_id(cls) -> str:
         return generate_video_id()
+
+
+class PlaylistORMFactory(BaseORMFactory[PlaylistORM], SQLAlchemyFactory[PlaylistORM]):
+    @classmethod
+    def privacy_status(cls) -> str:
+        return cls.__random__.choice([status.value for status in PlaylistPrivacyStatusEnum])
+
+    @classmethod
+    def created_at(cls) -> date:
+        return get_current_utc_datetime()

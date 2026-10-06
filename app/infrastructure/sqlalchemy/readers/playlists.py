@@ -2,7 +2,7 @@ from datetime import datetime
 from uuid import UUID
 
 import sqlalchemy as sa
-from sqlalchemy import select, tuple_
+from sqlalchemy import and_, select, tuple_
 
 from app.application.common.pagination import CursorPagination
 from app.application.common.sorting import SortingOrderEnum
@@ -113,8 +113,10 @@ class PlaylistReader(SQLAlchemyReader, IPlaylistReader):
                 ChannelORM.slug.label('author_slug'),
                 videos_count_subquery.label('videos_count'),
             )
-            .join(ChannelORM, PlaylistORM.channel_id == ChannelORM.id)
-            .where(PlaylistORM.id == id)
+            .join(ChannelORM, and_(PlaylistORM.channel_id == ChannelORM.id, ChannelORM.deleted_at.is_(None)))
+            .where(
+                PlaylistORM.id == id,
+            )
         )
         result = await self._session.execute(statement=stmt)
         playlist_row = result.mappings().one_or_none()

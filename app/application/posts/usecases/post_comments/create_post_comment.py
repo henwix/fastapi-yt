@@ -17,7 +17,7 @@ class CreatePostCommentUseCase:
 
     async def execute(self, command: CreatePostCommentCommand) -> PostComment:
         channel = await self._channel_service.try_get_existing_by_id_for_auth(id=command.current_channel_id)
-        post = await self._post_service.try_get_by_id(id=command.post_id)
+        post = await self._post_service.try_get_existing_by_id(id=command.post_id)
 
         reply_comment = None
         if command.reply_comment_id is not Empty.UNSET:

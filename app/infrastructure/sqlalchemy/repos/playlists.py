@@ -1,7 +1,7 @@
 from typing import NoReturn, cast
 from uuid import UUID
 
-from sqlalchemy import CursorResult, delete, select, update
+from sqlalchemy import CursorResult, delete, exists, select, update
 from sqlalchemy.exc import DBAPIError, IntegrityError
 
 from app.domain.channels.exceptions import ChannelNotFoundByIdError
@@ -9,7 +9,7 @@ from app.domain.playlists.entities import Playlist, PlaylistItem
 from app.domain.playlists.exceptions import PlaylistNotFoundError, VideoAlreadyAddedToPlaylistError
 from app.domain.playlists.repos import IPlaylistItemRepo, IPlaylistRepo
 from app.domain.videos.exceptions import VideoNotFoundError
-from app.infrastructure.sqlalchemy.models import PlaylistItemORM, PlaylistORM
+from app.infrastructure.sqlalchemy.models import ChannelORM, PlaylistItemORM, PlaylistORM
 from app.infrastructure.sqlalchemy.repos.base import SQLAlchemyRepo
 
 
@@ -50,8 +50,11 @@ class PlaylistRepo(SQLAlchemyRepo, IPlaylistRepo):
         orm_playlist = result.scalar_one_or_none()
         return orm_playlist.to_entity() if orm_playlist else None
 
-    async def get_by_id(self, id: UUID) -> Playlist | None:
-        stmt = select(PlaylistORM).where(PlaylistORM.id == id)
+    async def get_existing_by_id(self, id: UUID) -> Playlist | None:
+        stmt = select(PlaylistORM).where(
+            PlaylistORM.id == id,
+            exists().where(ChannelORM.id == PlaylistORM.channel_id, ChannelORM.deleted_at.is_(None)),
+        )
         result = await self._session.execute(statement=stmt)
         playlist = result.scalar_one_or_none()
         return playlist.to_entity() if playlist else None

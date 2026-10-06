@@ -16,7 +16,7 @@ class IPostService(ABC):
     async def try_update(self, post: Post) -> Post: ...
 
     @abstractmethod
-    async def try_get_by_id(self, id: UUID) -> Post: ...
+    async def try_get_existing_by_id(self, id: UUID) -> Post: ...
 
     @abstractmethod
     async def try_delete_by_id(self, id: UUID) -> None: ...
@@ -38,8 +38,8 @@ class PostService(IPostService):
             raise PostNotFoundError(post_id=post.id)
         return updated_post
 
-    async def try_get_by_id(self, id: UUID) -> Post:
-        post = await self._repo.get_by_id(id=id)
+    async def try_get_existing_by_id(self, id: UUID) -> Post:
+        post = await self._repo.get_existing_by_id(id=id)
         if not post:
             raise PostNotFoundError(post_id=id)
         return post

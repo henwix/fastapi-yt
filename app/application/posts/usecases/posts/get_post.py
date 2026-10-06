@@ -10,4 +10,4 @@ class GetPostUseCase:
     _post_service: IPostService
 
     async def execute(self, query: GetPostQuery) -> Post:
-        return await self._post_service.try_get_by_id(id=query.post_id)
+        return await self._post_service.try_get_existing_by_id(id=query.post_id)

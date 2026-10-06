@@ -110,7 +110,7 @@ async def test_create_post_comment_with_reply_comment(mock_container: AsyncConta
 
 
 @pytest.mark.asyncio
-async def test_create_post_comment_raises_if_reply_comment_not_found(mock_container: AsyncContainer):
+async def test_create_post_comment_raises_error_if_reply_comment_not_found(mock_container: AsyncContainer):
     async with mock_container() as di:
         use_case = await di.get(CreatePostCommentUseCase)
         session = await di.get(AsyncSession)
@@ -129,7 +129,7 @@ async def test_create_post_comment_raises_if_reply_comment_not_found(mock_contai
 
 
 @pytest.mark.asyncio
-async def test_create_post_comment_raises_if_post_not_found(mock_container: AsyncContainer):
+async def test_create_post_comment_raises_error_if_post_not_found(mock_container: AsyncContainer):
     async with mock_container() as di:
         use_case = await di.get(CreatePostCommentUseCase)
         session = await di.get(AsyncSession)
@@ -145,7 +145,7 @@ async def test_create_post_comment_raises_if_post_not_found(mock_container: Asyn
 
 
 @pytest.mark.asyncio
-async def test_create_post_comment_raises_if_channel_not_active(mock_container: AsyncContainer):
+async def test_create_post_comment_raises_error_if_channel_not_active(mock_container: AsyncContainer):
     async with mock_container() as di:
         use_case = await di.get(CreatePostCommentUseCase)
         session = await di.get(AsyncSession)

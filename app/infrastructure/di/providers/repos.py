@@ -2,6 +2,7 @@ from dishka import Provider, Scope, provide
 
 from app.domain.channels.repos import IChannelRepo
 from app.domain.common.repos.kv import IKVRepo
+from app.domain.files_cleanup.repos import IFileCleanupRepo
 from app.domain.oauth.repos import IOAuthAccountRepo
 from app.domain.playlists.repos import IPlaylistItemRepo, IPlaylistRepo
 from app.domain.posts.repos import IPostCommentReactionRepo, IPostCommentRepo, IPostReactionRepo, IPostRepo
@@ -32,6 +33,7 @@ from app.infrastructure.sqlalchemy.repos import (
     VideoRepo,
     VideoViewRepo,
 )
+from app.infrastructure.sqlalchemy.repos.files_cleanup import FileCleanupRepo
 
 
 class ReposProvider(Provider):
@@ -54,3 +56,4 @@ class ReposProvider(Provider):
     post_comment_repo = provide(PostCommentRepo, provides=IPostCommentRepo)
     post_comment_reaction_repo = provide(PostCommentReactionRepo, provides=IPostCommentReactionRepo)
     subscription_repo = provide(SubscriptionRepo, provides=ISubscriptionRepo)
+    file_cleanup_repo = provide(FileCleanupRepo, provides=IFileCleanupRepo)

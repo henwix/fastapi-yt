@@ -2,6 +2,7 @@ from dishka import Provider, Scope, provide
 
 from app.application.common.interfaces.security import IAuthCodeService, IAuthService, IJWTService
 from app.domain.channels.services import ChannelService, IChannelService
+from app.domain.files_cleanup.services import FileCleanupService, IFileCleanupService
 from app.domain.playlists.services import IPlaylistItemService, IPlaylistService, PlaylistItemService, PlaylistService
 from app.domain.posts.services import (
     IPostCommentReactionService,
@@ -50,6 +51,7 @@ class ServicesProvider(Provider):
     post_comment_service = provide(PostCommentService, provides=IPostCommentService)
     post_comment_reaction_service = provide(PostCommentReactionService, provides=IPostCommentReactionService)
     subscription_service = provide(SubscriptionService, provides=ISubscriptionService)
+    file_cleanup_service = provide(FileCleanupService, provides=IFileCleanupService)
 
     jwt_service = provide(JWTService, scope=Scope.APP, provides=IJWTService)
     auth_service = provide(AuthService, scope=Scope.REQUEST, provides=IAuthService)

@@ -47,6 +47,10 @@ class VideoORMFactory(BaseORMFactory[VideoORM], SQLAlchemyFactory[VideoORM]):
         return f'{settings.s3_videos_key_prefix}/{secrets.token_hex(5)}_test.mp4'
 
     @classmethod
+    def thumbnail_s3_key(cls) -> str:
+        return f'{settings.s3_video_thumbnails_key_prefix}/{secrets.token_hex(5)}_test.png'
+
+    @classmethod
     def upload_id(cls) -> str:
         return secrets.token_hex(16)
 

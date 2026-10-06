@@ -15,6 +15,7 @@ from .videos import (
     CompleteVideoMultipartUploadCommandFactory,
     CreateVideoCommandFactory,
     CreateVideoMultipartUploadCommandFactory,
+    DeleteVideoCommandFactory,
     GenerateVideoDownloadUrlCommandFactory,
     GenerateVideoPartUploadUrlCommandFactory,
 )
@@ -29,6 +30,7 @@ __all__ = (
     'CreateVideoMultipartUploadCommandFactory',
     'CreateVideoReactionCommandFactory',
     'CreateVideoViewCommandFactory',
+    'DeleteVideoCommandFactory',
     'DeleteVideoCommentCommandFactory',
     'DeleteVideoFromHistoryCommandFactory',
     'DeleteVideoReactionCommandFactory',

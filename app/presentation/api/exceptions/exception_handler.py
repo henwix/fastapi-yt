@@ -8,6 +8,7 @@ from app.domain.common.exceptions.base import AppError
 from app.presentation.api.exceptions.auth import init_auth
 from app.presentation.api.exceptions.channels import init_channels
 from app.presentation.api.exceptions.common import init_common
+from app.presentation.api.exceptions.files_cleanup import init_files_cleanup
 from app.presentation.api.exceptions.oauth import init_oauth
 from app.presentation.api.exceptions.playlists import init_playlists
 from app.presentation.api.exceptions.posts import init_posts
@@ -29,6 +30,7 @@ class ExceptionHandler:
             **init_playlists(),
             **init_posts(),
             **init_subscriptions(),
+            **init_files_cleanup(),
         }
     )
 

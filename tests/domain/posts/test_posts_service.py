@@ -13,7 +13,7 @@ from tests.factories.models.posts import PostORMFactory
 
 
 @pytest.mark.asyncio
-async def test_try_existing_get_by_id_returns_correct_entity(container: AsyncContainer):
+async def test_try_get_existing_by_id_returns_correct_entity(container: AsyncContainer):
     async with container() as di:
         service = await di.get(IPostService)
         session = await di.get(AsyncSession)
@@ -30,7 +30,7 @@ async def test_try_existing_get_by_id_returns_correct_entity(container: AsyncCon
 
 
 @pytest.mark.asyncio
-async def test_try_existing_get_by_id_raises_error_if_post_author_channel_deleted(container: AsyncContainer):
+async def test_try_get_existing_by_id_raises_error_if_post_author_channel_deleted(container: AsyncContainer):
     async with container() as di:
         service = await di.get(IPostService)
         session = await di.get(AsyncSession)
@@ -44,7 +44,7 @@ async def test_try_existing_get_by_id_raises_error_if_post_author_channel_delete
 
 
 @pytest.mark.asyncio
-async def test_try_existing_get_by_id_raises_error_if_post_not_found(container: AsyncContainer):
+async def test_try_get_existing_by_id_raises_error_if_post_not_found(container: AsyncContainer):
     async with container() as di:
         service = await di.get(IPostService)
 

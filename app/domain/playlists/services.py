@@ -20,7 +20,7 @@ class IPlaylistService(ABC):
     async def try_update(self, playlist: Playlist) -> Playlist: ...
 
     @abstractmethod
-    async def try_existing_get_by_id(self, id: UUID) -> Playlist: ...
+    async def try_get_existing_by_id(self, id: UUID) -> Playlist: ...
 
     @abstractmethod
     async def try_delete_by_id(self, id: UUID) -> None: ...
@@ -50,7 +50,7 @@ class PlaylistService(IPlaylistService):
             raise PlaylistNotFoundError(playlist_id=playlist.id)
         return updated_playlist
 
-    async def try_existing_get_by_id(self, id: UUID) -> Playlist:
+    async def try_get_existing_by_id(self, id: UUID) -> Playlist:
         playlist = await self._repo.get_existing_by_id(id=id)
         if playlist is None:
             raise PlaylistNotFoundError(playlist_id=id)

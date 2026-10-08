@@ -18,6 +18,7 @@ from .video_uploads import (
 from .video_views import VideoViewsLimitReachedError
 from .videos import (
     VideoAccessForbiddenError,
+    VideoFileNotFoundError,
     VideoNotFoundError,
     VideoThumbnailNotFoundError,
 )
@@ -27,6 +28,7 @@ __all__ = (
     'VideoCommentAccessForbiddenError',
     'VideoCommentNotFoundError',
     'VideoCommentReactionNotFoundError',
+    'VideoFileNotFoundError',
     'VideoHistoryEmptyError',
     'VideoInvalidContentTypeError',
     'VideoInvalidFilenameError',

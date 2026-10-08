@@ -18,6 +18,12 @@ class VideoNotFoundError(AppError):
 
 
 @dataclass(kw_only=True)
+class VideoFileNotFoundError(AppError):
+    message = 'Video file not found'
+    video_id: str
+
+
+@dataclass(kw_only=True)
 class VideoThumbnailNotFoundError(AppError):
     message = 'Video thumbnail not found'
     video_id: str

@@ -5,7 +5,7 @@ from app.application.videos.commands import GenerateVideoDownloadUrlCommand
 from app.core.configs import settings
 from app.domain.channels.services import IChannelService
 from app.domain.videos.enums import VideoPrivacyStatusEnum
-from app.domain.videos.exceptions import VideoAccessForbiddenError
+from app.domain.videos.exceptions import VideoAccessForbiddenError, VideoFileNotFoundError
 from app.domain.videos.services import IVideoService
 
 
@@ -23,6 +23,9 @@ class GenerateVideoDownloadUrlUseCase:
                 raise VideoAccessForbiddenError(video_id=video.id)
             channel = await self._channel_service.try_get_existing_by_id_for_auth(id=command.current_channel_id)
             self._video_service.ensure_video_access(video=video, channel=channel)
+
+        if video.s3_key is None:
+            raise VideoFileNotFoundError(video_id=video.id)
 
         return await self._s3_service.generate_download_url(
             bucket=settings.s3_private_bucket_name,

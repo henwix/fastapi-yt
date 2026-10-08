@@ -8,7 +8,7 @@ from app.application.videos.usecases import GenerateVideoDownloadUrlUseCase
 from app.core.configs import settings
 from app.domain.channels.exceptions import ChannelNotActiveError, ChannelNotFoundByIdError
 from app.domain.videos.enums import VideoPrivacyStatusEnum, VideoUploadStatusEnum
-from app.domain.videos.exceptions import VideoAccessForbiddenError, VideoNotFoundError
+from app.domain.videos.exceptions import VideoAccessForbiddenError, VideoFileNotFoundError, VideoNotFoundError
 from app.utils.datetime import get_current_utc_datetime
 from app.utils.videos import generate_video_id
 from tests.factories.commands.videos import GenerateVideoDownloadUrlCommandFactory
@@ -196,6 +196,34 @@ async def test_generate_video_download_url_raises_error_if_video_private_and_cha
 
         with pytest.raises(ChannelNotFoundByIdError):
             await use_case.execute(command=command)
+
+
+@pytest.mark.asyncio
+async def test_generate_video_download_url_raises_error_if_video_file_not_found(
+    mock_container: AsyncContainer,
+):
+    async with mock_container() as di:
+        use_case = await di.get(GenerateVideoDownloadUrlUseCase)
+        session = await di.get(AsyncSession)
+
+        channel = await ChannelORMFactory.create(session=session)
+        video = await VideoORMFactory.create(
+            session=session,
+            channel_id=channel.id,
+            privacy_status=VideoPrivacyStatusEnum.PUBLIC.value,
+            upload_status=VideoUploadStatusEnum.COMPLETED.value,
+            s3_key=None,
+            upload_id=None,
+        )
+        command = GenerateVideoDownloadUrlCommandFactory.build(
+            current_channel_id=None,
+            video_id=video.id,
+        )
+
+        with pytest.raises(VideoFileNotFoundError) as e:
+            await use_case.execute(command=command)
+
+        assert e.value.video_id == video.id
 
 
 @pytest.mark.asyncio

@@ -13,14 +13,14 @@ from tests.factories.models.videos import PlaylistORMFactory
 
 
 @pytest.mark.asyncio
-async def test_try_existing_get_by_id_returns_correct_entity(container: AsyncContainer):
+async def test_try_get_existing_by_id_returns_correct_entity(container: AsyncContainer):
     async with container() as di:
         service = await di.get(IPlaylistService)
         session = await di.get(AsyncSession)
         channel = await ChannelORMFactory.create(session=session)
         playlist = await PlaylistORMFactory.create(session=session, channel_id=channel.id)
 
-        result = await service.try_existing_get_by_id(id=playlist.id)
+        result = await service.try_get_existing_by_id(id=playlist.id)
 
         assert isinstance(result, Playlist)
         assert result.id == playlist.id
@@ -32,7 +32,7 @@ async def test_try_existing_get_by_id_returns_correct_entity(container: AsyncCon
 
 
 @pytest.mark.asyncio
-async def test_try_existing_get_by_id_raises_error_if_playlist_author_channel_deleted(container: AsyncContainer):
+async def test_try_get_existing_by_id_raises_error_if_playlist_author_channel_deleted(container: AsyncContainer):
     async with container() as di:
         service = await di.get(IPlaylistService)
         session = await di.get(AsyncSession)
@@ -40,18 +40,18 @@ async def test_try_existing_get_by_id_raises_error_if_playlist_author_channel_de
         playlist = await PlaylistORMFactory.create(session=session, channel_id=channel.id)
 
         with pytest.raises(PlaylistNotFoundError) as e:
-            await service.try_existing_get_by_id(id=playlist.id)
+            await service.try_get_existing_by_id(id=playlist.id)
 
         assert e.value.playlist_id == playlist.id
 
 
 @pytest.mark.asyncio
-async def test_try_existing_get_by_id_raises_error_if_playlist_not_found(container: AsyncContainer):
+async def test_try_get_existing_by_id_raises_error_if_playlist_not_found(container: AsyncContainer):
     async with container() as di:
         service = await di.get(IPlaylistService)
 
         playlist_id = uuid7()
         with pytest.raises(PlaylistNotFoundError) as e:
-            await service.try_existing_get_by_id(id=playlist_id)
+            await service.try_get_existing_by_id(id=playlist_id)
 
         assert e.value.playlist_id == playlist_id

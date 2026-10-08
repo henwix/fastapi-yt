@@ -6,6 +6,7 @@ from app.domain.videos.exceptions import (
     VideoCommentAccessForbiddenError,
     VideoCommentNotFoundError,
     VideoCommentReactionNotFoundError,
+    VideoFileNotFoundError,
     VideoHistoryEmptyError,
     VideoInvalidContentTypeError,
     VideoInvalidFilenameError,
@@ -43,6 +44,7 @@ def init_videos() -> dict[type[AppError], int]:
         # Videos
         VideoAccessForbiddenError: status.HTTP_403_FORBIDDEN,
         VideoNotFoundError: status.HTTP_404_NOT_FOUND,
+        VideoFileNotFoundError: status.HTTP_404_NOT_FOUND,
         VideoThumbnailNotFoundError: status.HTTP_404_NOT_FOUND,
         # Video views
         VideoViewsLimitReachedError: status.HTTP_409_CONFLICT,

@@ -15,10 +15,7 @@ from app.infrastructure.sqlalchemy.repos.base import SQLAlchemyRepo
 
 class VideoHistoryRepo(SQLAlchemyRepo, IVideoHistoryRepo):
     def _parse_db_error(self, error: DBAPIError, video_history_item: VideoHistoryItem) -> NoReturn:
-        cause: BaseException | None = getattr(error.orig, '__cause__', None)
-        constraint_name: str | None = getattr(cause, 'constraint_name', None)
-        if cause is None or constraint_name is None:
-            raise
+        constraint_name = self._extract_constraint_name(error=error)
 
         match constraint_name:
             case 'video_history_items_channel_id_fkey':
@@ -43,10 +40,11 @@ class VideoHistoryRepo(SQLAlchemyRepo, IVideoHistoryRepo):
             )
             .returning(VideoHistoryItemORM)
         )
-        try:
-            result = await self._session.execute(statement=stmt)
-        except IntegrityError as e:
-            self._parse_db_error(error=e, video_history_item=video_history_item)
+        async with self._db.get_session(commit=True) as session:
+            try:
+                result = await session.execute(statement=stmt)
+            except IntegrityError as e:
+                self._parse_db_error(error=e, video_history_item=video_history_item)
         model = result.scalar_one()
         return model.to_entity()
 
@@ -55,10 +53,12 @@ class VideoHistoryRepo(SQLAlchemyRepo, IVideoHistoryRepo):
             VideoHistoryItemORM.channel_id == channel_id,
             VideoHistoryItemORM.video_id == video_id,
         )
-        result = await self._session.execute(statement=stmt)
+        async with self._db.get_session(commit=True) as session:
+            result = await session.execute(statement=stmt)
         return cast(CursorResult, result).rowcount > 0
 
     async def clear(self, channel_id: UUID) -> bool:
         stmt = delete(VideoHistoryItemORM).where(VideoHistoryItemORM.channel_id == channel_id)
-        result = await self._session.execute(statement=stmt)
+        async with self._db.get_session(commit=True) as session:
+            result = await session.execute(statement=stmt)
         return cast(CursorResult, result).rowcount > 0

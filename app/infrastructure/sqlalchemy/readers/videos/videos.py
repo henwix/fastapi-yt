@@ -47,7 +47,8 @@ class VideoReader(SQLAlchemyReader, IVideoReader):
                 ChannelORM.deleted_at.is_(None),
             )
         )
-        result = await self._session.execute(statement=stmt)
+        async with self._db.get_session(commit=False) as session:
+            result = await session.execute(statement=stmt)
         video_row = result.mappings().one_or_none()
 
         if video_row is None:
@@ -95,7 +96,8 @@ class VideoReader(SQLAlchemyReader, IVideoReader):
         )
         stmt = stmt.limit(limit=pagination.per_page + 1)
 
-        result = await self._session.execute(statement=stmt)
+        async with self._db.get_session(commit=False) as session:
+            result = await session.execute(statement=stmt)
         video_rows = result.mappings().all()
         return [convert_row_to_channel_preview_video_dto(row=row) for row in video_rows]
 
@@ -143,6 +145,7 @@ class VideoReader(SQLAlchemyReader, IVideoReader):
         )
         stmt = stmt.limit(limit=pagination.per_page + 1)
 
-        result = await self._session.execute(statement=stmt)
+        async with self._db.get_session(commit=False) as session:
+            result = await session.execute(statement=stmt)
         video_rows = result.mappings().all()
         return [convert_row_to_personal_preview_video_dto(row=row) for row in video_rows]

@@ -16,7 +16,7 @@ class IOAuthAccountService(ABC):
     async def get_by_uid_and_provider(self, uid: str, provider: OAuthProviderEnum) -> OAuthAccount | None: ...
 
     @abstractmethod
-    async def try_get_connected_for_update(self, channel_id: UUID) -> list[OAuthAccount]: ...
+    async def try_get_connected(self, channel_id: UUID) -> list[OAuthAccount]: ...
 
     @abstractmethod
     async def try_delete_by_channel_id_and_provider(self, channel_id: UUID, provider: OAuthProviderEnum) -> None: ...
@@ -32,8 +32,8 @@ class OAuthAccountService(IOAuthAccountService):
     async def create(self, oauth_account: OAuthAccount) -> None:
         await self._repo.create(oauth_account=oauth_account)
 
-    async def try_get_connected_for_update(self, channel_id: UUID) -> list[OAuthAccount]:
-        connected_accounts = await self._repo.get_connected_for_update(channel_id=channel_id)
+    async def try_get_connected(self, channel_id: UUID) -> list[OAuthAccount]:
+        connected_accounts = await self._repo.get_connected(channel_id=channel_id)
         if not connected_accounts:
             raise OAuthNoAccountsConnectedError(channel_id=channel_id)
         return connected_accounts

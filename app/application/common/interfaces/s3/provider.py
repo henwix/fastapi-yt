@@ -30,6 +30,9 @@ class IS3Provider(ABC):
     async def get_object(self, bucket: str, key: str, range: str | None = None) -> dict: ...
 
     @abstractmethod
+    async def head_object(self, bucket: str, key: str) -> dict: ...
+
+    @abstractmethod
     async def delete_object(self, bucket: str, key: str) -> dict: ...
 
     @abstractmethod

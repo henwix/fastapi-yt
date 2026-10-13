@@ -155,6 +155,9 @@ async def test_create_video_view_raises_error_if_video_private_and_channel_not_a
         with pytest.raises(VideoAccessForbiddenError):
             await use_case.execute(command=command)
 
+        await session.refresh(instance=video)
+        await session.refresh(instance=channel_video_author)
+
         stmt = select(
             exists().where(
                 VideoViewORM.video_id == video.id,
@@ -191,6 +194,8 @@ async def test_create_video_view_raises_error_if_video_private_and_channel_not_a
 
         with pytest.raises(VideoAccessForbiddenError):
             await use_case.execute(command=command)
+
+        await session.refresh(instance=video)
 
         stmt = select(
             exists().where(

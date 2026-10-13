@@ -1,5 +1,5 @@
 from abc import ABC, abstractmethod
-from typing import Self
+from contextlib import AbstractAsyncContextManager
 
 
 class ITransactionManager(ABC):
@@ -13,7 +13,4 @@ class ITransactionManager(ABC):
     async def close(self) -> None: ...
 
     @abstractmethod
-    async def __aenter__(self) -> Self: ...
-
-    @abstractmethod
-    async def __aexit__(self, exc_type, *_) -> None: ...
+    def begin(self, commit: bool) -> AbstractAsyncContextManager[None]: ...

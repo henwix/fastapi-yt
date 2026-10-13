@@ -72,6 +72,13 @@ class IS3Service(ABC):
     ) -> dict: ...
 
     @abstractmethod
+    async def head_object(
+        self,
+        key: str,
+        bucket: str,
+    ) -> dict: ...
+
+    @abstractmethod
     async def schedule_delete_object(
         self,
         bucket: str,

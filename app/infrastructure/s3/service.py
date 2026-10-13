@@ -101,6 +101,9 @@ class S3Service(IS3Service):
     ) -> dict:
         return await self._provider.get_object(bucket=bucket, key=key, range=range)
 
+    async def head_object(self, key: str, bucket: str) -> dict:
+        return await self._provider.head_object(bucket=bucket, key=key)
+
     async def schedule_delete_object(
         self,
         bucket: str,

@@ -16,15 +16,17 @@ async def test_set_password_returns_none_if_password_updated(mock_container: Asy
         use_case = await di.get(SetChannelPasswordUseCase)
         session = await di.get(AsyncSession)
         password_hasher = await di.get(IPasswordHasher)
-        db_channel = await ChannelORMFactory.create(session=session)
-        old_password_hash = db_channel.password_hash
-        command = SetChannelPasswordCommandFactory.build(current_channel_id=db_channel.id)
+        channel = await ChannelORMFactory.create(session=session)
+        old_password_hash = channel.password_hash
+        command = SetChannelPasswordCommandFactory.build(current_channel_id=channel.id)
 
         use_case_result = await use_case.execute(command=command)
 
+        await session.refresh(instance=channel)
+
         assert use_case_result is None
-        assert db_channel.password_hash != old_password_hash
-        assert password_hasher.verify_password_hash(password=command.new_password, hash=db_channel.password_hash)
+        assert channel.password_hash != old_password_hash
+        assert password_hasher.verify_password_hash(password=command.new_password, hash=channel.password_hash)
 
 
 @pytest.mark.asyncio

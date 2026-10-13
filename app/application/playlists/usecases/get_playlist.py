@@ -1,5 +1,6 @@
 from dataclasses import dataclass
 
+from app.application.common.interfaces.transaction_manager import ITransactionManager
 from app.application.playlists.dto import DetailedPlaylist
 from app.application.playlists.interfaces import IPlaylistReader
 from app.application.playlists.queries import GetPlaylistQuery
@@ -12,17 +13,19 @@ from app.domain.playlists.exceptions import PlaylistAccessForbiddenError
 class GetPlaylistUseCase:
     _playlist_reader: IPlaylistReader
     _channel_service: IChannelService
+    _tm: ITransactionManager
 
     async def execute(self, query: GetPlaylistQuery) -> DetailedPlaylist:
-        playlist = await self._playlist_reader.try_get_detailed_playlist_by_id(id=query.playlist_id)
+        async with self._tm.begin(commit=False):
+            playlist = await self._playlist_reader.try_get_detailed_playlist_by_id(id=query.playlist_id)
 
-        if playlist.privacy_status is PlaylistPrivacyStatusEnum.PRIVATE:
-            if query.current_channel_id is None:
-                raise PlaylistAccessForbiddenError(playlist_id=playlist.id, channel_id=None)
+            if playlist.privacy_status is PlaylistPrivacyStatusEnum.PRIVATE:
+                if query.current_channel_id is None:
+                    raise PlaylistAccessForbiddenError(playlist_id=playlist.id, channel_id=None)
 
-            channel = await self._channel_service.try_get_existing_by_id_for_auth(id=query.current_channel_id)
+                channel = await self._channel_service.try_get_existing_by_id_for_auth(id=query.current_channel_id)
 
-            if channel.slug.to_raw() != playlist.author_slug:
-                raise PlaylistAccessForbiddenError(playlist_id=playlist.id, channel_id=channel.id)
+                if channel.slug.to_raw() != playlist.author_slug:
+                    raise PlaylistAccessForbiddenError(playlist_id=playlist.id, channel_id=channel.id)
 
         return playlist

@@ -11,17 +11,17 @@ from app.domain.posts.services import IPostCommentService
 class UpdatePostCommentUseCase:
     _channel_service: IChannelService
     _post_comment_service: IPostCommentService
-    _transaction_manager: ITransactionManager
+    _tm: ITransactionManager
 
     async def execute(self, command: UpdatePostCommentCommand) -> PostComment:
-        channel = await self._channel_service.try_get_existing_by_id_for_auth(id=command.current_channel_id)
-        post_comment = await self._post_comment_service.try_get_by_id(id=command.post_comment_id)
-        self._post_comment_service.ensure_post_comment_access(post_comment=post_comment, channel=channel)
+        async with self._tm.begin(commit=True):
+            channel = await self._channel_service.try_get_existing_by_id_for_auth(id=command.current_channel_id)
+            post_comment = await self._post_comment_service.try_get_by_id(id=command.post_comment_id)
+            self._post_comment_service.ensure_post_comment_access(post_comment=post_comment, channel=channel)
 
-        post_comment.set_text(value=command.text)
+            post_comment.set_text(value=command.text)
 
-        if not post_comment.is_edited:
-            post_comment.set_is_edited(value=True)
+            if not post_comment.is_edited:
+                post_comment.set_is_edited(value=True)
 
-        async with self._transaction_manager:
             return await self._post_comment_service.try_update(post_comment=post_comment)

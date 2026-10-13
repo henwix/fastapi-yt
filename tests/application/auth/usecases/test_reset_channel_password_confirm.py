@@ -36,20 +36,26 @@ async def test_reset_channel_password_confirm_returns_none_if_password_updated(
         auth_code_service = await di.get(IAuthCodeService)
         session = await di.get(AsyncSession)
 
-        db_channel = await ChannelORMFactory.create(session=session, is_active=is_channel_active, deleted_at=deleted_at)
-        code = await auth_code_service.create_reset_password_code(channel_id=db_channel.id)
+        channel = await ChannelORMFactory.create(
+            session=session,
+            is_active=is_channel_active,
+            deleted_at=deleted_at,
+        )
+        code = await auth_code_service.create_reset_password_code(channel_id=channel.id)
         command = ResetChannelPasswordConfirmCommandFactory.build(
-            code=code, uid=base64url_encode(value=str(db_channel.id))
+            code=code, uid=base64url_encode(value=str(channel.id))
         )
 
-        assert isinstance(db_channel.password_hash, str)
-        assert not _password_hasher.verify(password=command.new_password, hash=db_channel.password_hash)
+        assert isinstance(channel.password_hash, str)
+        assert not _password_hasher.verify(password=command.new_password, hash=channel.password_hash)
 
         result = await use_case.execute(command=command)
 
+        await session.refresh(instance=channel)
+
         assert result is None
-        assert isinstance(db_channel.password_hash, str)
-        assert _password_hasher.verify(password=command.new_password, hash=db_channel.password_hash)
+        assert isinstance(channel.password_hash, str)
+        assert _password_hasher.verify(password=command.new_password, hash=channel.password_hash)
 
 
 @pytest.mark.asyncio

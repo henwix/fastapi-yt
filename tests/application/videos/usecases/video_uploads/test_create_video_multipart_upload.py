@@ -53,6 +53,8 @@ async def test_create_video_multipart_upload_returns_none_if_created(
 
         result = await use_case.execute(command=command)
 
+        await session.refresh(instance=video)
+
         assert result is None
         assert video.upload_id == expected_upload_id
         assert video.upload_status == VideoUploadStatusEnum.UPLOADING.value

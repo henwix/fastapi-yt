@@ -32,6 +32,12 @@ makemigrations m:
 migrate:
 	{{EXEC}} {{APP_CONTAINER}} alembic upgrade head
 
+migration-current:
+	{{EXEC}} {{APP_CONTAINER}} alembic current
+
+migration-history:
+	{{EXEC}} {{APP_CONTAINER}} alembic history
+
 downgrade:
 	{{EXEC}} {{APP_CONTAINER}} alembic downgrade -1
 

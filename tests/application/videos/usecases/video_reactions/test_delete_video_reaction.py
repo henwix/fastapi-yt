@@ -108,6 +108,9 @@ async def test_delete_video_reaction_raises_error_if_access_forbidden(container:
         with pytest.raises(VideoAccessForbiddenError) as e:
             await use_case.execute(command=command)
 
+        await session.refresh(instance=channel)
+        await session.refresh(instance=video)
+
         assert e.value.channel_id == channel.id
         assert e.value.video_id == video.id
 
@@ -174,6 +177,8 @@ async def test_delete_video_reaction_raises_error_if_video_author_channel_delete
         with pytest.raises(VideoNotFoundError) as e:
             await use_case.execute(command=command)
 
+        await session.refresh(instance=video)
+
         assert e.value.video_id == video.id
 
 
@@ -190,6 +195,8 @@ async def test_delete_video_reaction_raises_error_if_channel_deleted(container: 
         with pytest.raises(ChannelDeletedError) as e:
             await use_case.execute(command=command)
 
+        await session.refresh(instance=channel)
+
         assert e.value.channel_id == channel.id
 
 
@@ -205,6 +212,8 @@ async def test_delete_video_reaction_raises_error_if_channel_not_active(containe
 
         with pytest.raises(ChannelNotActiveError) as e:
             await use_case.execute(command=command)
+
+        await session.refresh(instance=channel)
 
         assert e.value.channel_id == channel.id
 

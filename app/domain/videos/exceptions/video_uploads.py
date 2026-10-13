@@ -36,6 +36,14 @@ class VideoInvalidContentTypeError(AppError):
 
 
 @dataclass(kw_only=True)
+class VideoSizeTooSmallError(AppError):
+    message = 'Video size too small'
+    key: str
+    bucket: str
+    file_size: int
+
+
+@dataclass(kw_only=True)
 class VideoThumbnailAlreadySetError(AppError):
     message = 'This video thumbnail is already set'
     video_id: str
@@ -54,8 +62,17 @@ class VideoThumbnailVideoIdMismatchError(AppError):
 class VideoThumbnailSizeTooBigError(AppError):
     message = 'Video thumbnail size too big'
     key: str
+    bucket: str
     file_size: int
     file_max_size: int
+
+
+@dataclass(kw_only=True)
+class VideoThumbnailSizeTooSmallError(AppError):
+    message = 'Video thumbnail size too small'
+    key: str
+    bucket: str
+    file_size: int
 
 
 @dataclass(kw_only=True)

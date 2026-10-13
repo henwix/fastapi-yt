@@ -16,7 +16,7 @@ class FileCleanupORM(
     s3_key: Mapped[str] = mapped_column(sa.String(length=255))
     bucket: Mapped[str] = mapped_column(sa.String(length=255))
 
-    __tableargs__ = (sa.UniqueConstraint('s3_key', 'bucket', name='uq_file_cleanup'),)
+    __table_args__ = (sa.UniqueConstraint('s3_key', 'bucket', name='uq_file_cleanup'),)
 
     @staticmethod
     def from_entity(entity: FileCleanup) -> FileCleanupORM:

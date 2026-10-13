@@ -14,10 +14,7 @@ from app.infrastructure.sqlalchemy.repos.base import SQLAlchemyRepo
 
 class SubscriptionRepo(SQLAlchemyRepo, ISubscriptionRepo):
     def _parse_db_error(self, error: DBAPIError, subscription: Subscription) -> NoReturn:
-        cause: BaseException | None = getattr(error.orig, '__cause__', None)
-        constraint_name: str | None = getattr(cause, 'constraint_name', None)
-        if cause is None or constraint_name is None:
-            raise
+        constraint_name = self._extract_constraint_name(error=error)
 
         match constraint_name:
             case 'unique_channel_subscription':
@@ -37,11 +34,12 @@ class SubscriptionRepo(SQLAlchemyRepo, ISubscriptionRepo):
 
     async def create(self, subscription: Subscription) -> Subscription:
         model = SubscriptionORM.from_entity(entity=subscription)
-        self._session.add(instance=model)
-        try:
-            await self._session.flush((model,))
-        except IntegrityError as e:
-            self._parse_db_error(error=e, subscription=subscription)
+        async with self._db.get_session(commit=True) as session:
+            session.add(instance=model)
+            try:
+                await session.flush(objects=(model,))
+            except IntegrityError as e:
+                self._parse_db_error(error=e, subscription=subscription)
         return model.to_entity()
 
     async def check_subscription_exists(self, subscriber_id: UUID, subscribed_to_id: UUID) -> bool:
@@ -50,7 +48,8 @@ class SubscriptionRepo(SQLAlchemyRepo, ISubscriptionRepo):
                 SubscriptionORM.subscriber_id == subscriber_id, SubscriptionORM.subscribed_to_id == subscribed_to_id
             )
         )
-        result = await self._session.execute(statement=stmt)
+        async with self._db.get_session(commit=False) as session:
+            result = await session.execute(statement=stmt)
         return result.scalar_one()
 
     async def delete_by_ids(self, subscriber_id: UUID, subscribed_to_id: UUID) -> bool:
@@ -58,5 +57,6 @@ class SubscriptionRepo(SQLAlchemyRepo, ISubscriptionRepo):
             SubscriptionORM.subscriber_id == subscriber_id,
             SubscriptionORM.subscribed_to_id == subscribed_to_id,
         )
-        result = await self._session.execute(statement=stmt)
+        async with self._db.get_session(commit=True) as session:
+            result = await session.execute(statement=stmt)
         return cast(CursorResult, result).rowcount > 0

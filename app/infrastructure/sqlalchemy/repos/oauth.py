@@ -14,10 +14,7 @@ from app.infrastructure.sqlalchemy.repos.base import SQLAlchemyRepo
 
 class OAuthAccountRepo(SQLAlchemyRepo, IOAuthAccountRepo):
     def _parse_db_error(self, error: DBAPIError, oauth_account: OAuthAccount) -> NoReturn:
-        cause: BaseException | None = getattr(error.orig, '__cause__', None)
-        constraint_name: str | None = getattr(cause, 'constraint_name', None)
-        if cause is None or constraint_name is None:
-            raise
+        constraint_name = self._extract_constraint_name(error=error)
 
         match constraint_name:
             case 'uq_channel_provider' | 'uq_provider_uid':
@@ -30,11 +27,12 @@ class OAuthAccountRepo(SQLAlchemyRepo, IOAuthAccountRepo):
 
     async def create(self, oauth_account: OAuthAccount) -> None:
         model = OAuthAccountORM.from_entity(entity=oauth_account)
-        self._session.add(instance=model)
-        try:
-            await self._session.flush((model,))
-        except IntegrityError as e:
-            self._parse_db_error(error=e, oauth_account=oauth_account)
+        async with self._db.get_session(commit=True) as session:
+            session.add(instance=model)
+            try:
+                await session.flush(objects=(model,))
+            except IntegrityError as e:
+                self._parse_db_error(error=e, oauth_account=oauth_account)
 
     async def get_by_uid_and_provider(
         self,
@@ -45,19 +43,15 @@ class OAuthAccountRepo(SQLAlchemyRepo, IOAuthAccountRepo):
             OAuthAccountORM.provider_uid == uid,
             OAuthAccountORM.provider == provider.value,
         )
-        result = await self._session.execute(statement=stmt)
+        async with self._db.get_session(commit=False) as session:
+            result = await session.execute(statement=stmt)
         oauth_account = result.scalar_one_or_none()
         return oauth_account.to_entity() if oauth_account is not None else None
 
-    async def get_connected_for_update(self, channel_id: UUID) -> list[OAuthAccount]:
-        stmt = (
-            select(OAuthAccountORM)
-            .with_for_update()
-            .where(
-                OAuthAccountORM.channel_id == channel_id,
-            )
-        )
-        result = await self._session.execute(statement=stmt)
+    async def get_connected(self, channel_id: UUID) -> list[OAuthAccount]:
+        stmt = select(OAuthAccountORM).where(OAuthAccountORM.channel_id == channel_id)
+        async with self._db.get_session(commit=False) as session:
+            result = await session.execute(statement=stmt)
         connected_accounts = result.scalars()
         return [account.to_entity() for account in connected_accounts]
 
@@ -70,5 +64,6 @@ class OAuthAccountRepo(SQLAlchemyRepo, IOAuthAccountRepo):
             OAuthAccountORM.channel_id == channel_id,
             OAuthAccountORM.provider == provider.value,
         )
-        result = await self._session.execute(statement=stmt)
+        async with self._db.get_session(commit=True) as session:
+            result = await session.execute(statement=stmt)
         return cast(CursorResult, result).rowcount > 0

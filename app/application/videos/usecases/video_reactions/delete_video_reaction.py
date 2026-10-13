@@ -12,16 +12,16 @@ class DeleteVideoReactionUseCase:
     _channel_service: IChannelService
     _video_service: IVideoService
     _video_reaction_service: IVideoReactionService
-    _transaction_manager: ITransactionManager
+    _tm: ITransactionManager
 
     async def execute(self, command: DeleteVideoReactionCommand) -> None:
-        channel = await self._channel_service.try_get_existing_by_id_for_auth(id=command.current_channel_id)
-        video = await self._video_service.try_get_completed_by_id(id=command.video_id)
+        async with self._tm.begin(commit=True):
+            channel = await self._channel_service.try_get_existing_by_id_for_auth(id=command.current_channel_id)
+            video = await self._video_service.try_get_completed_by_id(id=command.video_id)
 
-        if video.privacy_status is VideoPrivacyStatusEnum.PRIVATE:
-            self._video_service.ensure_video_access(video=video, channel=channel)
+            if video.privacy_status is VideoPrivacyStatusEnum.PRIVATE:
+                self._video_service.ensure_video_access(video=video, channel=channel)
 
-        async with self._transaction_manager:
             await self._video_reaction_service.try_delete_by_video_id_and_channel_id(
                 video_id=video.id,
                 channel_id=channel.id,

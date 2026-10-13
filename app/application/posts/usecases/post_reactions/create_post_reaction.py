@@ -12,15 +12,15 @@ class CreatePostReactionUseCase:
     _channel_service: IChannelService
     _post_service: IPostService
     _post_reaction_service: IPostReactionService
-    _transaction_manager: ITransactionManager
+    _tm: ITransactionManager
 
     async def execute(self, command: CreatePostReactionCommand) -> PostReaction | None:
-        channel = await self._channel_service.try_get_existing_by_id_for_auth(id=command.current_channel_id)
-        post = await self._post_service.try_get_existing_by_id(id=command.post_id)
-        post_reaction_entity = PostReaction.create(
-            post_id=post.id,
-            channel_id=channel.id,
-            reaction_type=command.reaction_type,
-        )
-        async with self._transaction_manager:
+        async with self._tm.begin(commit=True):
+            channel = await self._channel_service.try_get_existing_by_id_for_auth(id=command.current_channel_id)
+            post = await self._post_service.try_get_existing_by_id(id=command.post_id)
+            post_reaction_entity = PostReaction.create(
+                post_id=post.id,
+                channel_id=channel.id,
+                reaction_type=command.reaction_type,
+            )
             return await self._post_reaction_service.upsert(post_reaction=post_reaction_entity)

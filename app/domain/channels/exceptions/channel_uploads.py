@@ -8,8 +8,17 @@ from app.domain.common.exceptions.base import AppError
 class ChannelAvatarSizeTooBigError(AppError):
     message = 'Channel avatar size too big'
     key: str
+    bucket: str
     file_size: int
     file_max_size: int
+
+
+@dataclass(kw_only=True)
+class ChannelAvatarSizeTooSmallError(AppError):
+    message = 'Channel avatar size too small'
+    key: str
+    bucket: str
+    file_size: int
 
 
 @dataclass(kw_only=True)

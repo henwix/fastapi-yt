@@ -15,10 +15,7 @@ from app.infrastructure.sqlalchemy.repos.base import SQLAlchemyRepo
 
 class PostReactionRepo(SQLAlchemyRepo, IPostReactionRepo):
     def _parse_db_error(self, error: DBAPIError, post_reaction: PostReaction) -> NoReturn:
-        cause: BaseException | None = getattr(error.orig, '__cause__', None)
-        constraint_name: str | None = getattr(cause, 'constraint_name', None)
-        if cause is None or constraint_name is None:
-            raise
+        constraint_name = self._extract_constraint_name(error=error)
 
         match constraint_name:
             case 'post_reactions_channel_id_fkey':
@@ -45,10 +42,11 @@ class PostReactionRepo(SQLAlchemyRepo, IPostReactionRepo):
             )
             .returning(PostReactionORM)
         )
-        try:
-            result = await self._session.execute(statement=stmt)
-        except IntegrityError as e:
-            self._parse_db_error(error=e, post_reaction=post_reaction)
+        async with self._db.get_session(commit=True) as session:
+            try:
+                result = await session.execute(statement=stmt)
+            except IntegrityError as e:
+                self._parse_db_error(error=e, post_reaction=post_reaction)
         model = result.scalar_one_or_none()
         return model.to_entity() if model is not None else None
 
@@ -57,5 +55,6 @@ class PostReactionRepo(SQLAlchemyRepo, IPostReactionRepo):
             PostReactionORM.post_id == post_id,
             PostReactionORM.channel_id == channel_id,
         )
-        result = await self._session.execute(statement=stmt)
+        async with self._db.get_session(commit=True) as session:
+            result = await session.execute(statement=stmt)
         return cast(CursorResult, result).rowcount > 0

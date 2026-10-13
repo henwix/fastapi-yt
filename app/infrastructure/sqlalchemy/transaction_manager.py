@@ -1,13 +1,16 @@
+from collections.abc import AsyncGenerator
+from contextlib import asynccontextmanager
 from dataclasses import dataclass
-from typing import Self
 
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.application.common.interfaces.transaction_manager import ITransactionManager
+from app.infrastructure.sqlalchemy.database import Database
 
 
 @dataclass
-class TransactionManager(ITransactionManager):
+class SQLAlchemyTransactionManager(ITransactionManager):
+    _db: Database
     _session: AsyncSession
 
     async def commit(self) -> None:
@@ -19,11 +22,15 @@ class TransactionManager(ITransactionManager):
     async def close(self) -> None:
         await self._session.close()
 
-    async def __aenter__(self) -> Self:
-        return self
-
-    async def __aexit__(self, exc_type, *_) -> None:
-        if exc_type:
+    @asynccontextmanager
+    async def begin(self, commit: bool) -> AsyncGenerator[None]:
+        self._db.set_session(session=self._session)
+        try:
+            yield
+            if commit:
+                await self.commit()
+        except Exception:
             await self.rollback()
-            return
-        await self.commit()
+            raise
+        finally:
+            self._db.set_session(session=None)

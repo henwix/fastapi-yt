@@ -4,7 +4,6 @@ from pathlib import Path
 from app.application.channels.commands import ConfirmChannelAvatarUploadCommand
 from app.application.common.interfaces.file_type_detector import IFileTypeDetector
 from app.application.common.interfaces.s3 import IS3Service
-from app.application.common.interfaces.transaction_manager import ITransactionManager
 from app.core.configs import settings
 from app.domain.channels.constants import CHANNEL_AVATAR_MAX_SIZE
 from app.domain.channels.exceptions import (
@@ -12,6 +11,7 @@ from app.domain.channels.exceptions import (
     ChannelAvatarInvalidContentTypeError,
     ChannelAvatarInvalidKeyError,
     ChannelAvatarSizeTooBigError,
+    ChannelAvatarSizeTooSmallError,
 )
 from app.domain.channels.services import IChannelService
 from app.domain.common.constants import IMAGE_FILE_MIME_TYPES
@@ -23,7 +23,6 @@ class ConfirmChannelAvatarUploadUseCase:
     _channel_service: IChannelService
     _s3_service: IS3Service
     _file_type_detector: IFileTypeDetector
-    _transaction_manager: ITransactionManager
 
     async def execute(self, command: ConfirmChannelAvatarUploadCommand) -> None:
         key = Path(command.key)
@@ -36,31 +35,40 @@ class ConfirmChannelAvatarUploadUseCase:
         channel = await self._channel_service.try_get_existing_by_id_for_auth(id=command.current_channel_id)
 
         avatar_s3_key = f'{settings.s3_channel_avatars_key_prefix}/{key.name}'
-
         if channel.avatar_s3_key == avatar_s3_key:
             raise ChannelAvatarAlreadySetError(channel_id=channel.id, avatar_s3_key=channel.avatar_s3_key)
+
+        avatar_head_object = await self._s3_service.head_object(
+            key=command.key,
+            bucket=settings.s3_public_bucket_name,
+        )
+
+        avatar_metadata_channel_id = avatar_head_object['Metadata'].get('channel_id')
+        if avatar_metadata_channel_id != str(channel.id):
+            raise S3ObjectAccessForbiddenError(channel_id=channel.id, key=command.key)
+
+        avatar_metadata_content_length = avatar_head_object['ContentLength']
+        if avatar_metadata_content_length == 0:
+            await self._s3_service.schedule_delete_object(bucket=settings.s3_public_bucket_name, key=command.key)
+            raise ChannelAvatarSizeTooSmallError(
+                key=command.key,
+                bucket=settings.s3_public_bucket_name,
+                file_size=avatar_metadata_content_length,
+            )
+        if avatar_metadata_content_length > CHANNEL_AVATAR_MAX_SIZE:
+            await self._s3_service.schedule_delete_object(bucket=settings.s3_public_bucket_name, key=command.key)
+            raise ChannelAvatarSizeTooBigError(
+                key=command.key,
+                bucket=settings.s3_public_bucket_name,
+                file_size=avatar_metadata_content_length,
+                file_max_size=CHANNEL_AVATAR_MAX_SIZE,
+            )
 
         avatar_object = await self._s3_service.get_object(
             bucket=settings.s3_public_bucket_name,
             key=command.key,
             range='bytes=0-2047',
         )
-
-        avatar_metadata_channel_id = avatar_object['Metadata'].get('channel_id')
-        if avatar_metadata_channel_id != str(channel.id):
-            raise S3ObjectAccessForbiddenError(channel_id=channel.id, key=command.key)
-
-        _, avatar_metadata_content_length = avatar_object['ContentRange'].split('/')
-        avatar_metadata_content_length = int(avatar_metadata_content_length)
-
-        if avatar_metadata_content_length > CHANNEL_AVATAR_MAX_SIZE:
-            await self._s3_service.schedule_delete_object(bucket=settings.s3_public_bucket_name, key=command.key)
-            raise ChannelAvatarSizeTooBigError(
-                key=command.key,
-                file_size=avatar_metadata_content_length,
-                file_max_size=CHANNEL_AVATAR_MAX_SIZE,
-            )
-
         avatar_object_data = await avatar_object['Body'].read()
         actual_avatar_mime_type = self._file_type_detector.detect(content=avatar_object_data)
         avatar_metadata_mime_type: str = avatar_object['ContentType']
@@ -87,10 +95,9 @@ class ConfirmChannelAvatarUploadUseCase:
         )
 
         old_channel_avatar_s3_key = channel.avatar_s3_key
-
         channel.set_avatar_s3_key(value=avatar_s3_key)
-        async with self._transaction_manager:
-            await self._channel_service.try_update(channel=channel)
+
+        await self._channel_service.try_update(channel=channel)
 
         if old_channel_avatar_s3_key is not None and channel.avatar_s3_key != old_channel_avatar_s3_key:
             await self._s3_service.schedule_delete_object(

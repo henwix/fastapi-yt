@@ -41,7 +41,8 @@ class SubscriptionReader(SQLAlchemyReader, ISubscriptionReader):
         )
         stmt = stmt.limit(limit=pagination.per_page + 1)
 
-        result = await self._session.execute(statement=stmt)
+        async with self._db.get_session(commit=False) as session:
+            result = await session.execute(statement=stmt)
         return [
             DetailedSubscription(subscription_id=id, created_at=created_at, channel_slug=slug)
             for id, created_at, slug in result.all()
@@ -76,7 +77,8 @@ class SubscriptionReader(SQLAlchemyReader, ISubscriptionReader):
         )
         stmt = stmt.limit(limit=pagination.per_page + 1)
 
-        result = await self._session.execute(statement=stmt)
+        async with self._db.get_session(commit=False) as session:
+            result = await session.execute(statement=stmt)
         return [
             DetailedSubscription(subscription_id=id, channel_slug=slug, created_at=created_at)
             for id, created_at, slug in result.all()

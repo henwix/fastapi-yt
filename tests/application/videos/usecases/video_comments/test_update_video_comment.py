@@ -76,6 +76,9 @@ async def test_update_video_comment_raises_error_if_video_comment_access_forbidd
         with pytest.raises(VideoCommentAccessForbiddenError) as e:
             await use_case.execute(command=command)
 
+        await session.refresh(instance=video_author)
+        await session.refresh(instance=video_comment)
+
         assert e.value.channel_id == video_author.id
         assert e.value.video_comment_id == video_comment.id
 

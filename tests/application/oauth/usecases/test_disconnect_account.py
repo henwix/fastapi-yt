@@ -10,7 +10,6 @@ from app.domain.channels.exceptions import ChannelDeletedError, ChannelNotActive
 from app.domain.oauth.enums import OAuthProviderEnum
 from app.domain.oauth.exceptions import (
     OAuthAccountNotConnectedError,
-    OAuthAccountUnableToDisconnectError,
     OAuthNoAccountsConnectedError,
 )
 from app.infrastructure.sqlalchemy.models import OAuthAccountORM
@@ -21,14 +20,20 @@ from tests.factories.models.oauth import OAuthAcccountORMFactory
 
 
 @pytest.mark.asyncio
-async def test_disconnect_oauth_account_returns_none_if_account_disconnected_and_channel_has_valid_password(
+@pytest.mark.parametrize('has_valid_password', [True, False])
+async def test_disconnect_oauth_account_returns_none_if_account_disconnected(
     mock_container: AsyncContainer,
+    has_valid_password: bool,
 ):
     async with mock_container() as di:
         use_case = await di.get(DisconnectOAuthAccountUseCase)
         session = await di.get(AsyncSession)
 
-        db_channel = await ChannelORMFactory.create(session=session)
+        if has_valid_password:
+            db_channel = await ChannelORMFactory.create(session=session)
+        else:
+            db_channel = await ChannelORMFactory.create(session=session, password_hash=None)
+
         db_oauth_account = await OAuthAcccountORMFactory.create(session=session, channel_id=db_channel.id)
 
         command = DisconnectOAuthAccountCommandFactory.build(
@@ -165,45 +170,6 @@ async def test_disconnect_oauth_account_raises_error_if_oauth_account_not_connec
         assert db_oauth_account_exists
 
         with pytest.raises(OAuthAccountNotConnectedError):
-            await use_case.execute(command=command)
-
-        db_oauth_account_exists = (await session.execute(statement=stmt)).scalar_one()
-        assert db_oauth_account_exists
-
-
-@pytest.mark.asyncio
-async def test_disconnect_oauth_account_raises_error_if_channel_has_no_password_and_only_one_oauth_account_connected(
-    mock_container: AsyncContainer,
-):
-    async with mock_container() as di:
-        use_case = await di.get(DisconnectOAuthAccountUseCase)
-        session = await di.get(AsyncSession)
-
-        db_channel = await ChannelORMFactory.create(session=session, password_hash=None)
-        db_oauth_account = await OAuthAcccountORMFactory.create(
-            session=session,
-            channel_id=db_channel.id,
-        )
-
-        command = DisconnectOAuthAccountCommandFactory.build(
-            current_channel_id=db_channel.id,
-            provider=OAuthProviderEnum(db_oauth_account.provider),
-        )
-
-        stmt = select(
-            exists().where(
-                OAuthAccountORM.id == db_oauth_account.id,
-                OAuthAccountORM.provider == db_oauth_account.provider,
-                OAuthAccountORM.provider_uid == db_oauth_account.provider_uid,
-                OAuthAccountORM.channel_id == db_channel.id,
-                OAuthAccountORM.created_at == db_oauth_account.created_at,
-            )
-        )
-
-        db_oauth_account_exists = (await session.execute(statement=stmt)).scalar_one()
-        assert db_oauth_account_exists
-
-        with pytest.raises(OAuthAccountUnableToDisconnectError):
             await use_case.execute(command=command)
 
         db_oauth_account_exists = (await session.execute(statement=stmt)).scalar_one()

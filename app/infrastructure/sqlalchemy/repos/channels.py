@@ -13,10 +13,7 @@ from app.infrastructure.sqlalchemy.repos.base import SQLAlchemyRepo
 
 class ChannelRepo(SQLAlchemyRepo, IChannelRepo):
     def _parse_db_error(self, error: DBAPIError, channel: Channel) -> NoReturn:
-        cause: BaseException | None = getattr(error.orig, '__cause__', None)
-        constraint_name: str | None = getattr(cause, 'constraint_name', None)
-        if cause is None or constraint_name is None:
-            raise
+        constraint_name = self._extract_constraint_name(error=error)
 
         match constraint_name:
             case 'channels_email_key':
@@ -24,25 +21,28 @@ class ChannelRepo(SQLAlchemyRepo, IChannelRepo):
             case 'channels_slug_key':
                 raise ChannelSlugAlreadyExistsError(channel_slug=channel.slug.to_raw()) from error
             case _:
-                raise error
+                raise
 
     async def _check_channel_exists_by_field(self, field: Any, value: Any) -> bool:
         stmt = select(exists().where(field == value))
-        result = await self._session.execute(stmt)
+        async with self._db.get_session(commit=False) as session:
+            result = await session.execute(stmt)
         return result.scalar_one()
 
     async def _get_one_by_query(self, query) -> Channel | None:
-        result = await self._session.execute(statement=query)
+        async with self._db.get_session(commit=False) as session:
+            result = await session.execute(statement=query)
         channel = result.scalar_one_or_none()
         return channel.to_entity() if channel else None
 
     async def create(self, channel: Channel) -> Channel:
         model = ChannelORM.from_entity(entity=channel)
-        self._session.add(instance=model)
-        try:
-            await self._session.flush((model,))
-        except IntegrityError as e:
-            self._parse_db_error(error=e, channel=channel)
+        async with self._db.get_session(commit=True) as session:
+            session.add(instance=model)
+            try:
+                await session.flush(objects=(model,))
+            except IntegrityError as e:
+                self._parse_db_error(error=e, channel=channel)
         return model.to_entity()
 
     async def get_by_email(self, email: str) -> Channel | None:
@@ -72,27 +72,38 @@ class ChannelRepo(SQLAlchemyRepo, IChannelRepo):
             )
             .returning(ChannelORM)
         )
-        try:
-            result = await self._session.execute(statement=stmt)
-        except IntegrityError as e:
-            self._parse_db_error(error=e, channel=channel)
+        async with self._db.get_session(commit=True) as session:
+            try:
+                result = await session.execute(statement=stmt)
+            except IntegrityError as e:
+                self._parse_db_error(error=e, channel=channel)
 
         orm_channel = result.scalar_one_or_none()
         return orm_channel.to_entity() if orm_channel else None
 
     async def activate(self, id: UUID) -> bool:
-        stmt = update(ChannelORM).where(ChannelORM.id == id, ChannelORM.is_active.is_(False)).values(is_active=True)
-        result = await self._session.execute(statement=stmt)
+        stmt = (
+            update(ChannelORM)
+            .where(
+                ChannelORM.id == id,
+                ChannelORM.is_active.is_(False),
+            )
+            .values(is_active=True)
+        )
+        async with self._db.get_session(commit=True) as session:
+            result = await session.execute(statement=stmt)
         return cast(CursorResult, result).rowcount > 0
 
     async def set_password(self, id: UUID, password_hash: str) -> bool:
         stmt = update(ChannelORM).where(ChannelORM.id == id).values(password_hash=password_hash)
-        result = await self._session.execute(statement=stmt)
+        async with self._db.get_session(commit=True) as session:
+            result = await session.execute(statement=stmt)
         return cast(CursorResult, result).rowcount > 0
 
     async def delete_by_id(self, id: UUID) -> bool:
         stmt = delete(ChannelORM).where(ChannelORM.id == id)
-        result = await self._session.execute(statement=stmt)
+        async with self._db.get_session(commit=True) as session:
+            result = await session.execute(statement=stmt)
         return cast(CursorResult, result).rowcount > 0
 
     async def check_channel_exists_by_slug(self, slug: str) -> bool:

@@ -14,26 +14,26 @@ class CreateVideoViewUseCase:
     _channel_service: IChannelService
     _video_service: IVideoService
     _video_view_service: IVideoViewService
-    _transaction_manager: ITransactionManager
+    _tm: ITransactionManager
 
     async def execute(self, command: CreateVideoViewCommand) -> None:
-        channel = None
-        if command.current_channel_id is not None:
-            channel = await self._channel_service.try_get_existing_by_id_for_auth(id=command.current_channel_id)
+        async with self._tm.begin(commit=True):
+            channel = None
+            if command.current_channel_id is not None:
+                channel = await self._channel_service.try_get_existing_by_id_for_auth(id=command.current_channel_id)
 
-        video = await self._video_service.try_get_completed_by_id(id=command.video_id)
+            video = await self._video_service.try_get_completed_by_id(id=command.video_id)
 
-        if video.privacy_status is VideoPrivacyStatusEnum.PRIVATE:
-            if channel is None:
-                raise VideoAccessForbiddenError(video_id=video.id)
-            self._video_service.ensure_video_access(video=video, channel=channel)
+            if video.privacy_status is VideoPrivacyStatusEnum.PRIVATE:
+                if channel is None:
+                    raise VideoAccessForbiddenError(video_id=video.id)
+                self._video_service.ensure_video_access(video=video, channel=channel)
 
-        video_view_entity = VideoView.create(
-            video_id=video.id,
-            channel_id=channel.id if channel is not None else None,
-            anonymous_id=command.anonymous_id if channel is None else None,
-        )
+            video_view_entity = VideoView.create(
+                video_id=video.id,
+                channel_id=channel.id if channel is not None else None,
+                anonymous_id=command.anonymous_id if channel is None else None,
+            )
 
-        async with self._transaction_manager:
             await self._video_view_service.try_upsert(video_view=video_view_entity)
             await self._video_service.try_increase_views_count(video_id=video.id)

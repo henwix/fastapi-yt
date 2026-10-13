@@ -75,14 +75,17 @@ async def test_set_channel_email_confirm_raises_error_if_code_not_found(mock_con
         use_case = await di.get(SetChannelEmailConfirmUseCase)
         session = await di.get(AsyncSession)
 
-        db_channel = await ChannelORMFactory.create(session=session)
+        channel = await ChannelORMFactory.create(session=session)
 
-        command = SetChannelEmailConfirmCommandFactory.build(current_channel_id=db_channel.id)
+        command = SetChannelEmailConfirmCommandFactory.build(current_channel_id=channel.id)
 
         with pytest.raises(ChannelInvalidEmailCodeError) as e:
             await use_case.execute(command=command)
+        await session.refresh(instance=channel)
 
-        assert e.value.channel_id == db_channel.id
+        await session.refresh(instance=channel)
+
+        assert e.value.channel_id == channel.id
         assert e.value.code == command.code
         assert e.value.reason == 'set_email_code_not_found'
 
@@ -94,14 +97,16 @@ async def test_set_channel_email_confirm_raises_error_if_code_mismatch(mock_cont
         session = await di.get(AsyncSession)
         auth_code_service = await di.get(IAuthCodeService)
 
-        db_channel = await ChannelORMFactory.create(session=session)
-        await auth_code_service.create_set_email_code(channel_id=db_channel.id, new_email='test@test.com')
+        channel = await ChannelORMFactory.create(session=session)
+        await auth_code_service.create_set_email_code(channel_id=channel.id, new_email='test@test.com')
 
-        command = SetChannelEmailConfirmCommandFactory.build(current_channel_id=db_channel.id)
+        command = SetChannelEmailConfirmCommandFactory.build(current_channel_id=channel.id)
 
         with pytest.raises(ChannelInvalidEmailCodeError) as e:
             await use_case.execute(command=command)
 
-        assert e.value.channel_id == db_channel.id
+        await session.refresh(instance=channel)
+
+        assert e.value.channel_id == channel.id
         assert e.value.code == command.code
         assert e.value.reason == 'set_email_code_mismatch'

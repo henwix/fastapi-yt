@@ -11,16 +11,16 @@ from app.domain.playlists.services import IPlaylistService
 class CreatePlaylistUseCase:
     _channel_service: IChannelService
     _playlist_service: IPlaylistService
-    _transaction_manager: ITransactionManager
+    _tm: ITransactionManager
 
     async def execute(self, command: CreatePlaylistCommand) -> Playlist:
-        channel = await self._channel_service.try_get_existing_by_id_for_auth(id=command.current_channel_id)
+        async with self._tm.begin(commit=True):
+            channel = await self._channel_service.try_get_existing_by_id_for_auth(id=command.current_channel_id)
 
-        playlist_entity = Playlist.create(
-            title=command.title,
-            description=command.description,
-            privacy_status=command.privacy_status,
-            channel_id=channel.id,
-        )
-        async with self._transaction_manager:
+            playlist_entity = Playlist.create(
+                title=command.title,
+                description=command.description,
+                privacy_status=command.privacy_status,
+                channel_id=channel.id,
+            )
             return await self._playlist_service.create(playlist=playlist_entity)

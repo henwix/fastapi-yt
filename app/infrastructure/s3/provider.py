@@ -136,7 +136,22 @@ class BotoS3Provider(IS3Provider):
             status = e.error_status
             match status:
                 case 404:
-                    raise S3ObjectNotFoundError(key=key, action='get_object') from e
+                    raise S3ObjectNotFoundError(key=key, bucket=bucket, action='get_object') from e
+                case _:
+                    raise
+
+    async def head_object(self, bucket: str, key: str) -> dict:
+        try:
+            return await self._client_action(
+                self._s3_client.head_object,
+                Bucket=bucket,
+                Key=key,
+            )
+        except S3ResponseError as e:
+            status = e.error_status
+            match status:
+                case 404:
+                    raise S3ObjectNotFoundError(key=key, bucket=bucket, action='head_object') from e
                 case _:
                     raise
 
@@ -162,6 +177,6 @@ class BotoS3Provider(IS3Provider):
             status = e.error_status
             match status:
                 case 404:
-                    raise S3ObjectNotFoundError(key=current_key, action='copy_object') from e
+                    raise S3ObjectNotFoundError(key=current_key, bucket=bucket, action='copy_object') from e
                 case _:
                     raise

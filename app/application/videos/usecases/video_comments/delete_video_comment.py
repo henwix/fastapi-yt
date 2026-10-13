@@ -10,12 +10,11 @@ from app.domain.videos.services import IVideoCommentService
 class DeleteVideoCommentUseCase:
     _channel_service: IChannelService
     _video_comment_service: IVideoCommentService
-    _transaction_manager: ITransactionManager
+    _tm: ITransactionManager
 
     async def execute(self, command: DeleteVideoCommentCommand) -> None:
-        channel = await self._channel_service.try_get_existing_by_id_for_auth(id=command.current_channel_id)
-        video_comment = await self._video_comment_service.try_get_by_id(id=command.video_comment_id)
-        self._video_comment_service.ensure_video_comment_access(video_comment=video_comment, channel=channel)
-
-        async with self._transaction_manager:
+        async with self._tm.begin(commit=True):
+            channel = await self._channel_service.try_get_existing_by_id_for_auth(id=command.current_channel_id)
+            video_comment = await self._video_comment_service.try_get_by_id(id=command.video_comment_id)
+            self._video_comment_service.ensure_video_comment_access(video_comment=video_comment, channel=channel)
             await self._video_comment_service.try_delete_by_id(id=video_comment.id)

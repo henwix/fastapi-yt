@@ -3,6 +3,7 @@ from pathlib import Path
 from uuid import UUID
 
 from app.application.common.interfaces.s3 import IS3Service
+from app.application.common.interfaces.transaction_manager import ITransactionManager
 from app.application.videos.commands import GenerateVideoThumbnailUploadUrlCommand
 from app.core.configs import settings
 from app.domain.channels.services import IChannelService
@@ -16,6 +17,7 @@ class GenerateVideoThumbnailUploadUrlUseCase:
     _channel_service: IChannelService
     _video_service: IVideoService
     _s3_service: IS3Service
+    _tm: ITransactionManager
 
     async def execute(self, command: GenerateVideoThumbnailUploadUrlCommand) -> tuple[str, str, UUID, str]:
         filename_extension = Path(command.filename).suffix.lower()
@@ -23,8 +25,9 @@ class GenerateVideoThumbnailUploadUrlUseCase:
             raise VideoThumbnailInvalidFilenameError(filename=command.filename)
         content_type = IMAGE_FILE_MIME_TYPES[filename_extension]
 
-        channel = await self._channel_service.try_get_existing_by_id_for_auth(id=command.current_channel_id)
-        video = await self._video_service.try_get_by_id(id=command.video_id)
+        async with self._tm.begin(commit=False):
+            channel = await self._channel_service.try_get_existing_by_id_for_auth(id=command.current_channel_id)
+            video = await self._video_service.try_get_by_id(id=command.video_id)
         self._video_service.ensure_video_access(video=video, channel=channel)
 
         key = self._s3_service.generate_unique_bucket_key(

@@ -1,6 +1,7 @@
 from dataclasses import dataclass
 from datetime import datetime
 
+from app.application.common.interfaces.transaction_manager import ITransactionManager
 from app.application.playlists.dto import PlaylistPreviewVideo
 from app.application.playlists.interfaces import IPlaylistReader
 from app.application.playlists.queries import GetPlaylistVideosQuery, PlaylistVideosSortingFieldsEnum
@@ -18,6 +19,7 @@ class GetPlaylistVideosUseCase:
     _channel_service: IChannelService
     _playlist_service: IPlaylistService
     _playlist_reader: IPlaylistReader
+    _tm: ITransactionManager
 
     async def execute(self, query: GetPlaylistVideosQuery) -> tuple[list[PlaylistPreviewVideo], str | None]:
         cursor_sort_value = None
@@ -43,22 +45,23 @@ class GetPlaylistVideosUseCase:
             except Exception as e:
                 raise InvalidCursorError(cursor=query.pagination.cursor, exc_details=str(e)) from e
 
-        playlist = await self._playlist_service.try_get_existing_by_id(id=query.playlist_id)
+        async with self._tm.begin(commit=False):
+            playlist = await self._playlist_service.try_get_existing_by_id(id=query.playlist_id)
 
-        if playlist.privacy_status is PlaylistPrivacyStatusEnum.PRIVATE:
-            if query.current_channel_id is None:
-                raise PlaylistAccessForbiddenError(playlist_id=query.playlist_id, channel_id=None)
+            if playlist.privacy_status is PlaylistPrivacyStatusEnum.PRIVATE:
+                if query.current_channel_id is None:
+                    raise PlaylistAccessForbiddenError(playlist_id=query.playlist_id, channel_id=None)
 
-            channel = await self._channel_service.try_get_existing_by_id_for_auth(id=query.current_channel_id)
-            self._playlist_service.ensure_playlist_access(playlist=playlist, channel=channel)
+                channel = await self._channel_service.try_get_existing_by_id_for_auth(id=query.current_channel_id)
+                self._playlist_service.ensure_playlist_access(playlist=playlist, channel=channel)
 
-        playlist_videos = await self._playlist_reader.get_playlist_videos_by_playlist_id(
-            playlist_id=playlist.id,
-            cursor_sort_value=cursor_sort_value,
-            cursor_id_value=cursor_id_value,
-            sorting=query.sorting,
-            pagination=query.pagination,
-        )
+            playlist_videos = await self._playlist_reader.get_playlist_videos_by_playlist_id(
+                playlist_id=playlist.id,
+                cursor_sort_value=cursor_sort_value,
+                cursor_id_value=cursor_id_value,
+                sorting=query.sorting,
+                pagination=query.pagination,
+            )
 
         next_cursor = None
 

@@ -82,7 +82,8 @@ class PlaylistReader(SQLAlchemyReader, IPlaylistReader):
 
         stmt = stmt.limit(limit=pagination.per_page + 1)
 
-        result = await self._session.execute(statement=stmt)
+        async with self._db.get_session(commit=False) as session:
+            result = await session.execute(statement=stmt)
         playlist_rows = result.mappings().all()
         return [convert_row_to_preview_playlist_dto(row=row) for row in playlist_rows]
 
@@ -118,7 +119,8 @@ class PlaylistReader(SQLAlchemyReader, IPlaylistReader):
                 PlaylistORM.id == id,
             )
         )
-        result = await self._session.execute(statement=stmt)
+        async with self._db.get_session(commit=False) as session:
+            result = await session.execute(statement=stmt)
         playlist_row = result.mappings().one_or_none()
 
         if playlist_row is None:
@@ -214,6 +216,7 @@ class PlaylistReader(SQLAlchemyReader, IPlaylistReader):
         )
         stmt = stmt.limit(limit=pagination.per_page + 1)
 
-        result = await self._session.execute(statement=stmt)
+        async with self._db.get_session(commit=False) as session:
+            result = await session.execute(statement=stmt)
         video_rows = result.mappings().all()
         return [convert_row_to_playlist_preview_video_dto(row=row) for row in video_rows]

@@ -11,14 +11,14 @@ from app.domain.channels.services import IChannelService
 class ActivateChannelUseCase:
     _channel_service: IChannelService
     _auth_code_service: IAuthCodeService
-    _transaction_manager: ITransactionManager
+    _tm: ITransactionManager
 
     async def execute(self, command: ActivateChannelCommand) -> None:
-        channel = await self._channel_service.try_get_by_id(id=command.current_channel_id)
-        if channel.is_active:
-            raise ChannelAlreadyActivatedError
+        async with self._tm.begin(commit=True):
+            channel = await self._channel_service.try_get_by_id(id=command.current_channel_id)
+            if channel.is_active:
+                raise ChannelAlreadyActivatedError(channel_id=channel.id)
 
-        await self._auth_code_service.validate_activation_code(channel_id=channel.id, code=command.code)
+            await self._auth_code_service.validate_activation_code(channel_id=channel.id, code=command.code)
 
-        async with self._transaction_manager:
             await self._channel_service.try_activate(id=channel.id)

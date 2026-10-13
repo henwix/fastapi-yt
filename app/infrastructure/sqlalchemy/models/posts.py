@@ -99,7 +99,7 @@ class PostCommentORM(
         sa.ForeignKey('channels.id', ondelete='CASCADE'),
     )
     reply_comment_id: Mapped[UUID | None] = mapped_column(
-        sa.ForeignKey('post_comments.id'),
+        sa.ForeignKey('post_comments.id', ondelete='CASCADE'),
         default=None,
         server_default=sa.sql.null(),
     )

@@ -4,7 +4,6 @@ from uuid import UUID
 
 from app.application.auth.commands import ResetChannelPasswordConfirmCommand
 from app.application.common.interfaces.security import IAuthCodeService, IPasswordHasher
-from app.application.common.interfaces.transaction_manager import ITransactionManager
 from app.domain.auth.exceptions import ChannelInvalidEmailUIDError
 from app.domain.channels.services import IChannelService
 from app.utils.base64url import base64url_decode
@@ -14,10 +13,9 @@ password_hash_semaphore = asyncio.Semaphore(2)
 
 @dataclass
 class ResetChannelPasswordConfirmUseCase:
-    _auth_code_service: IAuthCodeService
     _channel_service: IChannelService
+    _auth_code_service: IAuthCodeService
     _password_hasher: IPasswordHasher
-    _transaction_manager: ITransactionManager
 
     async def execute(self, command: ResetChannelPasswordConfirmCommand) -> None:
         try:
@@ -31,5 +29,4 @@ class ResetChannelPasswordConfirmUseCase:
         async with password_hash_semaphore:
             new_password_hash = await asyncio.to_thread(self._password_hasher.get_password_hash, command.new_password)
 
-        async with self._transaction_manager:
-            await self._channel_service.try_set_password(id=channel_id, password_hash=new_password_hash)
+        await self._channel_service.try_set_password(id=channel_id, password_hash=new_password_hash)

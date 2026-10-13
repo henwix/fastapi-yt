@@ -12,16 +12,16 @@ class CreatePostCommentReactionUseCase:
     _channel_service: IChannelService
     _post_comment_service: IPostCommentService
     _post_comment_reaction_service: IPostCommentReactionService
-    _transaction_manager: ITransactionManager
+    _tm: ITransactionManager
 
     async def execute(self, command: CreatePostCommentReactionCommand) -> PostCommentReaction | None:
-        channel = await self._channel_service.try_get_existing_by_id_for_auth(id=command.current_channel_id)
-        post_comment = await self._post_comment_service.try_get_by_id(id=command.post_comment_id)
-        post_comment_reaction_entity = PostCommentReaction.create(
-            post_comment_id=post_comment.id,
-            channel_id=channel.id,
-            reaction_type=command.reaction_type,
-        )
+        async with self._tm.begin(commit=True):
+            channel = await self._channel_service.try_get_existing_by_id_for_auth(id=command.current_channel_id)
 
-        async with self._transaction_manager:
+            post_comment = await self._post_comment_service.try_get_by_id(id=command.post_comment_id)
+            post_comment_reaction_entity = PostCommentReaction.create(
+                post_comment_id=post_comment.id,
+                channel_id=channel.id,
+                reaction_type=command.reaction_type,
+            )
             return await self._post_comment_reaction_service.upsert(post_comment_reaction=post_comment_reaction_entity)

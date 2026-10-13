@@ -15,6 +15,7 @@ class OAuthAccountReader(SQLAlchemyReader, IOAuthAccountReader):
             OAuthAccountORM.provider,
             OAuthAccountORM.created_at,
         ).where(OAuthAccountORM.channel_id == channel_id)
-        result = await self._session.execute(statement=stmt)
+        async with self._db.get_session(commit=False) as session:
+            result = await session.execute(statement=stmt)
         rows = result.mappings().all()
         return [convert_row_to_oauth_account_dto(row=row) for row in rows]

@@ -33,6 +33,7 @@ class NotAuthenticatedError(AppError):
 @dataclass(kw_only=True)
 class ChannelAlreadyActivatedError(AppError):
     message = 'Channel already activated'
+    channel_id: UUID
 
 
 @dataclass(kw_only=True)

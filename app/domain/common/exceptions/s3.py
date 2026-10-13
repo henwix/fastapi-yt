@@ -6,14 +6,15 @@ from app.domain.common.exceptions.base import AppError
 
 @dataclass(kw_only=True)
 class S3ObjectNotFoundError(AppError):
-    message = 'Object not found in S3'
+    message = 'Object not found'
     key: str
+    bucket: str
     action: str
 
 
 @dataclass(kw_only=True)
 class S3MultipartUploadNotFoundError(AppError):
-    message = 'Multipart upload not found in S3'
+    message = 'Multipart upload not found'
     bucket: str
     key: str
     upload_id: str
@@ -29,7 +30,7 @@ class S3MultipartUploadInvalidPartsError(AppError):
 
 @dataclass(kw_only=True)
 class S3ObjectAccessForbiddenError(AppError):
-    message = 'S3 object access forbidden'
+    message = 'Object access forbidden'
     channel_id: UUID
     key: str
 

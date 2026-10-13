@@ -11,15 +11,16 @@ from app.domain.playlists.services import IPlaylistService
 class UpdatePlaylistUseCase:
     _channel_service: IChannelService
     _playlist_service: IPlaylistService
-    _transaction_manager: ITransactionManager
+    _tm: ITransactionManager
 
     async def execute(self, command: UpdatePlaylistCommand) -> Playlist:
-        channel = await self._channel_service.try_get_existing_by_id_for_auth(id=command.current_channel_id)
-        playlist = await self._playlist_service.try_get_existing_by_id(id=command.playlist_id)
-        self._playlist_service.ensure_playlist_access(playlist=playlist, channel=channel)
+        async with self._tm.begin(commit=True):
+            channel = await self._channel_service.try_get_existing_by_id_for_auth(id=command.current_channel_id)
 
-        playlist.set_title(value=command.title)
-        playlist.set_description(value=command.description)
-        playlist.set_privacy_status(value=command.privacy_status)
-        async with self._transaction_manager:
+            playlist = await self._playlist_service.try_get_existing_by_id(id=command.playlist_id)
+            self._playlist_service.ensure_playlist_access(playlist=playlist, channel=channel)
+
+            playlist.set_title(value=command.title)
+            playlist.set_description(value=command.description)
+            playlist.set_privacy_status(value=command.privacy_status)
             return await self._playlist_service.try_update(playlist=playlist)

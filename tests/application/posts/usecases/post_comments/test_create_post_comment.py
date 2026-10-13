@@ -200,6 +200,7 @@ async def test_create_post_comment_raises_error_if_post_channel_author_deleted(m
         channel = await ChannelORMFactory.create(session=session)
         post_author = await ChannelORMFactory.create(session=session, deleted_at=get_current_utc_datetime())
         post = await PostORMFactory.create(session=session, channel_id=post_author.id)
+        post_id = post.id
 
         command = CreatePostCommentCommandFactory.build(
             current_channel_id=channel.id,
@@ -209,4 +210,4 @@ async def test_create_post_comment_raises_error_if_post_channel_author_deleted(m
         with pytest.raises(PostNotFoundError) as e:
             await use_case.execute(command=command)
 
-        assert e.value.post_id == post.id
+        assert e.value.post_id == post_id

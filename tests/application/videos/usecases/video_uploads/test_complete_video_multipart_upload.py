@@ -15,6 +15,7 @@ from app.domain.videos.exceptions import (
     VideoAccessForbiddenError,
     VideoInvalidContentTypeError,
     VideoNotFoundError,
+    VideoSizeTooSmallError,
     VideoUploadAlreadyCompletedError,
     VideoUploadNotCreatedError,
 )
@@ -62,6 +63,8 @@ async def test_complete_video_multipart_upload_returns_none_if_completed(
         )
 
         result = await use_case.execute(command=command)
+
+        await session.refresh(instance=video)
 
         assert result is None
         assert video.upload_status == VideoUploadStatusEnum.COMPLETED.value
@@ -114,6 +117,8 @@ async def test_complete_video_multipart_upload_raises_error_if_video_file_metada
             pytest.raises(VideoInvalidContentTypeError) as e,
         ):
             await use_case.execute(command=command)
+
+        await session.refresh(instance=video)
 
         mock_s3_service.assert_called_once()
         assert e.value.actual_content_type == VIDEO_FILE_MIME_TYPES[expected_file_extension][0]
@@ -169,11 +174,50 @@ async def test_complete_video_multipart_upload_raises_error_if_video_file_actual
         ):
             await use_case.execute(command=command)
 
+        await session.refresh(instance=video)
+
         mock_s3_service.assert_called_once()
         assert e.value.actual_content_type == expected_file_mime_type
         assert e.value.metadata_content_type == VIDEO_FILE_MIME_TYPES[expected_file_extension][0]
         assert video.upload_status == VideoUploadStatusEnum.PENDING.value
         assert video.upload_id is None
+        assert video.s3_key is None
+
+
+@pytest.mark.asyncio
+async def test_complete_video_multipart_upload_raises_error_if_video_file_size_too_small(
+    mock_container: AsyncContainer, test_settings: Settings
+):
+    async with mock_container() as di:
+        use_case = await di.get(CompleteVideoMultipartUploadUseCase)
+        session = await di.get(AsyncSession)
+        use_case._s3_service.CONTENT_LENGTH = 0
+        channel = await ChannelORMFactory.create(session=session)
+        video = await VideoORMFactory.create(
+            session=session,
+            channel_id=channel.id,
+            upload_status=VideoUploadStatusEnum.UPLOADING.value,
+        )
+        command = CompleteVideoMultipartUploadCommandFactory.build(
+            current_channel_id=channel.id,
+            video_id=video.id,
+        )
+
+        with (
+            patch.object(use_case._s3_service, 'schedule_delete_object') as mock_s3_service,
+            pytest.raises(VideoSizeTooSmallError) as e,
+        ):
+            await use_case.execute(command=command)
+
+        old_video_s3_key = video.s3_key
+        await session.refresh(instance=video)
+
+        mock_s3_service.assert_called_once()
+        assert e.value.bucket == test_settings.s3_private_bucket_name
+        assert e.value.key == old_video_s3_key
+        assert e.value.file_size == 0
+        assert video.upload_id is None
+        assert video.upload_status == VideoUploadStatusEnum.PENDING.value
         assert video.s3_key is None
 
 

@@ -2,6 +2,7 @@ from dataclasses import dataclass
 from datetime import datetime
 from uuid import UUID
 
+from app.application.common.interfaces.transaction_manager import ITransactionManager
 from app.application.posts.dto import DetailedPost
 from app.application.posts.interfaces import IPostReader
 from app.application.posts.queries import GetChannelPostsQuery, PostsSortingFieldsEnum
@@ -15,6 +16,7 @@ from app.utils.base64url import base64url_decode, base64url_encode
 class GetChannelPostsUseCase:
     _channel_service: IChannelService
     _post_reader: IPostReader
+    _tm: ITransactionManager
 
     async def execute(self, query: GetChannelPostsQuery) -> tuple[list[DetailedPost], str | None]:
         cursor_sort_value = None
@@ -35,14 +37,15 @@ class GetChannelPostsUseCase:
             except Exception as e:
                 raise InvalidCursorError(cursor=query.pagination.cursor, exc_details=str(e)) from e
 
-        channel = await self._channel_service.try_get_existing_by_slug(slug=query.channel_slug)
-        posts = await self._post_reader.get_many(
-            channel_id=channel.id,
-            cursor_sort_value=cursor_sort_value,
-            cursor_id_value=cursor_id_value,
-            sorting=query.sorting,
-            pagination=query.pagination,
-        )
+        async with self._tm.begin(commit=False):
+            channel = await self._channel_service.try_get_existing_by_slug(slug=query.channel_slug)
+            posts = await self._post_reader.get_many(
+                channel_id=channel.id,
+                cursor_sort_value=cursor_sort_value,
+                cursor_id_value=cursor_id_value,
+                sorting=query.sorting,
+                pagination=query.pagination,
+            )
 
         next_cursor = None
 

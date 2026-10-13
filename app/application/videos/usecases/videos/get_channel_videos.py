@@ -1,6 +1,7 @@
 from dataclasses import dataclass
 from datetime import datetime
 
+from app.application.common.interfaces.transaction_manager import ITransactionManager
 from app.application.videos.dto import ChannelPreviewVideo
 from app.application.videos.interfaces import IVideoReader
 from app.application.videos.queries import GetChannelVideosQuery, PreviewVideosSortingFieldEnum
@@ -14,6 +15,7 @@ from app.utils.base64url import base64url_decode, base64url_encode
 class GetChannelVideosUseCase:
     _channel_service: IChannelService
     _video_reader: IVideoReader
+    _tm: ITransactionManager
 
     async def execute(self, query: GetChannelVideosQuery) -> tuple[list[ChannelPreviewVideo], str | None]:
         cursor_sort_value = None
@@ -34,14 +36,15 @@ class GetChannelVideosUseCase:
             except Exception as e:
                 raise InvalidCursorError(cursor=query.pagination.cursor, exc_details=str(e)) from e
 
-        channel = await self._channel_service.try_get_existing_by_slug(slug=query.channel_slug)
-        videos = await self._video_reader.get_channel_videos(
-            channel_id=channel.id,
-            cursor_sort_value=cursor_sort_value,
-            cursor_id_value=cursor_id_value,
-            sorting=query.sorting,
-            pagination=query.pagination,
-        )
+        async with self._tm.begin(commit=False):
+            channel = await self._channel_service.try_get_existing_by_slug(slug=query.channel_slug)
+            videos = await self._video_reader.get_channel_videos(
+                channel_id=channel.id,
+                cursor_sort_value=cursor_sort_value,
+                cursor_id_value=cursor_id_value,
+                sorting=query.sorting,
+                pagination=query.pagination,
+            )
 
         next_cursor = None
 

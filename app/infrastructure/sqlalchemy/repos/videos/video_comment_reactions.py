@@ -15,10 +15,7 @@ from app.infrastructure.sqlalchemy.repos.base import SQLAlchemyRepo
 
 class VideoCommentReactionRepo(SQLAlchemyRepo, IVideoCommentReactionRepo):
     def _parse_db_error(self, error: DBAPIError, video_comment_reaction: VideoCommentReaction) -> NoReturn:
-        cause: BaseException | None = getattr(error.orig, '__cause__', None)
-        constraint_name: str | None = getattr(cause, 'constraint_name', None)
-        if cause is None or constraint_name is None:
-            raise
+        constraint_name = self._extract_constraint_name(error=error)
 
         match constraint_name:
             case 'video_comment_reactions_channel_id_fkey':
@@ -45,10 +42,11 @@ class VideoCommentReactionRepo(SQLAlchemyRepo, IVideoCommentReactionRepo):
             )
             .returning(VideoCommentReactionORM)
         )
-        try:
-            result = await self._session.execute(statement=stmt)
-        except IntegrityError as e:
-            self._parse_db_error(error=e, video_comment_reaction=video_comment_reaction)
+        async with self._db.get_session(commit=True) as session:
+            try:
+                result = await session.execute(statement=stmt)
+            except IntegrityError as e:
+                self._parse_db_error(error=e, video_comment_reaction=video_comment_reaction)
         model = result.scalar_one_or_none()
         return model.to_entity() if model is not None else None
 
@@ -61,18 +59,10 @@ class VideoCommentReactionRepo(SQLAlchemyRepo, IVideoCommentReactionRepo):
             VideoCommentReactionORM.video_comment_id == video_comment_id,
             VideoCommentReactionORM.channel_id == channel_id,
         )
-        result = await self._session.execute(statement=stmt)
+        async with self._db.get_session(commit=False) as session:
+            result = await session.execute(statement=stmt)
         video_comment_reaction = result.scalar_one_or_none()
         return video_comment_reaction.to_entity() if video_comment_reaction else None
-
-    async def create(self, video_comment_reaction: VideoCommentReaction) -> VideoCommentReaction:
-        model = VideoCommentReactionORM.from_entity(entity=video_comment_reaction)
-        self._session.add(instance=model)
-        try:
-            await self._session.flush((model,))
-        except IntegrityError as e:
-            self._parse_db_error(error=e, video_comment_reaction=video_comment_reaction)
-        return model.to_entity()
 
     async def update(self, video_comment_reaction: VideoCommentReaction) -> VideoCommentReaction | None:
         stmt = (
@@ -81,7 +71,8 @@ class VideoCommentReactionRepo(SQLAlchemyRepo, IVideoCommentReactionRepo):
             .values(reaction_type=video_comment_reaction.reaction_type.value)
             .returning(VideoCommentReactionORM)
         )
-        result = await self._session.execute(statement=stmt)
+        async with self._db.get_session(commit=True) as session:
+            result = await session.execute(statement=stmt)
         updated_video_comment_reaction = result.scalar_one_or_none()
         return updated_video_comment_reaction.to_entity() if updated_video_comment_reaction else None
 
@@ -90,5 +81,6 @@ class VideoCommentReactionRepo(SQLAlchemyRepo, IVideoCommentReactionRepo):
             VideoCommentReactionORM.video_comment_id == video_comment_id,
             VideoCommentReactionORM.channel_id == channel_id,
         )
-        result = await self._session.execute(statement=stmt)
+        async with self._db.get_session(commit=True) as session:
+            result = await session.execute(statement=stmt)
         return cast(CursorResult, result).rowcount > 0

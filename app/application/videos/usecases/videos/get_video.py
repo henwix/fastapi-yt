@@ -1,5 +1,6 @@
 from dataclasses import dataclass
 
+from app.application.common.interfaces.transaction_manager import ITransactionManager
 from app.application.videos.dto import DetailedVideo
 from app.application.videos.interfaces import IVideoReader
 from app.application.videos.queries import GetVideoQuery
@@ -14,17 +15,18 @@ class GetVideoUseCase:
     _video_service: IVideoService
     _video_reader: IVideoReader
     _channel_service: IChannelService
+    _tm: ITransactionManager
 
     async def execute(self, query: GetVideoQuery) -> DetailedVideo:
-        video = await self._video_reader.try_get_detailed_video_by_id(id=query.video_id)
+        async with self._tm.begin(commit=False):
+            video = await self._video_reader.try_get_detailed_video_by_id(id=query.video_id)
 
-        if video.privacy_status is VideoPrivacyStatusEnum.PRIVATE:
-            if query.current_channel_id is None:
-                raise VideoAccessForbiddenError(video_id=video.id)
+            if video.privacy_status is VideoPrivacyStatusEnum.PRIVATE:
+                if query.current_channel_id is None:
+                    raise VideoAccessForbiddenError(video_id=video.id)
 
-            channel = await self._channel_service.try_get_existing_by_id_for_auth(id=query.current_channel_id)
-
-            if video.channel_id != channel.id:
-                raise VideoAccessForbiddenError(video_id=video.id, channel_id=channel.id)
+                channel = await self._channel_service.try_get_existing_by_id_for_auth(id=query.current_channel_id)
+                if video.channel_id != channel.id:
+                    raise VideoAccessForbiddenError(video_id=video.id, channel_id=channel.id)
 
         return video

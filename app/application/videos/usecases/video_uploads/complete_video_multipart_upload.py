@@ -3,13 +3,13 @@ from pathlib import Path
 
 from app.application.common.interfaces.file_type_detector import IFileTypeDetector
 from app.application.common.interfaces.s3 import IS3Service
-from app.application.common.interfaces.transaction_manager import ITransactionManager
 from app.application.videos.commands import CompleteVideoMultipartUploadCommand
 from app.core.configs import settings
 from app.domain.channels.services import IChannelService
 from app.domain.common.constants import VIDEO_FILE_MIME_TYPES
+from app.domain.videos.entities import Video
 from app.domain.videos.enums import VideoUploadStatusEnum
-from app.domain.videos.exceptions import VideoInvalidContentTypeError
+from app.domain.videos.exceptions import VideoInvalidContentTypeError, VideoSizeTooSmallError
 from app.domain.videos.services import IVideoService
 
 
@@ -19,12 +19,10 @@ class CompleteVideoMultipartUploadUseCase:
     _video_service: IVideoService
     _s3_service: IS3Service
     _file_type_detector: IFileTypeDetector
-    _transaction_manager: ITransactionManager
 
     async def execute(self, command: CompleteVideoMultipartUploadCommand) -> None:
         channel = await self._channel_service.try_get_existing_by_id_for_auth(id=command.current_channel_id)
         video = await self._video_service.try_get_by_id(id=command.video_id)
-
         self._video_service.ensure_video_access(video=video, channel=channel)
         self._video_service.ensure_video_upload_not_completed(video=video)
         self._video_service.ensure_video_upload_created(video=video)
@@ -35,6 +33,20 @@ class CompleteVideoMultipartUploadUseCase:
             upload_id=video.upload_id,
             parts=command.parts,
         )
+
+        video_head_object = await self._s3_service.head_object(
+            key=video.s3_key,
+            bucket=settings.s3_private_bucket_name,
+        )
+        video_content_length = video_head_object['ContentLength']
+        if video_content_length == 0:
+            video_s3_key = video.s3_key
+            await self._delete_video_file(video=video)
+            raise VideoSizeTooSmallError(
+                key=video_s3_key,
+                bucket=settings.s3_private_bucket_name,
+                file_size=video_content_length,
+            )
 
         video_object = await self._s3_service.get_object(
             bucket=settings.s3_private_bucket_name,
@@ -49,19 +61,7 @@ class CompleteVideoMultipartUploadUseCase:
 
         if video_metadata_mime_type not in allowed_mime_types or video_actual_mime_type not in allowed_mime_types:
             video_s3_key = video.s3_key
-
-            video.set_upload_id(value=None)
-            video.set_s3_key(value=None)
-            video.set_upload_status(value=VideoUploadStatusEnum.PENDING)
-
-            async with self._transaction_manager:
-                await self._video_service.try_update(video=video)
-
-            await self._s3_service.schedule_delete_object(
-                bucket=settings.s3_private_bucket_name,
-                key=video_s3_key,
-            )
-
+            await self._delete_video_file(video=video)
             raise VideoInvalidContentTypeError(
                 key=video_s3_key,
                 metadata_content_type=video_metadata_mime_type,
@@ -70,5 +70,17 @@ class CompleteVideoMultipartUploadUseCase:
 
         video.set_upload_id(value=None)
         video.set_upload_status(value=VideoUploadStatusEnum.COMPLETED)
-        async with self._transaction_manager:
-            await self._video_service.try_update(video=video)
+        await self._video_service.try_update(video=video)
+
+    async def _delete_video_file(self, video: Video) -> None:
+        video_s3_key = video.s3_key
+
+        video.set_upload_id(value=None)
+        video.set_s3_key(value=None)
+        video.set_upload_status(value=VideoUploadStatusEnum.PENDING)
+        await self._video_service.try_update(video=video)
+
+        await self._s3_service.schedule_delete_object(
+            bucket=settings.s3_private_bucket_name,
+            key=video_s3_key,
+        )

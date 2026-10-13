@@ -37,11 +37,13 @@ from app.domain.videos.exceptions import (
     VideoInvalidContentTypeError,
     VideoInvalidFilenameError,
     VideoNotFoundError,
+    VideoSizeTooSmallError,
     VideoThumbnailAlreadySetError,
     VideoThumbnailInvalidContentTypeError,
     VideoThumbnailInvalidFilenameError,
     VideoThumbnailInvalidKeyError,
     VideoThumbnailSizeTooBigError,
+    VideoThumbnailSizeTooSmallError,
     VideoThumbnailVideoIdMismatchError,
     VideoUploadAlreadyCompletedError,
     VideoUploadAlreadyCreatedError,
@@ -191,6 +193,7 @@ async def generate_video_part_upload_url(
             VideoUploadAlreadyCompletedError,
             VideoUploadNotCreatedError,
             VideoInvalidContentTypeError,
+            VideoSizeTooSmallError,
         ),
         status.HTTP_500_INTERNAL_SERVER_ERROR: error_response(
             S3RequestError,
@@ -254,6 +257,37 @@ async def abort_video_multipart_upload(
         video_id=video_id,
     )
     await use_case.execute(command=command)
+
+
+@router.get(
+    path='/download',
+    responses={
+        status.HTTP_401_UNAUTHORIZED: error_response(
+            NotAuthenticatedError,
+            JWTTokenExpiredError,
+            JWTTokenInvalidError,
+        ),
+        status.HTTP_403_FORBIDDEN: error_response(
+            ChannelNotActiveError,
+            VideoAccessForbiddenError,
+        ),
+        status.HTTP_404_NOT_FOUND: error_response(
+            ChannelNotFoundByIdError,
+            VideoNotFoundError,
+        ),
+    },
+)
+async def generate_video_download_url(
+    current_channel_id: OptionalCurrentChannelID,
+    video_id: PathVideoId,
+    use_case: FromDishka[GenerateVideoDownloadUrlUseCase],
+) -> VideoDownloadUrlOutSchema:
+    command = GenerateVideoDownloadUrlCommand(
+        current_channel_id=current_channel_id,
+        video_id=video_id,
+    )
+    download_url = await use_case.execute(command=command)
+    return VideoDownloadUrlOutSchema(download_url=download_url)
 
 
 @router.post(
@@ -335,6 +369,7 @@ async def generate_video_thumbnail_upload_url(
             VideoThumbnailAlreadySetError,
             VideoThumbnailVideoIdMismatchError,
             VideoThumbnailSizeTooBigError,
+            VideoThumbnailSizeTooSmallError,
             VideoThumbnailInvalidContentTypeError,
         ),
     },
@@ -351,34 +386,3 @@ async def confirm_video_thumbnail_upload(
         **schema.model_dump(),
     )
     await use_case.execute(command=command)
-
-
-@router.get(
-    path='/download',
-    responses={
-        status.HTTP_401_UNAUTHORIZED: error_response(
-            NotAuthenticatedError,
-            JWTTokenExpiredError,
-            JWTTokenInvalidError,
-        ),
-        status.HTTP_403_FORBIDDEN: error_response(
-            ChannelNotActiveError,
-            VideoAccessForbiddenError,
-        ),
-        status.HTTP_404_NOT_FOUND: error_response(
-            ChannelNotFoundByIdError,
-            VideoNotFoundError,
-        ),
-    },
-)
-async def generate_video_download_url(
-    current_channel_id: OptionalCurrentChannelID,
-    video_id: PathVideoId,
-    use_case: FromDishka[GenerateVideoDownloadUrlUseCase],
-) -> VideoDownloadUrlOutSchema:
-    command = GenerateVideoDownloadUrlCommand(
-        current_channel_id=current_channel_id,
-        video_id=video_id,
-    )
-    download_url = await use_case.execute(command=command)
-    return VideoDownloadUrlOutSchema(download_url=download_url)

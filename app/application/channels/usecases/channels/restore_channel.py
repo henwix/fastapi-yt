@@ -9,13 +9,13 @@ from app.domain.channels.services import IChannelService
 @dataclass
 class RestoreChannelUseCase:
     _channel_service: IChannelService
-    _transaction_manager: ITransactionManager
+    _tm: ITransactionManager
 
     async def execute(self, command: RestoreChannelCommand) -> None:
-        channel = await self._channel_service.try_get_by_id(id=command.current_channel_id)
-        if not channel.deleted_at.is_deleted:
-            raise ChannelNotDeletedError(channel_id=channel.id)
+        async with self._tm.begin(commit=True):
+            channel = await self._channel_service.try_get_by_id(id=command.current_channel_id)
+            if not channel.deleted_at.is_deleted:
+                raise ChannelNotDeletedError(channel_id=channel.id)
 
-        channel.restore()
-        async with self._transaction_manager:
+            channel.restore()
             await self._channel_service.try_update(channel=channel)

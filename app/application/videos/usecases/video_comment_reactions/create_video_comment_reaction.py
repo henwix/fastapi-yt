@@ -12,17 +12,17 @@ class CreateVideoCommentReactionUseCase:
     _channel_service: IChannelService
     _video_comment_service: IVideoCommentService
     _video_comment_reaction_service: IVideoCommentReactionService
-    _transaction_manager: ITransactionManager
+    _tm: ITransactionManager
 
     async def execute(self, command: CreateVideoCommentReactionCommand) -> VideoCommentReaction | None:
-        channel = await self._channel_service.try_get_existing_by_id_for_auth(id=command.current_channel_id)
-        video_comment = await self._video_comment_service.try_get_by_id(id=command.video_comment_id)
-        video_comment_reaction_entity = VideoCommentReaction.create(
-            video_comment_id=video_comment.id,
-            channel_id=channel.id,
-            reaction_type=command.reaction_type,
-        )
-        async with self._transaction_manager:
+        async with self._tm.begin(commit=True):
+            channel = await self._channel_service.try_get_existing_by_id_for_auth(id=command.current_channel_id)
+            video_comment = await self._video_comment_service.try_get_by_id(id=command.video_comment_id)
+            video_comment_reaction_entity = VideoCommentReaction.create(
+                video_comment_id=video_comment.id,
+                channel_id=channel.id,
+                reaction_type=command.reaction_type,
+            )
             return await self._video_comment_reaction_service.upsert(
                 video_comment_reaction=video_comment_reaction_entity
             )

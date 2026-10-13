@@ -10,17 +10,17 @@ from app.domain.common.constants import Empty
 @dataclass
 class UpdateChannelUseCase:
     _channel_service: IChannelService
-    _transaction_manager: ITransactionManager
+    _tm: ITransactionManager
 
     async def execute(self, command: UpdateChannelCommand) -> Channel:
-        channel = await self._channel_service.try_get_existing_by_id_for_auth(id=command.current_channel_id)
-        if command.slug is not Empty.UNSET:
-            await self._channel_service.try_check_slug_exists(slug=command.slug)
+        async with self._tm.begin(commit=True):
+            channel = await self._channel_service.try_get_existing_by_id_for_auth(id=command.current_channel_id)
+            if command.slug is not Empty.UNSET:
+                await self._channel_service.try_check_slug_exists(slug=command.slug)
 
-        channel.set_name(value=command.name)
-        channel.set_slug(value=command.slug)
-        channel.set_description(value=command.description)
-        channel.set_country(value=command.country)
+            channel.set_name(value=command.name)
+            channel.set_slug(value=command.slug)
+            channel.set_description(value=command.description)
+            channel.set_country(value=command.country)
 
-        async with self._transaction_manager:
             return await self._channel_service.try_update(channel=channel)

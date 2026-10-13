@@ -189,6 +189,9 @@ async def test_delete_video_raises_error_if_video_access_forbidden(container: As
         with pytest.raises(VideoAccessForbiddenError) as e:
             await use_case.execute(command=command)
 
+        await session.refresh(instance=video)
+        await session.refresh(instance=channel)
+
         assert e.value.channel_id == channel.id
         assert e.value.video_id == video.id
 
@@ -220,6 +223,8 @@ async def test_delete_video_raises_error_if_channel_deleted(container: AsyncCont
         with pytest.raises(ChannelDeletedError) as e:
             await use_case.execute(command=command)
 
+        await session.refresh(instance=channel)
+
         assert e.value.channel_id == channel.id
 
 
@@ -234,6 +239,8 @@ async def test_delete_video_raises_error_if_channel_not_active(container: AsyncC
 
         with pytest.raises(ChannelNotActiveError) as e:
             await use_case.execute(command=command)
+
+        await session.refresh(instance=channel)
 
         assert e.value.channel_id == channel.id
 

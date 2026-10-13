@@ -4,6 +4,7 @@ from .channel_uploads import (
     ChannelAvatarInvalidFilenameError,
     ChannelAvatarInvalidKeyError,
     ChannelAvatarSizeTooBigError,
+    ChannelAvatarSizeTooSmallError,
 )
 from .channels import (
     ChannelActivationFailedError,
@@ -28,6 +29,7 @@ __all__ = (
     'ChannelAvatarInvalidKeyError',
     'ChannelAvatarNotFoundError',
     'ChannelAvatarSizeTooBigError',
+    'ChannelAvatarSizeTooSmallError',
     'ChannelDeletedError',
     'ChannelEmailAlreadyExistsError',
     'ChannelEmailInvalidFormatError',

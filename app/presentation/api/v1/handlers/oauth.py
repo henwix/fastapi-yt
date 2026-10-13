@@ -21,7 +21,6 @@ from app.domain.channels.exceptions import (
 from app.domain.oauth.enums import OAuthProviderEnum
 from app.domain.oauth.exceptions import (
     OAuthAccountNotConnectedError,
-    OAuthAccountUnableToDisconnectError,
     OAuthInvalidCodeError,
     OAuthInvalidStateError,
     OAuthNoAccountsConnectedError,
@@ -159,9 +158,6 @@ async def get_oauth_connected_accounts(
             ChannelNotFoundByIdError,
             OAuthNoAccountsConnectedError,
             OAuthAccountNotConnectedError,
-        ),
-        status.HTTP_409_CONFLICT: error_response(
-            OAuthAccountUnableToDisconnectError,
         ),
     },
 )

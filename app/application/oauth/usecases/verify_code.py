@@ -18,7 +18,7 @@ class VerifyOAuthCodeUseCase:
     _oauth_account_service: IOAuthAccountService
     _channel_service: IChannelService
     _auth_service: IAuthService
-    _transaction_manager: ITransactionManager
+    _tm: ITransactionManager
 
     async def execute(self, command: VerifyOAuthCodeCommand) -> JWTTokens | None:
         oauth_service = self._oauth_service_factory.get(provider_name=command.provider)
@@ -26,48 +26,47 @@ class VerifyOAuthCodeUseCase:
         token = await oauth_service.exchange_code(code=command.code)
         provider_user_data = await oauth_service.get_user_data(token=token)
 
-        oauth_account = await self._oauth_account_service.get_by_uid_and_provider(
-            uid=provider_user_data.uid,
-            provider=provider_user_data.provider,
-        )
-
-        if command.current_channel_id is not None:
-            if oauth_account is not None:
-                raise OAuthProviderAlreadyConnectedError(
-                    channel_id=command.current_channel_id,
-                    provider=oauth_account.provider,
-                )
-            channel = await self._channel_service.try_get_existing_by_id_for_auth(id=command.current_channel_id)
-            new_oauth_account_entity = OAuthAccount.create(
-                channel_id=channel.id,
-                provider_uid=provider_user_data.uid,
+        async with self._tm.begin(commit=True):
+            oauth_account = await self._oauth_account_service.get_by_uid_and_provider(
+                uid=provider_user_data.uid,
                 provider=provider_user_data.provider,
             )
-            async with self._transaction_manager:
+
+            if command.current_channel_id is not None:
+                if oauth_account is not None:
+                    raise OAuthProviderAlreadyConnectedError(
+                        channel_id=command.current_channel_id,
+                        provider=oauth_account.provider,
+                    )
+                channel = await self._channel_service.try_get_existing_by_id_for_auth(id=command.current_channel_id)
+                new_oauth_account_entity = OAuthAccount.create(
+                    channel_id=channel.id,
+                    provider_uid=provider_user_data.uid,
+                    provider=provider_user_data.provider,
+                )
                 await self._oauth_account_service.create(oauth_account=new_oauth_account_entity)
                 return
 
-        if oauth_account is not None:
-            channel = await self._channel_service.try_get_by_id(id=oauth_account.channel_id)
-            return await self._auth_service.login(channel_id=channel.id)
+            if oauth_account is not None:
+                channel = await self._channel_service.try_get_by_id(id=oauth_account.channel_id)
+                return await self._auth_service.login(channel_id=channel.id)
 
-        new_channel_entity = Channel.create(
-            email=provider_user_data.email,
-            name=provider_user_data.name,
-            slug=self._channel_service.slugify(value=provider_user_data.login),
-        )
-        new_oauth_account_entity = OAuthAccount.create(
-            channel_id=new_channel_entity.id,
-            provider_uid=provider_user_data.uid,
-            provider=provider_user_data.provider,
-        )
+            new_channel_entity = Channel.create(
+                email=provider_user_data.email,
+                name=provider_user_data.name,
+                slug=self._channel_service.slugify(value=provider_user_data.login),
+            )
+            new_oauth_account_entity = OAuthAccount.create(
+                channel_id=new_channel_entity.id,
+                provider_uid=provider_user_data.uid,
+                provider=provider_user_data.provider,
+            )
 
-        await self._channel_service.try_check_email_exists(email=new_channel_entity.email.to_raw())
-        if await self._channel_service.check_slug_exists(slug=new_channel_entity.slug.to_raw()):
-            unique_slug = self._channel_service.build_unique_slug(slug=new_channel_entity.slug.to_raw())
-            new_channel_entity.set_slug(value=unique_slug)
+            await self._channel_service.try_check_email_exists(email=new_channel_entity.email.to_raw())
+            if await self._channel_service.check_slug_exists(slug=new_channel_entity.slug.to_raw()):
+                unique_slug = self._channel_service.build_unique_slug(slug=new_channel_entity.slug.to_raw())
+                new_channel_entity.set_slug(value=unique_slug)
 
-        async with self._transaction_manager:
             channel = await self._channel_service.create(channel=new_channel_entity)
             await self._oauth_account_service.create(oauth_account=new_oauth_account_entity)
 

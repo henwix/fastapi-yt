@@ -11,15 +11,15 @@ from app.domain.videos.services import IVideoService
 class CreateVideoUseCase:
     _channel_service: IChannelService
     _video_service: IVideoService
-    _transaction_manager: ITransactionManager
+    _tm: ITransactionManager
 
     async def execute(self, command: CreateVideoCommand) -> Video:
-        channel = await self._channel_service.try_get_existing_by_id_for_auth(id=command.current_channel_id)
-        video_entity = Video.create(
-            channel_id=channel.id,
-            title=command.title,
-            description=command.description,
-            privacy_status=command.privacy_status,
-        )
-        async with self._transaction_manager:
+        async with self._tm.begin(commit=True):
+            channel = await self._channel_service.try_get_existing_by_id_for_auth(id=command.current_channel_id)
+            video_entity = Video.create(
+                channel_id=channel.id,
+                title=command.title,
+                description=command.description,
+                privacy_status=command.privacy_status,
+            )
             return await self._video_service.create(video=video_entity)

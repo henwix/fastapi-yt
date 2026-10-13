@@ -1,6 +1,7 @@
 from dataclasses import dataclass
 from datetime import datetime
 
+from app.application.common.interfaces.transaction_manager import ITransactionManager
 from app.application.videos.dto import PreviewVideoHistory
 from app.application.videos.interfaces import IVideoHistoryReader
 from app.application.videos.queries import GetVideoHistoryQuery, VideoHistorySortingFieldsEnum
@@ -14,6 +15,7 @@ from app.utils.base64url import base64url_decode, base64url_encode
 class GetVideoHistoryUseCase:
     _channel_service: IChannelService
     _video_history_reader: IVideoHistoryReader
+    _tm: ITransactionManager
 
     async def execute(self, query: GetVideoHistoryQuery) -> tuple[list[PreviewVideoHistory], str | None]:
         cursor_sort_value = None
@@ -32,14 +34,15 @@ class GetVideoHistoryUseCase:
             except Exception as e:
                 raise InvalidCursorError(cursor=query.pagination.cursor, exc_details=str(e)) from e
 
-        channel = await self._channel_service.try_get_existing_by_id_for_auth(id=query.current_channel_id)
-        history_videos = await self._video_history_reader.get_many(
-            channel_id=channel.id,
-            cursor_sort_value=cursor_sort_value,
-            cursor_id_value=cursor_id_value,
-            sorting=query.sorting,
-            pagination=query.pagination,
-        )
+        async with self._tm.begin(commit=False):
+            channel = await self._channel_service.try_get_existing_by_id_for_auth(id=query.current_channel_id)
+            history_videos = await self._video_history_reader.get_many(
+                channel_id=channel.id,
+                cursor_sort_value=cursor_sort_value,
+                cursor_id_value=cursor_id_value,
+                sorting=query.sorting,
+                pagination=query.pagination,
+            )
 
         next_cursor = None
 

@@ -290,6 +290,9 @@ async def test_create_video_reaction_raises_error_if_video_private_and_access_fo
         with pytest.raises(VideoAccessForbiddenError) as e:
             await use_case.execute(command=command)
 
+        await session.refresh(instance=current_channel)
+        await session.refresh(instance=video)
+
         assert e.value.channel_id == current_channel.id
         assert e.value.video_id == video.id
 

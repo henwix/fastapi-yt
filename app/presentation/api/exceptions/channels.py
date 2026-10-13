@@ -8,6 +8,7 @@ from app.domain.channels.exceptions import (
     ChannelAvatarInvalidKeyError,
     ChannelAvatarNotFoundError,
     ChannelAvatarSizeTooBigError,
+    ChannelAvatarSizeTooSmallError,
     ChannelDeletedError,
     ChannelEmailAlreadyExistsError,
     ChannelEmailInvalidFormatError,
@@ -42,5 +43,6 @@ def init_channels() -> dict[type[AppError], int]:
         ChannelAvatarInvalidFilenameError: status.HTTP_400_BAD_REQUEST,
         ChannelAvatarInvalidContentTypeError: status.HTTP_409_CONFLICT,
         ChannelAvatarSizeTooBigError: status.HTTP_409_CONFLICT,
+        ChannelAvatarSizeTooSmallError: status.HTTP_409_CONFLICT,
         ChannelAvatarAlreadySetError: status.HTTP_409_CONFLICT,
     }

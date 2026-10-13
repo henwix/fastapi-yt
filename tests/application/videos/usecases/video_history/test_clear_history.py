@@ -77,6 +77,8 @@ async def test_clear_history_raises_error_if_channel_deleted(container: AsyncCon
         with pytest.raises(ChannelDeletedError) as e:
             await use_case.execute(command=command)
 
+        await session.refresh(instance=channel)
+
         assert e.value.channel_id == channel.id
 
 
@@ -92,6 +94,8 @@ async def test_clear_history_raises_error_if_channel_not_active(container: Async
 
         with pytest.raises(ChannelNotActiveError) as e:
             await use_case.execute(command=command)
+
+        await session.refresh(instance=channel)
 
         assert e.value.channel_id == channel.id
 

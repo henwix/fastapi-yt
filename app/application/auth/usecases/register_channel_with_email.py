@@ -16,24 +16,24 @@ class RegisterChannelWithEmailUseCase:
     _auth_service: IAuthService
     _auth_code_service: IAuthCodeService
     _email_service: IEmailService
-    _transaction_manager: ITransactionManager
+    _tm: ITransactionManager
 
     async def execute(self, command: RegisterChannelWithEmailCommand) -> tuple[Channel, JWTTokens, bool]:
-        await self._channel_service.try_check_email_exists(email=command.email)
-        await self._channel_service.try_check_slug_exists(slug=command.slug)
+        async with self._tm.begin(commit=True):
+            await self._channel_service.try_check_email_exists(email=command.email)
+            await self._channel_service.try_check_slug_exists(slug=command.slug)
 
-        activation_required = settings.auth_send_activation_email
+            activation_required = settings.auth_send_activation_email
 
-        channel_entity = Channel.create(
-            email=command.email,
-            name=command.name,
-            slug=command.slug,
-            description=command.description,
-            country=command.country,
-            is_active=not activation_required,
-        )
+            channel_entity = Channel.create(
+                email=command.email,
+                name=command.name,
+                slug=command.slug,
+                description=command.description,
+                country=command.country,
+                is_active=not activation_required,
+            )
 
-        async with self._transaction_manager:
             channel = await self._channel_service.create(channel=channel_entity)
 
         tokens = await self._auth_service.login(channel_id=channel.id)

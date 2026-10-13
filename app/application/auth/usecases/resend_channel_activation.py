@@ -16,7 +16,7 @@ class ResendChannelActivationCodeUseCase:
     async def execute(self, command: ResendChannelActivationCodeCommand) -> None:
         channel = await self._channel_service.try_get_by_id(id=command.current_channel_id)
         if channel.is_active:
-            raise ChannelAlreadyActivatedError
+            raise ChannelAlreadyActivatedError(channel_id=channel.id)
 
         code = await self._auth_code_service.create_activation_code(channel_id=channel.id)
         activation_url = self._auth_code_service.build_activation_url(code=code)

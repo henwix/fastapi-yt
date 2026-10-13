@@ -288,7 +288,7 @@ class VideoCommentORM(
         sa.ForeignKey('channels.id', ondelete='CASCADE'),
     )
     reply_comment_id: Mapped[UUID | None] = mapped_column(
-        sa.ForeignKey('video_comments.id'),
+        sa.ForeignKey('video_comments.id', ondelete='CASCADE'),
         default=None,
         server_default=sa.sql.null(),
     )

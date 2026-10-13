@@ -15,18 +15,18 @@ class AddVideoToPlaylistUseCase:
     _playlist_service: IPlaylistService
     _playlist_item_service: IPlaylistItemService
     _video_service: IVideoService
-    _transaction_manager: ITransactionManager
+    _tm: ITransactionManager
 
     async def execute(self, command: AddVideoToPlaylistCommand) -> None:
-        channel = await self._channel_service.try_get_existing_by_id_for_auth(id=command.current_channel_id)
-        playlist = await self._playlist_service.try_get_existing_by_id(id=command.playlist_id)
+        async with self._tm.begin(commit=True):
+            channel = await self._channel_service.try_get_existing_by_id_for_auth(id=command.current_channel_id)
 
-        self._playlist_service.ensure_playlist_access(playlist=playlist, channel=channel)
+            playlist = await self._playlist_service.try_get_existing_by_id(id=command.playlist_id)
+            self._playlist_service.ensure_playlist_access(playlist=playlist, channel=channel)
 
-        video = await self._video_service.try_get_completed_by_id(id=command.video_id)
-        if video.privacy_status is VideoPrivacyStatusEnum.PRIVATE:
-            self._video_service.ensure_video_access(video=video, channel=channel)
+            video = await self._video_service.try_get_completed_by_id(id=command.video_id)
+            if video.privacy_status is VideoPrivacyStatusEnum.PRIVATE:
+                self._video_service.ensure_video_access(video=video, channel=channel)
 
-        playlist_item = PlaylistItem.create(playlist_id=playlist.id, video_id=video.id)
-        async with self._transaction_manager:
+            playlist_item = PlaylistItem.create(playlist_id=playlist.id, video_id=video.id)
             await self._playlist_item_service.create(playlist_item=playlist_item)

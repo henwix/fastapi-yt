@@ -1,21 +1,28 @@
-import msgspec
-from sqlalchemy.ext.asyncio import AsyncEngine, async_sessionmaker, create_async_engine
+from collections.abc import AsyncGenerator
+from contextlib import asynccontextmanager
 
-from app.core.configs import settings
-
-
-def create_engine(db_url: str = settings.db_url, echo: bool = settings.debug) -> AsyncEngine:
-    return create_async_engine(
-        url=db_url,
-        echo=echo,
-        echo_pool=echo,
-        pool_size=settings.db_pool_size,
-        max_overflow=settings.db_max_overflow,
-        pool_pre_ping=settings.db_pool_pre_ping,
-        json_serializer=lambda data: msgspec.json.encode(data).decode(),
-        json_deserializer=msgspec.json.decode,
-    )
+from sqlalchemy.ext.asyncio import AsyncSession, async_sessionmaker
 
 
-def create_session_factory(engine: AsyncEngine) -> async_sessionmaker:
-    return async_sessionmaker(bind=engine, expire_on_commit=False)
+class Database:
+    def __init__(self, _session_factory: async_sessionmaker[AsyncSession]) -> None:
+        self._session_factory: async_sessionmaker[AsyncSession] = _session_factory
+        self._session: AsyncSession | None = None
+
+    def set_session(self, session: AsyncSession | None) -> None:
+        self._session = session
+
+    @asynccontextmanager
+    async def get_session(self, commit: bool = False) -> AsyncGenerator[AsyncSession]:
+        if self._session:
+            yield self._session
+            return
+
+        async with self._session_factory() as session:
+            try:
+                yield session
+                if commit:
+                    await session.commit()
+            except Exception:
+                await session.rollback()
+                raise

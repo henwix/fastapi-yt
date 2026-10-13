@@ -38,6 +38,9 @@ async def test_get_video_returns_correct_entity_without_auth_if_video_completed_
         with patch.object(use_case._channel_service, 'try_get_existing_by_id_for_auth') as channel_service_mock:
             result = await use_case.execute(query=query)
 
+        await session.refresh(instance=video)
+        await session.refresh(instance=channel)
+
         channel_service_mock.assert_not_called()
         assert isinstance(result, DetailedVideo)
 

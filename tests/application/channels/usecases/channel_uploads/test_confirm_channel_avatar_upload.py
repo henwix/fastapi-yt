@@ -5,12 +5,13 @@ from dishka import AsyncContainer
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.application.channels.usecases import ConfirmChannelAvatarUploadUseCase
-from app.core.configs import settings
+from app.core.configs import Settings, settings
 from app.domain.channels.exceptions import (
     ChannelAvatarAlreadySetError,
     ChannelAvatarInvalidContentTypeError,
     ChannelAvatarInvalidKeyError,
     ChannelAvatarSizeTooBigError,
+    ChannelAvatarSizeTooSmallError,
     ChannelDeletedError,
     ChannelNotActiveError,
     ChannelNotFoundByIdError,
@@ -71,6 +72,8 @@ async def test_confirm_channel_avatar_upload_returns_none_if_avatar_updated_with
         mock_copy_object.assert_called_once()
         assert mock_delete_object.call_count == 2
         assert result is None
+
+        await session.refresh(instance=channel)
         assert channel.avatar_s3_key == expected_new_avatar_s3_key
 
 
@@ -101,10 +104,12 @@ async def test_confirm_channel_avatar_upload_returns_none_if_avatar_updated_with
             patch.object(use_case._s3_service, 'copy_object') as mock_copy_object,
         ):
             result = await use_case.execute(command)
+        await session.refresh(instance=channel)
 
         mock_delete_object.assert_called_once()
         mock_copy_object.assert_called_once()
         assert result is None
+
         assert channel.avatar_s3_key == expected_new_avatar_s3_key
 
 
@@ -318,7 +323,7 @@ async def test_confirm_channel_avatar_upload_raises_error_if_s3_object_invalid_c
         1024 * 1024 * 452,
     ],
 )
-async def test_confirm_channel_avatar_upload_raises_error_if_s3_object_content_size_bigger_than_available_max_size(
+async def test_confirm_channel_avatar_upload_raises_error_if_avatar_file_size_too_big(
     mock_container: AsyncContainer,
     expected_content_length: str,
 ):
@@ -342,3 +347,33 @@ async def test_confirm_channel_avatar_upload_raises_error_if_s3_object_content_s
         ):
             await use_case.execute(command)
         mock_delete_object.assert_called_once()
+
+
+@pytest.mark.asyncio
+async def test_confirm_channel_avatar_upload_raises_error_if_avatar_file_size_too_small(
+    mock_container: AsyncContainer, test_settings: Settings
+):
+    async with mock_container() as di:
+        use_case = await di.get(ConfirmChannelAvatarUploadUseCase)
+        session = await di.get(AsyncSession)
+
+        expected_new_tmp_avatar_s3_key = f'{settings.s3_tmp_channel_avatars_key_prefix}/new_avatar.png'
+
+        channel = await ChannelORMFactory.create(session=session, avatar_s3_key=None)
+        command = ConfirmChannelAvatarUploadCommandFactory.build(
+            current_channel_id=channel.id, key=expected_new_tmp_avatar_s3_key
+        )
+
+        use_case._s3_service.METADATA_CHANNEL_ID = channel.id
+        use_case._s3_service.CONTENT_LENGTH = 0
+
+        with (
+            patch.object(use_case._s3_service, 'schedule_delete_object') as mock_delete_object,
+            pytest.raises(ChannelAvatarSizeTooSmallError) as e,
+        ):
+            await use_case.execute(command)
+
+        mock_delete_object.assert_called_once()
+        assert e.value.key == expected_new_tmp_avatar_s3_key
+        assert e.value.bucket == test_settings.s3_public_bucket_name
+        assert e.value.file_size == 0

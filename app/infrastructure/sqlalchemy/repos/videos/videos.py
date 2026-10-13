@@ -1,8 +1,10 @@
 from datetime import timedelta
-from typing import cast
+from typing import NoReturn, cast
 
 from sqlalchemy import CursorResult, delete, exists, select, update
+from sqlalchemy.exc import DBAPIError, IntegrityError
 
+from app.domain.channels.exceptions import ChannelNotFoundByIdError
 from app.domain.videos.entities import Video
 from app.domain.videos.enums import VideoUploadStatusEnum
 from app.domain.videos.repos import IVideoRepo
@@ -12,15 +14,29 @@ from app.utils.datetime import get_current_utc_datetime
 
 
 class VideoRepo(SQLAlchemyRepo, IVideoRepo):
+    def _parse_db_error(self, error: DBAPIError, video: Video) -> NoReturn:
+        constraint_name = self._extract_constraint_name(error=error)
+
+        match constraint_name:
+            case 'videos_channel_id_fkey':
+                raise ChannelNotFoundByIdError(channel_id=video.channel_id)
+            case _:
+                raise
+
     async def _get_one_by_query(self, query) -> Video | None:
-        result = await self._session.execute(statement=query)
+        async with self._db.get_session(commit=False) as session:
+            result = await session.execute(statement=query)
         video = result.scalar_one_or_none()
         return video.to_entity() if video is not None else None
 
     async def create(self, video: Video) -> Video:
         model = VideoORM.from_entity(entity=video)
-        self._session.add(instance=model)
-        await self._session.flush(objects=(model,))
+        async with self._db.get_session(commit=True) as session:
+            session.add(instance=model)
+            try:
+                await session.flush(objects=(model,))
+            except IntegrityError as e:
+                self._parse_db_error(error=e, video=video)
         return model.to_entity()
 
     async def update(self, video: Video) -> Video | None:
@@ -38,13 +54,15 @@ class VideoRepo(SQLAlchemyRepo, IVideoRepo):
             )
             .returning(VideoORM)
         )
-        result = await self._session.execute(statement=stmt)
+        async with self._db.get_session(commit=True) as session:
+            result = await session.execute(statement=stmt)
         updated_video = result.scalar_one_or_none()
         return updated_video.to_entity() if updated_video else None
 
     async def increase_views_count(self, video_id: str) -> bool:
         stmt = update(VideoORM).where(VideoORM.id == video_id).values(views_count=VideoORM.views_count + 1)
-        result = await self._session.execute(statement=stmt)
+        async with self._db.get_session(commit=True) as session:
+            result = await session.execute(statement=stmt)
         return cast(CursorResult, result).rowcount > 0
 
     async def get_by_id(self, id: str) -> Video | None:
@@ -61,7 +79,8 @@ class VideoRepo(SQLAlchemyRepo, IVideoRepo):
 
     async def delete_by_id(self, id: str) -> bool:
         stmt = delete(VideoORM).where(VideoORM.id == id)
-        result = await self._session.execute(statement=stmt)
+        async with self._db.get_session(commit=True) as session:
+            result = await session.execute(statement=stmt)
         return cast(CursorResult, result).rowcount > 0
 
     async def delete_not_completed_videos(self) -> int:
@@ -69,5 +88,6 @@ class VideoRepo(SQLAlchemyRepo, IVideoRepo):
             VideoORM.upload_status != VideoUploadStatusEnum.COMPLETED,
             VideoORM.created_at < get_current_utc_datetime() - timedelta(days=7),
         )
-        result = await self._session.execute(statement=stmt)
+        async with self._db.get_session(commit=True) as session:
+            result = await session.execute(statement=stmt)
         return cast(CursorResult, result).rowcount

@@ -11,21 +11,21 @@ from app.domain.channels.services import IChannelService
 @dataclass
 class DeleteChannelAvatarUseCase:
     _channel_service: IChannelService
-    _transaction_manager: ITransactionManager
     _s3_service: IS3Service
+    _tm: ITransactionManager
 
     async def execute(self, command: DeleteChannelAvatarCommand) -> None:
-        channel = await self._channel_service.try_get_existing_by_id_for_auth(id=command.current_channel_id)
-        if channel.avatar_s3_key is None:
-            raise ChannelAvatarNotFoundError(channel_id=channel.id)
+        async with self._tm.begin(commit=True):
+            channel = await self._channel_service.try_get_existing_by_id_for_auth(id=command.current_channel_id)
+            if channel.avatar_s3_key is None:
+                raise ChannelAvatarNotFoundError(channel_id=channel.id)
 
-        channel_avatar_s3_key = channel.avatar_s3_key
+            old_channel_avatar_s3_key = channel.avatar_s3_key
 
-        channel.set_avatar_s3_key(value=None)
-        async with self._transaction_manager:
+            channel.set_avatar_s3_key(value=None)
             await self._channel_service.try_update(channel=channel)
 
         await self._s3_service.schedule_delete_object(
             bucket=settings.s3_public_bucket_name,
-            key=channel_avatar_s3_key,
+            key=old_channel_avatar_s3_key,
         )

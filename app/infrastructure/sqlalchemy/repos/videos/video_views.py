@@ -14,10 +14,7 @@ from app.infrastructure.sqlalchemy.repos.base import SQLAlchemyRepo
 
 class VideoViewRepo(SQLAlchemyRepo, IVideoViewRepo):
     def _parse_db_error(self, error: DBAPIError, video_view: VideoView) -> NoReturn:
-        cause = getattr(error.orig, '__cause__', None)
-        constraint_name = getattr(cause, 'constraint_name', None)
-        if cause is None or constraint_name is None:
-            raise
+        constraint_name = self._extract_constraint_name(error=error)
 
         match constraint_name:
             case 'video_views_video_id_fkey':
@@ -53,9 +50,10 @@ class VideoViewRepo(SQLAlchemyRepo, IVideoViewRepo):
             )
         stmt = stmt.returning(VideoViewORM.id)
 
-        try:
-            result = await self._session.execute(statement=stmt)
-        except IntegrityError as e:
-            self._parse_db_error(error=e, video_view=video_view)
+        async with self._db.get_session(commit=True) as session:
+            try:
+                result = await session.execute(statement=stmt)
+            except IntegrityError as e:
+                self._parse_db_error(error=e, video_view=video_view)
 
         return result.scalar_one_or_none() is not None

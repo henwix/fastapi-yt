@@ -2,6 +2,7 @@ from dataclasses import dataclass
 from datetime import datetime
 from uuid import UUID
 
+from app.application.common.interfaces.transaction_manager import ITransactionManager
 from app.application.posts.dto import DetailedPostComment
 from app.application.posts.interfaces import IPostCommentReader
 from app.application.posts.queries import GetPostCommentRepliesQuery, PostCommentsSortingFieldsEnum
@@ -15,6 +16,7 @@ from app.utils.base64url import base64url_decode, base64url_encode
 class GetPostCommentRepliesUseCase:
     _post_comment_service: IPostCommentService
     _post_comment_reader: IPostCommentReader
+    _tm: ITransactionManager
 
     async def execute(self, query: GetPostCommentRepliesQuery) -> tuple[list[DetailedPostComment], str | None]:
         cursor_sort_value = None
@@ -35,14 +37,15 @@ class GetPostCommentRepliesUseCase:
             except Exception as e:
                 raise InvalidCursorError(cursor=query.pagination.cursor, exc_details=str(e)) from e
 
-        post_comment = await self._post_comment_service.try_get_by_id(id=query.post_comment_id)
-        replies = await self._post_comment_reader.get_replies(
-            post_comment_id=post_comment.id,
-            cursor_sort_value=cursor_sort_value,
-            cursor_id_value=cursor_id_value,
-            sorting=query.sorting,
-            pagination=query.pagination,
-        )
+        async with self._tm.begin(commit=False):
+            post_comment = await self._post_comment_service.try_get_by_id(id=query.post_comment_id)
+            replies = await self._post_comment_reader.get_replies(
+                post_comment_id=post_comment.id,
+                cursor_sort_value=cursor_sort_value,
+                cursor_id_value=cursor_id_value,
+                sorting=query.sorting,
+                pagination=query.pagination,
+            )
 
         next_cursor = None
 

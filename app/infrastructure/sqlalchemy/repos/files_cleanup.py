@@ -11,10 +11,7 @@ from app.infrastructure.sqlalchemy.repos.base import SQLAlchemyRepo
 
 class FileCleanupRepo(SQLAlchemyRepo, IFileCleanupRepo):
     def _parse_db_error(self, error: DBAPIError, cleanup: FileCleanup) -> NoReturn:
-        cause: BaseException | None = getattr(error.orig, '__cause__', None)
-        constraint_name: str | None = getattr(cause, 'constraint_name', None)
-        if cause is None or constraint_name is None:
-            raise
+        constraint_name = self._extract_constraint_name(error=error)
 
         match constraint_name:
             case 'uq_file_cleanup':
@@ -24,14 +21,16 @@ class FileCleanupRepo(SQLAlchemyRepo, IFileCleanupRepo):
 
     async def create(self, cleanup: FileCleanup) -> FileCleanup:
         model = FileCleanupORM.from_entity(entity=cleanup)
-        self._session.add(instance=model)
-        try:
-            await self._session.flush(objects=(model,))
-        except IntegrityError as e:
-            self._parse_db_error(error=e, cleanup=cleanup)
+        async with self._db.get_session(commit=True) as session:
+            session.add(instance=model)
+            try:
+                await session.flush(objects=(model,))
+            except IntegrityError as e:
+                self._parse_db_error(error=e, cleanup=cleanup)
         return model.to_entity()
 
     async def create_many(self, cleanups: list[FileCleanup]) -> None:
         models = [FileCleanupORM.from_entity(entity=cleanup) for cleanup in cleanups]
-        self._session.add_all(instances=models)
-        await self._session.flush(objects=models)
+        async with self._db.get_session(commit=True) as session:
+            session.add_all(instances=models)
+            await session.flush(objects=models)

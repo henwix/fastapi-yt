@@ -14,16 +14,15 @@ class AddVideoToHistoryUseCase:
     _channel_service: IChannelService
     _video_service: IVideoService
     _video_history_service: IVideoHistoryService
-    _transaction_manager: ITransactionManager
+    _tm: ITransactionManager
 
     async def execute(self, command: AddVideoToHistoryCommand) -> None:
-        channel = await self._channel_service.try_get_existing_by_id_for_auth(id=command.current_channel_id)
-        video = await self._video_service.try_get_completed_by_id(id=command.video_id)
+        async with self._tm.begin(commit=True):
+            channel = await self._channel_service.try_get_existing_by_id_for_auth(id=command.current_channel_id)
+            video = await self._video_service.try_get_completed_by_id(id=command.video_id)
 
-        if video.privacy_status is VideoPrivacyStatusEnum.PRIVATE and video.channel_id != channel.id:
-            raise VideoAccessForbiddenError(video_id=video.id, channel_id=channel.id)
+            if video.privacy_status is VideoPrivacyStatusEnum.PRIVATE and video.channel_id != channel.id:
+                raise VideoAccessForbiddenError(video_id=video.id, channel_id=channel.id)
 
-        video_history_item_entity = VideoHistoryItem.create(channel_id=channel.id, video_id=video.id)
-
-        async with self._transaction_manager:
+            video_history_item_entity = VideoHistoryItem.create(channel_id=channel.id, video_id=video.id)
             await self._video_history_service.upsert(video_history_item=video_history_item_entity)

@@ -165,6 +165,9 @@ async def test_add_video_to_history_raises_error_if_video_access_forbidden(conta
         with pytest.raises(VideoAccessForbiddenError) as e:
             await use_case.execute(command=command)
 
+        await session.refresh(instance=channel)
+        await session.refresh(instance=video)
+
         assert e.value.channel_id == channel.id
         assert e.value.video_id == video.id
 
@@ -187,6 +190,8 @@ async def test_add_video_to_history_raises_error_if_video_author_deleted(contain
 
         with pytest.raises(VideoNotFoundError) as e:
             await use_case.execute(command=command)
+
+        await session.refresh(instance=video)
 
         assert e.value.video_id == video.id
 
@@ -214,6 +219,8 @@ async def test_add_video_to_history_raises_error_if_video_not_completed(
         with pytest.raises(VideoNotFoundError) as e:
             await use_case.execute(command=command)
 
+        await session.refresh(instance=video)
+
         assert e.value.video_id == video.id
 
 
@@ -229,6 +236,8 @@ async def test_add_video_to_history_raises_error_if_channel_deleted(container: A
         with pytest.raises(ChannelDeletedError) as e:
             await use_case.execute(command=command)
 
+        await session.refresh(instance=channel)
+
         assert e.value.channel_id == channel.id
 
 
@@ -243,6 +252,8 @@ async def test_add_video_to_history_raises_error_if_channel_not_active(container
 
         with pytest.raises(ChannelNotActiveError) as e:
             await use_case.execute(command=command)
+
+        await session.refresh(instance=channel)
 
         assert e.value.channel_id == channel.id
 

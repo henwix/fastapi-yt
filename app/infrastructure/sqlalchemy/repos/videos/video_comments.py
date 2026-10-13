@@ -14,10 +14,7 @@ from app.infrastructure.sqlalchemy.repos.base import SQLAlchemyRepo
 
 class VideoCommentRepo(SQLAlchemyRepo, IVideoCommentRepo):
     def _parse_db_error(self, error: DBAPIError, video_comment: VideoComment) -> NoReturn:
-        cause: BaseException | None = getattr(error.orig, '__cause__', None)
-        constraint_name: str | None = getattr(cause, 'constraint_name', None)
-        if cause is None or constraint_name is None:
-            raise
+        constraint_name = self._extract_constraint_name(error=error)
 
         match constraint_name:
             case 'video_comments_video_id_fkey':
@@ -31,28 +28,32 @@ class VideoCommentRepo(SQLAlchemyRepo, IVideoCommentRepo):
 
     async def create(self, video_comment: VideoComment) -> VideoComment:
         model = VideoCommentORM.from_entity(entity=video_comment)
-        self._session.add(instance=model)
-        try:
-            await self._session.flush((model,))
-        except IntegrityError as e:
-            self._parse_db_error(error=e, video_comment=video_comment)
+        async with self._db.get_session(commit=True) as session:
+            session.add(instance=model)
+            try:
+                await session.flush(objects=(model,))
+            except IntegrityError as e:
+                self._parse_db_error(error=e, video_comment=video_comment)
         return model.to_entity()
 
     async def get_by_id(self, id: UUID) -> VideoComment | None:
         stmt = select(VideoCommentORM).where(VideoCommentORM.id == id)
-        result = await self._session.execute(statement=stmt)
+        async with self._db.get_session(commit=False) as session:
+            result = await session.execute(statement=stmt)
         video_comment = result.scalar_one_or_none()
         return video_comment.to_entity() if video_comment else None
 
     async def get_by_id_and_video_id(self, id: UUID, video_id: str) -> VideoComment | None:
         stmt = select(VideoCommentORM).where(VideoCommentORM.id == id, VideoCommentORM.video_id == video_id)
-        result = await self._session.execute(statement=stmt)
+        async with self._db.get_session(commit=False) as session:
+            result = await session.execute(statement=stmt)
         video_comment = result.scalar_one_or_none()
         return video_comment.to_entity() if video_comment else None
 
     async def delete_by_id(self, id: UUID) -> bool:
         stmt = delete(VideoCommentORM).where(VideoCommentORM.id == id)
-        result = await self._session.execute(statement=stmt)
+        async with self._db.get_session(commit=True) as session:
+            result = await session.execute(statement=stmt)
         return cast(CursorResult, result).rowcount > 0
 
     async def update(self, video_comment: VideoComment) -> VideoComment | None:
@@ -62,6 +63,7 @@ class VideoCommentRepo(SQLAlchemyRepo, IVideoCommentRepo):
             .values(text=video_comment.text, is_edited=video_comment.is_edited)
             .returning(VideoCommentORM)
         )
-        result = await self._session.execute(statement=stmt)
+        async with self._db.get_session(commit=True) as session:
+            result = await session.execute(statement=stmt)
         updated_video_comment = result.scalar_one_or_none()
         return updated_video_comment.to_entity() if updated_video_comment else None

@@ -1,8 +1,8 @@
 from dataclasses import dataclass
 
-from sqlalchemy.ext.asyncio import AsyncSession
+from app.infrastructure.sqlalchemy.database import Database
 
 
 @dataclass
 class SQLAlchemyReader:
-    _session: AsyncSession
+    _db: Database

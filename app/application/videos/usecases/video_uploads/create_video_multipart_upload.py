@@ -2,7 +2,6 @@ from dataclasses import dataclass
 from pathlib import Path
 
 from app.application.common.interfaces.s3 import IS3Service
-from app.application.common.interfaces.transaction_manager import ITransactionManager
 from app.application.videos.commands import CreateVideoMultipartUploadCommand
 from app.core.configs import settings
 from app.domain.channels.services import IChannelService
@@ -17,7 +16,6 @@ class CreateVideoMultipartUploadUseCase:
     _channel_service: IChannelService
     _video_service: IVideoService
     _s3_service: IS3Service
-    _transaction_manager: ITransactionManager
 
     async def execute(self, command: CreateVideoMultipartUploadCommand) -> None:
         filename_extension = Path(command.filename).suffix.lower()
@@ -51,5 +49,4 @@ class CreateVideoMultipartUploadUseCase:
         video.set_s3_key(value=key)
         video.set_upload_status(value=VideoUploadStatusEnum.UPLOADING)
 
-        async with self._transaction_manager:
-            await self._video_service.try_update(video=video)
+        await self._video_service.try_update(video=video)

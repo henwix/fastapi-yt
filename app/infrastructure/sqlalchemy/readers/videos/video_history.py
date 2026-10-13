@@ -58,6 +58,7 @@ class VideoHistoryReader(SQLAlchemyReader, IVideoHistoryReader):
         )
         stmt = stmt.limit(limit=pagination.per_page + 1)
 
-        result = await self._session.execute(statement=stmt)
+        async with self._db.get_session(commit=False) as session:
+            result = await session.execute(statement=stmt)
         video_history_rows = result.mappings().all()
         return [convert_row_to_preview_video_history_dto(row=row) for row in video_history_rows]

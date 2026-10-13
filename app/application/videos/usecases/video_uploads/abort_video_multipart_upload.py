@@ -14,24 +14,24 @@ class AbortVideoMultipartUploadUseCase:
     _channel_service: IChannelService
     _video_service: IVideoService
     _s3_service: IS3Service
-    _transaction_manager: ITransactionManager
+    _tm: ITransactionManager
 
     async def execute(self, command: AbortVideoMultipartUploadCommand) -> None:
-        channel = await self._channel_service.try_get_existing_by_id_for_auth(id=command.current_channel_id)
-        video = await self._video_service.try_get_by_id(id=command.video_id)
+        async with self._tm.begin(commit=True):
+            channel = await self._channel_service.try_get_existing_by_id_for_auth(id=command.current_channel_id)
+            video = await self._video_service.try_get_by_id(id=command.video_id)
 
-        self._video_service.ensure_video_access(video=video, channel=channel)
-        self._video_service.ensure_video_upload_not_completed(video=video)
-        self._video_service.ensure_video_upload_created(video=video)
+            self._video_service.ensure_video_access(video=video, channel=channel)
+            self._video_service.ensure_video_upload_not_completed(video=video)
+            self._video_service.ensure_video_upload_created(video=video)
 
-        video_s3_key = video.s3_key
-        video_upload_id = video.upload_id
+            video_s3_key = video.s3_key
+            video_upload_id = video.upload_id
 
-        video.set_upload_id(value=None)
-        video.set_s3_key(value=None)
-        video.set_upload_status(value=VideoUploadStatusEnum.PENDING)
+            video.set_upload_id(value=None)
+            video.set_s3_key(value=None)
+            video.set_upload_status(value=VideoUploadStatusEnum.PENDING)
 
-        async with self._transaction_manager:
             await self._video_service.try_update(video=video)
 
         await self._s3_service.schedule_abort_multipart_upload(

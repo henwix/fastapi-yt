@@ -10,9 +10,9 @@ from app.domain.videos.services import IVideoHistoryService
 class ClearVideoHistoryUseCase:
     _channel_service: IChannelService
     _video_history_service: IVideoHistoryService
-    _transaction_manager: ITransactionManager
+    _tm: ITransactionManager
 
     async def execute(self, command: ClearVideoHistoryCommand) -> None:
-        channel = await self._channel_service.try_get_existing_by_id_for_auth(id=command.current_channel_id)
-        async with self._transaction_manager:
+        async with self._tm.begin(commit=True):
+            channel = await self._channel_service.try_get_existing_by_id_for_auth(id=command.current_channel_id)
             await self._video_history_service.try_clear(channel_id=channel.id)

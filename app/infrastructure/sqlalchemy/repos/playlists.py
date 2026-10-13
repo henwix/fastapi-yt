@@ -15,10 +15,7 @@ from app.infrastructure.sqlalchemy.repos.base import SQLAlchemyRepo
 
 class PlaylistRepo(SQLAlchemyRepo, IPlaylistRepo):
     def _parse_db_error(self, error: DBAPIError, playlist: Playlist) -> NoReturn:
-        cause: BaseException | None = getattr(error.orig, '__cause__', None)
-        constraint_name: str | None = getattr(cause, 'constraint_name', None)
-        if cause is None or constraint_name is None:
-            raise
+        constraint_name = self._extract_constraint_name(error=error)
 
         match constraint_name:
             case 'playlists_channel_id_fkey':
@@ -28,11 +25,12 @@ class PlaylistRepo(SQLAlchemyRepo, IPlaylistRepo):
 
     async def create(self, playlist: Playlist) -> Playlist:
         model = PlaylistORM.from_entity(entity=playlist)
-        self._session.add(instance=model)
-        try:
-            await self._session.flush(objects=(model,))
-        except IntegrityError as e:
-            self._parse_db_error(error=e, playlist=playlist)
+        async with self._db.get_session(commit=True) as session:
+            session.add(instance=model)
+            try:
+                await session.flush(objects=(model,))
+            except IntegrityError as e:
+                self._parse_db_error(error=e, playlist=playlist)
         return model.to_entity()
 
     async def update(self, playlist: Playlist) -> Playlist | None:
@@ -46,7 +44,8 @@ class PlaylistRepo(SQLAlchemyRepo, IPlaylistRepo):
             )
             .returning(PlaylistORM)
         )
-        result = await self._session.execute(statement=stmt)
+        async with self._db.get_session(commit=True) as session:
+            result = await session.execute(statement=stmt)
         orm_playlist = result.scalar_one_or_none()
         return orm_playlist.to_entity() if orm_playlist else None
 
@@ -55,22 +54,21 @@ class PlaylistRepo(SQLAlchemyRepo, IPlaylistRepo):
             PlaylistORM.id == id,
             exists().where(ChannelORM.id == PlaylistORM.channel_id, ChannelORM.deleted_at.is_(None)),
         )
-        result = await self._session.execute(statement=stmt)
+        async with self._db.get_session(commit=False) as session:
+            result = await session.execute(statement=stmt)
         playlist = result.scalar_one_or_none()
         return playlist.to_entity() if playlist else None
 
     async def delete_by_id(self, id: UUID) -> bool:
         stmt = delete(PlaylistORM).where(PlaylistORM.id == id)
-        result = await self._session.execute(statement=stmt)
+        async with self._db.get_session(commit=True) as session:
+            result = await session.execute(statement=stmt)
         return cast(CursorResult, result).rowcount > 0
 
 
 class PlaylistItemRepo(SQLAlchemyRepo, IPlaylistItemRepo):
     def _parse_db_error(self, error: DBAPIError, playlist_item: PlaylistItem) -> NoReturn:
-        cause: BaseException | None = getattr(error.orig, '__cause__', None)
-        constraint_name: str | None = getattr(cause, 'constraint_name', None)
-        if cause is None or constraint_name is None:
-            raise
+        constraint_name = self._extract_constraint_name(error=error)
 
         match constraint_name:
             case 'unique_playlist_item':
@@ -87,11 +85,12 @@ class PlaylistItemRepo(SQLAlchemyRepo, IPlaylistItemRepo):
 
     async def create(self, playlist_item: PlaylistItem) -> PlaylistItem:
         model = PlaylistItemORM.from_entity(entity=playlist_item)
-        self._session.add(instance=model)
-        try:
-            await self._session.flush(objects=(model,))
-        except IntegrityError as e:
-            self._parse_db_error(error=e, playlist_item=playlist_item)
+        async with self._db.get_session(commit=True) as session:
+            session.add(instance=model)
+            try:
+                await session.flush(objects=(model,))
+            except IntegrityError as e:
+                self._parse_db_error(error=e, playlist_item=playlist_item)
         return model.to_entity()
 
     async def delete(self, playlist_id: UUID, video_id: str) -> bool:
@@ -99,5 +98,6 @@ class PlaylistItemRepo(SQLAlchemyRepo, IPlaylistItemRepo):
             PlaylistItemORM.playlist_id == playlist_id,
             PlaylistItemORM.video_id == video_id,
         )
-        result = await self._session.execute(statement=stmt)
+        async with self._db.get_session(commit=True) as session:
+            result = await session.execute(statement=stmt)
         return cast(CursorResult, result).rowcount > 0

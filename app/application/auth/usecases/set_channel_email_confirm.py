@@ -10,12 +10,12 @@ from app.domain.channels.services import IChannelService
 class SetChannelEmailConfirmUseCase:
     _channel_service: IChannelService
     _auth_code_service: IAuthCodeService
-    _transaction_manager: ITransactionManager
+    _tm: ITransactionManager
 
     async def execute(self, command: SetChannelEmailConfirmCommand) -> None:
-        channel = await self._channel_service.try_get_existing_by_id_for_auth(id=command.current_channel_id)
-        new_email = await self._auth_code_service.validate_set_email_code(channel_id=channel.id, code=command.code)
+        async with self._tm.begin(commit=True):
+            channel = await self._channel_service.try_get_existing_by_id_for_auth(id=command.current_channel_id)
+            new_email = await self._auth_code_service.validate_set_email_code(channel_id=channel.id, code=command.code)
 
-        channel.set_email(value=new_email)
-        async with self._transaction_manager:
+            channel.set_email(value=new_email)
             await self._channel_service.try_update(channel=channel)

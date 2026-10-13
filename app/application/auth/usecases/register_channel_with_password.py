@@ -5,7 +5,6 @@ from app.application.auth.commands import RegisterChannelWithPasswordCommand
 from app.application.common.dto.jwt import JWTTokens
 from app.application.common.interfaces.email import IEmailService
 from app.application.common.interfaces.security import IAuthCodeService, IAuthService, IPasswordHasher
-from app.application.common.interfaces.transaction_manager import ITransactionManager
 from app.core.configs import settings
 from app.domain.channels.entities import Channel
 from app.domain.channels.services import IChannelService
@@ -20,7 +19,6 @@ class RegisterChannelWithPasswordUseCase:
     _auth_code_service: IAuthCodeService
     _auth_service: IAuthService
     _email_service: IEmailService
-    _transaction_manager: ITransactionManager
 
     async def execute(self, command: RegisterChannelWithPasswordCommand) -> tuple[Channel, JWTTokens, bool]:
         await self._channel_service.try_check_email_exists(email=command.email)
@@ -41,8 +39,7 @@ class RegisterChannelWithPasswordUseCase:
             is_active=not activation_required,
         )
 
-        async with self._transaction_manager:
-            channel = await self._channel_service.create(channel=channel_entity)
+        channel = await self._channel_service.create(channel=channel_entity)
 
         tokens = await self._auth_service.login(channel_id=channel.id)
 

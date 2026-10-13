@@ -16,9 +16,6 @@ class IVideoCommentReactionRepo(ABC):
     ) -> VideoCommentReaction | None: ...
 
     @abstractmethod
-    async def create(self, video_comment_reaction: VideoCommentReaction) -> VideoCommentReaction: ...
-
-    @abstractmethod
     async def update(self, video_comment_reaction: VideoCommentReaction) -> VideoCommentReaction | None: ...
 
     @abstractmethod

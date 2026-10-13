@@ -24,7 +24,7 @@ from app.infrastructure.di.providers import (
     UseCasesProvider,
 )
 from app.infrastructure.redis.client import get_redis_client
-from app.infrastructure.sqlalchemy.database import create_engine, create_session_factory
+from app.infrastructure.sqlalchemy.config import create_engine, create_session_factory
 from app.infrastructure.sqlalchemy.models import *  # noqa F403
 from app.infrastructure.sqlalchemy.models import BaseORM
 from tests.mocks.file_type_detector import MockFileTypeDetector
@@ -78,7 +78,7 @@ def mock_database_dishka_provider(postgres_url: str, redis_url: str) -> Database
     class MockDatabaseProvider(DatabaseProvider):
         @provide(scope=Scope.APP, provides=AsyncEngine, override=True)
         async def engine(self) -> AsyncGenerator[AsyncEngine]:
-            engine = create_engine(db_url=postgres_url, echo=False)
+            engine = create_engine(db_url=postgres_url, echo=False, echo_pool=False)
             yield engine
             await engine.dispose()
 

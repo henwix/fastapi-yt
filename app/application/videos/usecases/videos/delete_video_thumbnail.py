@@ -14,19 +14,19 @@ class DeleteVideoThumbnailUseCase:
     _channel_service: IChannelService
     _video_service: IVideoService
     _s3_service: IS3Service
-    _transaction_manager: ITransactionManager
+    _tm: ITransactionManager
 
     async def execute(self, command: DeleteVideoThumbnailCommand) -> None:
-        channel = await self._channel_service.try_get_existing_by_id_for_auth(id=command.current_channel_id)
-        video = await self._video_service.try_get_by_id(id=command.video_id)
-        self._video_service.ensure_video_access(video=video, channel=channel)
-        if video.thumbnail_s3_key is None:
-            raise VideoThumbnailNotFoundError(video_id=video.id)
+        async with self._tm.begin(commit=True):
+            channel = await self._channel_service.try_get_existing_by_id_for_auth(id=command.current_channel_id)
+            video = await self._video_service.try_get_by_id(id=command.video_id)
+            self._video_service.ensure_video_access(video=video, channel=channel)
+            if video.thumbnail_s3_key is None:
+                raise VideoThumbnailNotFoundError(video_id=video.id)
 
-        video_thumbnail_s3_key = video.thumbnail_s3_key
+            video_thumbnail_s3_key = video.thumbnail_s3_key
 
-        video.set_thumbnail_s3_key(value=None)
-        async with self._transaction_manager:
+            video.set_thumbnail_s3_key(value=None)
             await self._video_service.try_update(video=video)
 
         await self._s3_service.schedule_delete_object(

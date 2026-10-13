@@ -2,6 +2,7 @@ from dataclasses import dataclass
 from datetime import datetime
 from uuid import UUID
 
+from app.application.common.interfaces.transaction_manager import ITransactionManager
 from app.application.videos.dto import DetailedVideoComment
 from app.application.videos.interfaces import IVideoCommentReader
 from app.application.videos.queries import GetVideoCommentRepliesQuery, VideoCommentsSortingFieldsEnum
@@ -15,6 +16,7 @@ from app.utils.base64url import base64url_decode, base64url_encode
 class GetVideoCommentRepliesUseCase:
     _video_comment_service: IVideoCommentService
     _video_comment_reader: IVideoCommentReader
+    _tm: ITransactionManager
 
     async def execute(self, query: GetVideoCommentRepliesQuery) -> tuple[list[DetailedVideoComment], str | None]:
         cursor_sort_value = None
@@ -35,14 +37,15 @@ class GetVideoCommentRepliesUseCase:
             except Exception as e:
                 raise InvalidCursorError(cursor=query.pagination.cursor, exc_details=str(e)) from e
 
-        video_comment = await self._video_comment_service.try_get_by_id(id=query.video_comment_id)
-        replies = await self._video_comment_reader.get_replies(
-            video_comment_id=video_comment.id,
-            cursor_sort_value=cursor_sort_value,
-            cursor_id_value=cursor_id_value,
-            sorting=query.sorting,
-            pagination=query.pagination,
-        )
+        async with self._tm.begin(commit=False):
+            video_comment = await self._video_comment_service.try_get_by_id(id=query.video_comment_id)
+            replies = await self._video_comment_reader.get_replies(
+                video_comment_id=video_comment.id,
+                cursor_sort_value=cursor_sort_value,
+                cursor_id_value=cursor_id_value,
+                sorting=query.sorting,
+                pagination=query.pagination,
+            )
 
         next_cursor = None
 

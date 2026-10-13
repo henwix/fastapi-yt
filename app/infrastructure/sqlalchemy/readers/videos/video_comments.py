@@ -52,7 +52,8 @@ class VideoCommentReader(SQLAlchemyReader, IVideoCommentReader):
         )
         stmt = stmt.limit(limit=pagination.per_page + 1)
 
-        result = await self._session.execute(statement=stmt)
+        async with self._db.get_session(commit=False) as session:
+            result = await session.execute(statement=stmt)
         video_comment_rows = result.mappings().all()
         return [convert_row_to_detailed_video_comment_dto(row=row) for row in video_comment_rows]
 

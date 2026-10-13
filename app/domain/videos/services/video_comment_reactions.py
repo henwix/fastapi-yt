@@ -19,9 +19,6 @@ class IVideoCommentReactionService(ABC):
     ) -> VideoCommentReaction | None: ...
 
     @abstractmethod
-    async def create(self, video_comment_reaction: VideoCommentReaction) -> VideoCommentReaction: ...
-
-    @abstractmethod
     async def try_update(self, video_comment_reaction: VideoCommentReaction) -> VideoCommentReaction: ...
 
     @abstractmethod
@@ -45,9 +42,6 @@ class VideoCommentReactionService(IVideoCommentReactionService):
         return await self._repo.get_by_video_comment_id_and_channel_id(
             video_comment_id=video_comment_id, channel_id=channel_id
         )
-
-    async def create(self, video_comment_reaction: VideoCommentReaction) -> VideoCommentReaction:
-        return await self._repo.create(video_comment_reaction=video_comment_reaction)
 
     async def try_update(self, video_comment_reaction: VideoCommentReaction) -> VideoCommentReaction:
         updated_video_comment_reaction = await self._repo.update(video_comment_reaction=video_comment_reaction)

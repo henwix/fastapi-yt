@@ -2,6 +2,7 @@ from dataclasses import dataclass
 from datetime import datetime
 from uuid import UUID
 
+from app.application.common.interfaces.transaction_manager import ITransactionManager
 from app.application.subscriptions.dto import DetailedSubscription
 from app.application.subscriptions.interfaces import ISubscriptionReader
 from app.application.subscriptions.queries import GetSubscriptionsQuery, SubscriptionsSortingFieldsEnum
@@ -15,6 +16,7 @@ from app.utils.base64url import base64url_decode, base64url_encode
 class GetSubscriptionsUseCase:
     _channel_service: IChannelService
     _subscription_reader: ISubscriptionReader
+    _tm: ITransactionManager
 
     async def execute(self, query: GetSubscriptionsQuery) -> tuple[list[DetailedSubscription], str | None]:
         cursor_sort_value = None
@@ -35,14 +37,15 @@ class GetSubscriptionsUseCase:
             except Exception as e:
                 raise InvalidCursorError(cursor=query.pagination.cursor, exc_details=str(e)) from e
 
-        channel = await self._channel_service.try_get_existing_by_id_for_auth(id=query.current_channel_id)
-        subscriptions = await self._subscription_reader.get_subscriptions_by_id(
-            subscriber_id=channel.id,
-            cursor_sort_value=cursor_sort_value,
-            cursor_id_value=cursor_id_value,
-            sorting=query.sorting,
-            pagination=query.pagination,
-        )
+        async with self._tm.begin(commit=False):
+            channel = await self._channel_service.try_get_existing_by_id_for_auth(id=query.current_channel_id)
+            subscriptions = await self._subscription_reader.get_subscriptions_by_id(
+                subscriber_id=channel.id,
+                cursor_sort_value=cursor_sort_value,
+                cursor_id_value=cursor_id_value,
+                sorting=query.sorting,
+                pagination=query.pagination,
+            )
 
         next_cursor = None
 

@@ -11,6 +11,7 @@ class MockS3Service(S3Service):
         self.METADATA_CHANNEL_ID: UUID = uuid7()
         self.CONTENT_TYPE: str = 'image/png'
         self.CONTENT_LENGTH: int = 1024 * 1024 * 1
+        self.CONTENT_LENGTH_RANGE: int = 1024 * 1024 * 1
         self.UPLOAD_ID: str = secrets.token_hex(16)
 
     async def get_object(self, bucket: str, key: str, range: str | None = None) -> dict:
@@ -21,9 +22,16 @@ class MockS3Service(S3Service):
         return {
             'Metadata': {'channel_id': str(self.METADATA_CHANNEL_ID)},
             'ContentType': self.CONTENT_TYPE,
-            'ContentLength': '2048',
+            'ContentLength': self.CONTENT_LENGTH_RANGE,
             'ContentRange': f'bytes 0-2047/{self.CONTENT_LENGTH}',
             'Body': DummyObjectBody(),
+        }
+
+    async def head_object(self, key: str, bucket: str) -> dict:
+        return {
+            'Metadata': {'channel_id': str(self.METADATA_CHANNEL_ID)},
+            'ContentType': self.CONTENT_TYPE,
+            'ContentLength': self.CONTENT_LENGTH,
         }
 
     async def create_multipart_upload(

@@ -10,6 +10,7 @@ from app.domain.channels.exceptions import (
     ChannelAvatarInvalidFilenameError,
     ChannelAvatarInvalidKeyError,
     ChannelAvatarSizeTooBigError,
+    ChannelAvatarSizeTooSmallError,
     ChannelDeletedError,
     ChannelNotActiveError,
     ChannelNotFoundByIdError,
@@ -113,6 +114,7 @@ async def generate_channel_avatar_upload_url(
             ChannelAvatarAlreadySetError,
             ChannelAvatarInvalidContentTypeError,
             ChannelAvatarSizeTooBigError,
+            ChannelAvatarSizeTooSmallError,
         ),
         status.HTTP_500_INTERNAL_SERVER_ERROR: error_response(
             S3RequestError,

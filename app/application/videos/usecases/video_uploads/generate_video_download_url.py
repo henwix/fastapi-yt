@@ -1,6 +1,7 @@
 from dataclasses import dataclass
 
 from app.application.common.interfaces.s3 import IS3Service
+from app.application.common.interfaces.transaction_manager import ITransactionManager
 from app.application.videos.commands import GenerateVideoDownloadUrlCommand
 from app.core.configs import settings
 from app.domain.channels.services import IChannelService
@@ -14,15 +15,17 @@ class GenerateVideoDownloadUrlUseCase:
     _video_service: IVideoService
     _channel_service: IChannelService
     _s3_service: IS3Service
+    _tm: ITransactionManager
 
     async def execute(self, command: GenerateVideoDownloadUrlCommand) -> str:
-        video = await self._video_service.try_get_completed_by_id(id=command.video_id)
+        async with self._tm.begin(commit=False):
+            video = await self._video_service.try_get_completed_by_id(id=command.video_id)
 
-        if video.privacy_status is VideoPrivacyStatusEnum.PRIVATE:
-            if command.current_channel_id is None:
-                raise VideoAccessForbiddenError(video_id=video.id)
-            channel = await self._channel_service.try_get_existing_by_id_for_auth(id=command.current_channel_id)
-            self._video_service.ensure_video_access(video=video, channel=channel)
+            if video.privacy_status is VideoPrivacyStatusEnum.PRIVATE:
+                if command.current_channel_id is None:
+                    raise VideoAccessForbiddenError(video_id=video.id)
+                channel = await self._channel_service.try_get_existing_by_id_for_auth(id=command.current_channel_id)
+                self._video_service.ensure_video_access(video=video, channel=channel)
 
         if video.s3_key is None:
             raise VideoFileNotFoundError(video_id=video.id)

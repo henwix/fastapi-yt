@@ -12,22 +12,22 @@ from app.domain.subscriptions.services import ISubscriptionService
 class SubscribeUseCase:
     _channel_service: IChannelService
     _subscription_service: ISubscriptionService
-    _transaction_manager: ITransactionManager
+    _tm: ITransactionManager
 
     async def execute(self, command: SubscribeCommand) -> Subscription:
-        current_channel = await self._channel_service.try_get_existing_by_id_for_auth(id=command.current_channel_id)
-        if current_channel.slug.to_raw() == command.channel_slug:
-            raise SelfSubscriptionError(subscriber_id=current_channel.id)
+        async with self._tm.begin(commit=True):
+            current_channel = await self._channel_service.try_get_existing_by_id_for_auth(id=command.current_channel_id)
+            if current_channel.slug.to_raw() == command.channel_slug:
+                raise SelfSubscriptionError(subscriber_id=current_channel.id)
 
-        subscribe_to_channel = await self._channel_service.try_get_existing_by_slug(slug=command.channel_slug)
-        await self._subscription_service.check_subscription_exists(
-            subscriber_id=current_channel.id,
-            subscribed_to_id=subscribe_to_channel.id,
-        )
+            subscribe_to_channel = await self._channel_service.try_get_existing_by_slug(slug=command.channel_slug)
+            await self._subscription_service.check_subscription_exists(
+                subscriber_id=current_channel.id,
+                subscribed_to_id=subscribe_to_channel.id,
+            )
 
-        subscription_entity = Subscription.create(
-            subscriber_id=current_channel.id,
-            subscribed_to_id=subscribe_to_channel.id,
-        )
-        async with self._transaction_manager:
+            subscription_entity = Subscription.create(
+                subscriber_id=current_channel.id,
+                subscribed_to_id=subscribe_to_channel.id,
+            )
             return await self._subscription_service.create(subscription=subscription_entity)

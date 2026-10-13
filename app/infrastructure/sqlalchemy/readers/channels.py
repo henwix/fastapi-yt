@@ -45,7 +45,8 @@ class ChannelReader(SQLAlchemyReader, IChannelReader):
             .outerjoin(videos_subquery, sa.true())
             .where(ChannelORM.slug == slug, ChannelORM.deleted_at.is_(None))
         )
-        result = await self._session.execute(statement=stmt)
+        async with self._db.get_session(commit=False) as session:
+            result = await session.execute(statement=stmt)
         row = result.mappings().one_or_none()
 
         if row is None:

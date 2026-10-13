@@ -3,6 +3,7 @@ from dataclasses import dataclass
 from app.application.auth.commands import SetChannelEmailCommand
 from app.application.common.interfaces.email import IEmailService
 from app.application.common.interfaces.security import IAuthCodeService
+from app.application.common.interfaces.transaction_manager import ITransactionManager
 from app.domain.auth.exceptions import ChannelEmailAlreadyAssociatedWithThisAcccountError
 from app.domain.channels.services import IChannelService
 
@@ -12,13 +13,15 @@ class SetChannelEmailUseCase:
     _channel_service: IChannelService
     _auth_code_service: IAuthCodeService
     _email_service: IEmailService
+    _tm: ITransactionManager
 
     async def execute(self, command: SetChannelEmailCommand) -> None:
-        channel = await self._channel_service.try_get_existing_by_id_for_auth(id=command.current_channel_id)
-        if channel.email.to_raw() == command.new_email:
-            raise ChannelEmailAlreadyAssociatedWithThisAcccountError(channel_id=channel.id)
+        async with self._tm.begin(commit=False):
+            channel = await self._channel_service.try_get_existing_by_id_for_auth(id=command.current_channel_id)
+            if channel.email.to_raw() == command.new_email:
+                raise ChannelEmailAlreadyAssociatedWithThisAcccountError(channel_id=channel.id)
 
-        await self._channel_service.try_check_email_exists(email=command.new_email)
+            await self._channel_service.try_check_email_exists(email=command.new_email)
 
         code = await self._auth_code_service.create_set_email_code(channel_id=channel.id, new_email=command.new_email)
         confirmation_url = self._auth_code_service.build_set_email_confirm_url(code=code)

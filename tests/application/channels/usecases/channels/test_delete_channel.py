@@ -32,13 +32,14 @@ async def test_delete_channel_raises_error_if_not_active(mock_container: AsyncCo
     async with mock_container() as di:
         use_case = await di.get(DeleteChannelUseCase)
         session = await di.get(AsyncSession)
-        db_channel = await ChannelORMFactory.create(session=session, is_active=False)
-        command = DeleteChannelCommandFactory.build(current_channel_id=db_channel.id)
+        channel = await ChannelORMFactory.create(session=session, is_active=False)
+        command = DeleteChannelCommandFactory.build(current_channel_id=channel.id)
 
         with pytest.raises(ChannelNotActiveError):
             await use_case.execute(command=command)
 
-        assert db_channel.deleted_at is None
+        await session.refresh(instance=channel)
+        assert channel.deleted_at is None
 
 
 @pytest.mark.asyncio
@@ -48,11 +49,10 @@ async def test_delete_channel_raises_error_if_deleted(mock_container: AsyncConta
         session = await di.get(AsyncSession)
         db_channel = await ChannelORMFactory.create(session=session, deleted_at=get_current_utc_datetime())
         command = DeleteChannelCommandFactory.build(current_channel_id=db_channel.id)
+        assert db_channel.deleted_at is not None
 
         with pytest.raises(ChannelDeletedError):
             await use_case.execute(command=command)
-
-        assert db_channel.deleted_at is not None
 
 
 @pytest.mark.asyncio

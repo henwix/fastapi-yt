@@ -65,15 +65,15 @@ async def test_activate_channel_raises_error_if_activation_code_not_found(mock_c
         use_case = await di.get(ActivateChannelUseCase)
         session = await di.get(AsyncSession)
 
-        db_channel = await ChannelORMFactory.create(session=session, is_active=False)
-        command = ActivateChannelCommandFactory.build(current_channel_id=db_channel.id)
-
-        db_channel_id = db_channel.id
+        channel = await ChannelORMFactory.create(session=session, is_active=False)
+        command = ActivateChannelCommandFactory.build(current_channel_id=channel.id)
 
         with pytest.raises(ChannelInvalidEmailCodeError) as e:
             await use_case.execute(command=command)
 
-        assert e.value.channel_id == db_channel_id
+        await session.refresh(instance=channel)
+
+        assert e.value.channel_id == channel.id
         assert e.value.code == command.code
         assert e.value.reason == 'activation_code_not_found'
 
@@ -85,15 +85,15 @@ async def test_activate_channel_raises_error_if_activation_code_mismatch(mock_co
         use_case = await di.get(ActivateChannelUseCase)
         session = await di.get(AsyncSession)
 
-        db_channel = await ChannelORMFactory.create(session=session, is_active=False)
-        await auth_code_service.create_activation_code(channel_id=db_channel.id)
-        command = ActivateChannelCommandFactory.build(current_channel_id=db_channel.id)
-
-        db_channel_id = db_channel.id
+        channel = await ChannelORMFactory.create(session=session, is_active=False)
+        await auth_code_service.create_activation_code(channel_id=channel.id)
+        command = ActivateChannelCommandFactory.build(current_channel_id=channel.id)
 
         with pytest.raises(ChannelInvalidEmailCodeError) as e:
             await use_case.execute(command=command)
 
-        assert e.value.channel_id == db_channel_id
+        await session.refresh(instance=channel)
+
+        assert e.value.channel_id == channel.id
         assert e.value.code == command.code
         assert e.value.reason == 'activation_code_mismatch'

@@ -24,9 +24,8 @@ from app.infrastructure.security.password_hasher import PwdlibPasswordHasher
 class AppProvider(Provider):
     @provide(scope=Scope.APP)
     async def provide_httpx_async_client(self) -> AsyncGenerator[AsyncClient]:
-        client = get_httpx_client()
-        yield client
-        await client.aclose()
+        async with get_httpx_client() as client:
+            yield client
 
     @provide(scope=Scope.APP)
     async def provide_s3_async_client(self) -> AsyncGenerator[S3Client]:

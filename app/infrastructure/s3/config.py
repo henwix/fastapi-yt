@@ -27,5 +27,5 @@ async def get_s3_client() -> AsyncGenerator[S3Client]:
         endpoint_url=settings.s3_endpoint,
         aws_access_key_id=settings.s3_access_key,
         aws_secret_access_key=settings.s3_secret_key,
-    ) as s3:
-        yield s3
+    ) as s3_client:
+        yield s3_client

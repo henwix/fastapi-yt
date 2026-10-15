@@ -38,9 +38,11 @@ class ConfirmChannelAvatarUploadUseCase:
         if channel.avatar_s3_key == avatar_s3_key:
             raise ChannelAvatarAlreadySetError(channel_id=channel.id, avatar_s3_key=channel.avatar_s3_key)
 
+        bucket_name = settings.s3_public_bucket_name
+
         avatar_head_object = await self._s3_service.head_object(
             key=command.key,
-            bucket=settings.s3_public_bucket_name,
+            bucket=bucket_name,
         )
 
         avatar_metadata_channel_id = avatar_head_object['Metadata'].get('channel_id')
@@ -49,23 +51,23 @@ class ConfirmChannelAvatarUploadUseCase:
 
         avatar_metadata_content_length = avatar_head_object['ContentLength']
         if avatar_metadata_content_length == 0:
-            await self._s3_service.schedule_delete_object(bucket=settings.s3_public_bucket_name, key=command.key)
+            await self._s3_service.schedule_delete_object(bucket=bucket_name, key=command.key)
             raise ChannelAvatarSizeTooSmallError(
                 key=command.key,
-                bucket=settings.s3_public_bucket_name,
+                bucket=bucket_name,
                 file_size=avatar_metadata_content_length,
             )
         if avatar_metadata_content_length > CHANNEL_AVATAR_MAX_SIZE:
-            await self._s3_service.schedule_delete_object(bucket=settings.s3_public_bucket_name, key=command.key)
+            await self._s3_service.schedule_delete_object(bucket=bucket_name, key=command.key)
             raise ChannelAvatarSizeTooBigError(
                 key=command.key,
-                bucket=settings.s3_public_bucket_name,
+                bucket=bucket_name,
                 file_size=avatar_metadata_content_length,
                 file_max_size=CHANNEL_AVATAR_MAX_SIZE,
             )
 
         avatar_object = await self._s3_service.get_object(
-            bucket=settings.s3_public_bucket_name,
+            bucket=bucket_name,
             key=command.key,
             range='bytes=0-2047',
         )
@@ -77,7 +79,7 @@ class ConfirmChannelAvatarUploadUseCase:
             actual_avatar_mime_type not in IMAGE_FILE_MIME_TYPES.values()
             or avatar_metadata_mime_type not in IMAGE_FILE_MIME_TYPES.values()
         ):
-            await self._s3_service.schedule_delete_object(bucket=settings.s3_public_bucket_name, key=command.key)
+            await self._s3_service.schedule_delete_object(bucket=bucket_name, key=command.key)
             raise ChannelAvatarInvalidContentTypeError(
                 key=command.key,
                 metadata_content_type=avatar_metadata_mime_type,
@@ -85,12 +87,12 @@ class ConfirmChannelAvatarUploadUseCase:
             )
 
         await self._s3_service.copy_object(
-            bucket=settings.s3_public_bucket_name,
+            bucket=bucket_name,
             current_key=command.key,
             new_key=avatar_s3_key,
         )
         await self._s3_service.schedule_delete_object(
-            bucket=settings.s3_public_bucket_name,
+            bucket=bucket_name,
             key=command.key,
         )
 
@@ -101,6 +103,6 @@ class ConfirmChannelAvatarUploadUseCase:
 
         if old_channel_avatar_s3_key is not None and channel.avatar_s3_key != old_channel_avatar_s3_key:
             await self._s3_service.schedule_delete_object(
-                bucket=settings.s3_public_bucket_name,
+                bucket=bucket_name,
                 key=old_channel_avatar_s3_key,
             )

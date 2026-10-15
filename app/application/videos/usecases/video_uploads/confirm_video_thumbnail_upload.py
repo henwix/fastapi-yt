@@ -43,8 +43,10 @@ class ConfirmVideoThumbnailUploadUseCase:
         if video.thumbnail_s3_key == thumbnail_s3_key:
             raise VideoThumbnailAlreadySetError(video_id=video.id, thumbnail_s3_key=thumbnail_s3_key)
 
+        bucket_name = settings.s3_public_bucket_name
+
         thumbnail_head_object = await self._s3_service.head_object(
-            bucket=settings.s3_public_bucket_name,
+            bucket=bucket_name,
             key=command.key,
         )
 
@@ -62,23 +64,23 @@ class ConfirmVideoThumbnailUploadUseCase:
 
         thumbnail_metadata_content_length = thumbnail_head_object['ContentLength']
         if thumbnail_metadata_content_length == 0:
-            await self._s3_service.schedule_delete_object(bucket=settings.s3_public_bucket_name, key=command.key)
+            await self._s3_service.schedule_delete_object(bucket=bucket_name, key=command.key)
             raise VideoThumbnailSizeTooSmallError(
                 key=command.key,
-                bucket=settings.s3_public_bucket_name,
+                bucket=bucket_name,
                 file_size=thumbnail_metadata_content_length,
             )
         if thumbnail_metadata_content_length > VIDEO_THUMBNAIL_MAX_SIZE:
-            await self._s3_service.schedule_delete_object(bucket=settings.s3_public_bucket_name, key=command.key)
+            await self._s3_service.schedule_delete_object(bucket=bucket_name, key=command.key)
             raise VideoThumbnailSizeTooBigError(
                 key=command.key,
-                bucket=settings.s3_public_bucket_name,
+                bucket=bucket_name,
                 file_size=thumbnail_metadata_content_length,
                 file_max_size=VIDEO_THUMBNAIL_MAX_SIZE,
             )
 
         thumbnail_object = await self._s3_service.get_object(
-            bucket=settings.s3_public_bucket_name,
+            bucket=bucket_name,
             key=command.key,
             range='bytes=0-2047',
         )
@@ -90,7 +92,7 @@ class ConfirmVideoThumbnailUploadUseCase:
             thumbnail_metadata_mime_type not in IMAGE_FILE_MIME_TYPES.values()
             or thumbnail_actual_mime_type not in IMAGE_FILE_MIME_TYPES.values()
         ):
-            await self._s3_service.schedule_delete_object(bucket=settings.s3_public_bucket_name, key=command.key)
+            await self._s3_service.schedule_delete_object(bucket=bucket_name, key=command.key)
             raise VideoThumbnailInvalidContentTypeError(
                 key=command.key,
                 metadata_content_type=thumbnail_metadata_mime_type,
@@ -98,12 +100,12 @@ class ConfirmVideoThumbnailUploadUseCase:
             )
 
         await self._s3_service.copy_object(
-            bucket=settings.s3_public_bucket_name,
+            bucket=bucket_name,
             current_key=command.key,
             new_key=thumbnail_s3_key,
         )
         await self._s3_service.schedule_delete_object(
-            bucket=settings.s3_public_bucket_name,
+            bucket=bucket_name,
             key=command.key,
         )
 
@@ -114,6 +116,6 @@ class ConfirmVideoThumbnailUploadUseCase:
 
         if old_thumbnail_s3_key is not None and video.thumbnail_s3_key != old_thumbnail_s3_key:
             await self._s3_service.schedule_delete_object(
-                bucket=settings.s3_public_bucket_name,
+                bucket=bucket_name,
                 key=old_thumbnail_s3_key,
             )

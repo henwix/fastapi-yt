@@ -1,12 +1,13 @@
-from functools import lru_cache
+from collections.abc import AsyncGenerator
+from contextlib import asynccontextmanager
 
 import httpx
 
 from app.core.configs import settings
 
 
-@lru_cache(1)
-def get_httpx_client() -> httpx.AsyncClient:
+@asynccontextmanager
+async def get_httpx_client() -> AsyncGenerator[httpx.AsyncClient]:
     timeout = httpx.Timeout(timeout=settings.http_default_timeout)
 
     limits = httpx.Limits(
@@ -15,5 +16,5 @@ def get_httpx_client() -> httpx.AsyncClient:
         keepalive_expiry=settings.http_keepalive_expiry,
     )
 
-    client = httpx.AsyncClient(timeout=timeout, limits=limits)
-    return client
+    async with httpx.AsyncClient(timeout=timeout, limits=limits) as client:
+        yield client

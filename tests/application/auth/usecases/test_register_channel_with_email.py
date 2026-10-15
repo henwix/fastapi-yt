@@ -105,14 +105,15 @@ async def test_register_channel_with_email_raises_error_if_email_already_exists(
         use_case = await di.get(RegisterChannelWithEmailUseCase)
         session = await di.get(AsyncSession)
         channel = await ChannelORMFactory.create(session=session)
-        channel_email = channel.email
 
         command = RegisterChannelWithEmailCommandFactory.build(email=channel.email)
 
         with pytest.raises(ChannelEmailAlreadyExistsError) as e:
             await use_case.execute(command=command)
 
-        assert e.value.channel_email == channel_email
+        await session.refresh(instance=channel)
+
+        assert e.value.channel_email == channel.email
 
 
 @pytest.mark.asyncio
@@ -121,11 +122,12 @@ async def test_register_channel_with_email_raises_error_if_slug_already_exists(c
         use_case = await di.get(RegisterChannelWithEmailUseCase)
         session = await di.get(AsyncSession)
         channel = await ChannelORMFactory.create(session=session)
-        channel_slug = channel.slug
 
         command = RegisterChannelWithEmailCommandFactory.build(slug=channel.slug)
 
         with pytest.raises(ChannelSlugAlreadyExistsError) as e:
             await use_case.execute(command=command)
 
-        assert e.value.channel_slug == channel_slug
+        await session.refresh(instance=channel)
+
+        assert e.value.channel_slug == channel.slug

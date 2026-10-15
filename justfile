@@ -26,7 +26,7 @@ down:
 restart:
 	{{DC}} -f {{APP_DEV_FILE}} {{ENV}} -f {{STORAGES_FILE}} {{ENV}} down && {{DC}} -f {{APP_DEV_FILE}} {{ENV}} -f {{STORAGES_FILE}} {{ENV}} up --build -d
 
-makemigrations m:
+makemigration m:
 	{{EXEC}} {{APP_CONTAINER}} alembic revision --autogenerate -m "{{m}}"
 
 migrate:

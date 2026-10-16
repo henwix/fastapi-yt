@@ -112,6 +112,10 @@ class S3Service(IS3Service):
         command = DeleteS3ObjectCommand(bucket=bucket, key=key)
         await s3_delete_object_task.kiq(command)
 
+    async def delete_objects(self, bucket: str, keys: list[str]) -> dict:
+        objects = [{'Key': key} for key in keys]
+        return await self._provider.delete_objects(bucket=bucket, objects=objects)
+
     async def copy_object(
         self,
         bucket: str,

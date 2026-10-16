@@ -1,12 +1,17 @@
-from typing import NoReturn
+from datetime import timedelta
+from typing import NoReturn, cast
+from uuid import UUID
 
+from sqlalchemy import CursorResult, and_, delete, or_, select, update
 from sqlalchemy.exc import DBAPIError, IntegrityError
 
 from app.domain.files_cleanup.entities import FileCleanup
+from app.domain.files_cleanup.enums import FileCleanupStatusEnum
 from app.domain.files_cleanup.exceptions import FileCleanupAlreadyCreatedError
 from app.domain.files_cleanup.repos import IFileCleanupRepo
 from app.infrastructure.sqlalchemy.models import FileCleanupORM
 from app.infrastructure.sqlalchemy.repos.base import SQLAlchemyRepo
+from app.utils.datetime import get_current_utc_datetime
 
 
 class FileCleanupRepo(SQLAlchemyRepo, IFileCleanupRepo):
@@ -34,3 +39,38 @@ class FileCleanupRepo(SQLAlchemyRepo, IFileCleanupRepo):
         async with self._db.get_session(commit=True) as session:
             session.add_all(instances=models)
             await session.flush(objects=models)
+
+    async def get_many_for_cleanup(self, limit: int) -> list[FileCleanup]:
+        select_for_update_cleanups = (
+            select(FileCleanupORM.id)
+            .with_for_update(skip_locked=True)
+            .where(
+                or_(
+                    FileCleanupORM.status == FileCleanupStatusEnum.PENDING,
+                    and_(
+                        FileCleanupORM.status == FileCleanupStatusEnum.PROCESSING,
+                        FileCleanupORM.locked_until < get_current_utc_datetime(),
+                    ),
+                )
+            )
+            .limit(limit=limit)
+        )
+        stmt = (
+            update(FileCleanupORM)
+            .values(
+                status=FileCleanupStatusEnum.PROCESSING,
+                locked_until=get_current_utc_datetime() + timedelta(minutes=5),
+            )
+            .where(FileCleanupORM.id.in_(select_for_update_cleanups))
+            .returning(FileCleanupORM)
+        )
+        async with self._db.get_session(commit=True) as session:
+            result = await session.execute(statement=stmt)
+
+        return [cleanup.to_entity() for cleanup in result.scalars()]
+
+    async def delete_many(self, ids: list[UUID]) -> int:
+        stmt = delete(FileCleanupORM).where(FileCleanupORM.id.in_(ids))
+        async with self._db.get_session(commit=True) as session:
+            result = await session.execute(statement=stmt)
+        return cast(CursorResult, result).rowcount

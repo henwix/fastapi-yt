@@ -1,5 +1,6 @@
 from abc import ABC, abstractmethod
 from dataclasses import dataclass
+from uuid import UUID
 
 from app.domain.files_cleanup.entities import FileCleanup
 from app.domain.files_cleanup.repos import IFileCleanupRepo
@@ -12,6 +13,12 @@ class IFileCleanupService(ABC):
     @abstractmethod
     async def create_many(self, cleanups: list[FileCleanup]) -> None: ...
 
+    @abstractmethod
+    async def get_for_cleanup(self, limit: int) -> list[FileCleanup]: ...
+
+    @abstractmethod
+    async def delete_many(self, ids: list[UUID]) -> int: ...
+
 
 @dataclass
 class FileCleanupService(IFileCleanupService):
@@ -22,3 +29,9 @@ class FileCleanupService(IFileCleanupService):
 
     async def create_many(self, cleanups: list[FileCleanup]) -> None:
         return await self._repo.create_many(cleanups=cleanups)
+
+    async def get_for_cleanup(self, limit: int) -> list[FileCleanup]:
+        return await self._repo.get_many_for_cleanup(limit=limit)
+
+    async def delete_many(self, ids: list[UUID]) -> int:
+        return await self._repo.delete_many(ids=ids)

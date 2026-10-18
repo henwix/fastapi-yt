@@ -24,10 +24,12 @@ class FileCleanupORM(
         default=None,
         server_default=sa.sql.null(),
     )
+    error_code: Mapped[str | None] = mapped_column(default=None, server_default=sa.sql.null())
+    error_message: Mapped[str | None] = mapped_column(default=None, server_default=sa.sql.null())
 
     __table_args__ = (
         sa.UniqueConstraint('s3_key', 'bucket', name='uq_file_cleanup'),
-        sa.CheckConstraint("status IN ('pending', 'processing')", name='ck_files_cleanup_status'),
+        sa.CheckConstraint("status IN ('pending', 'processing', 'failed')", name='ck_files_cleanup_status'),
     )
 
     @staticmethod

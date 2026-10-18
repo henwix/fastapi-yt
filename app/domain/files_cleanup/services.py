@@ -3,6 +3,7 @@ from dataclasses import dataclass
 from uuid import UUID
 
 from app.domain.files_cleanup.entities import FileCleanup
+from app.domain.files_cleanup.enums import FileCleanupStatusEnum
 from app.domain.files_cleanup.repos import IFileCleanupRepo
 
 
@@ -18,6 +19,18 @@ class IFileCleanupService(ABC):
 
     @abstractmethod
     async def delete_many(self, ids: list[UUID]) -> int: ...
+
+    @abstractmethod
+    async def update_many(
+        self,
+        cleanups: list[FileCleanup],
+        status: FileCleanupStatusEnum,
+        error_code: str | None,
+        error_message: str | None,
+    ) -> int: ...
+
+    @abstractmethod
+    async def update_bulk(self, data: list[dict]) -> int: ...
 
 
 @dataclass
@@ -35,3 +48,17 @@ class FileCleanupService(IFileCleanupService):
 
     async def delete_many(self, ids: list[UUID]) -> int:
         return await self._repo.delete_many(ids=ids)
+
+    async def update_many(
+        self,
+        cleanups: list[FileCleanup],
+        status: FileCleanupStatusEnum,
+        error_code: str | None,
+        error_message: str | None,
+    ) -> int:
+        return await self._repo.update_many(
+            cleanups=cleanups, status=status, error_code=error_code, error_message=error_message
+        )
+
+    async def update_bulk(self, data: list[dict]) -> int:
+        return await self._repo.update_bulk(data=data)

@@ -74,3 +74,32 @@ class FileCleanupRepo(SQLAlchemyRepo, IFileCleanupRepo):
         async with self._db.get_session(commit=True) as session:
             result = await session.execute(statement=stmt)
         return cast(CursorResult, result).rowcount
+
+    async def update_many(
+        self,
+        cleanups: list[FileCleanup],
+        status: FileCleanupStatusEnum,
+        error_code: str | None,
+        error_message: str | None,
+    ) -> int:
+        ids = [cleanup.id for cleanup in cleanups]
+        stmt = (
+            update(FileCleanupORM)
+            .values(
+                status=status.value,
+                error_code=error_code,
+                error_message=error_message,
+            )
+            .where(FileCleanupORM.id.in_(ids))
+        )
+        async with self._db.get_session(commit=True) as session:
+            result = await session.execute(statement=stmt)
+        return cast(CursorResult, result).rowcount
+
+    async def update_bulk(self, data: list[dict]) -> int:
+        async with self._db.get_session(commit=True) as session:
+            result = await session.execute(
+                statement=update(FileCleanupORM),
+                params=data,
+            )
+        return cast(CursorResult, result).rowcount

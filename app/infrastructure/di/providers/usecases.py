@@ -33,6 +33,7 @@ from app.application.common.usecases.email import (
     SendLoginEmailCodeUseCase,
 )
 from app.application.common.usecases.s3 import AbortMultipartUploadUseCase, DeleteS3ObjectUseCase
+from app.application.files_cleanup.usecases import CleanupUseCase
 from app.application.oauth.usecases import (
     DisconnectOAuthAccountUseCase,
     GenerateOAuthLoginUrlUseCase,
@@ -222,6 +223,9 @@ class UseCasesProvider(Provider):
     unsubscribe = provide(UnsubscribeUseCase)
     get_subscribers = provide(GetSubscribersUseCase)
     get_subscriptions = provide(GetSubscriptionsUseCase)
+
+    # Files cleanup
+    cleanup = provide(CleanupUseCase)
 
     # Common/Email
     send_channel_activation_code = provide(SendChannelActivationCodeUseCase)

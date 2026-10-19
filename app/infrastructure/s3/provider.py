@@ -162,6 +162,16 @@ class BotoS3Provider(IS3Provider):
             Key=key,
         )
 
+    async def delete_objects(self, bucket: str, objects: list[dict[str, str]]) -> dict:
+        return await self._client_action(
+            self._s3_client.delete_objects,
+            Bucket=bucket,
+            Delete={
+                'Objects': objects,
+                'Quiet': False,
+            },
+        )
+
     async def copy_object(self, bucket: str, current_key: str, new_key: str) -> None:
         try:
             await self._client_action(

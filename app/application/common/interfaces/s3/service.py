@@ -86,6 +86,9 @@ class IS3Service(ABC):
     ) -> None: ...
 
     @abstractmethod
+    async def delete_objects(self, bucket: str, keys: list[str]) -> dict: ...
+
+    @abstractmethod
     async def copy_object(
         self,
         bucket: str,

@@ -3,6 +3,7 @@ from datetime import datetime
 from uuid import UUID, uuid7
 
 from app.domain.common.entities import BaseEntity
+from app.domain.files_cleanup.enums import FileCleanupStatusEnum
 from app.utils.datetime import get_current_utc_datetime
 
 
@@ -11,6 +12,8 @@ class FileCleanup(BaseEntity):
     id: UUID = field(default_factory=uuid7)
     s3_key: str
     bucket: str
+    status: FileCleanupStatusEnum = FileCleanupStatusEnum.PENDING
+    locked_until: datetime | None = None
     created_at: datetime = field(default_factory=get_current_utc_datetime)
 
     @staticmethod

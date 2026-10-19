@@ -21,7 +21,7 @@ class IFileCleanupRepo(ABC):
     @abstractmethod
     async def update_many(
         self,
-        cleanups: list[FileCleanup],
+        ids: list[UUID],
         status: FileCleanupStatusEnum,
         error_code: str | None,
         error_message: str | None,

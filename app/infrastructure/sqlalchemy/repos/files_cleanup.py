@@ -77,12 +77,11 @@ class FileCleanupRepo(SQLAlchemyRepo, IFileCleanupRepo):
 
     async def update_many(
         self,
-        cleanups: list[FileCleanup],
+        ids: list[UUID],
         status: FileCleanupStatusEnum,
         error_code: str | None,
         error_message: str | None,
     ) -> int:
-        ids = [cleanup.id for cleanup in cleanups]
         stmt = (
             update(FileCleanupORM)
             .values(

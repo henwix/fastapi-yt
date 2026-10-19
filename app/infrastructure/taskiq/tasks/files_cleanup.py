@@ -7,7 +7,7 @@ from app.infrastructure.taskiq.broker import get_broker
 broker = get_broker()
 
 
-@broker.task(task_name='files_cleanup', schedule=[{'cron': '* * * * *'}])
+@broker.task(task_name='files_cleanup', schedule=[{'cron': '*/5 * * * *'}])
 @inject(patch_module=True)
 async def files_cleanup(use_case: FromDishka[CleanupUseCase]) -> CleanupResultDTO:
     return await use_case.execute()

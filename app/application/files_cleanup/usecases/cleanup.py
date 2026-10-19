@@ -23,8 +23,7 @@ class CleanupUseCase:
 
         logger.info('Starting cleanup')
         while True:
-            cleanups = await self._file_cleanup_service.get_for_cleanup(limit=500)
-            logger.info(f'Retrieved {len(cleanups)} files')
+            cleanups = await self._file_cleanup_service.get_many_for_cleanup(limit=500)
             if not cleanups:
                 logger.info('No files found, stop cycle')
                 break
@@ -37,7 +36,10 @@ class CleanupUseCase:
                 else:
                     buckets[cleanup.bucket] = [cleanup]
 
-            logger.info(f'Found {len(buckets)} buckets for cleanup')
+            logger.info(
+                'Found buckets for cleanup',
+                extra={'log_meta': {'buckets_count': len(buckets), 'buckets': list(buckets)}},
+            )
             for bucket_name, bucket_cleanups in buckets.items():
                 keys = [cleanup.s3_key for cleanup in bucket_cleanups]
                 try:
@@ -45,23 +47,26 @@ class CleanupUseCase:
                 except S3ResponseError as e:
                     match e.error_code:
                         case 'NoSuchBucket' | 'InvalidBucketName' | 'AccessDenied':
-                            failed = await self._file_cleanup_service.update_many(
-                                cleanups=bucket_cleanups,
+                            ids = [cleanup.id for cleanup in bucket_cleanups]
+                            failed_count = await self._file_cleanup_service.update_many(
+                                ids=ids,
                                 status=FileCleanupStatusEnum.FAILED,
                                 error_code=e.error_code,
                                 error_message=e.error_message,
                             )
                             logger.info(
-                                f'{failed} files failed to delete from bucket {bucket_name}',
+                                'Files failed to delete from bucket',
                                 extra={
                                     'log_meta': {
+                                        'bucket': bucket_name,
+                                        'failed_count': failed_count,
                                         'error_code': e.error_code,
                                         'error_message': e.error_message,
                                         'error_status': e.error_status,
                                     }
                                 },
                             )
-                            total_files_failed += failed
+                            total_files_failed += failed_count
                             continue
                         case _:
                             raise
@@ -69,9 +74,12 @@ class CleanupUseCase:
                 response_errors = response.get('Errors', [])
                 if not response_errors:
                     ids = [cleanup.id for cleanup in bucket_cleanups]
-                    deleted = await self._file_cleanup_service.delete_many(ids=ids)
-                    logger.info(f'{deleted} files deleted from bucket {bucket_name}')
-                    total_files_deleted += deleted
+                    deleted_count = await self._file_cleanup_service.delete_many(ids=ids)
+                    logger.info(
+                        'Files deleted from bucket',
+                        extra={'log_meta': {'bucket': bucket_name, 'deleted_count': deleted_count}},
+                    )
+                    total_files_deleted += deleted_count
                 else:
                     errors_by_key: dict[str, dict[str, str]] = {error['Key']: error for error in response_errors}
                     to_delete: list[UUID] = []
@@ -90,11 +98,17 @@ class CleanupUseCase:
                                     'error_message': error['Message'],
                                 }
                             )
-                    deleted = await self._file_cleanup_service.delete_many(ids=to_delete)
-                    failed = await self._file_cleanup_service.update_bulk(data=to_update)
-                    logger.info(f'{deleted} files deleted from bucket {bucket_name}')
-                    logger.info(f'{failed} files failed to delete from bucket {bucket_name}')
-                    total_files_deleted += deleted
-                    total_files_failed += failed
+                    deleted_count = await self._file_cleanup_service.delete_many(ids=to_delete)
+                    failed_count = await self._file_cleanup_service.update_bulk(data=to_update)
+                    logger.info(
+                        'Files deleted from bucket',
+                        extra={'log_meta': {'bucket': bucket_name, 'deleted_count': deleted_count}},
+                    )
+                    logger.info(
+                        'Files failed to delete from bucket',
+                        extra={'log_meta': {'bucket': bucket_name, 'failed_count': failed_count}},
+                    )
+                    total_files_deleted += deleted_count
+                    total_files_failed += failed_count
 
         return CleanupResultDTO(total_deleted=total_files_deleted, total_failed=total_files_failed)

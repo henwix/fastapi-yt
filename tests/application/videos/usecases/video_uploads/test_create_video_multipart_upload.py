@@ -15,7 +15,6 @@ from app.domain.videos.exceptions import (
     VideoUploadAlreadyCompletedError,
     VideoUploadAlreadyCreatedError,
 )
-from app.utils.datetime import get_current_utc_datetime
 from tests.factories.commands.videos import CreateVideoMultipartUploadCommandFactory
 from tests.factories.models.channels import ChannelORMFactory
 from tests.factories.models.videos import VideoORMFactory
@@ -189,7 +188,7 @@ async def test_create_video_multipart_upload_raises_error_if_channel_deleted(moc
         use_case = await di.get(CreateVideoMultipartUploadUseCase)
         session = await di.get(AsyncSession)
 
-        channel = await ChannelORMFactory.create(session=session, deleted_at=get_current_utc_datetime())
+        channel = await ChannelORMFactory.create_deleted(session=session)
         command = CreateVideoMultipartUploadCommandFactory.build(current_channel_id=channel.id)
 
         with pytest.raises(ChannelDeletedError):

@@ -13,7 +13,6 @@ from app.domain.videos.entities import VideoReaction
 from app.domain.videos.enums import VideoPrivacyStatusEnum, VideoUploadStatusEnum
 from app.domain.videos.exceptions import VideoAccessForbiddenError, VideoNotFoundError
 from app.infrastructure.sqlalchemy.models import VideoReactionORM
-from app.utils.datetime import get_current_utc_datetime
 from tests.factories.commands.videos import CreateVideoReactionCommandFactory
 from tests.factories.models.channels import ChannelORMFactory
 from tests.factories.models.videos import VideoORMFactory, VideoReactionORMFactory
@@ -323,7 +322,7 @@ async def test_create_video_reaction_raises_error_if_video_author_channel_delete
         session = await di.get(AsyncSession)
 
         current_channel = await ChannelORMFactory.create(session=session)
-        video_author = await ChannelORMFactory.create(session=session, deleted_at=get_current_utc_datetime())
+        video_author = await ChannelORMFactory.create_deleted(session=session)
         video = await VideoORMFactory.create(
             session=session,
             channel_id=video_author.id,
@@ -349,7 +348,7 @@ async def test_create_video_reaction_raises_error_if_channel_deleted(
         use_case = await di.get(CreateVideoReactionUseCase)
         session = await di.get(AsyncSession)
 
-        current_channel = await ChannelORMFactory.create(session=session, deleted_at=get_current_utc_datetime())
+        current_channel = await ChannelORMFactory.create_deleted(session=session)
         video_author = await ChannelORMFactory.create(session=session)
         video = await VideoORMFactory.create(
             session=session,

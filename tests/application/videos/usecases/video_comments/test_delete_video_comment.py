@@ -7,7 +7,6 @@ from app.application.videos.usecases import DeleteVideoCommentUseCase
 from app.domain.channels.exceptions import ChannelDeletedError, ChannelNotActiveError, ChannelNotFoundByIdError
 from app.domain.videos.exceptions import VideoCommentAccessForbiddenError, VideoCommentNotFoundError
 from app.infrastructure.sqlalchemy.models import VideoCommentORM
-from app.utils.datetime import get_current_utc_datetime
 from tests.factories.commands.videos import DeleteVideoCommentCommandFactory
 from tests.factories.models.channels import ChannelORMFactory
 from tests.factories.models.videos import VideoCommentORMFactory, VideoORMFactory
@@ -97,7 +96,7 @@ async def test_delete_video_comment_raises_error_if_channel_deleted(container: A
         use_case = await di.get(DeleteVideoCommentUseCase)
         session = await di.get(AsyncSession)
 
-        channel = await ChannelORMFactory.create(session=session, deleted_at=get_current_utc_datetime())
+        channel = await ChannelORMFactory.create_deleted(session=session)
 
         command = DeleteVideoCommentCommandFactory.build(current_channel_id=channel.id)
 

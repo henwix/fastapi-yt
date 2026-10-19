@@ -1,27 +1,28 @@
-from datetime import datetime
-
 import pytest
 from dishka import AsyncContainer
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.application.channels.usecases import GetChannelUseCase
 from app.domain.channels.entities import Channel
+from app.domain.channels.enums import ChannelDeletionStatusEnum
 from app.domain.channels.exceptions import ChannelNotFoundByIdError
-from app.utils.datetime import get_current_utc_datetime
 from tests.factories.models.channels import ChannelORMFactory
 from tests.factories.queries.channels import GetChannelQueryFactory
 
 
 @pytest.mark.asyncio
-@pytest.mark.parametrize('deleted_at', [None, get_current_utc_datetime()])
+@pytest.mark.parametrize('is_deleted', [False, True])
 async def test_get_channel_returns_correct_channel_entity(
     mock_container: AsyncContainer,
-    deleted_at: datetime | None,
+    is_deleted: bool,
 ):
     async with mock_container() as di:
         use_case = await di.get(GetChannelUseCase)
         session = await di.get(AsyncSession)
-        db_channel = await ChannelORMFactory.create(session=session, deleted_at=deleted_at)
+        if is_deleted:
+            db_channel = await ChannelORMFactory.create_deleted(session=session)
+        else:
+            db_channel = await ChannelORMFactory.create(session=session)
         query = GetChannelQueryFactory.build(current_channel_id=db_channel.id)
 
         retrieved_channel = await use_case.execute(query=query)
@@ -37,10 +38,10 @@ async def test_get_channel_returns_correct_channel_entity(
         assert retrieved_channel.is_active == db_channel.is_active
         assert retrieved_channel.created_at == db_channel.created_at
         assert retrieved_channel.updated_at == db_channel.updated_at
-        if deleted_at is not None:
-            assert retrieved_channel.deleted_at.is_deleted
+        if is_deleted:
+            assert retrieved_channel.deletion_status == ChannelDeletionStatusEnum.DELETED
         else:
-            assert not retrieved_channel.deleted_at.is_deleted
+            assert retrieved_channel.deletion_status == ChannelDeletionStatusEnum.ACTIVE
 
 
 @pytest.mark.asyncio

@@ -8,7 +8,6 @@ from app.domain.channels.exceptions import ChannelDeletedError, ChannelNotActive
 from app.domain.videos.enums import VideoPrivacyStatusEnum, VideoUploadStatusEnum
 from app.domain.videos.exceptions import VideoAccessForbiddenError, VideoNotFoundError
 from app.infrastructure.sqlalchemy.models import VideoHistoryItemORM
-from app.utils.datetime import get_current_utc_datetime
 from tests.factories.commands.videos import AddVideoToHistoryCommandFactory
 from tests.factories.models.channels import ChannelORMFactory
 from tests.factories.models.videos import VideoHistoryItemORMFactory, VideoORMFactory
@@ -179,7 +178,7 @@ async def test_add_video_to_history_raises_error_if_video_author_deleted(contain
         session = await di.get(AsyncSession)
 
         channel = await ChannelORMFactory.create(session=session)
-        video_author = await ChannelORMFactory.create(session=session, deleted_at=get_current_utc_datetime())
+        video_author = await ChannelORMFactory.create_deleted(session=session)
         video = await VideoORMFactory.create(
             session=session,
             channel_id=video_author.id,
@@ -230,7 +229,7 @@ async def test_add_video_to_history_raises_error_if_channel_deleted(container: A
         use_case = await di.get(AddVideoToHistoryUseCase)
         session = await di.get(AsyncSession)
 
-        channel = await ChannelORMFactory.create(session=session, deleted_at=get_current_utc_datetime())
+        channel = await ChannelORMFactory.create_deleted(session=session)
         command = AddVideoToHistoryCommandFactory.build(current_channel_id=channel.id)
 
         with pytest.raises(ChannelDeletedError) as e:

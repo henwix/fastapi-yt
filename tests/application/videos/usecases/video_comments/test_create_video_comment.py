@@ -9,7 +9,6 @@ from app.domain.channels.exceptions import ChannelDeletedError, ChannelNotActive
 from app.domain.videos.entities import VideoComment
 from app.domain.videos.enums import VideoPrivacyStatusEnum, VideoUploadStatusEnum
 from app.domain.videos.exceptions import VideoAccessForbiddenError, VideoCommentNotFoundError, VideoNotFoundError
-from app.utils.datetime import get_current_utc_datetime
 from tests.factories.commands.videos import CreateVideoCommentCommandFactory
 from tests.factories.models.channels import ChannelORMFactory
 from tests.factories.models.videos import VideoCommentORMFactory, VideoORMFactory
@@ -243,7 +242,7 @@ async def test_create_video_comment_raises_error_if_video_author_deleted(contain
         session = await di.get(AsyncSession)
 
         channel = await ChannelORMFactory.create(session=session)
-        video_author = await ChannelORMFactory.create(session=session, deleted_at=get_current_utc_datetime())
+        video_author = await ChannelORMFactory.create_deleted(session=session)
         video = await VideoORMFactory.create(
             session=session,
             channel_id=video_author.id,
@@ -288,7 +287,7 @@ async def test_create_video_comment_raises_error_if_channel_deleted(container: A
         use_case = await di.get(CreateVideoCommentUseCase)
         session = await di.get(AsyncSession)
 
-        channel = await ChannelORMFactory.create(session=session, deleted_at=get_current_utc_datetime())
+        channel = await ChannelORMFactory.create_deleted(session=session)
 
         command = CreateVideoCommentCommandFactory.build(
             current_channel_id=channel.id,

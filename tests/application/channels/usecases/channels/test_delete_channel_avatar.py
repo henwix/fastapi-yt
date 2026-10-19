@@ -12,7 +12,6 @@ from app.domain.channels.exceptions import (
     ChannelNotActiveError,
     ChannelNotFoundByIdError,
 )
-from app.utils.datetime import get_current_utc_datetime
 from tests.factories.commands.channels import DeleteChannelAvatarCommandFactory
 from tests.factories.models.channels import ChannelORMFactory
 
@@ -56,7 +55,7 @@ async def test_delete_channel_avatar_raises_error_if_channel_deleted(mock_contai
         use_case = await di.get(DeleteChannelAvatarUseCase)
         session = await di.get(AsyncSession)
 
-        channel = await ChannelORMFactory.create(session=session, deleted_at=get_current_utc_datetime())
+        channel = await ChannelORMFactory.create_deleted(session=session)
         command = DeleteChannelAvatarCommandFactory.build(current_channel_id=channel.id)
 
         with pytest.raises(ChannelDeletedError):

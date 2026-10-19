@@ -5,7 +5,6 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from app.domain.videos.enums import VideoUploadStatusEnum
 from app.domain.videos.exceptions import VideoNotFoundError
 from app.domain.videos.services import IVideoService
-from app.utils.datetime import get_current_utc_datetime
 from tests.factories.models.channels import ChannelORMFactory
 from tests.factories.models.videos import VideoORMFactory
 
@@ -62,7 +61,7 @@ async def test_get_completed_by_id_raises_error_if_video_author_deleted(containe
         service = await di.get(IVideoService)
         session = await di.get(AsyncSession)
 
-        channel = await ChannelORMFactory.create(session=session, deleted_at=get_current_utc_datetime())
+        channel = await ChannelORMFactory.create_deleted(session=session)
         video = await VideoORMFactory.create(
             session=session, channel_id=channel.id, upload_status=VideoUploadStatusEnum.COMPLETED
         )

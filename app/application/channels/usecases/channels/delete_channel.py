@@ -14,4 +14,5 @@ class DeleteChannelUseCase:
         async with self._tm.begin(commit=True):
             channel = await self._channel_service.try_get_existing_by_id_for_auth(id=command.current_channel_id)
             channel.delete()
+            # TODO: delete channel using atomic request with filter deletion_status == active
             await self._channel_service.try_update(channel=channel)

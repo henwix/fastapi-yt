@@ -13,6 +13,7 @@ from app.application.playlists.queries import (
     PlaylistVideosSorting,
     PlaylistVideosSortingFieldsEnum,
 )
+from app.domain.channels.enums import ChannelDeletionStatusEnum
 from app.domain.playlists.enums import PlaylistPrivacyStatusEnum
 from app.domain.playlists.exceptions import PlaylistNotFoundError
 from app.domain.videos.enums import VideoPrivacyStatusEnum
@@ -114,7 +115,13 @@ class PlaylistReader(SQLAlchemyReader, IPlaylistReader):
                 ChannelORM.slug.label('author_slug'),
                 videos_count_subquery.label('videos_count'),
             )
-            .join(ChannelORM, and_(PlaylistORM.channel_id == ChannelORM.id, ChannelORM.deleted_at.is_(None)))
+            .join(
+                ChannelORM,
+                and_(
+                    PlaylistORM.channel_id == ChannelORM.id,
+                    ChannelORM.deletion_status == ChannelDeletionStatusEnum.ACTIVE.value,
+                ),
+            )
             .where(
                 PlaylistORM.id == id,
             )

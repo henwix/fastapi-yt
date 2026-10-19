@@ -11,7 +11,6 @@ from app.domain.channels.exceptions import (
 )
 from app.domain.posts.exceptions import PostAccessForbiddenError, PostNotFoundError
 from app.infrastructure.sqlalchemy.models import PostORM
-from app.utils.datetime import get_current_utc_datetime
 from tests.factories.commands.posts.posts import DeletePostCommandFactory
 from tests.factories.models.channels import ChannelORMFactory
 from tests.factories.models.posts import PostORMFactory
@@ -77,7 +76,7 @@ async def test_delete_post_raises_error_if_channel_deleted(mock_container: Async
         use_case = await di.get(DeletePostUseCase)
         session = await di.get(AsyncSession)
 
-        db_channel = await ChannelORMFactory.create(session=session, deleted_at=get_current_utc_datetime())
+        db_channel = await ChannelORMFactory.create_deleted(session=session)
 
         db_post = await PostORMFactory.create(session=session, channel_id=db_channel.id)
 

@@ -14,7 +14,6 @@ from app.domain.channels.exceptions import (
     ChannelSlugAlreadyExistsError,
 )
 from app.domain.common.constants import Empty
-from app.utils.datetime import get_current_utc_datetime
 from tests.factories.commands.channels import UpdateChannelCommandFactory
 from tests.factories.models.channels import ChannelORMFactory
 
@@ -90,11 +89,11 @@ async def test_update_channel_raises_error_if_not_active(mock_container: AsyncCo
 
 
 @pytest.mark.asyncio
-async def test_update_channel_raises_error_if_deleted(mock_container: AsyncContainer):
+async def test_update_channel_raises_error_if_channel_deleted(mock_container: AsyncContainer):
     async with mock_container() as di:
         use_case = await di.get(UpdateChannelUseCase)
         session = await di.get(AsyncSession)
-        db_channel = await ChannelORMFactory.create(session=session, deleted_at=get_current_utc_datetime())
+        db_channel = await ChannelORMFactory.create_deleted(session=session)
         command = UpdateChannelCommandFactory.build(current_channel_id=db_channel.id)
 
         with pytest.raises(ChannelDeletedError):

@@ -12,6 +12,7 @@ from app.application.videos.queries import (
     PreviewVideosSorting,
     PreviewVideosSortingFieldEnum,
 )
+from app.domain.channels.enums import ChannelDeletionStatusEnum
 from app.domain.common.constants import Empty
 from app.domain.videos.enums import VideoPrivacyStatusEnum, VideoUploadStatusEnum
 from app.domain.videos.exceptions import VideoNotFoundError
@@ -44,7 +45,7 @@ class VideoReader(SQLAlchemyReader, IVideoReader):
             .where(
                 VideoORM.id == id,
                 VideoORM.upload_status == VideoUploadStatusEnum.COMPLETED.value,
-                ChannelORM.deleted_at.is_(None),
+                ChannelORM.deletion_status == ChannelDeletionStatusEnum.ACTIVE.value,
             )
         )
         async with self._db.get_session(commit=False) as session:

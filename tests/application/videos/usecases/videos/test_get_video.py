@@ -10,7 +10,6 @@ from app.application.videos.usecases import GetVideoUseCase
 from app.domain.channels.exceptions import ChannelNotActiveError, ChannelNotFoundByIdError
 from app.domain.videos.enums import VideoPrivacyStatusEnum, VideoUploadStatusEnum
 from app.domain.videos.exceptions import VideoAccessForbiddenError, VideoNotFoundError
-from app.utils.datetime import get_current_utc_datetime
 from app.utils.videos import generate_video_id
 from tests.factories.models.channels import ChannelORMFactory
 from tests.factories.models.videos import VideoORMFactory
@@ -185,7 +184,7 @@ async def test_get_video_raises_error_if_video_author_channel_deleted(
     async with container() as di:
         use_case = await di.get(GetVideoUseCase)
         session = await di.get(AsyncSession)
-        author_channel = await ChannelORMFactory.create(session=session, deleted_at=get_current_utc_datetime())
+        author_channel = await ChannelORMFactory.create_deleted(session=session)
         video = await VideoORMFactory.create(
             session=session,
             channel_id=author_channel.id,

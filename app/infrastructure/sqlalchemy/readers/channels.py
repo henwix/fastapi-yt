@@ -3,6 +3,7 @@ from sqlalchemy import select
 
 from app.application.channels.dto import ChannelAboutInfo
 from app.application.channels.interfaces import IChannelReader
+from app.domain.channels.enums import ChannelDeletionStatusEnum
 from app.domain.channels.exceptions import ChannelNotFoundBySlugError
 from app.domain.videos.enums import VideoPrivacyStatusEnum, VideoUploadStatusEnum
 from app.infrastructure.sqlalchemy.converters import convert_row_to_channel_about_info_dto
@@ -43,7 +44,10 @@ class ChannelReader(SQLAlchemyReader, IChannelReader):
                 videos_subquery.c.views_count,
             )
             .outerjoin(videos_subquery, sa.true())
-            .where(ChannelORM.slug == slug, ChannelORM.deleted_at.is_(None))
+            .where(
+                ChannelORM.slug == slug,
+                ChannelORM.deletion_status == ChannelDeletionStatusEnum.ACTIVE.value,
+            )
         )
         async with self._db.get_session(commit=False) as session:
             result = await session.execute(statement=stmt)

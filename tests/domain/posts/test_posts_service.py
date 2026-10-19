@@ -7,7 +7,6 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from app.domain.posts.entities import Post
 from app.domain.posts.exceptions import PostNotFoundError
 from app.domain.posts.services import IPostService
-from app.utils.datetime import get_current_utc_datetime
 from tests.factories.models.channels import ChannelORMFactory
 from tests.factories.models.posts import PostORMFactory
 
@@ -34,7 +33,7 @@ async def test_try_get_existing_by_id_raises_error_if_post_author_channel_delete
     async with container() as di:
         service = await di.get(IPostService)
         session = await di.get(AsyncSession)
-        channel = await ChannelORMFactory.create(session=session, deleted_at=get_current_utc_datetime())
+        channel = await ChannelORMFactory.create_deleted(session=session)
         post = await PostORMFactory.create(session=session, channel_id=channel.id)
 
         with pytest.raises(PostNotFoundError) as e:

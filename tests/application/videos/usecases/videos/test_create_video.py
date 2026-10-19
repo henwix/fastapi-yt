@@ -71,7 +71,7 @@ async def test_create_video_raises_error_if_channel_deleted(container: AsyncCont
         use_case = await di.get(CreateVideoUseCase)
         session = await di.get(AsyncSession)
 
-        channel = await ChannelORMFactory.create(session=session, deleted_at=get_current_utc_datetime())
+        channel = await ChannelORMFactory.create_deleted(session=session)
         command = CreateVideoCommandFactory.build(current_channel_id=channel.id)
 
         with pytest.raises(ChannelDeletedError):

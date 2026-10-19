@@ -4,6 +4,7 @@ from uuid import UUID
 from sqlalchemy import CursorResult, delete, exists, select, update
 from sqlalchemy.exc import DBAPIError, IntegrityError
 
+from app.domain.channels.enums import ChannelDeletionStatusEnum
 from app.domain.channels.exceptions import ChannelNotFoundByIdError
 from app.domain.posts.entities import Post
 from app.domain.posts.repos import IPostRepo
@@ -41,7 +42,10 @@ class PostRepo(SQLAlchemyRepo, IPostRepo):
     async def get_existing_by_id(self, id: UUID) -> Post | None:
         stmt = select(PostORM).where(
             PostORM.id == id,
-            exists().where(ChannelORM.id == PostORM.channel_id, ChannelORM.deleted_at.is_(None)),
+            exists().where(
+                ChannelORM.id == PostORM.channel_id,
+                ChannelORM.deletion_status == ChannelDeletionStatusEnum.ACTIVE.value,
+            ),
         )
         async with self._db.get_session(commit=False) as session:
             result = await session.execute(statement=stmt)

@@ -12,7 +12,7 @@ from app.domain.videos.constants import VIDEO_VIEWS_LIMIT_PER_DAY
 from app.domain.videos.enums import VideoPrivacyStatusEnum, VideoUploadStatusEnum
 from app.domain.videos.exceptions import VideoAccessForbiddenError, VideoNotFoundError, VideoViewsLimitReachedError
 from app.infrastructure.sqlalchemy.models import VideoViewORM
-from app.utils.datetime import get_current_utc_date, get_current_utc_datetime
+from app.utils.datetime import get_current_utc_date
 from app.utils.videos import generate_video_id
 from tests.factories.commands.videos import CreateVideoViewCommandFactory
 from tests.factories.models.channels import ChannelORMFactory
@@ -381,7 +381,7 @@ async def test_create_video_view_raises_error_if_channel_deleted(
         use_case = await di.get(CreateVideoViewUseCase)
         session = await di.get(AsyncSession)
 
-        channel = await ChannelORMFactory.create(session=session, deleted_at=get_current_utc_datetime())
+        channel = await ChannelORMFactory.create_deleted(session=session)
         channel_video_author = await ChannelORMFactory.create(session=session)
         video = await VideoORMFactory.create(
             session=session,
@@ -453,7 +453,7 @@ async def test_create_video_view_raises_error_if_video_author_channel_deleted(
         session = await di.get(AsyncSession)
 
         channel = await ChannelORMFactory.create(session=session)
-        channel_video_author = await ChannelORMFactory.create(session=session, deleted_at=get_current_utc_datetime())
+        channel_video_author = await ChannelORMFactory.create_deleted(session=session)
         video = await VideoORMFactory.create(
             session=session,
             channel_id=channel_video_author.id,

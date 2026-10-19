@@ -2,6 +2,7 @@ from dataclasses import dataclass, field
 from datetime import datetime
 from uuid import UUID, uuid7
 
+from app.domain.channels.enums import ChannelDeletionStatusEnum
 from app.domain.channels.value_objects import Email, Name, Slug
 from app.domain.common.constants import Empty
 from app.domain.common.entities import BaseEntity
@@ -20,6 +21,7 @@ class Channel(BaseEntity):
     password_hash: str | None
     is_active: bool = True
     avatar_s3_key: str | None = None
+    deletion_status: ChannelDeletionStatusEnum = ChannelDeletionStatusEnum.ACTIVE
     deleted_at: DeletionTime = field(default_factory=DeletionTime.create_not_deleted)
     created_at: datetime = field(default_factory=get_current_utc_datetime)
     updated_at: datetime = field(default_factory=get_current_utc_datetime)
@@ -45,10 +47,11 @@ class Channel(BaseEntity):
         )
 
     def delete(self) -> None:
+        self.deletion_status = ChannelDeletionStatusEnum.DELETED
         self.deleted_at = DeletionTime.create_deleted()
 
-    def restore(self) -> None:
-        self.deleted_at = DeletionTime.create_not_deleted()
+    def is_deleted(self) -> bool:
+        return self.deletion_status is not ChannelDeletionStatusEnum.ACTIVE
 
     def set_email(self, value: str | Empty) -> None:
         if value is not Empty.UNSET:

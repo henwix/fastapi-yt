@@ -2,9 +2,10 @@ from datetime import datetime
 from uuid import UUID
 
 import sqlalchemy as sa
-from sqlalchemy.orm import Mapped, mapped_column, relationship
+from sqlalchemy.orm import Mapped, mapped_column
 
 from app.domain.channels.entities import Channel
+from app.domain.channels.enums import ChannelDeletionStatusEnum
 from app.domain.channels.value_objects import Email, Name, Slug
 from app.domain.common.value_objects import DeletionTime
 from app.domain.subscriptions.entities import Subscription
@@ -27,26 +28,24 @@ class ChannelORM(
     country: Mapped[str] = mapped_column(sa.String(40))
     password_hash: Mapped[str | None]
     is_active: Mapped[bool] = mapped_column(default=True, server_default=sa.sql.true())
-    deleted_at: Mapped[datetime | None] = mapped_column(
-        sa.DateTime(timezone=True), default=None, server_default=sa.sql.null()
-    )
     avatar_s3_key: Mapped[str | None] = mapped_column(
         sa.String(length=255), nullable=True, default=None, server_default=sa.sql.null()
     )
-
-    subscriptions = relationship(
-        'SubscriptionORM',
-        back_populates='subscriber',
-        foreign_keys='SubscriptionORM.subscriber_id',
+    deletion_status: Mapped[str] = mapped_column(
+        sa.String(length=10), default='active', server_default=sa.sql.text("'active'")
     )
-    subscribers = relationship(
-        'SubscriptionORM',
-        back_populates='subscribed_to',
-        foreign_keys='SubscriptionORM.subscribed_to_id',
+    deleted_at: Mapped[datetime | None] = mapped_column(
+        sa.DateTime(timezone=True), default=None, server_default=sa.sql.null()
+    )
+    locked_until: Mapped[datetime | None] = mapped_column(
+        sa.DateTime(timezone=True),
+        default=None,
+        server_default=sa.sql.null(),
     )
 
     __table_args__ = (
         sa.CheckConstraint('char_length(description) <= 1000', name='ck_channels_description_max_length'),
+        sa.CheckConstraint("deletion_status IN ('active', 'deleted', 'purging')", name='ck_channels_deletion_status'),
     )
 
     def to_entity(self) -> Channel:
@@ -60,6 +59,7 @@ class ChannelORM(
             password_hash=self.password_hash,
             is_active=self.is_active,
             avatar_s3_key=self.avatar_s3_key,
+            deletion_status=ChannelDeletionStatusEnum(self.deletion_status),
             deleted_at=DeletionTime(self.deleted_at),
             created_at=self.created_at,
             updated_at=self.updated_at,
@@ -77,6 +77,7 @@ class ChannelORM(
             password_hash=entity.password_hash,
             is_active=entity.is_active,
             avatar_s3_key=entity.avatar_s3_key,
+            deletion_status=entity.deletion_status.value,
             deleted_at=entity.deleted_at.to_raw(),
             created_at=entity.created_at,
             updated_at=entity.updated_at,
@@ -90,22 +91,8 @@ class SubscriptionORM(
 ):
     __tablename__ = 'subscriptions'
 
-    subscriber_id: Mapped[UUID] = mapped_column(
-        sa.ForeignKey('channels.id', ondelete='CASCADE'),
-    )
-    subscriber = relationship(
-        'ChannelORM',
-        back_populates='subscriptions',
-        foreign_keys=[subscriber_id],
-    )
-    subscribed_to_id: Mapped[UUID] = mapped_column(
-        sa.ForeignKey('channels.id', ondelete='CASCADE'),
-    )
-    subscribed_to = relationship(
-        'ChannelORM',
-        back_populates='subscribers',
-        foreign_keys=[subscribed_to_id],
-    )
+    subscriber_id: Mapped[UUID] = mapped_column(sa.ForeignKey('channels.id', ondelete='CASCADE'))
+    subscribed_to_id: Mapped[UUID] = mapped_column(sa.ForeignKey('channels.id', ondelete='CASCADE'))
 
     __table_args__ = (
         sa.CheckConstraint('subscriber_id != subscribed_to_id', name='ck_no_self_subscriptions'),

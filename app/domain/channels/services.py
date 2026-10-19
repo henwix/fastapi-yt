@@ -56,10 +56,10 @@ class IChannelService(ABC):
     async def try_update(self, channel: Channel) -> Channel: ...
 
     @abstractmethod
-    async def try_set_password(self, id: UUID, password_hash: str) -> None: ...
+    async def try_restore(self, id: UUID) -> None: ...
 
     @abstractmethod
-    async def try_delete_by_id(self, id: UUID) -> None: ...
+    async def try_set_password(self, id: UUID, password_hash: str) -> None: ...
 
 
 @dataclass
@@ -110,7 +110,8 @@ class ChannelService(IChannelService):
 
     async def try_get_existing_by_id_for_auth(self, id: UUID) -> Channel:
         channel = await self.try_get_by_id(id=id)
-        if channel.deleted_at.is_deleted:
+        # TODO: check deletion_statuses: DELETED and PURGING
+        if channel.is_deleted():
             raise ChannelDeletedError(channel_id=channel.id)
         if not channel.is_active:
             raise ChannelNotActiveError(channel_id=channel.id)
@@ -122,12 +123,12 @@ class ChannelService(IChannelService):
             raise ChannelNotFoundByIdError(channel_id=channel.id)
         return updated_channel
 
+    async def try_restore(self, id: UUID) -> None:
+        is_restored = await self._repo.restore(id=id)
+        if not is_restored:
+            raise ChannelNotFoundByIdError(channel_id=id)
+
     async def try_set_password(self, id: UUID, password_hash: str) -> None:
         is_password_set = await self._repo.set_password(id=id, password_hash=password_hash)
         if not is_password_set:
-            raise ChannelNotFoundByIdError(channel_id=id)
-
-    async def try_delete_by_id(self, id: UUID) -> None:
-        is_deleted = await self._repo.delete_by_id(id=id)
-        if not is_deleted:
             raise ChannelNotFoundByIdError(channel_id=id)

@@ -9,7 +9,6 @@ from app.domain.channels.exceptions import ChannelDeletedError, ChannelNotActive
 from app.domain.videos.enums import VideoPrivacyStatusEnum, VideoUploadStatusEnum
 from app.domain.videos.exceptions import VideoAccessForbiddenError, VideoNotFoundError
 from app.infrastructure.sqlalchemy.models import FileCleanupORM, VideoORM
-from app.utils.datetime import get_current_utc_datetime
 from tests.factories.commands.videos import DeleteVideoCommandFactory
 from tests.factories.models.channels import ChannelORMFactory
 from tests.factories.models.videos import VideoORMFactory
@@ -216,7 +215,7 @@ async def test_delete_video_raises_error_if_channel_deleted(container: AsyncCont
     async with container() as di:
         use_case = await di.get(DeleteVideoUseCase)
         session = await di.get(AsyncSession)
-        channel = await ChannelORMFactory.create(session=session, deleted_at=get_current_utc_datetime())
+        channel = await ChannelORMFactory.create_deleted(session=session)
 
         command = DeleteVideoCommandFactory.build(current_channel_id=channel.id)
 

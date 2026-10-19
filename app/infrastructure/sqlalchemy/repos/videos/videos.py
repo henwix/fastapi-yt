@@ -4,6 +4,7 @@ from typing import NoReturn, cast
 from sqlalchemy import CursorResult, delete, exists, select, update
 from sqlalchemy.exc import DBAPIError, IntegrityError
 
+from app.domain.channels.enums import ChannelDeletionStatusEnum
 from app.domain.channels.exceptions import ChannelNotFoundByIdError
 from app.domain.videos.entities import Video
 from app.domain.videos.enums import VideoUploadStatusEnum
@@ -73,7 +74,10 @@ class VideoRepo(SQLAlchemyRepo, IVideoRepo):
         stmt = select(VideoORM).where(
             VideoORM.id == id,
             VideoORM.upload_status == VideoUploadStatusEnum.COMPLETED.value,
-            exists().where(ChannelORM.id == VideoORM.channel_id, ChannelORM.deleted_at.is_(None)),
+            exists().where(
+                ChannelORM.id == VideoORM.channel_id,
+                ChannelORM.deletion_status == ChannelDeletionStatusEnum.ACTIVE.value,
+            ),
         )
         return await self._get_one_by_query(query=stmt)
 

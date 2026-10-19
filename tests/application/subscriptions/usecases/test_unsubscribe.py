@@ -12,7 +12,6 @@ from app.domain.channels.exceptions import (
 )
 from app.domain.subscriptions.exceptions import SubscriptionNotFoundError
 from app.infrastructure.sqlalchemy.models import SubscriptionORM
-from app.utils.datetime import get_current_utc_datetime
 from tests.factories.commands.subscriptions import UnsubscribeCommandFactory
 from tests.factories.models.channels import ChannelORMFactory, SubscriptionORMFactory
 
@@ -84,7 +83,7 @@ async def test_unsubscribe_raises_error_if_current_channel_deleted(mock_containe
         use_case = await di.get(UnsubscribeUseCase)
         session = await di.get(AsyncSession)
 
-        subscriber = await ChannelORMFactory.create(session=session, deleted_at=get_current_utc_datetime())
+        subscriber = await ChannelORMFactory.create_deleted(session=session)
         subscribed_to = await ChannelORMFactory.create(session=session)
 
         command = UnsubscribeCommandFactory.build(
@@ -117,7 +116,7 @@ async def test_unsubscribe_raises_error_if_channel_deleted(mock_container: Async
         session = await di.get(AsyncSession)
 
         subscriber = await ChannelORMFactory.create(session=session)
-        subscribed_to = await ChannelORMFactory.create(session=session, deleted_at=get_current_utc_datetime())
+        subscribed_to = await ChannelORMFactory.create_deleted(session=session)
 
         command = UnsubscribeCommandFactory.build(current_channel_id=subscriber.id, channel_slug=subscribed_to.slug)
 

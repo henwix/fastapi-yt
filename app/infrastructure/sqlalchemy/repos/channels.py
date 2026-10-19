@@ -1,10 +1,11 @@
 from typing import Any, NoReturn, cast
 from uuid import UUID
 
-from sqlalchemy import CursorResult, delete, exists, select, update
+from sqlalchemy import CursorResult, exists, select, update
 from sqlalchemy.exc import DBAPIError, IntegrityError
 
 from app.domain.channels.entities import Channel
+from app.domain.channels.enums import ChannelDeletionStatusEnum
 from app.domain.channels.exceptions import ChannelEmailAlreadyExistsError, ChannelSlugAlreadyExistsError
 from app.domain.channels.repos import IChannelRepo
 from app.infrastructure.sqlalchemy.models import ChannelORM
@@ -50,7 +51,10 @@ class ChannelRepo(SQLAlchemyRepo, IChannelRepo):
         return await self._get_one_by_query(query=stmt)
 
     async def get_existing_by_slug(self, slug: str) -> Channel | None:
-        stmt = select(ChannelORM).where(ChannelORM.slug == slug, ChannelORM.deleted_at.is_(None))
+        stmt = select(ChannelORM).where(
+            ChannelORM.slug == slug,
+            ChannelORM.deletion_status == ChannelDeletionStatusEnum.ACTIVE.value,
+        )
         return await self._get_one_by_query(query=stmt)
 
     async def get_by_id(self, id: UUID) -> Channel | None:
@@ -68,6 +72,7 @@ class ChannelRepo(SQLAlchemyRepo, IChannelRepo):
                 description=channel.description,
                 country=channel.country,
                 avatar_s3_key=channel.avatar_s3_key,
+                deletion_status=channel.deletion_status.value,
                 deleted_at=channel.deleted_at.to_raw(),
             )
             .returning(ChannelORM)
@@ -80,6 +85,22 @@ class ChannelRepo(SQLAlchemyRepo, IChannelRepo):
 
         orm_channel = result.scalar_one_or_none()
         return orm_channel.to_entity() if orm_channel else None
+
+    async def restore(self, id: UUID) -> bool:
+        stmt = (
+            update(ChannelORM)
+            .values(
+                deletion_status=ChannelDeletionStatusEnum.ACTIVE.value,
+                deleted_at=None,
+            )
+            .where(
+                ChannelORM.id == id,
+                ChannelORM.deletion_status == ChannelDeletionStatusEnum.DELETED.value,
+            )
+        )
+        async with self._db.get_session(commit=True) as session:
+            result = await session.execute(statement=stmt)
+        return cast(CursorResult, result).rowcount > 0
 
     async def activate(self, id: UUID) -> bool:
         stmt = (
@@ -96,12 +117,6 @@ class ChannelRepo(SQLAlchemyRepo, IChannelRepo):
 
     async def set_password(self, id: UUID, password_hash: str) -> bool:
         stmt = update(ChannelORM).where(ChannelORM.id == id).values(password_hash=password_hash)
-        async with self._db.get_session(commit=True) as session:
-            result = await session.execute(statement=stmt)
-        return cast(CursorResult, result).rowcount > 0
-
-    async def delete_by_id(self, id: UUID) -> bool:
-        stmt = delete(ChannelORM).where(ChannelORM.id == id)
         async with self._db.get_session(commit=True) as session:
             result = await session.execute(statement=stmt)
         return cast(CursorResult, result).rowcount > 0

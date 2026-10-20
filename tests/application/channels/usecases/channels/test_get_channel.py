@@ -75,3 +75,18 @@ async def test_get_channel_raises_error_if_not_found(mock_container: AsyncContai
 
         with pytest.raises(ChannelNotFoundByIdError):
             await use_case.execute(query=query)
+
+
+@pytest.mark.asyncio
+async def test_get_channel_raises_error_if_not_found_with_deletion_status_purging(mock_container: AsyncContainer):
+    async with mock_container() as di:
+        use_case = await di.get(GetChannelUseCase)
+        session = await di.get(AsyncSession)
+        db_channel = await ChannelORMFactory.create(
+            session=session,
+            deletion_status=ChannelDeletionStatusEnum.PURGING.value,
+        )
+        query = GetChannelQueryFactory.build(current_channel_id=db_channel.id)
+
+        with pytest.raises(ChannelNotFoundByIdError):
+            await use_case.execute(query=query)

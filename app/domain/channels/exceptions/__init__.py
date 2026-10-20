@@ -10,6 +10,7 @@ from .channels import (
     ChannelActivationFailedError,
     ChannelAvatarNotFoundError,
     ChannelDeletedError,
+    ChannelDeletionFailedError,
     ChannelEmailAlreadyExistsError,
     ChannelEmailInvalidFormatError,
     ChannelEmailTooLongError,
@@ -17,6 +18,7 @@ from .channels import (
     ChannelNotDeletedError,
     ChannelNotFoundByIdError,
     ChannelNotFoundBySlugError,
+    ChannelRestorationFailedError,
     ChannelSlugAlreadyExistsError,
     ChannelSlugInvalidFormatError,
 )
@@ -31,6 +33,7 @@ __all__ = (
     'ChannelAvatarSizeTooBigError',
     'ChannelAvatarSizeTooSmallError',
     'ChannelDeletedError',
+    'ChannelDeletionFailedError',
     'ChannelEmailAlreadyExistsError',
     'ChannelEmailInvalidFormatError',
     'ChannelEmailTooLongError',
@@ -38,6 +41,7 @@ __all__ = (
     'ChannelNotDeletedError',
     'ChannelNotFoundByIdError',
     'ChannelNotFoundBySlugError',
+    'ChannelRestorationFailedError',
     'ChannelSlugAlreadyExistsError',
     'ChannelSlugInvalidFormatError',
 )

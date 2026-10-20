@@ -6,13 +6,16 @@ from uuid import UUID
 from slugify import slugify
 
 from app.domain.channels.entities import Channel
+from app.domain.channels.enums import ChannelDeletionStatusEnum
 from app.domain.channels.exceptions import (
     ChannelActivationFailedError,
     ChannelDeletedError,
+    ChannelDeletionFailedError,
     ChannelEmailAlreadyExistsError,
     ChannelNotActiveError,
     ChannelNotFoundByIdError,
     ChannelNotFoundBySlugError,
+    ChannelRestorationFailedError,
     ChannelSlugAlreadyExistsError,
 )
 from app.domain.channels.repos import IChannelRepo
@@ -57,6 +60,9 @@ class IChannelService(ABC):
 
     @abstractmethod
     async def try_restore(self, id: UUID) -> None: ...
+
+    @abstractmethod
+    async def try_delete(self, id: UUID) -> None: ...
 
     @abstractmethod
     async def try_set_password(self, id: UUID, password_hash: str) -> None: ...
@@ -110,8 +116,7 @@ class ChannelService(IChannelService):
 
     async def try_get_existing_by_id_for_auth(self, id: UUID) -> Channel:
         channel = await self.try_get_by_id(id=id)
-        # TODO: check deletion_statuses: DELETED and PURGING
-        if channel.is_deleted():
+        if channel.deletion_status is ChannelDeletionStatusEnum.DELETED:
             raise ChannelDeletedError(channel_id=channel.id)
         if not channel.is_active:
             raise ChannelNotActiveError(channel_id=channel.id)
@@ -126,7 +131,12 @@ class ChannelService(IChannelService):
     async def try_restore(self, id: UUID) -> None:
         is_restored = await self._repo.restore(id=id)
         if not is_restored:
-            raise ChannelNotFoundByIdError(channel_id=id)
+            raise ChannelRestorationFailedError(channel_id=id)
+
+    async def try_delete(self, id: UUID) -> None:
+        is_deleted = await self._repo.delete(id=id)
+        if not is_deleted:
+            raise ChannelDeletionFailedError(channel_id=id)
 
     async def try_set_password(self, id: UUID, password_hash: str) -> None:
         is_password_set = await self._repo.set_password(id=id, password_hash=password_hash)

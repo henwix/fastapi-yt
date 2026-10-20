@@ -10,6 +10,7 @@ from app.domain.channels.exceptions import ChannelEmailAlreadyExistsError, Chann
 from app.domain.channels.repos import IChannelRepo
 from app.infrastructure.sqlalchemy.models import ChannelORM
 from app.infrastructure.sqlalchemy.repos.base import SQLAlchemyRepo
+from app.utils.datetime import get_current_utc_datetime
 
 
 class ChannelRepo(SQLAlchemyRepo, IChannelRepo):
@@ -47,7 +48,10 @@ class ChannelRepo(SQLAlchemyRepo, IChannelRepo):
         return model.to_entity()
 
     async def get_by_email(self, email: str) -> Channel | None:
-        stmt = select(ChannelORM).where(ChannelORM.email == email)
+        stmt = select(ChannelORM).where(
+            ChannelORM.email == email,
+            ChannelORM.deletion_status != ChannelDeletionStatusEnum.PURGING.value,
+        )
         return await self._get_one_by_query(query=stmt)
 
     async def get_existing_by_slug(self, slug: str) -> Channel | None:
@@ -58,7 +62,10 @@ class ChannelRepo(SQLAlchemyRepo, IChannelRepo):
         return await self._get_one_by_query(query=stmt)
 
     async def get_by_id(self, id: UUID) -> Channel | None:
-        stmt = select(ChannelORM).where(ChannelORM.id == id)
+        stmt = select(ChannelORM).where(
+            ChannelORM.id == id,
+            ChannelORM.deletion_status != ChannelDeletionStatusEnum.PURGING.value,
+        )
         return await self._get_one_by_query(query=stmt)
 
     async def update(self, channel: Channel) -> Channel | None:
@@ -96,6 +103,22 @@ class ChannelRepo(SQLAlchemyRepo, IChannelRepo):
             .where(
                 ChannelORM.id == id,
                 ChannelORM.deletion_status == ChannelDeletionStatusEnum.DELETED.value,
+            )
+        )
+        async with self._db.get_session(commit=True) as session:
+            result = await session.execute(statement=stmt)
+        return cast(CursorResult, result).rowcount > 0
+
+    async def delete(self, id: UUID) -> bool:
+        stmt = (
+            update(ChannelORM)
+            .values(
+                deletion_status=ChannelDeletionStatusEnum.DELETED.value,
+                deleted_at=get_current_utc_datetime(),
+            )
+            .where(
+                ChannelORM.id == id,
+                ChannelORM.deletion_status == ChannelDeletionStatusEnum.ACTIVE.value,
             )
         )
         async with self._db.get_session(commit=True) as session:

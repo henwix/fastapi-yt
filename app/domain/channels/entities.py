@@ -46,13 +46,6 @@ class Channel(BaseEntity):
             is_active=is_active,
         )
 
-    def delete(self) -> None:
-        self.deletion_status = ChannelDeletionStatusEnum.DELETED
-        self.deleted_at = DeletionTime.create_deleted()
-
-    def is_deleted(self) -> bool:
-        return self.deletion_status is not ChannelDeletionStatusEnum.ACTIVE
-
     def set_email(self, value: str | Empty) -> None:
         if value is not Empty.UNSET:
             self.email = Email(value)

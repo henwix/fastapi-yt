@@ -74,6 +74,18 @@ class ChannelActivationFailedError(AppError):
 
 
 @dataclass(kw_only=True)
+class ChannelDeletionFailedError(AppError):
+    message = 'Channel deletion failed'
+    channel_id: UUID
+
+
+@dataclass(kw_only=True)
+class ChannelRestorationFailedError(AppError):
+    message = 'Channel restoration failed'
+    channel_id: UUID
+
+
+@dataclass(kw_only=True)
 class ChannelAvatarNotFoundError(AppError):
     message = 'Channel avatar not found'
     channel_id: UUID

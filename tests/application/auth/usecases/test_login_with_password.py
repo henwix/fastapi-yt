@@ -7,6 +7,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from app.application.auth.usecases import LoginWithPasswordUseCase
 from app.application.common.interfaces.security import IJWTService, IPasswordHasher
 from app.domain.auth.exceptions import IncorrectEmailOrPasswordError
+from app.domain.channels.enums import ChannelDeletionStatusEnum
 from app.utils.datetime import get_current_utc_datetime
 from tests.factories.commands.auth import LoginWithPasswordCommandFactory
 from tests.factories.models.channels import ChannelORMFactory
@@ -92,6 +93,27 @@ async def test_login_with_password_raises_error_if_email_not_found(mock_containe
         use_case = await di.get(LoginWithPasswordUseCase)
 
         command = LoginWithPasswordCommandFactory.build()
+
+        with pytest.raises(IncorrectEmailOrPasswordError):
+            await use_case.execute(command=command)
+
+
+@pytest.mark.asyncio
+async def test_login_with_password_raises_error_if_channel_not_found_with_deletion_status_purging(
+    mock_container: AsyncContainer,
+):
+    async with mock_container() as di:
+        use_case = await di.get(LoginWithPasswordUseCase)
+        session = await di.get(AsyncSession)
+        password_hasher = await di.get(IPasswordHasher)
+        password = '123123123'
+        db_channel = await ChannelORMFactory.create(
+            session=session,
+            deletion_status=ChannelDeletionStatusEnum.PURGING.value,
+            password_hash=password_hasher.get_password_hash(password=password),
+        )
+
+        command = LoginWithPasswordCommandFactory.build(email=db_channel.email, password=password)
 
         with pytest.raises(IncorrectEmailOrPasswordError):
             await use_case.execute(command=command)

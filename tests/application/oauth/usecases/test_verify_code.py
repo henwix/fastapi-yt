@@ -11,6 +11,7 @@ from app.application.common.dto.jwt import JWTTokens
 from app.application.common.interfaces.security import IJWTService
 from app.application.oauth.interfaces import IOAuthServiceFactory
 from app.application.oauth.usecases import VerifyOAuthCodeUseCase
+from app.domain.channels.enums import ChannelDeletionStatusEnum
 from app.domain.channels.exceptions import (
     ChannelEmailAlreadyExistsError,
     ChannelNotActiveError,
@@ -252,6 +253,33 @@ async def test_verify_code_raises_error_if_authenticated_channel_not_active(
         )
 
         with pytest.raises(ChannelNotActiveError):
+            await use_case.execute(command=command)
+
+
+@pytest.mark.asyncio
+async def test_verify_code_raises_error_if_authenticated_channel_not_found_with_deletion_status_purging(
+    mock_container: AsyncContainer,
+):
+    async with mock_container() as di:
+        use_case = await di.get(VerifyOAuthCodeUseCase)
+        session = await di.get(AsyncSession)
+        oauth_service_factory: MockOAuthServiceFactory = cast(
+            MockOAuthServiceFactory, await di.get(IOAuthServiceFactory)
+        )
+        oauth_provider_user_data = OAuthProviderUserDataFactory.build()
+        oauth_service_factory.provider.user_data = oauth_provider_user_data
+
+        db_channel = await ChannelORMFactory.create(
+            session=session,
+            deletion_status=ChannelDeletionStatusEnum.PURGING.value,
+        )
+
+        command = VerifyOAuthCodeCommandFactory.build(
+            current_channel_id=db_channel.id,
+            provider=oauth_provider_user_data.provider,
+        )
+
+        with pytest.raises(ChannelNotFoundByIdError):
             await use_case.execute(command=command)
 
 

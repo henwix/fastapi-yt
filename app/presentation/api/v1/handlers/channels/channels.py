@@ -20,10 +20,12 @@ from app.domain.auth.exceptions import JWTTokenExpiredError, JWTTokenInvalidErro
 from app.domain.channels.exceptions import (
     ChannelAvatarNotFoundError,
     ChannelDeletedError,
+    ChannelDeletionFailedError,
     ChannelNotActiveError,
     ChannelNotDeletedError,
     ChannelNotFoundByIdError,
     ChannelNotFoundBySlugError,
+    ChannelRestorationFailedError,
     ChannelSlugAlreadyExistsError,
 )
 from app.domain.common.exceptions.s3 import S3RequestError, S3ResponseError
@@ -111,6 +113,9 @@ async def update_channel(
         status.HTTP_404_NOT_FOUND: error_response(
             ChannelNotFoundByIdError,
         ),
+        status.HTTP_409_CONFLICT: error_response(
+            ChannelDeletionFailedError,
+        ),
     },
 )
 async def delete_channel(
@@ -130,6 +135,7 @@ async def delete_channel(
         ),
         status.HTTP_409_CONFLICT: error_response(
             ChannelNotDeletedError,
+            ChannelRestorationFailedError,
         ),
     },
 )

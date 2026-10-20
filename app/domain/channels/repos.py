@@ -24,6 +24,9 @@ class IChannelRepo(ABC):
     async def restore(self, id: UUID) -> bool: ...
 
     @abstractmethod
+    async def delete(self, id: UUID) -> bool: ...
+
+    @abstractmethod
     async def activate(self, id: UUID) -> bool: ...
 
     @abstractmethod

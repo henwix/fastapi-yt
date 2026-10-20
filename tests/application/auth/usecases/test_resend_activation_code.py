@@ -6,6 +6,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.application.auth.usecases import ResendChannelActivationCodeUseCase
 from app.domain.auth.exceptions import ChannelAlreadyActivatedError
+from app.domain.channels.enums import ChannelDeletionStatusEnum
 from app.domain.channels.exceptions import ChannelNotFoundByIdError
 from app.domain.common.repos.kv import IKVRepo
 from tests.factories.commands.auth import ResendChannelActivationCodeCommandFactory
@@ -39,6 +40,24 @@ async def test_resend_activation_code_raises_error_if_channel_not_found(mock_con
         use_case = await di.get(ResendChannelActivationCodeUseCase)
 
         command = ResendChannelActivationCodeCommandFactory.build()
+
+        with pytest.raises(ChannelNotFoundByIdError):
+            await use_case.execute(command=command)
+
+
+@pytest.mark.asyncio
+async def test_resend_activation_code_raises_error_if_channel_not_found_with_deletion_status_purging(
+    mock_container: AsyncContainer,
+):
+    async with mock_container() as di:
+        use_case = await di.get(ResendChannelActivationCodeUseCase)
+        session = await di.get(AsyncSession)
+        channel = await ChannelORMFactory.create(
+            session=session,
+            deletion_status=ChannelDeletionStatusEnum.PURGING.value,
+        )
+
+        command = ResendChannelActivationCodeCommandFactory.build(current_channel_id=channel.id)
 
         with pytest.raises(ChannelNotFoundByIdError):
             await use_case.execute(command=command)

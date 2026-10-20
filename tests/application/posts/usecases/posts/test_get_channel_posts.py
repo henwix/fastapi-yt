@@ -9,6 +9,7 @@ from app.application.common.sorting import SortingOrderEnum
 from app.application.posts.dto import DetailedPost
 from app.application.posts.queries import PostsSorting, PostsSortingFieldsEnum
 from app.application.posts.usecases import GetChannelPostsUseCase
+from app.domain.channels.enums import ChannelDeletionStatusEnum
 from app.domain.channels.exceptions import ChannelNotFoundBySlugError
 from app.domain.common.constants import Empty
 from app.domain.common.exceptions.pagination import InvalidCursorError
@@ -166,6 +167,45 @@ async def test_get_posts_raises_error_if_channel_not_found_by_slug(
 
         query = GetChannelPostsQueryFactory.build(
             channel_slug='non-existing-slug',
+            pagination=CursorPaginationFactory.build(),
+        )
+
+        with pytest.raises(ChannelNotFoundBySlugError):
+            await use_case.execute(query=query)
+
+
+@pytest.mark.asyncio
+async def test_get_posts_raises_error_if_channel_not_found_with_deletion_status_purging(
+    mock_container: AsyncContainer,
+):
+    async with mock_container() as di:
+        use_case = await di.get(GetChannelPostsUseCase)
+        session = await di.get(AsyncSession)
+        channel = await ChannelORMFactory.create(
+            session=session,
+            deletion_status=ChannelDeletionStatusEnum.PURGING.value,
+        )
+
+        query = GetChannelPostsQueryFactory.build(
+            channel_slug=channel.slug,
+            pagination=CursorPaginationFactory.build(),
+        )
+
+        with pytest.raises(ChannelNotFoundBySlugError):
+            await use_case.execute(query=query)
+
+
+@pytest.mark.asyncio
+async def test_get_posts_raises_error_if_channel_not_found_if_deleted(
+    mock_container: AsyncContainer,
+):
+    async with mock_container() as di:
+        use_case = await di.get(GetChannelPostsUseCase)
+        session = await di.get(AsyncSession)
+        channel = await ChannelORMFactory.create_deleted(session=session)
+
+        query = GetChannelPostsQueryFactory.build(
+            channel_slug=channel.slug,
             pagination=CursorPaginationFactory.build(),
         )
 

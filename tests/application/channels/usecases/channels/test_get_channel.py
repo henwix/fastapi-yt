@@ -1,3 +1,5 @@
+from datetime import datetime
+
 import pytest
 from dishka import AsyncContainer
 from sqlalchemy.ext.asyncio import AsyncSession
@@ -40,8 +42,10 @@ async def test_get_channel_returns_correct_channel_entity(
         assert retrieved_channel.updated_at == db_channel.updated_at
         if is_deleted:
             assert retrieved_channel.deletion_status == ChannelDeletionStatusEnum.DELETED
+            assert isinstance(retrieved_channel.deleted_at.to_raw(), datetime)
         else:
             assert retrieved_channel.deletion_status == ChannelDeletionStatusEnum.ACTIVE
+            assert retrieved_channel.deleted_at.to_raw() is None
 
 
 @pytest.mark.asyncio

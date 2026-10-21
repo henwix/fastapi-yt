@@ -79,8 +79,6 @@ class ChannelRepo(SQLAlchemyRepo, IChannelRepo):
                 description=channel.description,
                 country=channel.country,
                 avatar_s3_key=channel.avatar_s3_key,
-                deletion_status=channel.deletion_status.value,
-                deleted_at=channel.deleted_at.to_raw(),
             )
             .returning(ChannelORM)
         )
@@ -109,7 +107,7 @@ class ChannelRepo(SQLAlchemyRepo, IChannelRepo):
             result = await session.execute(statement=stmt)
         return cast(CursorResult, result).rowcount > 0
 
-    async def delete(self, id: UUID) -> bool:
+    async def delete_by_id(self, id: UUID) -> bool:
         stmt = (
             update(ChannelORM)
             .values(

@@ -138,7 +138,7 @@ async def test_delete_channel_returns_none_if_deleted(container: AsyncContainer)
         session = await di.get(AsyncSession)
         channel = await ChannelORMFactory.create(session=session)
 
-        result = await service.try_delete(id=channel.id)
+        result = await service.try_delete_by_id(id=channel.id)
 
         await session.refresh(instance=channel)
 
@@ -165,7 +165,7 @@ async def test_delete_channel_raises_error_if_channel_deletion_status_is_deleted
         channel = await ChannelORMFactory.create(session=session, deletion_status=deletion_status)
 
         with pytest.raises(ChannelDeletionFailedError) as e:
-            await service.try_delete(id=channel.id)
+            await service.try_delete_by_id(id=channel.id)
 
         assert e.value.channel_id == channel.id
 
@@ -177,6 +177,6 @@ async def test_delete_channel_raises_error_if_channel_not_found(container: Async
         channel_id = uuid7()
 
         with pytest.raises(ChannelDeletionFailedError) as e:
-            await service.try_delete(id=channel_id)
+            await service.try_delete_by_id(id=channel_id)
 
         assert e.value.channel_id == channel_id

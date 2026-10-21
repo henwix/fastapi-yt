@@ -15,16 +15,17 @@ from tests.factories.models.channels import ChannelORMFactory
 
 @pytest.mark.asyncio
 @pytest.mark.parametrize(
-    ('is_channel_active', 'deleted_at'),
+    ('is_channel_active', 'deleted_at', 'deletion_status'),
     [
-        (False, get_current_utc_datetime()),
-        (True, None),
+        (False, get_current_utc_datetime(), ChannelDeletionStatusEnum.DELETED.value),
+        (True, None, ChannelDeletionStatusEnum.ACTIVE.value),
     ],
 )
 async def test_login_with_password_returns_tokens_if_credentials_are_correct(
     mock_container: AsyncContainer,
     is_channel_active: bool,
     deleted_at: datetime | None,
+    deletion_status: str,
 ):
     async with mock_container() as di:
         use_case = await di.get(LoginWithPasswordUseCase)
@@ -39,6 +40,7 @@ async def test_login_with_password_returns_tokens_if_credentials_are_correct(
             password_hash=password_hasher.get_password_hash(password),
             is_active=is_channel_active,
             deleted_at=deleted_at,
+            deletion_status=deletion_status,
         )
 
         command = LoginWithPasswordCommandFactory.build(

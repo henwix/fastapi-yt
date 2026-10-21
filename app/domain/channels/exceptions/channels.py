@@ -57,13 +57,13 @@ class ChannelNotActiveError(AppError):
 
 @dataclass(kw_only=True)
 class ChannelDeletedError(AppError):
-    message = 'Channel is deleted'
+    message = 'Channel deleted'
     channel_id: UUID
 
 
 @dataclass(kw_only=True)
 class ChannelNotDeletedError(AppError):
-    message = 'Channel is not deleted'
+    message = 'Channel not deleted'
     channel_id: UUID
 
 

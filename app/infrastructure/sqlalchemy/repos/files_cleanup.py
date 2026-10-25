@@ -1,13 +1,12 @@
 from datetime import timedelta
-from typing import NoReturn, cast
+from typing import cast
 from uuid import UUID
 
 from sqlalchemy import CursorResult, and_, delete, or_, select, update
-from sqlalchemy.exc import DBAPIError, IntegrityError
+from sqlalchemy.dialects.postgresql import insert
 
 from app.domain.files_cleanup.entities import FileCleanup
 from app.domain.files_cleanup.enums import FileCleanupStatusEnum
-from app.domain.files_cleanup.exceptions import FileCleanupAlreadyCreatedError
 from app.domain.files_cleanup.repos import IFileCleanupRepo
 from app.infrastructure.sqlalchemy.models import FileCleanupORM
 from app.infrastructure.sqlalchemy.repos.base import SQLAlchemyRepo
@@ -15,30 +14,39 @@ from app.utils.datetime import get_current_utc_datetime
 
 
 class FileCleanupRepo(SQLAlchemyRepo, IFileCleanupRepo):
-    def _parse_db_error(self, error: DBAPIError, cleanup: FileCleanup) -> NoReturn:
-        constraint_name = self._extract_constraint_name(error=error)
-
-        match constraint_name:
-            case 'uq_file_cleanup':
-                raise FileCleanupAlreadyCreatedError(s3_key=cleanup.s3_key, bucket=cleanup.bucket)
-            case _:
-                raise
-
-    async def create(self, cleanup: FileCleanup) -> FileCleanup:
-        model = FileCleanupORM.from_entity(entity=cleanup)
+    async def upsert(self, cleanup: FileCleanup) -> None:
+        stmt = (
+            insert(FileCleanupORM)
+            .values(
+                id=cleanup.id,
+                s3_key=cleanup.s3_key,
+                bucket=cleanup.bucket,
+                status=cleanup.status,
+                locked_until=cleanup.locked_until,
+                created_at=cleanup.created_at,
+            )
+            .on_conflict_do_nothing(constraint='uq_file_cleanup')
+        )
         async with self._db.get_session(commit=True) as session:
-            session.add(instance=model)
-            try:
-                await session.flush(objects=(model,))
-            except IntegrityError as e:
-                self._parse_db_error(error=e, cleanup=cleanup)
-        return model.to_entity()
+            await session.execute(statement=stmt)
 
-    async def create_many(self, cleanups: list[FileCleanup]) -> None:
-        models = [FileCleanupORM.from_entity(entity=cleanup) for cleanup in cleanups]
+    async def upsert_many(self, cleanups: list[FileCleanup]) -> None:
+        stmt = insert(FileCleanupORM).on_conflict_do_nothing(constraint='uq_file_cleanup')
         async with self._db.get_session(commit=True) as session:
-            session.add_all(instances=models)
-            await session.flush(objects=models)
+            await session.execute(
+                statement=stmt,
+                params=[
+                    {
+                        'id': cleanup.id,
+                        's3_key': cleanup.s3_key,
+                        'bucket': cleanup.bucket,
+                        'status': cleanup.status.value,
+                        'locked_until': cleanup.locked_until,
+                        'created_at': cleanup.created_at,
+                    }
+                    for cleanup in cleanups
+                ],
+            )
 
     async def get_many_for_cleanup(self, limit: int) -> list[FileCleanup]:
         select_for_update_cleanups = (

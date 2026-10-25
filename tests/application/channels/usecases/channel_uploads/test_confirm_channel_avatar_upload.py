@@ -1,11 +1,15 @@
+import secrets
 from unittest.mock import patch
+from uuid import UUID
 
 import pytest
 from dishka import AsyncContainer
+from sqlalchemy import exists, select
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.application.channels.usecases import ConfirmChannelAvatarUploadUseCase
-from app.core.configs import Settings, settings
+from app.core.configs import settings
+from app.domain.channels.enums import ChannelDeletionStatusEnum
 from app.domain.channels.exceptions import (
     ChannelAvatarAlreadySetError,
     ChannelAvatarInvalidContentTypeError,
@@ -17,42 +21,55 @@ from app.domain.channels.exceptions import (
     ChannelNotFoundByIdError,
 )
 from app.domain.common.exceptions.s3 import S3ObjectAccessForbiddenError
+from app.domain.common.repos.kv import IKVRepo
+from app.domain.files_cleanup.enums import FileCleanupStatusEnum
+from app.infrastructure.sqlalchemy.models import FileCleanupORM, FileORM
 from tests.factories.commands.channels import ConfirmChannelAvatarUploadCommandFactory
 from tests.factories.models.channels import ChannelORMFactory
+from tests.factories.models.files import FileORMFactory
 
 
 @pytest.mark.asyncio
 @pytest.mark.parametrize(
-    'expected_content_length',
+    (
+        'expected_content_length',
+        'expected_file_format',
+    ),
     [
-        314572,
-        104857,
-        943718,
-        1048576,
-        1572864,
-        2097152,
-        3145728,
-        4194304,
-        5138022,
-        5242880,
+        (314572, 'png'),
+        (104857, 'jpg'),
+        (943718, 'jpeg'),
+        (1048576, 'webp'),
+        (1572864, 'png'),
+        (2097152, 'jpg'),
+        (3145728, 'jpeg'),
+        (4194304, 'webp'),
+        (5138022, 'png'),
+        (5242880, 'jpg'),
     ],
 )
-async def test_confirm_channel_avatar_upload_returns_none_if_avatar_updated_with_existing_avatar(
+async def test_confirm_channel_avatar_upload_returns_none_if_avatar_updated_without_existing_avatar(
     mock_container: AsyncContainer,
     expected_content_length: int,
+    expected_file_format: str,
 ):
     async with mock_container() as di:
         use_case = await di.get(ConfirmChannelAvatarUploadUseCase)
+        kv_repo = await di.get(IKVRepo)
         session = await di.get(AsyncSession)
 
-        expected_old_avatar_s3_key = f'{settings.s3_channel_avatars_key_prefix}/old_avatar.png'
-        expected_tmp_avatar_s3_key = f'{settings.s3_tmp_channel_avatars_key_prefix}/new_avatar.png'
-        expected_new_avatar_s3_key = f'{settings.s3_channel_avatars_key_prefix}/new_avatar.png'
+        expected_bucket = settings.s3_public_bucket_name
+        base_key = f'{secrets.token_hex(4)}_new_avatar'
+        expected_tmp_avatar_s3_key = f'{settings.s3_tmp_channel_avatars_key_prefix}/{base_key}.{expected_file_format}'
+        expected_new_avatar_s3_key = f'{settings.s3_channel_avatars_key_prefix}/{base_key}.{expected_file_format}'
 
-        channel = await ChannelORMFactory.create(
-            session=session,
-            avatar_s3_key=expected_old_avatar_s3_key,
+        await kv_repo.set(
+            key=f'set_channel_avatar_url:{expected_bucket}:{expected_tmp_avatar_s3_key}',
+            value='',
+            ttl_seconds=120,
         )
+
+        channel = await ChannelORMFactory.create(session=session)
         command = ConfirmChannelAvatarUploadCommandFactory.build(
             current_channel_id=channel.id, key=expected_tmp_avatar_s3_key
         )
@@ -60,56 +77,134 @@ async def test_confirm_channel_avatar_upload_returns_none_if_avatar_updated_with
         use_case._s3_service.METADATA_CHANNEL_ID = channel.id
         use_case._s3_service.CONTENT_LENGTH = expected_content_length
 
-        assert channel.avatar_s3_key == expected_old_avatar_s3_key
+        assert channel.avatar_file_id is None
 
         with (
-            patch.object(use_case._s3_service, 'schedule_delete_object') as mock_delete_object,
             patch.object(use_case._s3_service, 'copy_object') as mock_copy_object,
         ):
             result = await use_case.execute(command)
 
-        mock_copy_object.assert_called_once()
-        assert mock_delete_object.call_count == 2
-        assert result is None
-
         await session.refresh(instance=channel)
-        assert channel.avatar_s3_key == expected_new_avatar_s3_key
+
+        mock_copy_object.assert_called_once()
+        assert result is None
+        assert isinstance(channel.avatar_file_id, UUID)
+
+        new_file_stmt = select(FileORM).where(FileORM.id == channel.avatar_file_id)
+        tmp_file_cleanup_stmt = select(FileCleanupORM).where(
+            FileCleanupORM.s3_key == expected_tmp_avatar_s3_key, FileCleanupORM.bucket == expected_bucket
+        )
+        db_new_file = (await session.execute(statement=new_file_stmt)).scalar_one()
+        db_tmp_file_cleanup = (await session.execute(statement=tmp_file_cleanup_stmt)).scalar_one()
+
+        assert db_new_file.bucket == expected_bucket
+        assert db_new_file.key == expected_new_avatar_s3_key
+
+        assert db_tmp_file_cleanup.s3_key == expected_tmp_avatar_s3_key
+        assert db_tmp_file_cleanup.bucket == expected_bucket
+        assert db_tmp_file_cleanup.status == FileCleanupStatusEnum.PENDING.value
+        assert db_tmp_file_cleanup.locked_until is None
+        assert db_tmp_file_cleanup.error_code is None
+        assert db_tmp_file_cleanup.error_message is None
 
 
 @pytest.mark.asyncio
-@pytest.mark.parametrize('expected_file_format', ['png', 'jpg', 'jpeg'])
-async def test_confirm_channel_avatar_upload_returns_none_if_avatar_updated_without_existing_avatar(
+@pytest.mark.parametrize(
+    (
+        'expected_content_length',
+        'expected_file_format',
+    ),
+    [
+        (314572, 'png'),
+        (104857, 'jpg'),
+        (943718, 'jpeg'),
+        (1048576, 'webp'),
+        (1572864, 'png'),
+        (2097152, 'jpg'),
+        (3145728, 'jpeg'),
+        (4194304, 'webp'),
+        (5138022, 'png'),
+        (5242880, 'jpg'),
+    ],
+)
+async def test_confirm_channel_avatar_upload_returns_none_if_avatar_updated_with_existing_avatar(
     mock_container: AsyncContainer,
+    expected_content_length: int,
     expected_file_format: str,
 ):
     async with mock_container() as di:
         use_case = await di.get(ConfirmChannelAvatarUploadUseCase)
+        kv_repo = await di.get(IKVRepo)
         session = await di.get(AsyncSession)
 
-        expected_tmp_avatar_s3_key = f'{settings.s3_tmp_channel_avatars_key_prefix}/new_avatar.{expected_file_format}'
-        expected_new_avatar_s3_key = f'{settings.s3_channel_avatars_key_prefix}/new_avatar.{expected_file_format}'
+        expected_bucket = settings.s3_public_bucket_name
+        base_key = f'{secrets.token_hex(4)}_new_avatar'
+        expected_existing_avatar_s3_key = (
+            f'{settings.s3_tmp_channel_avatars_key_prefix}/_existing_avatar.{expected_file_format}'
+        )
+        expected_tmp_avatar_s3_key = f'{settings.s3_tmp_channel_avatars_key_prefix}/{base_key}.{expected_file_format}'
+        expected_new_avatar_s3_key = f'{settings.s3_channel_avatars_key_prefix}/{base_key}.{expected_file_format}'
 
-        channel = await ChannelORMFactory.create(session=session, avatar_s3_key=None)
+        await kv_repo.set(
+            key=f'set_channel_avatar_url:{expected_bucket}:{expected_tmp_avatar_s3_key}',
+            value='',
+            ttl_seconds=120,
+        )
+
+        existing_avatar_file = await FileORMFactory.create(
+            session=session,
+            key=expected_existing_avatar_s3_key,
+            bucket=expected_bucket,
+        )
+        channel = await ChannelORMFactory.create(session=session, avatar_file_id=existing_avatar_file.id)
         command = ConfirmChannelAvatarUploadCommandFactory.build(
             current_channel_id=channel.id, key=expected_tmp_avatar_s3_key
         )
 
         use_case._s3_service.METADATA_CHANNEL_ID = channel.id
+        use_case._s3_service.CONTENT_LENGTH = expected_content_length
 
-        assert channel.avatar_s3_key is None
+        assert channel.avatar_file_id == existing_avatar_file.id
 
         with (
-            patch.object(use_case._s3_service, 'schedule_delete_object') as mock_delete_object,
             patch.object(use_case._s3_service, 'copy_object') as mock_copy_object,
         ):
             result = await use_case.execute(command)
+
         await session.refresh(instance=channel)
 
-        mock_delete_object.assert_called_once()
         mock_copy_object.assert_called_once()
         assert result is None
 
-        assert channel.avatar_s3_key == expected_new_avatar_s3_key
+        assert channel.avatar_file_id != existing_avatar_file.id
+
+        new_file_stmt = select(FileORM).where(FileORM.id == channel.avatar_file_id)
+        tmp_file_cleanup_stmt = select(FileCleanupORM).where(
+            FileCleanupORM.s3_key == expected_tmp_avatar_s3_key, FileCleanupORM.bucket == expected_bucket
+        )
+        old_file_cleanup_stmt = select(FileCleanupORM).where(
+            FileCleanupORM.s3_key == expected_existing_avatar_s3_key, FileCleanupORM.bucket == expected_bucket
+        )
+        db_new_file = (await session.execute(statement=new_file_stmt)).scalar_one()
+        db_tmp_file_cleanup = (await session.execute(statement=tmp_file_cleanup_stmt)).scalar_one()
+        db_old_file_cleanup = (await session.execute(statement=old_file_cleanup_stmt)).scalar_one()
+
+        assert db_new_file.bucket == expected_bucket
+        assert db_new_file.key == expected_new_avatar_s3_key
+
+        assert db_tmp_file_cleanup.s3_key == expected_tmp_avatar_s3_key
+        assert db_tmp_file_cleanup.bucket == expected_bucket
+        assert db_tmp_file_cleanup.status == FileCleanupStatusEnum.PENDING.value
+        assert db_tmp_file_cleanup.locked_until is None
+        assert db_tmp_file_cleanup.error_code is None
+        assert db_tmp_file_cleanup.error_message is None
+
+        assert db_old_file_cleanup.s3_key == expected_existing_avatar_s3_key
+        assert db_old_file_cleanup.bucket == expected_bucket
+        assert db_old_file_cleanup.status == FileCleanupStatusEnum.PENDING.value
+        assert db_old_file_cleanup.locked_until is None
+        assert db_old_file_cleanup.error_code is None
+        assert db_old_file_cleanup.error_message is None
 
 
 @pytest.mark.asyncio
@@ -122,7 +217,9 @@ async def test_confirm_channel_avatar_upload_raises_error_if_invalid_invalid_fil
         use_case = await di.get(ConfirmChannelAvatarUploadUseCase)
         session = await di.get(AsyncSession)
 
-        expected_avatar_s3_key = f'{settings.s3_tmp_channel_avatars_key_prefix}/new_avatar.{expected_file_format}'
+        expected_avatar_s3_key = (
+            f'{settings.s3_tmp_channel_avatars_key_prefix}/{secrets.token_hex(4)}_new_avatar.{expected_file_format}'
+        )
 
         channel = await ChannelORMFactory.create(session=session)
         command = ConfirmChannelAvatarUploadCommandFactory.build(
@@ -141,7 +238,7 @@ async def test_confirm_channel_avatar_upload_raises_error_if_invalid_key(
         use_case = await di.get(ConfirmChannelAvatarUploadUseCase)
         session = await di.get(AsyncSession)
 
-        expected_avatar_s3_key = 'invalid-avatar-prefix/new_avatar.png'
+        expected_avatar_s3_key = f'invalid-avatar-prefix/{secrets.token_hex(4)}_new_avatar.png'
 
         channel = await ChannelORMFactory.create(session=session)
         command = ConfirmChannelAvatarUploadCommandFactory.build(
@@ -159,7 +256,7 @@ async def test_confirm_channel_avatar_upload_raises_error_if_channel_not_found(
     async with mock_container() as di:
         use_case = await di.get(ConfirmChannelAvatarUploadUseCase)
 
-        expected_avatar_s3_key = f'{settings.s3_tmp_channel_avatars_key_prefix}/new_avatar.png'
+        expected_avatar_s3_key = f'{settings.s3_tmp_channel_avatars_key_prefix}/{secrets.token_hex(4)}_new_avatar.png'
 
         command = ConfirmChannelAvatarUploadCommandFactory.build(key=expected_avatar_s3_key)
 
@@ -175,7 +272,7 @@ async def test_confirm_channel_avatar_upload_raises_error_if_channel_not_active(
         use_case = await di.get(ConfirmChannelAvatarUploadUseCase)
         session = await di.get(AsyncSession)
 
-        expected_avatar_s3_key = f'{settings.s3_tmp_channel_avatars_key_prefix}/new_avatar.png'
+        expected_avatar_s3_key = f'{settings.s3_tmp_channel_avatars_key_prefix}/{secrets.token_hex(4)}_new_avatar.png'
 
         channel = await ChannelORMFactory.create(session=session, is_active=False)
         command = ConfirmChannelAvatarUploadCommandFactory.build(
@@ -194,7 +291,7 @@ async def test_confirm_channel_avatar_upload_raises_error_if_channel_deleted(
         use_case = await di.get(ConfirmChannelAvatarUploadUseCase)
         session = await di.get(AsyncSession)
 
-        expected_avatar_s3_key = f'{settings.s3_tmp_channel_avatars_key_prefix}/new_avatar.png'
+        expected_avatar_s3_key = f'{settings.s3_tmp_channel_avatars_key_prefix}/{secrets.token_hex(4)}_new_avatar.png'
 
         channel = await ChannelORMFactory.create_deleted(session=session)
         command = ConfirmChannelAvatarUploadCommandFactory.build(
@@ -202,6 +299,28 @@ async def test_confirm_channel_avatar_upload_raises_error_if_channel_deleted(
         )
 
         with pytest.raises(ChannelDeletedError):
+            await use_case.execute(command)
+
+
+@pytest.mark.asyncio
+async def test_confirm_channel_avatar_upload_raises_error_if_channel_deletion_status_purging(
+    mock_container: AsyncContainer,
+):
+    async with mock_container() as di:
+        use_case = await di.get(ConfirmChannelAvatarUploadUseCase)
+        session = await di.get(AsyncSession)
+
+        expected_avatar_s3_key = f'{settings.s3_tmp_channel_avatars_key_prefix}/{secrets.token_hex(4)}_new_avatar.png'
+
+        channel = await ChannelORMFactory.create(
+            session=session,
+            deletion_status=ChannelDeletionStatusEnum.PURGING.value,
+        )
+        command = ConfirmChannelAvatarUploadCommandFactory.build(
+            current_channel_id=channel.id, key=expected_avatar_s3_key
+        )
+
+        with pytest.raises(ChannelNotFoundByIdError):
             await use_case.execute(command)
 
 
@@ -215,10 +334,12 @@ async def test_confirm_channel_avatar_upload_raises_error_if_channel_avatar_alre
 
         expected_old_avatar_filename = 'old_avatar.png'
 
-        channel = await ChannelORMFactory.create(
+        avatar_file = await FileORMFactory.create(
             session=session,
-            avatar_s3_key=f'{settings.s3_channel_avatars_key_prefix}/{expected_old_avatar_filename}',
+            key=f'{settings.s3_channel_avatars_key_prefix}/{expected_old_avatar_filename}',
+            bucket=settings.s3_public_bucket_name,
         )
+        channel = await ChannelORMFactory.create(session=session, avatar_file_id=avatar_file.id)
         command = ConfirmChannelAvatarUploadCommandFactory.build(
             current_channel_id=channel.id,
             key=f'{settings.s3_tmp_channel_avatars_key_prefix}/{expected_old_avatar_filename}',
@@ -229,16 +350,46 @@ async def test_confirm_channel_avatar_upload_raises_error_if_channel_avatar_alre
 
 
 @pytest.mark.asyncio
-async def test_confirm_channel_avatar_upload_raises_error_if_s3_object_access_forbidden(
+async def test_confirm_channel_avatar_upload_raises_error_if_file_key_not_found_in_kv(
     mock_container: AsyncContainer,
 ):
     async with mock_container() as di:
         use_case = await di.get(ConfirmChannelAvatarUploadUseCase)
         session = await di.get(AsyncSession)
 
-        expected_new_tmp_avatar_s3_key = f'{settings.s3_tmp_channel_avatars_key_prefix}/new_avatar.png'
+        expected_tmp_avatar_s3_key = f'{settings.s3_tmp_channel_avatars_key_prefix}/new_file.png'
 
-        channel = await ChannelORMFactory.create(session=session, avatar_s3_key=None)
+        channel = await ChannelORMFactory.create(session=session)
+        command = ConfirmChannelAvatarUploadCommandFactory.build(
+            current_channel_id=channel.id, key=expected_tmp_avatar_s3_key
+        )
+
+        with pytest.raises(ChannelAvatarInvalidKeyError) as e:
+            await use_case.execute(command)
+
+        assert e.value.key == command.key
+        assert e.value.error_detail == 'upload_url_expired_or_deleted'
+
+
+@pytest.mark.asyncio
+async def test_confirm_channel_avatar_upload_raises_error_if_s3_object_access_forbidden(
+    mock_container: AsyncContainer,
+):
+    async with mock_container() as di:
+        use_case = await di.get(ConfirmChannelAvatarUploadUseCase)
+        session = await di.get(AsyncSession)
+        kv_repo = await di.get(IKVRepo)
+
+        expected_new_tmp_avatar_s3_key = (
+            f'{settings.s3_tmp_channel_avatars_key_prefix}/{secrets.token_hex(4)}_new_avatar.png'
+        )
+        await kv_repo.set(
+            key=f'set_channel_avatar_url:{settings.s3_public_bucket_name}:{expected_new_tmp_avatar_s3_key}',
+            value='',
+            ttl_seconds=120,
+        )
+
+        channel = await ChannelORMFactory.create(session=session)
         command = ConfirmChannelAvatarUploadCommandFactory.build(
             current_channel_id=channel.id, key=expected_new_tmp_avatar_s3_key
         )
@@ -256,10 +407,18 @@ async def test_confirm_channel_avatar_upload_raises_error_if_s3_object_invalid_m
     async with mock_container() as di:
         use_case = await di.get(ConfirmChannelAvatarUploadUseCase)
         session = await di.get(AsyncSession)
+        kv_repo = await di.get(IKVRepo)
 
-        expected_new_tmp_avatar_s3_key = f'{settings.s3_tmp_channel_avatars_key_prefix}/new_avatar.png'
+        expected_new_tmp_avatar_s3_key = (
+            f'{settings.s3_tmp_channel_avatars_key_prefix}/{secrets.token_hex(4)}_new_avatar.png'
+        )
+        await kv_repo.set(
+            key=f'set_channel_avatar_url:{settings.s3_public_bucket_name}:{expected_new_tmp_avatar_s3_key}',
+            value='',
+            ttl_seconds=120,
+        )
 
-        channel = await ChannelORMFactory.create(session=session, avatar_s3_key=None)
+        channel = await ChannelORMFactory.create(session=session)
         command = ConfirmChannelAvatarUploadCommandFactory.build(
             current_channel_id=channel.id, key=expected_new_tmp_avatar_s3_key
         )
@@ -267,14 +426,23 @@ async def test_confirm_channel_avatar_upload_raises_error_if_s3_object_invalid_m
         use_case._s3_service.METADATA_CHANNEL_ID = channel.id
         use_case._s3_service.CONTENT_TYPE = expected_content_type
 
-        with (
-            patch.object(use_case._s3_service, 'schedule_delete_object') as mock_delete_object,
-            pytest.raises(ChannelAvatarInvalidContentTypeError) as e,
-        ):
+        file_cleanup_stmt = select(
+            exists().where(
+                FileCleanupORM.s3_key == command.key,
+                FileCleanupORM.bucket == settings.s3_public_bucket_name,
+            )
+        )
+        db_file_cleanup_exists = (await session.execute(statement=file_cleanup_stmt)).scalar_one()
+        assert not db_file_cleanup_exists
+
+        with pytest.raises(ChannelAvatarInvalidContentTypeError) as e:
             await use_case.execute(command)
 
         assert e.value.metadata_content_type == expected_content_type
-        mock_delete_object.assert_called_once()
+        assert e.value.actual_content_type == 'image/png'
+
+        db_file_cleanup_exists = (await session.execute(statement=file_cleanup_stmt)).scalar_one()
+        assert db_file_cleanup_exists
 
 
 @pytest.mark.asyncio
@@ -286,10 +454,18 @@ async def test_confirm_channel_avatar_upload_raises_error_if_s3_object_invalid_c
     async with mock_container() as di:
         use_case = await di.get(ConfirmChannelAvatarUploadUseCase)
         session = await di.get(AsyncSession)
+        kv_repo = await di.get(IKVRepo)
 
-        expected_new_tmp_avatar_s3_key = f'{settings.s3_tmp_channel_avatars_key_prefix}/new_avatar.png'
+        expected_new_tmp_avatar_s3_key = (
+            f'{settings.s3_tmp_channel_avatars_key_prefix}/{secrets.token_hex(4)}_new_avatar.png'
+        )
+        await kv_repo.set(
+            key=f'set_channel_avatar_url:{settings.s3_public_bucket_name}:{expected_new_tmp_avatar_s3_key}',
+            value='',
+            ttl_seconds=120,
+        )
 
-        channel = await ChannelORMFactory.create(session=session, avatar_s3_key=None)
+        channel = await ChannelORMFactory.create(session=session)
         command = ConfirmChannelAvatarUploadCommandFactory.build(
             current_channel_id=channel.id, key=expected_new_tmp_avatar_s3_key
         )
@@ -297,14 +473,23 @@ async def test_confirm_channel_avatar_upload_raises_error_if_s3_object_invalid_c
         use_case._s3_service.METADATA_CHANNEL_ID = channel.id
         use_case._file_type_detector.FILE_TYPE = expected_content_type
 
-        with (
-            patch.object(use_case._s3_service, 'schedule_delete_object') as mock_delete_object,
-            pytest.raises(ChannelAvatarInvalidContentTypeError) as e,
-        ):
+        file_cleanup_stmt = select(
+            exists().where(
+                FileCleanupORM.s3_key == command.key,
+                FileCleanupORM.bucket == settings.s3_public_bucket_name,
+            )
+        )
+        db_file_cleanup_exists = (await session.execute(statement=file_cleanup_stmt)).scalar_one()
+        assert not db_file_cleanup_exists
+
+        with pytest.raises(ChannelAvatarInvalidContentTypeError) as e:
             await use_case.execute(command)
 
+        assert e.value.metadata_content_type == 'image/png'
         assert e.value.actual_content_type == expected_content_type
-        mock_delete_object.assert_called_once()
+
+        db_file_cleanup_exists = (await session.execute(statement=file_cleanup_stmt)).scalar_one()
+        assert db_file_cleanup_exists
 
 
 @pytest.mark.asyncio
@@ -329,10 +514,18 @@ async def test_confirm_channel_avatar_upload_raises_error_if_avatar_file_size_to
     async with mock_container() as di:
         use_case = await di.get(ConfirmChannelAvatarUploadUseCase)
         session = await di.get(AsyncSession)
+        kv_repo = await di.get(IKVRepo)
 
-        expected_new_tmp_avatar_s3_key = f'{settings.s3_tmp_channel_avatars_key_prefix}/new_avatar.png'
+        expected_new_tmp_avatar_s3_key = (
+            f'{settings.s3_tmp_channel_avatars_key_prefix}/{secrets.token_hex(4)}_new_avatar.png'
+        )
 
-        channel = await ChannelORMFactory.create(session=session, avatar_s3_key=None)
+        await kv_repo.set(
+            key=f'set_channel_avatar_url:{settings.s3_public_bucket_name}:{expected_new_tmp_avatar_s3_key}',
+            value='',
+            ttl_seconds=120,
+        )
+        channel = await ChannelORMFactory.create(session=session)
         command = ConfirmChannelAvatarUploadCommandFactory.build(
             current_channel_id=channel.id, key=expected_new_tmp_avatar_s3_key
         )
@@ -340,25 +533,43 @@ async def test_confirm_channel_avatar_upload_raises_error_if_avatar_file_size_to
         use_case._s3_service.METADATA_CHANNEL_ID = channel.id
         use_case._s3_service.CONTENT_LENGTH = expected_content_length
 
-        with (
-            patch.object(use_case._s3_service, 'schedule_delete_object') as mock_delete_object,
-            pytest.raises(ChannelAvatarSizeTooBigError),
-        ):
+        file_cleanup_stmt = select(
+            exists().where(
+                FileCleanupORM.s3_key == command.key,
+                FileCleanupORM.bucket == settings.s3_public_bucket_name,
+            )
+        )
+        db_file_cleanup_exists = (await session.execute(statement=file_cleanup_stmt)).scalar_one()
+        assert not db_file_cleanup_exists
+
+        with pytest.raises(ChannelAvatarSizeTooBigError) as e:
             await use_case.execute(command)
-        mock_delete_object.assert_called_once()
+
+        db_file_cleanup_exists = (await session.execute(statement=file_cleanup_stmt)).scalar_one()
+        assert db_file_cleanup_exists
+
+        assert e.value.key == command.key
+        assert e.value.bucket == settings.s3_public_bucket_name
+        assert e.value.file_size == expected_content_length
 
 
 @pytest.mark.asyncio
-async def test_confirm_channel_avatar_upload_raises_error_if_avatar_file_size_too_small(
-    mock_container: AsyncContainer, test_settings: Settings
-):
+async def test_confirm_channel_avatar_upload_raises_error_if_avatar_file_size_too_small(mock_container: AsyncContainer):
     async with mock_container() as di:
         use_case = await di.get(ConfirmChannelAvatarUploadUseCase)
         session = await di.get(AsyncSession)
+        kv_repo = await di.get(IKVRepo)
 
-        expected_new_tmp_avatar_s3_key = f'{settings.s3_tmp_channel_avatars_key_prefix}/new_avatar.png'
+        expected_new_tmp_avatar_s3_key = (
+            f'{settings.s3_tmp_channel_avatars_key_prefix}/{secrets.token_hex(4)}_new_avatar.png'
+        )
+        await kv_repo.set(
+            key=f'set_channel_avatar_url:{settings.s3_public_bucket_name}:{expected_new_tmp_avatar_s3_key}',
+            value='',
+            ttl_seconds=120,
+        )
 
-        channel = await ChannelORMFactory.create(session=session, avatar_s3_key=None)
+        channel = await ChannelORMFactory.create(session=session)
         command = ConfirmChannelAvatarUploadCommandFactory.build(
             current_channel_id=channel.id, key=expected_new_tmp_avatar_s3_key
         )
@@ -366,13 +577,21 @@ async def test_confirm_channel_avatar_upload_raises_error_if_avatar_file_size_to
         use_case._s3_service.METADATA_CHANNEL_ID = channel.id
         use_case._s3_service.CONTENT_LENGTH = 0
 
-        with (
-            patch.object(use_case._s3_service, 'schedule_delete_object') as mock_delete_object,
-            pytest.raises(ChannelAvatarSizeTooSmallError) as e,
-        ):
+        file_cleanup_stmt = select(
+            exists().where(
+                FileCleanupORM.s3_key == command.key,
+                FileCleanupORM.bucket == settings.s3_public_bucket_name,
+            )
+        )
+        db_file_cleanup_exists = (await session.execute(statement=file_cleanup_stmt)).scalar_one()
+        assert not db_file_cleanup_exists
+
+        with pytest.raises(ChannelAvatarSizeTooSmallError) as e:
             await use_case.execute(command)
 
-        mock_delete_object.assert_called_once()
-        assert e.value.key == expected_new_tmp_avatar_s3_key
-        assert e.value.bucket == test_settings.s3_public_bucket_name
+        db_file_cleanup_exists = (await session.execute(statement=file_cleanup_stmt)).scalar_one()
+        assert db_file_cleanup_exists
+
+        assert e.value.key == command.key
+        assert e.value.bucket == settings.s3_public_bucket_name
         assert e.value.file_size == 0

@@ -28,8 +28,8 @@ class ChannelORM(
     country: Mapped[str] = mapped_column(sa.String(40))
     password_hash: Mapped[str | None]
     is_active: Mapped[bool] = mapped_column(default=True, server_default=sa.sql.true())
-    avatar_s3_key: Mapped[str | None] = mapped_column(
-        sa.String(length=255), nullable=True, default=None, server_default=sa.sql.null()
+    avatar_file_id: Mapped[UUID | None] = mapped_column(
+        sa.ForeignKey('files.id', ondelete='SET NULL'), default=None, server_default=sa.sql.null()
     )
     deletion_status: Mapped[str] = mapped_column(
         sa.String(length=10), default='active', server_default=sa.sql.text("'active'")
@@ -58,7 +58,7 @@ class ChannelORM(
             country=self.country,
             password_hash=self.password_hash,
             is_active=self.is_active,
-            avatar_s3_key=self.avatar_s3_key,
+            avatar_file_id=self.avatar_file_id,
             deletion_status=ChannelDeletionStatusEnum(self.deletion_status),
             deleted_at=DeletionTime(self.deleted_at),
             created_at=self.created_at,
@@ -76,7 +76,7 @@ class ChannelORM(
             country=entity.country,
             password_hash=entity.password_hash,
             is_active=entity.is_active,
-            avatar_s3_key=entity.avatar_s3_key,
+            avatar_file_id=entity.avatar_file_id,
             deletion_status=entity.deletion_status.value,
             deleted_at=entity.deleted_at.to_raw(),
             created_at=entity.created_at,

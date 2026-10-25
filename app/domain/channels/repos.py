@@ -33,6 +33,14 @@ class IChannelRepo(ABC):
     async def set_password(self, id: UUID, password_hash: str) -> bool: ...
 
     @abstractmethod
+    async def set_avatar_file_id(
+        self,
+        id: UUID,
+        new_avatar_file_id: UUID,
+        prev_avatar_file_id: UUID | None,
+    ) -> bool: ...
+
+    @abstractmethod
     async def check_channel_exists_by_slug(self, slug: str) -> bool: ...
 
     @abstractmethod

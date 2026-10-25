@@ -20,7 +20,7 @@ class Channel(BaseEntity):
     country: str = ''
     password_hash: str | None
     is_active: bool = True
-    avatar_s3_key: str | None = None
+    avatar_file_id: UUID | None = None
     deletion_status: ChannelDeletionStatusEnum = ChannelDeletionStatusEnum.ACTIVE
     deleted_at: DeletionTime = field(default_factory=DeletionTime.create_not_deleted)
     created_at: datetime = field(default_factory=get_current_utc_datetime)

@@ -52,6 +52,10 @@ class ChannelORMFactory(BaseORMFactory[ChannelORM], SQLAlchemyFactory[ChannelORM
         return True
 
     @classmethod
+    def avatar_file_id(cls) -> None:
+        return None
+
+    @classmethod
     async def create_deleted(cls, session: AsyncSession, **kwargs) -> ChannelORM:
         return await cls.create(
             session=session,

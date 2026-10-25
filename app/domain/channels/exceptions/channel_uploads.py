@@ -25,6 +25,7 @@ class ChannelAvatarSizeTooSmallError(AppError):
 class ChannelAvatarInvalidKeyError(AppError):
     message = 'Channel avatar invalid key'
     key: str
+    error_detail: str
 
 
 @dataclass(kw_only=True)
@@ -45,4 +46,14 @@ class ChannelAvatarInvalidContentTypeError(AppError):
 class ChannelAvatarAlreadySetError(AppError):
     message = 'This Channel avatar is already set'
     channel_id: UUID
-    avatar_s3_key: str
+    avatar_key: str
+    avatar_bucket: str
+
+
+@dataclass(kw_only=True)
+class ChannelAvatarUploadConfirmationFailedError(AppError):
+    message = 'Channel avatar confirmation failed'
+    channel_id: UUID
+    avatar_key: str
+    avatar_bucket: str
+    error_detail: str

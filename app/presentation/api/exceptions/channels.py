@@ -9,6 +9,7 @@ from app.domain.channels.exceptions import (
     ChannelAvatarNotFoundError,
     ChannelAvatarSizeTooBigError,
     ChannelAvatarSizeTooSmallError,
+    ChannelAvatarUploadConfirmationFailedError,
     ChannelDeletedError,
     ChannelDeletionFailedError,
     ChannelEmailAlreadyExistsError,
@@ -49,4 +50,5 @@ def init_channels() -> dict[type[AppError], int]:
         ChannelAvatarSizeTooBigError: status.HTTP_409_CONFLICT,
         ChannelAvatarSizeTooSmallError: status.HTTP_409_CONFLICT,
         ChannelAvatarAlreadySetError: status.HTTP_409_CONFLICT,
+        ChannelAvatarUploadConfirmationFailedError: status.HTTP_409_CONFLICT,
     }

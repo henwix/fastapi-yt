@@ -1,5 +1,6 @@
 from .base import BaseORM
 from .channels import ChannelORM, SubscriptionORM
+from .files import FileORM
 from .files_cleanup import FileCleanupORM
 from .oauth import OAuthAccountORM
 from .posts import PostCommentORM, PostCommentReactionORM, PostORM, PostReactionORM
@@ -18,6 +19,7 @@ __all__ = (
     'BaseORM',
     'ChannelORM',
     'FileCleanupORM',
+    'FileORM',
     'OAuthAccountORM',
     'PlaylistItemORM',
     'PlaylistORM',

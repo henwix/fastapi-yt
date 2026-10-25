@@ -1,6 +1,7 @@
 from dataclasses import dataclass
 
 from redis.asyncio import Redis
+from redis.asyncio.lock import Lock
 
 from app.domain.common.repos.kv import IKVRepo
 
@@ -17,3 +18,7 @@ class RedisRepo(IKVRepo):
 
     async def delete(self, key: str) -> bool:
         return (await self._redis.delete(key)) > 0
+
+    async def delete_with_lock(self, key: str) -> bool:
+        async with Lock(redis=self._redis, name=f'lock:{key}', timeout=15, blocking_timeout=15):
+            return (await self._redis.delete(key)) > 0

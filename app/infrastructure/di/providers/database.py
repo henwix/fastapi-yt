@@ -14,7 +14,7 @@ from app.infrastructure.sqlalchemy.transaction_manager import SQLAlchemyTransact
 class DatabaseProvider(Provider):
     @provide(scope=Scope.APP, provides=AsyncEngine)
     async def engine(self) -> AsyncGenerator[AsyncEngine]:
-        engine = create_engine()
+        engine = create_engine(echo_pool='debug')
         yield engine
         await engine.dispose()
 

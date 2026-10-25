@@ -78,7 +78,6 @@ class ChannelRepo(SQLAlchemyRepo, IChannelRepo):
                 slug=channel.slug.to_raw(),
                 description=channel.description,
                 country=channel.country,
-                avatar_s3_key=channel.avatar_s3_key,
             )
             .returning(ChannelORM)
         )
@@ -138,6 +137,24 @@ class ChannelRepo(SQLAlchemyRepo, IChannelRepo):
 
     async def set_password(self, id: UUID, password_hash: str) -> bool:
         stmt = update(ChannelORM).where(ChannelORM.id == id).values(password_hash=password_hash)
+        async with self._db.get_session(commit=True) as session:
+            result = await session.execute(statement=stmt)
+        return cast(CursorResult, result).rowcount > 0
+
+    async def set_avatar_file_id(
+        self,
+        id: UUID,
+        new_avatar_file_id: UUID,
+        prev_avatar_file_id: UUID | None,
+    ) -> bool:
+        stmt = (
+            update(ChannelORM)
+            .values(avatar_file_id=new_avatar_file_id)
+            .where(
+                ChannelORM.id == id,
+                ChannelORM.avatar_file_id == prev_avatar_file_id,
+            )
+        )
         async with self._db.get_session(commit=True) as session:
             result = await session.execute(statement=stmt)
         return cast(CursorResult, result).rowcount > 0

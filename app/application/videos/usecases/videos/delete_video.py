@@ -32,4 +32,4 @@ class DeleteVideoUseCase:
 
             await self._video_service.try_delete_by_id(id=command.video_id)
             if cleanups:
-                await self._file_cleanup_service.create_many(cleanups=cleanups)
+                await self._file_cleanup_service.upsert_many(cleanups=cleanups)

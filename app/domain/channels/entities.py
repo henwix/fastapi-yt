@@ -65,7 +65,3 @@ class Channel(BaseEntity):
     def set_country(self, value: str | Empty) -> None:
         if value is not Empty.UNSET:
             self.country = value
-
-    def set_avatar_s3_key(self, value: str | Empty | None) -> None:
-        if value is not Empty.UNSET:
-            self.avatar_s3_key = value

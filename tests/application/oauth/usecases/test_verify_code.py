@@ -76,7 +76,7 @@ async def test_verify_code_returns_tokens_if_new_channel_and_oauth_account_creat
         assert db_channel.description == ''
         assert db_channel.country == ''
         assert db_channel.is_active
-        assert db_channel.avatar_s3_key is None
+        assert db_channel.avatar_file_id is None
 
         assert db_oauth_account.channel_id == db_channel.id
         assert db_oauth_account.provider == oauth_provider_user_data.provider
@@ -149,7 +149,7 @@ async def test_verify_code_builds_unique_slug_and_creates_new_channel_if_base_sl
         assert db_channel.description == ''
         assert db_channel.country == ''
         assert db_channel.is_active
-        assert db_channel.avatar_s3_key is None
+        assert db_channel.avatar_file_id is None
 
         assert db_oauth_account.channel_id == db_channel.id
         assert db_oauth_account.provider == oauth_provider_user_data.provider

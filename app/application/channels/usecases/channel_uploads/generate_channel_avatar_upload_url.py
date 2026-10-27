@@ -38,6 +38,8 @@ class GenerateChannelAvatarUploadUrlUseCase:
             metadata={'channel_id': str(channel.id)},
         )
         await self._kv_repo.set(
-            key=f'set_channel_avatar_url:{bucket_name}:{key}', value='', ttl_seconds=avatar_upload_url_ttl
+            key=f'set_channel_avatar_url:{bucket_name}:{key}',
+            value='',
+            ttl_seconds=avatar_upload_url_ttl,
         )
         return url, key, channel.id

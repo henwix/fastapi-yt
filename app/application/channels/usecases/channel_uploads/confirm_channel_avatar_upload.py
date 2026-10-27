@@ -126,12 +126,13 @@ class ConfirmChannelAvatarUploadUseCase:
         await self._file_cleanup_service.upsert(cleanup=tmp_avatar_file_cleanup)
 
         async with self._tm.begin(commit=True):
-            new_avatar_file = File.create(key=avatar_key, bucket=bucket_name)
-            new_avatar_file = await self._file_service.create(file=new_avatar_file)
+            new_avatar_file = await self._file_service.create(
+                file=File.create(key=avatar_key, bucket=bucket_name),
+            )
             is_new_avatar_file_set = await self._channel_service.set_avatar_file_id(
                 id=channel.id,
                 new_avatar_file_id=new_avatar_file.id,
-                prev_avatar_file_id=current_avatar_file.id if current_avatar_file else None,
+                prev_avatar_file_id=channel.avatar_file_id,
             )
             if not is_new_avatar_file_set:
                 await self._tm.rollback(with_exc=True)

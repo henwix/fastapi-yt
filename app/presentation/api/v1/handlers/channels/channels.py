@@ -33,7 +33,11 @@ from app.presentation.api.openapi.common import error_response
 from app.presentation.api.v1.di import CurrentChannelID
 from app.presentation.api.v1.handlers.common.path_params import PathChannelSlug
 from app.presentation.api.v1.schemas.requests.channels import UpdateChannelInSchema
-from app.presentation.api.v1.schemas.responses.channels import ChannelAboutInfoOutSchema, ChannelOutSchema
+from app.presentation.api.v1.schemas.responses.channels import (
+    ChannelAboutInfoOutSchema,
+    DetailedChannelOutSchema,
+    UpdateChannelOutSchema,
+)
 
 router = APIRouter(
     prefix='/channels',
@@ -58,10 +62,10 @@ router = APIRouter(
 async def get_channel(
     current_channel_id: CurrentChannelID,
     use_case: FromDishka[GetChannelUseCase],
-) -> ChannelOutSchema:
+) -> DetailedChannelOutSchema:
     query = GetChannelQuery(current_channel_id=current_channel_id)
     channel = await use_case.execute(query=query)
-    return ChannelOutSchema.from_entity(entity=channel)
+    return DetailedChannelOutSchema.from_dto(dto=channel)
 
 
 @router.patch(
@@ -88,13 +92,13 @@ async def update_channel(
     schema: UpdateChannelInSchema,
     current_channel_id: CurrentChannelID,
     use_case: FromDishka[UpdateChannelUseCase],
-) -> ChannelOutSchema:
+) -> UpdateChannelOutSchema:
     command = UpdateChannelCommand(
         current_channel_id=current_channel_id,
         **schema.model_dump(exclude_unset=True),
     )
     channel = await use_case.execute(command=command)
-    return ChannelOutSchema.from_entity(entity=channel)
+    return UpdateChannelOutSchema.from_entity(entity=channel)
 
 
 @router.delete(

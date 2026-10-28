@@ -1,40 +1,91 @@
 from datetime import datetime
 from uuid import UUID
 
-from pydantic import EmailStr
+from pydantic import EmailStr, HttpUrl
 
-from app.application.channels.dto import ChannelAboutInfo
+from app.application.channels.dto import ChannelAboutInfo, DetailedChannel
 from app.domain.channels.entities import Channel
+from app.domain.channels.enums import ChannelDeletionStatusEnum
 from app.presentation.api.v1.schemas.base import BaseSchema
 
 
 class ChannelOutSchema(BaseSchema):
     id: UUID
-    email: EmailStr
     name: str
+    email: EmailStr
     slug: str
     description: str
     country: str
-    avatar_s3_key: str | None
-    is_active: bool
-    deleted_at: datetime | None
     created_at: datetime
     updated_at: datetime
+    is_active: bool
+    deletion_status: ChannelDeletionStatusEnum
+    deleted_at: datetime | None
 
     @staticmethod
     def from_entity(entity: Channel) -> ChannelOutSchema:
         return ChannelOutSchema(
             id=entity.id,
+            name=entity.name.to_raw(),
             email=entity.email.to_raw(),
+            slug=entity.slug.to_raw(),
+            description=entity.description,
+            country=entity.country,
+            created_at=entity.created_at,
+            is_active=entity.is_active,
+            deletion_status=entity.deletion_status,
+            deleted_at=entity.deleted_at.to_raw(),
+            updated_at=entity.updated_at,
+        )
+
+
+class DetailedChannelOutSchema(BaseSchema):
+    id: UUID
+    name: str
+    email: EmailStr
+    slug: str
+    description: str
+    country: str
+    created_at: datetime
+    updated_at: datetime
+    is_active: bool
+    deletion_status: ChannelDeletionStatusEnum
+    deleted_at: datetime | None
+    avatar_url: HttpUrl | None
+
+    @staticmethod
+    def from_dto(dto: DetailedChannel) -> DetailedChannelOutSchema:
+        return DetailedChannelOutSchema(
+            id=dto.id,
+            name=dto.name,
+            email=dto.email,
+            slug=dto.slug,
+            description=dto.description,
+            country=dto.country,
+            created_at=dto.created_at,
+            updated_at=dto.updated_at,
+            is_active=dto.is_active,
+            deletion_status=dto.deletion_status,
+            deleted_at=dto.deleted_at,
+            avatar_url=dto.avatar_url,
+        )
+
+
+class UpdateChannelOutSchema(BaseSchema):
+    id: UUID
+    name: str
+    slug: str
+    description: str
+    country: str
+
+    @staticmethod
+    def from_entity(entity: Channel) -> UpdateChannelOutSchema:
+        return UpdateChannelOutSchema(
+            id=entity.id,
             name=entity.name.to_raw(),
             slug=entity.slug.to_raw(),
             description=entity.description,
             country=entity.country,
-            avatar_s3_key=entity.avatar_s3_key,
-            is_active=entity.is_active,
-            deleted_at=entity.deleted_at.to_raw(),
-            created_at=entity.created_at,
-            updated_at=entity.updated_at,
         )
 
 

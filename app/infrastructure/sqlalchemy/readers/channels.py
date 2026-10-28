@@ -1,13 +1,16 @@
+from uuid import UUID
+
 import sqlalchemy as sa
 from sqlalchemy import select
 
-from app.application.channels.dto import ChannelAboutInfo
+from app.application.channels.dto import ChannelAboutInfo, DetailedChannel
 from app.application.channels.interfaces import IChannelReader
 from app.domain.channels.enums import ChannelDeletionStatusEnum
-from app.domain.channels.exceptions import ChannelNotFoundBySlugError
+from app.domain.channels.exceptions import ChannelNotFoundByIdError, ChannelNotFoundBySlugError
 from app.domain.videos.enums import VideoPrivacyStatusEnum, VideoUploadStatusEnum
 from app.infrastructure.sqlalchemy.converters import convert_row_to_channel_about_info_dto
-from app.infrastructure.sqlalchemy.models import ChannelORM, SubscriptionORM, VideoORM
+from app.infrastructure.sqlalchemy.converters.channels import convert_row_to_channel_detailed_dto
+from app.infrastructure.sqlalchemy.models import ChannelORM, FileORM, SubscriptionORM, VideoORM
 from app.infrastructure.sqlalchemy.readers.base import SQLAlchemyReader
 
 
@@ -56,3 +59,33 @@ class ChannelReader(SQLAlchemyReader, IChannelReader):
         if row is None:
             raise ChannelNotFoundBySlugError(channel_slug=slug)
         return convert_row_to_channel_about_info_dto(row=row)
+
+    async def try_get_detailed_by_id(self, id: UUID) -> DetailedChannel:
+        stmt = (
+            select(
+                ChannelORM.id,
+                ChannelORM.name,
+                ChannelORM.email,
+                ChannelORM.slug,
+                ChannelORM.description,
+                ChannelORM.country,
+                ChannelORM.is_active,
+                ChannelORM.created_at,
+                ChannelORM.updated_at,
+                ChannelORM.deletion_status,
+                ChannelORM.deleted_at,
+                FileORM.key.label('avatar_key'),
+            )
+            .where(
+                ChannelORM.id == id,
+                ChannelORM.deletion_status != ChannelDeletionStatusEnum.PURGING.value,
+            )
+            .outerjoin(FileORM, ChannelORM.avatar_file_id == FileORM.id)
+        )
+        async with self._db.get_session(commit=False) as session:
+            result = await session.execute(statement=stmt)
+
+        row = result.mappings().one_or_none()
+        if row is None:
+            raise ChannelNotFoundByIdError(channel_id=id)
+        return convert_row_to_channel_detailed_dto(row=row)

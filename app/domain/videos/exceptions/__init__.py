@@ -15,6 +15,7 @@ from .video_uploads import (
     VideoThumbnailVideoIdMismatchError,
     VideoUploadAlreadyCompletedError,
     VideoUploadAlreadyCreatedError,
+    VideoUploadCreationFailedError,
     VideoUploadNotCreatedError,
 )
 from .video_views import VideoViewsLimitReachedError
@@ -48,6 +49,7 @@ __all__ = (
     'VideoThumbnailVideoIdMismatchError',
     'VideoUploadAlreadyCompletedError',
     'VideoUploadAlreadyCreatedError',
+    'VideoUploadCreationFailedError',
     'VideoUploadNotCreatedError',
     'VideoViewsLimitReachedError',
 )

@@ -1,4 +1,5 @@
 from abc import ABC, abstractmethod
+from uuid import UUID
 
 from app.domain.videos.entities import Video
 
@@ -9,6 +10,9 @@ class IVideoRepo(ABC):
 
     @abstractmethod
     async def update(self, video: Video) -> Video | None: ...
+
+    @abstractmethod
+    async def update_if_pending(self, id: str, video_upload_id: str, video_file_id: UUID) -> bool: ...
 
     @abstractmethod
     async def increase_views_count(self, video_id: str) -> bool: ...

@@ -29,18 +29,18 @@ class CompleteVideoMultipartUploadUseCase:
 
         await self._s3_service.complete_multipart_upload(
             bucket=settings.s3_private_bucket_name,
-            key=video.s3_key,
-            upload_id=video.upload_id,
+            key=video.video_file_id,
+            upload_id=video.video_upload_id,
             parts=command.parts,
         )
 
         video_head_object = await self._s3_service.head_object(
-            key=video.s3_key,
+            key=video.video_file_id,
             bucket=settings.s3_private_bucket_name,
         )
         video_content_length = video_head_object['ContentLength']
         if video_content_length == 0:
-            video_s3_key = video.s3_key
+            video_s3_key = video.video_file_id
             await self._delete_video_file(video=video)
             raise VideoSizeTooSmallError(
                 key=video_s3_key,
@@ -50,17 +50,17 @@ class CompleteVideoMultipartUploadUseCase:
 
         video_object = await self._s3_service.get_object(
             bucket=settings.s3_private_bucket_name,
-            key=video.s3_key,
+            key=video.video_file_id,
             range='bytes=0-2047',
         )
         video_object_data = await video_object['Body'].read()
 
         video_metadata_mime_type: str = video_object['ContentType']
         video_actual_mime_type = self._file_type_detector.detect(content=video_object_data)
-        allowed_mime_types = VIDEO_FILE_MIME_TYPES.get(Path(video.s3_key).suffix.lower(), [])
+        allowed_mime_types = VIDEO_FILE_MIME_TYPES.get(Path(video.video_file_id).suffix.lower(), [])
 
         if video_metadata_mime_type not in allowed_mime_types or video_actual_mime_type not in allowed_mime_types:
-            video_s3_key = video.s3_key
+            video_s3_key = video.video_file_id
             await self._delete_video_file(video=video)
             raise VideoInvalidContentTypeError(
                 key=video_s3_key,
@@ -68,16 +68,16 @@ class CompleteVideoMultipartUploadUseCase:
                 actual_content_type=video_actual_mime_type,
             )
 
-        video.set_upload_id(value=None)
-        video.set_upload_status(value=VideoUploadStatusEnum.COMPLETED)
+        video.set_video_upload_id(value=None)
+        video.set_video_upload_status(value=VideoUploadStatusEnum.COMPLETED)
         await self._video_service.try_update(video=video)
 
     async def _delete_video_file(self, video: Video) -> None:
-        video_s3_key = video.s3_key
+        video_s3_key = video.video_file_id
 
-        video.set_upload_id(value=None)
-        video.set_s3_key(value=None)
-        video.set_upload_status(value=VideoUploadStatusEnum.PENDING)
+        video.set_video_upload_id(value=None)
+        video.set_video_file_id(value=None)
+        video.set_video_upload_status(value=VideoUploadStatusEnum.PENDING)
         await self._video_service.try_update(video=video)
 
         await self._s3_service.schedule_delete_object(

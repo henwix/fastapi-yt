@@ -19,10 +19,10 @@ class Video(BaseEntity):
     is_reported: bool = False
     created_at: datetime = field(default_factory=get_current_utc_datetime)
     views_count: int = 0
-    upload_id: str | None = None
-    s3_key: str | None = None
-    thumbnail_s3_key: str | None = None
-    upload_status: VideoUploadStatusEnum = VideoUploadStatusEnum.PENDING
+    video_upload_id: str | None = None
+    video_upload_status: VideoUploadStatusEnum = VideoUploadStatusEnum.PENDING
+    video_file_id: UUID | None = None
+    thumbnail_file_id: UUID | None = None
 
     @staticmethod
     def create(
@@ -50,18 +50,18 @@ class Video(BaseEntity):
         if value is not Empty.UNSET:
             self.privacy_status = value
 
-    def set_upload_status(self, value: VideoUploadStatusEnum | Empty) -> None:
+    def set_video_upload_status(self, value: VideoUploadStatusEnum | Empty) -> None:
         if value is not Empty.UNSET:
-            self.upload_status = value
+            self.video_upload_status = value
 
-    def set_upload_id(self, value: str | Empty | None) -> None:
+    def set_video_upload_id(self, value: str | Empty | None) -> None:
         if value is not Empty.UNSET:
-            self.upload_id = value
+            self.video_upload_id = value
 
-    def set_s3_key(self, value: str | Empty | None) -> None:
+    def set_video_file_id(self, value: UUID | Empty | None) -> None:
         if value is not Empty.UNSET:
-            self.s3_key = value
+            self.video_file_id = value
 
     def set_thumbnail_s3_key(self, value: str | Empty | None) -> None:
         if value is not Empty.UNSET:
-            self.thumbnail_s3_key = value
+            self.thumbnail_file_id = value

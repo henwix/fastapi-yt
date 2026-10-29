@@ -75,7 +75,7 @@ class PlaylistItemRepo(SQLAlchemyRepo, IPlaylistItemRepo):
         constraint_name = self._extract_constraint_name(error=error)
 
         match constraint_name:
-            case 'unique_playlist_item':
+            case 'uq_playlist_items_item':
                 raise VideoAlreadyAddedToPlaylistError(
                     playlist_id=playlist_item.playlist_id,
                     video_id=playlist_item.video_id,

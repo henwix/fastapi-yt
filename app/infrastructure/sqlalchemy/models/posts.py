@@ -61,8 +61,8 @@ class PostReactionORM(
     reaction_type: Mapped[str] = mapped_column(sa.String(length=8))
 
     __table_args__ = (
-        sa.UniqueConstraint('post_id', 'channel_id', name='unique_channel_post_reaction'),
-        sa.CheckConstraint("reaction_type IN ('positive', 'negative')"),
+        sa.UniqueConstraint('post_id', 'channel_id', name='uq_post_reactions_channel_reaction'),
+        sa.CheckConstraint("reaction_type IN ('positive', 'negative')", name='ck_post_reactions_reaction_type'),
     )
 
     def to_entity(self) -> PostReaction:
@@ -171,8 +171,8 @@ class PostCommentReactionORM(
     reaction_type: Mapped[str] = mapped_column(sa.String(length=8))
 
     __table_args__ = (
-        sa.UniqueConstraint('post_comment_id', 'channel_id', name='unique_channel_post_comment_reaction'),
-        sa.CheckConstraint("reaction_type IN ('positive', 'negative')"),
+        sa.UniqueConstraint('post_comment_id', 'channel_id', name='uq_post_comment_reactions_reaction'),
+        sa.CheckConstraint("reaction_type IN ('positive', 'negative')", name='ck_post_comment_reactions_reaction_type'),
     )
 
     @staticmethod

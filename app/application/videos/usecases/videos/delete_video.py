@@ -23,11 +23,11 @@ class DeleteVideoUseCase:
             self._video_service.ensure_video_access(video=video, channel=channel)
 
             cleanups = []
-            if video.s3_key is not None:
-                cleanups.append(FileCleanup.create(s3_key=video.s3_key, bucket=settings.s3_private_bucket_name))
-            if video.thumbnail_s3_key is not None:
+            if video.video_file_id is not None:
+                cleanups.append(FileCleanup.create(s3_key=video.video_file_id, bucket=settings.s3_private_bucket_name))
+            if video.thumbnail_file_id is not None:
                 cleanups.append(
-                    FileCleanup.create(s3_key=video.thumbnail_s3_key, bucket=settings.s3_public_bucket_name)
+                    FileCleanup.create(s3_key=video.thumbnail_file_id, bucket=settings.s3_public_bucket_name)
                 )
 
             await self._video_service.try_delete_by_id(id=command.video_id)

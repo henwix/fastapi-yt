@@ -25,7 +25,7 @@ class FileCleanupRepo(SQLAlchemyRepo, IFileCleanupRepo):
                 locked_until=cleanup.locked_until,
                 created_at=cleanup.created_at,
             )
-            .on_conflict_do_nothing(constraint='uq_file_cleanup')
+            .on_conflict_do_nothing(constraint='uq_files_cleanup_cleanup')
         )
         async with self._db.get_session(commit=True) as session:
             await session.execute(statement=stmt)

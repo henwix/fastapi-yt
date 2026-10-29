@@ -21,10 +21,10 @@ class DeleteVideoThumbnailUseCase:
             channel = await self._channel_service.try_get_existing_by_id_for_auth(id=command.current_channel_id)
             video = await self._video_service.try_get_by_id(id=command.video_id)
             self._video_service.ensure_video_access(video=video, channel=channel)
-            if video.thumbnail_s3_key is None:
+            if video.thumbnail_file_id is None:
                 raise VideoThumbnailNotFoundError(video_id=video.id)
 
-            video_thumbnail_s3_key = video.thumbnail_s3_key
+            video_thumbnail_s3_key = video.thumbnail_file_id
 
             video.set_thumbnail_s3_key(value=None)
             await self._video_service.try_update(video=video)

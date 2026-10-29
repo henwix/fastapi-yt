@@ -183,7 +183,7 @@ class PlaylistReader(SQLAlchemyReader, IPlaylistReader):
                 VideoORM.privacy_status,
                 VideoORM.created_at,
                 VideoORM.views_count,
-                VideoORM.thumbnail_s3_key,
+                VideoORM.thumbnail_file_id,
                 PlaylistItemORM.created_at.label('added_at'),
                 ChannelORM.name.label('author_name'),
                 ChannelORM.slug.label('author_slug'),

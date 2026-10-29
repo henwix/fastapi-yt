@@ -1,5 +1,6 @@
 from datetime import timedelta
 from typing import NoReturn, cast
+from uuid import UUID
 
 from sqlalchemy import CursorResult, delete, exists, select, update
 from sqlalchemy.exc import DBAPIError, IntegrityError
@@ -48,10 +49,10 @@ class VideoRepo(SQLAlchemyRepo, IVideoRepo):
                 title=video.title,
                 description=video.description,
                 privacy_status=video.privacy_status,
-                upload_id=video.upload_id,
-                upload_status=video.upload_status.value,
-                s3_key=video.s3_key,
-                thumbnail_s3_key=video.thumbnail_s3_key,
+                upload_id=video.video_upload_id,
+                upload_status=video.video_upload_status.value,
+                s3_key=video.video_file_id,
+                thumbnail_s3_key=video.thumbnail_file_id,
             )
             .returning(VideoORM)
         )
@@ -59,6 +60,23 @@ class VideoRepo(SQLAlchemyRepo, IVideoRepo):
             result = await session.execute(statement=stmt)
         updated_video = result.scalar_one_or_none()
         return updated_video.to_entity() if updated_video else None
+
+    async def update_if_pending(self, id: str, video_upload_id: str, video_file_id: UUID) -> bool:
+        stmt = (
+            update(VideoORM)
+            .values(
+                video_upload_id=video_upload_id,
+                video_file_id=video_file_id,
+                video_upload_status=VideoUploadStatusEnum.UPLOADING.value,
+            )
+            .where(
+                VideoORM.id == id,
+                VideoORM.video_upload_status == VideoUploadStatusEnum.PENDING.value,
+            )
+        )
+        async with self._db.get_session(commit=True) as session:
+            result = await session.execute(statement=stmt)
+        return cast(CursorResult, result).rowcount > 0
 
     async def increase_views_count(self, video_id: str) -> bool:
         stmt = update(VideoORM).where(VideoORM.id == video_id).values(views_count=VideoORM.views_count + 1)
@@ -73,7 +91,7 @@ class VideoRepo(SQLAlchemyRepo, IVideoRepo):
     async def get_completed_by_id(self, id: str) -> Video | None:
         stmt = select(VideoORM).where(
             VideoORM.id == id,
-            VideoORM.upload_status == VideoUploadStatusEnum.COMPLETED.value,
+            VideoORM.video_upload_status == VideoUploadStatusEnum.COMPLETED.value,
             exists().where(
                 ChannelORM.id == VideoORM.channel_id,
                 ChannelORM.deletion_status == ChannelDeletionStatusEnum.ACTIVE.value,
@@ -89,7 +107,7 @@ class VideoRepo(SQLAlchemyRepo, IVideoRepo):
 
     async def delete_not_completed_videos(self) -> int:
         stmt = delete(VideoORM).where(
-            VideoORM.upload_status != VideoUploadStatusEnum.COMPLETED,
+            VideoORM.video_upload_status != VideoUploadStatusEnum.COMPLETED,
             VideoORM.created_at < get_current_utc_datetime() - timedelta(days=7),
         )
         async with self._db.get_session(commit=True) as session:

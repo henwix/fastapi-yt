@@ -28,7 +28,7 @@ class FileCleanupORM(
     error_message: Mapped[str | None] = mapped_column(default=None, server_default=sa.sql.null())
 
     __table_args__ = (
-        sa.UniqueConstraint('s3_key', 'bucket', name='uq_file_cleanup'),
+        sa.UniqueConstraint('s3_key', 'bucket', name='uq_files_cleanup_cleanup'),
         sa.CheckConstraint("status IN ('pending', 'processing', 'failed')", name='ck_files_cleanup_status'),
     )
 

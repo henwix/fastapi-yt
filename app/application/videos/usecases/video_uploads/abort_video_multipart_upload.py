@@ -25,12 +25,12 @@ class AbortVideoMultipartUploadUseCase:
             self._video_service.ensure_video_upload_not_completed(video=video)
             self._video_service.ensure_video_upload_created(video=video)
 
-            video_s3_key = video.s3_key
-            video_upload_id = video.upload_id
+            video_s3_key = video.video_file_id
+            video_upload_id = video.video_upload_id
 
-            video.set_upload_id(value=None)
-            video.set_s3_key(value=None)
-            video.set_upload_status(value=VideoUploadStatusEnum.PENDING)
+            video.set_video_upload_id(value=None)
+            video.set_video_file_id(value=None)
+            video.set_video_upload_status(value=VideoUploadStatusEnum.PENDING)
 
             await self._video_service.try_update(video=video)
 

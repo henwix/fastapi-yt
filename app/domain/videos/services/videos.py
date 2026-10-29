@@ -1,5 +1,6 @@
 from abc import ABC, abstractmethod
 from dataclasses import dataclass
+from uuid import UUID
 
 from app.domain.channels.entities import Channel
 from app.domain.videos.entities import Video
@@ -19,6 +20,9 @@ class IVideoService(ABC):
 
     @abstractmethod
     async def try_update(self, video: Video) -> Video: ...
+
+    @abstractmethod
+    async def update_if_pending(self, id: str, video_upload_id: str, video_file_id: UUID) -> bool: ...
 
     @abstractmethod
     async def try_increase_views_count(self, video_id: str) -> None: ...
@@ -55,6 +59,9 @@ class VideoService(IVideoService):
             raise VideoNotFoundError(video_id=video.id)
         return updated_video
 
+    async def update_if_pending(self, id: str, video_upload_id: str, video_file_id: UUID) -> bool:
+        return await self._repo.update_if_pending(id=id, video_upload_id=video_upload_id, video_file_id=video_file_id)
+
     async def try_increase_views_count(self, video_id: str) -> None:
         is_views_count_increased = await self._repo.increase_views_count(video_id=video_id)
         if not is_views_count_increased:
@@ -82,9 +89,13 @@ class VideoService(IVideoService):
             raise VideoAccessForbiddenError(video_id=video.id, channel_id=channel.id)
 
     def ensure_video_upload_not_completed(self, video: Video) -> None:
-        if video.upload_status is VideoUploadStatusEnum.COMPLETED:
+        if video.video_upload_status is VideoUploadStatusEnum.COMPLETED:
             raise VideoUploadAlreadyCompletedError(video_id=video.id)
 
     def ensure_video_upload_created(self, video: Video) -> None:
-        if video.upload_status is VideoUploadStatusEnum.PENDING or video.upload_id is None or video.s3_key is None:
+        if (
+            video.video_upload_status is VideoUploadStatusEnum.PENDING
+            or video.video_upload_id is None
+            or video.video_file_id is None
+        ):
             raise VideoUploadNotCreatedError(video_id=video.id)

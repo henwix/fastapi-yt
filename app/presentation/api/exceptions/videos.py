@@ -24,6 +24,7 @@ from app.domain.videos.exceptions import (
     VideoThumbnailVideoIdMismatchError,
     VideoUploadAlreadyCompletedError,
     VideoUploadAlreadyCreatedError,
+    VideoUploadCreationFailedError,
     VideoUploadNotCreatedError,
     VideoViewsLimitReachedError,
 )
@@ -42,6 +43,7 @@ def init_videos() -> dict[type[AppError], int]:
         VideoUploadAlreadyCompletedError: status.HTTP_409_CONFLICT,
         VideoUploadAlreadyCreatedError: status.HTTP_409_CONFLICT,
         VideoUploadNotCreatedError: status.HTTP_409_CONFLICT,
+        VideoUploadCreationFailedError: status.HTTP_409_CONFLICT,
         VideoInvalidFilenameError: status.HTTP_400_BAD_REQUEST,
         VideoInvalidContentTypeError: status.HTTP_409_CONFLICT,
         VideoSizeTooSmallError: status.HTTP_409_CONFLICT,

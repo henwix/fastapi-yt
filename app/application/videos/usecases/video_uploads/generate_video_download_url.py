@@ -27,11 +27,11 @@ class GenerateVideoDownloadUrlUseCase:
                 channel = await self._channel_service.try_get_existing_by_id_for_auth(id=command.current_channel_id)
                 self._video_service.ensure_video_access(video=video, channel=channel)
 
-        if video.s3_key is None:
+        if video.video_file_id is None:
             raise VideoFileNotFoundError(video_id=video.id)
 
         return await self._s3_service.generate_download_url(
             bucket=settings.s3_private_bucket_name,
-            key=video.s3_key,
+            key=video.video_file_id,
             expires_in=10800,
         )

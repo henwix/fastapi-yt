@@ -47,6 +47,7 @@ from app.domain.videos.exceptions import (
     VideoThumbnailVideoIdMismatchError,
     VideoUploadAlreadyCompletedError,
     VideoUploadAlreadyCreatedError,
+    VideoUploadCreationFailedError,
     VideoUploadNotCreatedError,
 )
 from app.presentation.api.openapi.common import error_response
@@ -93,6 +94,7 @@ router = APIRouter(
         status.HTTP_409_CONFLICT: error_response(
             VideoUploadAlreadyCompletedError,
             VideoUploadAlreadyCreatedError,
+            VideoUploadCreationFailedError,
         ),
         status.HTTP_500_INTERNAL_SERVER_ERROR: error_response(
             S3RequestError,

@@ -12,7 +12,7 @@ class FileORM(UUIDIdMixin, BaseORM):
     key: Mapped[str]
     bucket: Mapped[str] = mapped_column(sa.String(length=64))
 
-    __table_args__ = (sa.UniqueConstraint('key', 'bucket', name='uq_file'),)
+    __table_args__ = (sa.UniqueConstraint('key', 'bucket', name='uq_files_file'),)
 
     def to_entity(self) -> File:
         return File(

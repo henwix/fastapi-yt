@@ -22,6 +22,14 @@ class VideoUploadNotCreatedError(AppError):
 
 
 @dataclass(kw_only=True)
+class VideoUploadCreationFailedError(AppError):
+    message = 'Video upload creation failed'
+    video_id: str
+    key: str
+    bucket: str
+
+
+@dataclass(kw_only=True)
 class VideoInvalidFilenameError(AppError):
     message = 'Video invalid filename'
     filename: str

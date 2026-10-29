@@ -17,13 +17,13 @@ class SubscriptionRepo(SQLAlchemyRepo, ISubscriptionRepo):
         constraint_name = self._extract_constraint_name(error=error)
 
         match constraint_name:
-            case 'unique_channel_subscription':
+            case 'uq_subscriptions_channel_subscription':
                 raise SubscriptionAlreadyExistsError(
                     subscriber_id=subscription.subscriber_id,
                     subscribed_to_id=subscription.subscribed_to_id,
                 ) from error
 
-            case 'ck_no_self_subscriptions':
+            case 'ck_subscriptions_no_self_subscriptions':
                 raise SelfSubscriptionError(subscriber_id=subscription.subscriber_id) from error
             case 'subscriptions_subscribed_to_id_fkey':
                 raise ChannelNotFoundByIdError(channel_id=subscription.subscribed_to_id) from error

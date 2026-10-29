@@ -40,7 +40,7 @@ class ConfirmVideoThumbnailUploadUseCase:
         self._video_service.ensure_video_access(video=video, channel=channel)
 
         thumbnail_s3_key = f'{settings.s3_video_thumbnails_key_prefix}/{key.name}'
-        if video.thumbnail_s3_key == thumbnail_s3_key:
+        if video.thumbnail_file_id == thumbnail_s3_key:
             raise VideoThumbnailAlreadySetError(video_id=video.id, thumbnail_s3_key=thumbnail_s3_key)
 
         bucket_name = settings.s3_public_bucket_name
@@ -109,12 +109,12 @@ class ConfirmVideoThumbnailUploadUseCase:
             key=command.key,
         )
 
-        old_thumbnail_s3_key = video.thumbnail_s3_key
+        old_thumbnail_s3_key = video.thumbnail_file_id
 
         video.set_thumbnail_s3_key(value=thumbnail_s3_key)
         await self._video_service.try_update(video=video)
 
-        if old_thumbnail_s3_key is not None and video.thumbnail_s3_key != old_thumbnail_s3_key:
+        if old_thumbnail_s3_key is not None and video.thumbnail_file_id != old_thumbnail_s3_key:
             await self._s3_service.schedule_delete_object(
                 bucket=bucket_name,
                 key=old_thumbnail_s3_key,

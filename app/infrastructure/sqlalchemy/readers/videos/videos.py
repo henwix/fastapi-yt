@@ -36,7 +36,7 @@ class VideoReader(SQLAlchemyReader, IVideoReader):
                 VideoORM.is_reported,
                 VideoORM.created_at,
                 VideoORM.views_count,
-                VideoORM.thumbnail_s3_key,
+                VideoORM.thumbnail_file_id,
                 VideoORM.channel_id,
                 ChannelORM.name.label('channel_name'),
                 ChannelORM.slug.label('channel_slug'),
@@ -44,7 +44,7 @@ class VideoReader(SQLAlchemyReader, IVideoReader):
             .join(ChannelORM, VideoORM.channel_id == ChannelORM.id)
             .where(
                 VideoORM.id == id,
-                VideoORM.upload_status == VideoUploadStatusEnum.COMPLETED.value,
+                VideoORM.video_upload_status == VideoUploadStatusEnum.COMPLETED.value,
                 ChannelORM.deletion_status == ChannelDeletionStatusEnum.ACTIVE.value,
             )
         )
@@ -69,11 +69,11 @@ class VideoReader(SQLAlchemyReader, IVideoReader):
             VideoORM.id,
             VideoORM.title,
             VideoORM.views_count,
-            VideoORM.thumbnail_s3_key,
+            VideoORM.thumbnail_file_id,
             VideoORM.created_at,
         ).where(
             VideoORM.channel_id == channel_id,
-            VideoORM.upload_status == VideoUploadStatusEnum.COMPLETED.value,
+            VideoORM.video_upload_status == VideoUploadStatusEnum.COMPLETED.value,
             VideoORM.privacy_status == VideoPrivacyStatusEnum.PUBLIC.value,
         )
 
@@ -115,9 +115,9 @@ class VideoReader(SQLAlchemyReader, IVideoReader):
             VideoORM.id,
             VideoORM.title,
             VideoORM.privacy_status,
-            VideoORM.upload_status,
+            VideoORM.video_upload_status,
             VideoORM.views_count,
-            VideoORM.thumbnail_s3_key,
+            VideoORM.thumbnail_file_id,
             VideoORM.created_at,
         ).where(VideoORM.channel_id == channel_id)
 
@@ -138,7 +138,7 @@ class VideoReader(SQLAlchemyReader, IVideoReader):
         if filters.privacy_status is not Empty.UNSET:
             stmt = stmt.where(VideoORM.privacy_status == filters.privacy_status.value)
         if filters.upload_status is not Empty.UNSET:
-            stmt = stmt.where(VideoORM.upload_status == filters.upload_status.value)
+            stmt = stmt.where(VideoORM.video_upload_status == filters.upload_status.value)
 
         stmt = stmt.order_by(
             sort_field.desc() if sorting.order is SortingOrderEnum.DESC else sort_field,

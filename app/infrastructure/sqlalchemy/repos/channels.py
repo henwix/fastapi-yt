@@ -18,9 +18,9 @@ class ChannelRepo(SQLAlchemyRepo, IChannelRepo):
         constraint_name = self._extract_constraint_name(error=error)
 
         match constraint_name:
-            case 'channels_email_key':
+            case 'uq_channels_email':
                 raise ChannelEmailAlreadyExistsError(channel_email=channel.email.to_raw()) from error
-            case 'channels_slug_key':
+            case 'uq_channels_slug':
                 raise ChannelSlugAlreadyExistsError(channel_slug=channel.slug.to_raw()) from error
             case _:
                 raise

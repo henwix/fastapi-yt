@@ -29,7 +29,10 @@ class ChannelORM(
     password_hash: Mapped[str | None]
     is_active: Mapped[bool] = mapped_column(default=True, server_default=sa.sql.true())
     avatar_file_id: Mapped[UUID | None] = mapped_column(
-        sa.ForeignKey('files.id', ondelete='SET NULL'), default=None, server_default=sa.sql.null()
+        sa.ForeignKey('files.id', ondelete='SET NULL'),
+        default=None,
+        server_default=sa.sql.null(),
+        unique=True,
     )
     deletion_status: Mapped[str] = mapped_column(
         sa.String(length=10), default='active', server_default=sa.sql.text("'active'")
@@ -95,8 +98,8 @@ class SubscriptionORM(
     subscribed_to_id: Mapped[UUID] = mapped_column(sa.ForeignKey('channels.id', ondelete='CASCADE'))
 
     __table_args__ = (
-        sa.CheckConstraint('subscriber_id != subscribed_to_id', name='ck_no_self_subscriptions'),
-        sa.UniqueConstraint('subscriber_id', 'subscribed_to_id', name='unique_channel_subscription'),
+        sa.CheckConstraint('subscriber_id != subscribed_to_id', name='ck_subscriptions_no_self_subscriptions'),
+        sa.UniqueConstraint('subscriber_id', 'subscribed_to_id', name='uq_subscriptions_channel_subscription'),
         sa.Index('ix_subscriptions_composite_subscriptions', 'subscriber_id', 'created_at', 'id'),
         sa.Index('ix_subscriptions_composite_subscribers', 'subscribed_to_id', 'created_at', 'id'),
     )

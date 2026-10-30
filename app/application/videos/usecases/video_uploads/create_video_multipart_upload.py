@@ -57,7 +57,7 @@ class CreateVideoMultipartUploadUseCase:
 
         async with self._tm.begin(commit=True):
             video_file = await self._file_service.create(file=File.create(key=key, bucket=bucket_name))
-            is_video_updated = await self._video_service.update_if_pending(
+            is_video_updated = await self._video_service.update_upload_created(
                 id=video.id,
                 video_upload_id=upload_id,
                 video_file_id=video_file.id,

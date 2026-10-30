@@ -22,7 +22,7 @@ class IVideoService(ABC):
     async def try_update(self, video: Video) -> Video: ...
 
     @abstractmethod
-    async def update_if_pending(self, id: str, video_upload_id: str, video_file_id: UUID) -> bool: ...
+    async def update_upload_created(self, id: str, video_upload_id: str, video_file_id: UUID) -> bool: ...
 
     @abstractmethod
     async def try_increase_views_count(self, video_id: str) -> None: ...
@@ -59,8 +59,10 @@ class VideoService(IVideoService):
             raise VideoNotFoundError(video_id=video.id)
         return updated_video
 
-    async def update_if_pending(self, id: str, video_upload_id: str, video_file_id: UUID) -> bool:
-        return await self._repo.update_if_pending(id=id, video_upload_id=video_upload_id, video_file_id=video_file_id)
+    async def update_upload_created(self, id: str, video_upload_id: str, video_file_id: UUID) -> bool:
+        return await self._repo.update_upload_created(
+            id=id, video_upload_id=video_upload_id, video_file_id=video_file_id
+        )
 
     async def try_increase_views_count(self, video_id: str) -> None:
         is_views_count_increased = await self._repo.increase_views_count(video_id=video_id)

@@ -61,7 +61,7 @@ class VideoRepo(SQLAlchemyRepo, IVideoRepo):
         updated_video = result.scalar_one_or_none()
         return updated_video.to_entity() if updated_video else None
 
-    async def update_if_pending(self, id: str, video_upload_id: str, video_file_id: UUID) -> bool:
+    async def update_upload_created(self, id: str, video_upload_id: str, video_file_id: UUID) -> bool:
         stmt = (
             update(VideoORM)
             .values(

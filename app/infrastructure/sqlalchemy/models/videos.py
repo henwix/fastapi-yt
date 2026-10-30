@@ -53,7 +53,7 @@ class VideoORM(CreatedAtDatetimeMixin, BaseORM):
         sa.CheckConstraint("id ~ '^[A-Za-z0-9_-]{11}$'", name='ck_videos_id_pattern'),
         sa.CheckConstraint("privacy_status IN ('public', 'unlisted', 'private')", name='ck_videos_privacy_status'),
         sa.CheckConstraint(
-            "video_upload_status IN ('pending', 'uploading', 'completed')", name='ck_video_upload_status'
+            "video_upload_status IN ('pending', 'uploading', 'completed')", name='ck_videos_video_upload_status'
         ),
         sa.CheckConstraint('char_length(description) <= 5000', name='ck_videos_description_max_length'),
     )

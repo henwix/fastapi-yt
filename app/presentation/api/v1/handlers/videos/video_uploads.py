@@ -44,10 +44,13 @@ from app.domain.videos.exceptions import (
     VideoThumbnailInvalidKeyError,
     VideoThumbnailSizeTooBigError,
     VideoThumbnailSizeTooSmallError,
+    VideoThumbnailUploadConfirmationFailedError,
     VideoThumbnailVideoIdMismatchError,
     VideoUploadAlreadyCompletedError,
     VideoUploadAlreadyCreatedError,
-    VideoUploadCreationFailedError,
+    VideoUploadFailedToAbortError,
+    VideoUploadFailedToCompleteError,
+    VideoUploadFailedToCreateError,
     VideoUploadNotCreatedError,
 )
 from app.presentation.api.openapi.common import error_response
@@ -94,7 +97,7 @@ router = APIRouter(
         status.HTTP_409_CONFLICT: error_response(
             VideoUploadAlreadyCompletedError,
             VideoUploadAlreadyCreatedError,
-            VideoUploadCreationFailedError,
+            VideoUploadFailedToCreateError,
         ),
         status.HTTP_500_INTERNAL_SERVER_ERROR: error_response(
             S3RequestError,
@@ -194,6 +197,7 @@ async def generate_video_part_upload_url(
         status.HTTP_409_CONFLICT: error_response(
             VideoUploadAlreadyCompletedError,
             VideoUploadNotCreatedError,
+            VideoUploadFailedToCompleteError,
             VideoInvalidContentTypeError,
             VideoSizeTooSmallError,
         ),
@@ -240,6 +244,7 @@ async def complete_video_multipart_upload(
         status.HTTP_409_CONFLICT: error_response(
             VideoUploadAlreadyCompletedError,
             VideoUploadNotCreatedError,
+            VideoUploadFailedToAbortError,
         ),
         status.HTTP_500_INTERNAL_SERVER_ERROR: error_response(
             S3RequestError,
@@ -373,6 +378,7 @@ async def generate_video_thumbnail_upload_url(
             VideoThumbnailSizeTooBigError,
             VideoThumbnailSizeTooSmallError,
             VideoThumbnailInvalidContentTypeError,
+            VideoThumbnailUploadConfirmationFailedError,
         ),
     },
 )

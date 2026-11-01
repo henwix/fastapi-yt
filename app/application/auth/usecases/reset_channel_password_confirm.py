@@ -29,4 +29,4 @@ class ResetChannelPasswordConfirmUseCase:
         async with password_hash_semaphore:
             new_password_hash = await asyncio.to_thread(self._password_hasher.get_password_hash, command.new_password)
 
-        await self._channel_service.try_set_password(id=channel_id, password_hash=new_password_hash)
+        await self._channel_service.try_update_password(id=channel_id, password_hash=new_password_hash)

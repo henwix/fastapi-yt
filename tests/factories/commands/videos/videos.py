@@ -50,9 +50,17 @@ class GenerateVideoPartUploadUrlCommandFactory(DataclassFactory[GenerateVideoPar
 class CompleteVideoMultipartUploadCommandFactory(DataclassFactory[CompleteVideoMultipartUploadCommand]):
     __model__ = CompleteVideoMultipartUploadCommand
 
+    @classmethod
+    def video_id(cls) -> str:
+        return generate_video_id()
+
 
 class AbortVideoMultipartUploadCommandFactory(DataclassFactory[AbortVideoMultipartUploadCommand]):
     __model__ = AbortVideoMultipartUploadCommand
+
+    @classmethod
+    def video_id(cls) -> str:
+        return generate_video_id()
 
 
 class GenerateVideoDownloadUrlCommandFactory(DataclassFactory[GenerateVideoDownloadUrlCommand]):

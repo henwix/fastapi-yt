@@ -36,7 +36,7 @@ async def test_generate_channel_avatar_upload_url_returns_correct_data(
 
         url, key, channel_id = await use_case.execute(command=command)
 
-        assert (await kv_repo.get(f'set_channel_avatar_url:{settings.s3_public_bucket_name}:{key}')) == ''
+        assert (await kv_repo.get(f'set_channel_avatar_url:{channel.id}:{settings.s3_public_bucket_name}:{key}')) == ''
 
         assert url.startswith(f'{settings.s3_endpoint}/{settings.s3_public_bucket_name}/{key}')
         assert 'amz-meta-channel_id' in url

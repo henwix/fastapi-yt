@@ -63,15 +63,15 @@ async def test_confirm_channel_avatar_upload_returns_none_if_avatar_updated_with
         expected_tmp_avatar_s3_key = f'{settings.s3_tmp_channel_avatars_key_prefix}/{base_key}.{expected_file_format}'
         expected_new_avatar_s3_key = f'{settings.s3_channel_avatars_key_prefix}/{base_key}.{expected_file_format}'
 
-        await kv_repo.set(
-            key=f'set_channel_avatar_url:{expected_bucket}:{expected_tmp_avatar_s3_key}',
-            value='',
-            ttl_seconds=120,
-        )
-
         channel = await ChannelORMFactory.create(session=session)
         command = ConfirmChannelAvatarUploadCommandFactory.build(
             current_channel_id=channel.id, key=expected_tmp_avatar_s3_key
+        )
+
+        await kv_repo.set(
+            key=f'set_channel_avatar_url:{channel.id}:{expected_bucket}:{expected_tmp_avatar_s3_key}',
+            value='',
+            ttl_seconds=120,
         )
 
         use_case._s3_service.METADATA_CHANNEL_ID = channel.id
@@ -145,18 +145,17 @@ async def test_confirm_channel_avatar_upload_returns_none_if_avatar_updated_with
         expected_tmp_avatar_s3_key = f'{settings.s3_tmp_channel_avatars_key_prefix}/{base_key}.{expected_file_format}'
         expected_new_avatar_s3_key = f'{settings.s3_channel_avatars_key_prefix}/{base_key}.{expected_file_format}'
 
-        await kv_repo.set(
-            key=f'set_channel_avatar_url:{expected_bucket}:{expected_tmp_avatar_s3_key}',
-            value='',
-            ttl_seconds=120,
-        )
-
         existing_avatar_file = await FileORMFactory.create(
             session=session,
             key=expected_existing_avatar_s3_key,
             bucket=expected_bucket,
         )
         channel = await ChannelORMFactory.create(session=session, avatar_file_id=existing_avatar_file.id)
+        await kv_repo.set(
+            key=f'set_channel_avatar_url:{channel.id}:{expected_bucket}:{expected_tmp_avatar_s3_key}',
+            value='',
+            ttl_seconds=120,
+        )
         command = ConfirmChannelAvatarUploadCommandFactory.build(
             current_channel_id=channel.id, key=expected_tmp_avatar_s3_key
         )
@@ -383,13 +382,13 @@ async def test_confirm_channel_avatar_upload_raises_error_if_s3_object_access_fo
         expected_new_tmp_avatar_s3_key = (
             f'{settings.s3_tmp_channel_avatars_key_prefix}/{secrets.token_hex(4)}_new_avatar.png'
         )
+
+        channel = await ChannelORMFactory.create(session=session)
         await kv_repo.set(
-            key=f'set_channel_avatar_url:{settings.s3_public_bucket_name}:{expected_new_tmp_avatar_s3_key}',
+            key=f'set_channel_avatar_url:{channel.id}:{settings.s3_public_bucket_name}:{expected_new_tmp_avatar_s3_key}',
             value='',
             ttl_seconds=120,
         )
-
-        channel = await ChannelORMFactory.create(session=session)
         command = ConfirmChannelAvatarUploadCommandFactory.build(
             current_channel_id=channel.id, key=expected_new_tmp_avatar_s3_key
         )
@@ -412,13 +411,13 @@ async def test_confirm_channel_avatar_upload_raises_error_if_s3_object_invalid_m
         expected_new_tmp_avatar_s3_key = (
             f'{settings.s3_tmp_channel_avatars_key_prefix}/{secrets.token_hex(4)}_new_avatar.png'
         )
+
+        channel = await ChannelORMFactory.create(session=session)
         await kv_repo.set(
-            key=f'set_channel_avatar_url:{settings.s3_public_bucket_name}:{expected_new_tmp_avatar_s3_key}',
+            key=f'set_channel_avatar_url:{channel.id}:{settings.s3_public_bucket_name}:{expected_new_tmp_avatar_s3_key}',
             value='',
             ttl_seconds=120,
         )
-
-        channel = await ChannelORMFactory.create(session=session)
         command = ConfirmChannelAvatarUploadCommandFactory.build(
             current_channel_id=channel.id, key=expected_new_tmp_avatar_s3_key
         )
@@ -459,13 +458,13 @@ async def test_confirm_channel_avatar_upload_raises_error_if_s3_object_invalid_c
         expected_new_tmp_avatar_s3_key = (
             f'{settings.s3_tmp_channel_avatars_key_prefix}/{secrets.token_hex(4)}_new_avatar.png'
         )
+
+        channel = await ChannelORMFactory.create(session=session)
         await kv_repo.set(
-            key=f'set_channel_avatar_url:{settings.s3_public_bucket_name}:{expected_new_tmp_avatar_s3_key}',
+            key=f'set_channel_avatar_url:{channel.id}:{settings.s3_public_bucket_name}:{expected_new_tmp_avatar_s3_key}',
             value='',
             ttl_seconds=120,
         )
-
-        channel = await ChannelORMFactory.create(session=session)
         command = ConfirmChannelAvatarUploadCommandFactory.build(
             current_channel_id=channel.id, key=expected_new_tmp_avatar_s3_key
         )
@@ -520,12 +519,12 @@ async def test_confirm_channel_avatar_upload_raises_error_if_avatar_file_size_to
             f'{settings.s3_tmp_channel_avatars_key_prefix}/{secrets.token_hex(4)}_new_avatar.png'
         )
 
+        channel = await ChannelORMFactory.create(session=session)
         await kv_repo.set(
-            key=f'set_channel_avatar_url:{settings.s3_public_bucket_name}:{expected_new_tmp_avatar_s3_key}',
+            key=f'set_channel_avatar_url:{channel.id}:{settings.s3_public_bucket_name}:{expected_new_tmp_avatar_s3_key}',
             value='',
             ttl_seconds=120,
         )
-        channel = await ChannelORMFactory.create(session=session)
         command = ConfirmChannelAvatarUploadCommandFactory.build(
             current_channel_id=channel.id, key=expected_new_tmp_avatar_s3_key
         )
@@ -563,13 +562,13 @@ async def test_confirm_channel_avatar_upload_raises_error_if_avatar_file_size_to
         expected_new_tmp_avatar_s3_key = (
             f'{settings.s3_tmp_channel_avatars_key_prefix}/{secrets.token_hex(4)}_new_avatar.png'
         )
+
+        channel = await ChannelORMFactory.create(session=session)
         await kv_repo.set(
-            key=f'set_channel_avatar_url:{settings.s3_public_bucket_name}:{expected_new_tmp_avatar_s3_key}',
+            key=f'set_channel_avatar_url:{channel.id}:{settings.s3_public_bucket_name}:{expected_new_tmp_avatar_s3_key}',
             value='',
             ttl_seconds=120,
         )
-
-        channel = await ChannelORMFactory.create(session=session)
         command = ConfirmChannelAvatarUploadCommandFactory.build(
             current_channel_id=channel.id, key=expected_new_tmp_avatar_s3_key
         )

@@ -22,11 +22,29 @@ class VideoUploadNotCreatedError(AppError):
 
 
 @dataclass(kw_only=True)
-class VideoUploadCreationFailedError(AppError):
-    message = 'Video upload creation failed'
+class VideoUploadFailedToCreateError(AppError):
+    message = 'Failed to create video upload'
     video_id: str
     key: str
     bucket: str
+
+
+@dataclass(kw_only=True)
+class VideoUploadFailedToAbortError(AppError):
+    message = 'Failed to abort video upload'
+    video_id: str
+    key: str
+    bucket: str
+    exc_detail: str
+
+
+@dataclass(kw_only=True)
+class VideoUploadFailedToCompleteError(AppError):
+    message = 'Failed to complete video upload'
+    video_id: str
+    key: str
+    bucket: str
+    exc_detail: str
 
 
 @dataclass(kw_only=True)
@@ -87,6 +105,7 @@ class VideoThumbnailSizeTooSmallError(AppError):
 class VideoThumbnailInvalidKeyError(AppError):
     message = 'Video thumbnail invalid key'
     key: str
+    error_detail: str
 
 
 @dataclass(kw_only=True)
@@ -101,3 +120,12 @@ class VideoThumbnailInvalidContentTypeError(AppError):
     key: str
     metadata_content_type: str
     actual_content_type: str
+
+
+@dataclass(kw_only=True)
+class VideoThumbnailUploadConfirmationFailedError(AppError):
+    message = 'Video thumbnail confirmation failed'
+    video_id: str
+    key: str
+    bucket: str
+    error_detail: str

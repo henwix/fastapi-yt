@@ -49,10 +49,7 @@ class VideoRepo(SQLAlchemyRepo, IVideoRepo):
                 title=video.title,
                 description=video.description,
                 privacy_status=video.privacy_status,
-                upload_id=video.video_upload_id,
-                upload_status=video.video_upload_status.value,
-                s3_key=video.video_file_id,
-                thumbnail_s3_key=video.thumbnail_file_id,
+                video_upload_id=video.video_upload_id,
             )
             .returning(VideoORM)
         )
@@ -72,6 +69,65 @@ class VideoRepo(SQLAlchemyRepo, IVideoRepo):
             .where(
                 VideoORM.id == id,
                 VideoORM.video_upload_status == VideoUploadStatusEnum.PENDING.value,
+                VideoORM.video_upload_id.is_(None),
+                VideoORM.video_file_id.is_(None),
+            )
+        )
+        async with self._db.get_session(commit=True) as session:
+            result = await session.execute(statement=stmt)
+        return cast(CursorResult, result).rowcount > 0
+
+    async def update_upload_canceled(self, id: str, video_upload_id: str, video_file_id: UUID) -> bool:
+        stmt = (
+            update(VideoORM)
+            .values(
+                video_upload_id=None,
+                video_file_id=None,
+                video_upload_status=VideoUploadStatusEnum.PENDING.value,
+            )
+            .where(
+                VideoORM.id == id,
+                VideoORM.video_upload_id == video_upload_id,
+                VideoORM.video_file_id == video_file_id,
+                VideoORM.video_upload_status == VideoUploadStatusEnum.UPLOADING.value,
+            )
+        )
+        async with self._db.get_session(commit=True) as session:
+            result = await session.execute(statement=stmt)
+        return cast(CursorResult, result).rowcount > 0
+
+    async def update_upload_completed(self, id: str, video_upload_id: str, video_file_id: UUID) -> bool:
+        stmt = (
+            update(VideoORM)
+            .values(
+                video_upload_id=None,
+                video_upload_status=VideoUploadStatusEnum.COMPLETED.value,
+            )
+            .where(
+                VideoORM.id == id,
+                VideoORM.video_upload_id == video_upload_id,
+                VideoORM.video_file_id == video_file_id,
+                VideoORM.video_upload_status == VideoUploadStatusEnum.UPLOADING.value,
+            )
+        )
+        async with self._db.get_session(commit=True) as session:
+            result = await session.execute(statement=stmt)
+        return cast(CursorResult, result).rowcount > 0
+
+    async def update_thumbnail_file_id(
+        self,
+        id: str,
+        new_thumbnail_file_id: UUID,
+        prev_thumbnail_file_id: UUID | None,
+    ) -> bool:
+        stmt = (
+            update(VideoORM)
+            .values(
+                thumbnail_file_id=new_thumbnail_file_id,
+            )
+            .where(
+                VideoORM.id == id,
+                VideoORM.thumbnail_file_id == prev_thumbnail_file_id,
             )
         )
         async with self._db.get_session(commit=True) as session:

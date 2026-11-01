@@ -135,13 +135,13 @@ class ChannelRepo(SQLAlchemyRepo, IChannelRepo):
             result = await session.execute(statement=stmt)
         return cast(CursorResult, result).rowcount > 0
 
-    async def set_password(self, id: UUID, password_hash: str) -> bool:
+    async def update_password(self, id: UUID, password_hash: str) -> bool:
         stmt = update(ChannelORM).where(ChannelORM.id == id).values(password_hash=password_hash)
         async with self._db.get_session(commit=True) as session:
             result = await session.execute(statement=stmt)
         return cast(CursorResult, result).rowcount > 0
 
-    async def set_avatar_file_id(
+    async def update_avatar_file_id(
         self,
         id: UUID,
         new_avatar_file_id: UUID,

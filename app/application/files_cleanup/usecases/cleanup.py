@@ -111,4 +111,8 @@ class CleanupUseCase:
                     total_files_deleted += deleted_count
                     total_files_failed += failed_count
 
+        logger.info(
+            'Cleanup completed',
+            extra={'log_meta': {'total_deleted': total_files_deleted, 'total_failed': total_files_failed}},
+        )
         return CleanupResultDTO(total_deleted=total_files_deleted, total_failed=total_files_failed)

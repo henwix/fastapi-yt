@@ -13,7 +13,7 @@ from app.domain.videos.enums import VideoUploadStatusEnum
 from app.domain.videos.exceptions import (
     VideoInvalidFilenameError,
     VideoUploadAlreadyCreatedError,
-    VideoUploadCreationFailedError,
+    VideoUploadFailedToCreateError,
 )
 from app.domain.videos.services import IVideoService
 
@@ -71,4 +71,4 @@ class CreateVideoMultipartUploadUseCase:
                 key=key,
                 upload_id=upload_id,
             )
-            raise VideoUploadCreationFailedError(video_id=video.id, key=key, bucket=bucket_name)
+            raise VideoUploadFailedToCreateError(video_id=video.id, key=key, bucket=bucket_name)

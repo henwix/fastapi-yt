@@ -50,18 +50,6 @@ class Video(BaseEntity):
         if value is not Empty.UNSET:
             self.privacy_status = value
 
-    def set_video_upload_status(self, value: VideoUploadStatusEnum | Empty) -> None:
-        if value is not Empty.UNSET:
-            self.video_upload_status = value
-
-    def set_video_upload_id(self, value: str | Empty | None) -> None:
-        if value is not Empty.UNSET:
-            self.video_upload_id = value
-
-    def set_video_file_id(self, value: UUID | Empty | None) -> None:
-        if value is not Empty.UNSET:
-            self.video_file_id = value
-
     def set_thumbnail_s3_key(self, value: str | Empty | None) -> None:
         if value is not Empty.UNSET:
             self.thumbnail_file_id = value

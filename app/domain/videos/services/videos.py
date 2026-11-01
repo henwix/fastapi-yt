@@ -25,6 +25,20 @@ class IVideoService(ABC):
     async def update_upload_created(self, id: str, video_upload_id: str, video_file_id: UUID) -> bool: ...
 
     @abstractmethod
+    async def update_upload_canceled(self, id: str, video_upload_id: str, video_file_id: UUID) -> bool: ...
+
+    @abstractmethod
+    async def update_upload_completed(self, id: str, video_upload_id: str, video_file_id: UUID) -> bool: ...
+
+    @abstractmethod
+    async def update_thumbnail_file_id(
+        self,
+        id: str,
+        new_thumbnail_file_id: UUID,
+        prev_thumbnail_file_id: UUID | None,
+    ) -> bool: ...
+
+    @abstractmethod
     async def try_increase_views_count(self, video_id: str) -> None: ...
 
     @abstractmethod
@@ -62,6 +76,28 @@ class VideoService(IVideoService):
     async def update_upload_created(self, id: str, video_upload_id: str, video_file_id: UUID) -> bool:
         return await self._repo.update_upload_created(
             id=id, video_upload_id=video_upload_id, video_file_id=video_file_id
+        )
+
+    async def update_upload_canceled(self, id: str, video_upload_id: str, video_file_id: UUID) -> bool:
+        return await self._repo.update_upload_canceled(
+            id=id, video_upload_id=video_upload_id, video_file_id=video_file_id
+        )
+
+    async def update_upload_completed(self, id: str, video_upload_id: str, video_file_id: UUID) -> bool:
+        return await self._repo.update_upload_completed(
+            id=id, video_upload_id=video_upload_id, video_file_id=video_file_id
+        )
+
+    async def update_thumbnail_file_id(
+        self,
+        id: str,
+        new_thumbnail_file_id: UUID,
+        prev_thumbnail_file_id: UUID | None,
+    ) -> bool:
+        return await self._repo.update_thumbnail_file_id(
+            id=id,
+            new_thumbnail_file_id=new_thumbnail_file_id,
+            prev_thumbnail_file_id=prev_thumbnail_file_id,
         )
 
     async def try_increase_views_count(self, video_id: str) -> None:

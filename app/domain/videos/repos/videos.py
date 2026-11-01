@@ -15,6 +15,20 @@ class IVideoRepo(ABC):
     async def update_upload_created(self, id: str, video_upload_id: str, video_file_id: UUID) -> bool: ...
 
     @abstractmethod
+    async def update_upload_canceled(self, id: str, video_upload_id: str, video_file_id: UUID) -> bool: ...
+
+    @abstractmethod
+    async def update_upload_completed(self, id: str, video_upload_id: str, video_file_id: UUID) -> bool: ...
+
+    @abstractmethod
+    async def update_thumbnail_file_id(
+        self,
+        id: str,
+        new_thumbnail_file_id: UUID,
+        prev_thumbnail_file_id: UUID | None,
+    ) -> bool: ...
+
+    @abstractmethod
     async def increase_views_count(self, video_id: str) -> bool: ...
 
     @abstractmethod

@@ -30,10 +30,10 @@ class IChannelRepo(ABC):
     async def activate(self, id: UUID) -> bool: ...
 
     @abstractmethod
-    async def set_password(self, id: UUID, password_hash: str) -> bool: ...
+    async def update_password(self, id: UUID, password_hash: str) -> bool: ...
 
     @abstractmethod
-    async def set_avatar_file_id(
+    async def update_avatar_file_id(
         self,
         id: UUID,
         new_avatar_file_id: UUID,

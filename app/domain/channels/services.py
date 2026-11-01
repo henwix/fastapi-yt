@@ -65,10 +65,10 @@ class IChannelService(ABC):
     async def try_delete_by_id(self, id: UUID) -> None: ...
 
     @abstractmethod
-    async def try_set_password(self, id: UUID, password_hash: str) -> None: ...
+    async def try_update_password(self, id: UUID, password_hash: str) -> None: ...
 
     @abstractmethod
-    async def set_avatar_file_id(
+    async def update_avatar_file_id(
         self,
         id: UUID,
         new_avatar_file_id: UUID,
@@ -146,18 +146,18 @@ class ChannelService(IChannelService):
         if not is_deleted:
             raise ChannelDeletionFailedError(channel_id=id)
 
-    async def try_set_password(self, id: UUID, password_hash: str) -> None:
-        is_password_set = await self._repo.set_password(id=id, password_hash=password_hash)
+    async def try_update_password(self, id: UUID, password_hash: str) -> None:
+        is_password_set = await self._repo.update_password(id=id, password_hash=password_hash)
         if not is_password_set:
             raise ChannelNotFoundByIdError(channel_id=id)
 
-    async def set_avatar_file_id(
+    async def update_avatar_file_id(
         self,
         id: UUID,
         new_avatar_file_id: UUID,
         prev_avatar_file_id: UUID | None,
     ) -> bool:
-        return await self._repo.set_avatar_file_id(
+        return await self._repo.update_avatar_file_id(
             id=id,
             new_avatar_file_id=new_avatar_file_id,
             prev_avatar_file_id=prev_avatar_file_id,

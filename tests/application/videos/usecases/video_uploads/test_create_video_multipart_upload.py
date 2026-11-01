@@ -23,7 +23,16 @@ from tests.factories.models.videos import VideoORMFactory
 @pytest.mark.asyncio
 @pytest.mark.parametrize(
     'expected_filename',
-    ['test.mp4', 'test.mkv', 'test.mov', 'test.webm', 'test.MP4', 'test.MKV', 'test.MOV', 'test.WEBM'],
+    [
+        'videos/test.mp4',
+        'videos/test.mkv',
+        'videos/test.mov',
+        'videos/test.webm',
+        'videos/test.MP4',
+        'videos/test.MKV',
+        'videos/test.MOV',
+        'videos/test.WEBM',
+    ],
 )
 async def test_create_video_multipart_upload_returns_none_if_created(
     mock_container: AsyncContainer,

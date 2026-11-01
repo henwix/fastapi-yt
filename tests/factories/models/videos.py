@@ -3,7 +3,6 @@ from datetime import UTC, date, datetime
 
 from polyfactory.factories.sqlalchemy_factory import SQLAlchemyFactory
 
-from app.core.configs import settings
 from app.domain.common.enums import ReactionTypeEnum
 from app.domain.playlists.enums import PlaylistPrivacyStatusEnum
 from app.domain.videos.constants import VIDEO_VIEWS_LIMIT_PER_DAY
@@ -39,19 +38,19 @@ class VideoORMFactory(BaseORMFactory[VideoORM], SQLAlchemyFactory[VideoORM]):
         return cls.__random__.choice([status.value for status in VideoPrivacyStatusEnum])
 
     @classmethod
-    def upload_status(cls) -> str:
+    def video_upload_status(cls) -> str:
         return cls.__random__.choice([status.value for status in VideoUploadStatusEnum])
 
     @classmethod
-    def s3_key(cls) -> str:
-        return f'{settings.s3_videos_key_prefix}/{secrets.token_hex(5)}_test.mp4'
+    def video_file_id(cls) -> None:
+        return None
 
     @classmethod
-    def thumbnail_s3_key(cls) -> str:
-        return f'{settings.s3_video_thumbnails_key_prefix}/{secrets.token_hex(5)}_test.png'
+    def thumbnail_file_id(cls) -> None:
+        return None
 
     @classmethod
-    def upload_id(cls) -> str:
+    def video_upload_id(cls) -> str:
         return secrets.token_hex(16)
 
 

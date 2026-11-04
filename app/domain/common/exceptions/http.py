@@ -8,7 +8,7 @@ class HttpRequestError(AppError):
     message = 'Error occured during HTTP request'
     url: str
     method: str
-    exc_details: str
+    error_details: str
 
 
 @dataclass(kw_only=True)
@@ -17,4 +17,4 @@ class HttpResponseError(AppError):
     status_code: int
     url: str
     method: str
-    exc_details: str
+    error_details: str

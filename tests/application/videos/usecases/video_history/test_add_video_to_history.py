@@ -25,7 +25,7 @@ async def test_add_video_to_history_returns_none_if_created(container: AsyncCont
             session=session,
             channel_id=video_author.id,
             privacy_status=VideoPrivacyStatusEnum.PUBLIC,
-            upload_status=VideoUploadStatusEnum.COMPLETED,
+            video_upload_status=VideoUploadStatusEnum.COMPLETED,
         )
 
         command = AddVideoToHistoryCommandFactory.build(current_channel_id=channel.id, video_id=video.id)
@@ -54,7 +54,7 @@ async def test_add_video_to_history_returns_none_if_created_and_video_private(co
             session=session,
             channel_id=video_author.id,
             privacy_status=VideoPrivacyStatusEnum.PRIVATE,
-            upload_status=VideoUploadStatusEnum.COMPLETED,
+            video_upload_status=VideoUploadStatusEnum.COMPLETED,
         )
 
         command = AddVideoToHistoryCommandFactory.build(current_channel_id=video_author.id, video_id=video.id)
@@ -84,7 +84,7 @@ async def test_add_video_to_history_returns_none_if_video_already_in_history(con
             session=session,
             channel_id=video_author.id,
             privacy_status=VideoPrivacyStatusEnum.PUBLIC,
-            upload_status=VideoUploadStatusEnum.COMPLETED,
+            video_upload_status=VideoUploadStatusEnum.COMPLETED,
         )
         video_history_item = await VideoHistoryItemORMFactory.create(
             session=session, channel_id=channel.id, video_id=video.id
@@ -121,7 +121,7 @@ async def test_add_video_to_history_returns_none_if_video_already_in_history_if_
             session=session,
             channel_id=video_author.id,
             privacy_status=VideoPrivacyStatusEnum.PUBLIC,
-            upload_status=VideoUploadStatusEnum.COMPLETED,
+            video_upload_status=VideoUploadStatusEnum.COMPLETED,
         )
         video_history_item = await VideoHistoryItemORMFactory.create(
             session=session, channel_id=video_author.id, video_id=video.id
@@ -157,7 +157,7 @@ async def test_add_video_to_history_raises_error_if_video_access_forbidden(conta
             session=session,
             channel_id=video_author.id,
             privacy_status=VideoPrivacyStatusEnum.PRIVATE,
-            upload_status=VideoUploadStatusEnum.COMPLETED,
+            video_upload_status=VideoUploadStatusEnum.COMPLETED,
         )
         command = AddVideoToHistoryCommandFactory.build(current_channel_id=channel.id, video_id=video.id)
 
@@ -183,7 +183,7 @@ async def test_add_video_to_history_raises_error_if_video_author_deleted(contain
             session=session,
             channel_id=video_author.id,
             privacy_status=VideoPrivacyStatusEnum.PUBLIC,
-            upload_status=VideoUploadStatusEnum.COMPLETED,
+            video_upload_status=VideoUploadStatusEnum.COMPLETED,
         )
         command = AddVideoToHistoryCommandFactory.build(current_channel_id=channel.id, video_id=video.id)
 
@@ -196,10 +196,10 @@ async def test_add_video_to_history_raises_error_if_video_author_deleted(contain
 
 
 @pytest.mark.asyncio
-@pytest.mark.parametrize('upload_status', [VideoUploadStatusEnum.PENDING, VideoUploadStatusEnum.UPLOADING])
+@pytest.mark.parametrize('video_upload_status', [VideoUploadStatusEnum.PENDING, VideoUploadStatusEnum.UPLOADING])
 async def test_add_video_to_history_raises_error_if_video_not_completed(
     container: AsyncContainer,
-    upload_status: VideoUploadStatusEnum,
+    video_upload_status: VideoUploadStatusEnum,
 ):
     async with container() as di:
         use_case = await di.get(AddVideoToHistoryUseCase)
@@ -211,7 +211,7 @@ async def test_add_video_to_history_raises_error_if_video_not_completed(
             session=session,
             channel_id=video_author.id,
             privacy_status=VideoPrivacyStatusEnum.PUBLIC,
-            upload_status=upload_status,
+            video_upload_status=video_upload_status,
         )
         command = AddVideoToHistoryCommandFactory.build(current_channel_id=channel.id, video_id=video.id)
 

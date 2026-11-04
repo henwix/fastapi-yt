@@ -32,7 +32,7 @@ from app.application.common.usecases.email import (
     SendChannelSetEmailCodeUseCase,
     SendLoginEmailCodeUseCase,
 )
-from app.application.common.usecases.s3 import AbortMultipartUploadUseCase, DeleteS3ObjectUseCase
+from app.application.common.usecases.s3 import AbortMultipartUploadUseCase
 from app.application.files_cleanup.usecases import CleanupUseCase
 from app.application.oauth.usecases import (
     DisconnectOAuthAccountUseCase,
@@ -234,5 +234,4 @@ class UseCasesProvider(Provider):
     send_login_email_code = provide(SendLoginEmailCodeUseCase)
 
     # Common/S3
-    delete_s3_object = provide(DeleteS3ObjectUseCase)
     abort_multipart_upload = provide(AbortMultipartUploadUseCase)

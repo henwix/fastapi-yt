@@ -31,7 +31,7 @@ class FileCleanupRepo(SQLAlchemyRepo, IFileCleanupRepo):
             await session.execute(statement=stmt)
 
     async def upsert_many(self, cleanups: list[FileCleanup]) -> None:
-        stmt = insert(FileCleanupORM).on_conflict_do_nothing(constraint='uq_file_cleanup')
+        stmt = insert(FileCleanupORM).on_conflict_do_nothing(constraint='uq_files_cleanup_cleanup')
         async with self._db.get_session(commit=True) as session:
             await session.execute(
                 statement=stmt,

@@ -21,7 +21,7 @@ from app.domain.videos.exceptions import (
     VideoThumbnailInvalidKeyError,
     VideoThumbnailSizeTooBigError,
     VideoThumbnailSizeTooSmallError,
-    VideoThumbnailUploadConfirmationFailedError,
+    VideoThumbnailUploadFailedToConfirmError,
     VideoThumbnailVideoIdMismatchError,
 )
 from app.domain.videos.services import IVideoService
@@ -152,7 +152,7 @@ class ConfirmVideoThumbnailUploadUseCase:
                     )
         if not is_new_thumbnail_file_set:
             await self._create_cleanup(key=thumbnail_key, bucket=bucket_name)
-            raise VideoThumbnailUploadConfirmationFailedError(
+            raise VideoThumbnailUploadFailedToConfirmError(
                 video_id=video.id,
                 key=thumbnail_key,
                 bucket=bucket_name,

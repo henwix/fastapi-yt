@@ -27,8 +27,8 @@ class DeleteChannelAvatarUseCase:
                 raise ChannelAvatarNotFoundError(channel_id=channel.id)
 
             is_avatar_file_deleted = await self._file_service.delete_by_id(id=avatar_file.id)
-            if is_avatar_file_deleted:
-                avatar_file_cleanup = FileCleanup.create(s3_key=avatar_file.key, bucket=avatar_file.bucket)
-                await self._file_cleanup_service.upsert(cleanup=avatar_file_cleanup)
-            else:
+            if not is_avatar_file_deleted:
                 raise ChannelAvatarNotFoundError(channel_id=channel.id)
+
+            avatar_file_cleanup = FileCleanup.create(s3_key=avatar_file.key, bucket=avatar_file.bucket)
+            await self._file_cleanup_service.upsert(cleanup=avatar_file_cleanup)

@@ -15,7 +15,7 @@ class DetailedVideo(DTO):
     is_reported: bool
     created_at: datetime
     views_count: int
-    thumbnail_s3_key: str | None
+    thumbnail_url: str | None
     channel_id: UUID
     channel_name: str
     channel_slug: str

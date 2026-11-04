@@ -28,7 +28,7 @@ async def test_create_video_comment_returns_correct_entity_if_created(
         video = await VideoORMFactory.create(
             session=session,
             channel_id=video_author.id,
-            upload_status=VideoUploadStatusEnum.COMPLETED,
+            video_upload_status=VideoUploadStatusEnum.COMPLETED,
             privacy_status=privacy_status,
         )
 
@@ -59,7 +59,7 @@ async def test_create_video_comment_with_reply_returns_correct_entity_if_created
         video = await VideoORMFactory.create(
             session=session,
             channel_id=video_author.id,
-            upload_status=VideoUploadStatusEnum.COMPLETED,
+            video_upload_status=VideoUploadStatusEnum.COMPLETED,
             privacy_status=privacy_status,
         )
         video_comment = await VideoCommentORMFactory.create(session=session, channel_id=channel.id, video_id=video.id)
@@ -91,7 +91,7 @@ async def test_create_video_comment_returns_correct_entity_if_created_and_video_
         video = await VideoORMFactory.create(
             session=session,
             channel_id=video_author.id,
-            upload_status=VideoUploadStatusEnum.COMPLETED,
+            video_upload_status=VideoUploadStatusEnum.COMPLETED,
             privacy_status=VideoPrivacyStatusEnum.PRIVATE,
         )
 
@@ -121,7 +121,7 @@ async def test_create_video_comment_with_reply_returns_correct_entity_if_created
         video = await VideoORMFactory.create(
             session=session,
             channel_id=video_author.id,
-            upload_status=VideoUploadStatusEnum.COMPLETED,
+            video_upload_status=VideoUploadStatusEnum.COMPLETED,
             privacy_status=VideoPrivacyStatusEnum.PRIVATE,
         )
         video_comment = await VideoCommentORMFactory.create(session=session, channel_id=channel.id, video_id=video.id)
@@ -156,7 +156,7 @@ async def test_create_video_comment_with_reply_raises_error_if_reply_comment_not
         video = await VideoORMFactory.create(
             session=session,
             channel_id=video_author.id,
-            upload_status=VideoUploadStatusEnum.COMPLETED,
+            video_upload_status=VideoUploadStatusEnum.COMPLETED,
             privacy_status=VideoPrivacyStatusEnum.PUBLIC,
         )
 
@@ -185,7 +185,7 @@ async def test_create_video_comment_raises_error_if_access_forbidden(
         video = await VideoORMFactory.create(
             session=session,
             channel_id=video_author.id,
-            upload_status=VideoUploadStatusEnum.COMPLETED,
+            video_upload_status=VideoUploadStatusEnum.COMPLETED,
             privacy_status=VideoPrivacyStatusEnum.PRIVATE,
         )
 
@@ -205,9 +205,9 @@ async def test_create_video_comment_raises_error_if_access_forbidden(
 
 
 @pytest.mark.asyncio
-@pytest.mark.parametrize('upload_status', [VideoUploadStatusEnum.PENDING, VideoUploadStatusEnum.UPLOADING])
+@pytest.mark.parametrize('video_upload_status', [VideoUploadStatusEnum.PENDING, VideoUploadStatusEnum.UPLOADING])
 async def test_create_video_comment_raises_error_if_video_not_completed(
-    container: AsyncContainer, upload_status: VideoUploadStatusEnum
+    container: AsyncContainer, video_upload_status: VideoUploadStatusEnum
 ):
     async with container() as di:
         use_case = await di.get(CreateVideoCommentUseCase)
@@ -218,7 +218,7 @@ async def test_create_video_comment_raises_error_if_video_not_completed(
         video = await VideoORMFactory.create(
             session=session,
             channel_id=video_author.id,
-            upload_status=upload_status,
+            video_upload_status=video_upload_status,
             privacy_status=VideoPrivacyStatusEnum.PUBLIC,
         )
 
@@ -246,7 +246,7 @@ async def test_create_video_comment_raises_error_if_video_author_deleted(contain
         video = await VideoORMFactory.create(
             session=session,
             channel_id=video_author.id,
-            upload_status=VideoUploadStatusEnum.COMPLETED,
+            video_upload_status=VideoUploadStatusEnum.COMPLETED,
             privacy_status=VideoPrivacyStatusEnum.PUBLIC,
         )
 

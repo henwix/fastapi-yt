@@ -35,7 +35,7 @@ class GetSubscribersUseCase:
                         )
 
             except Exception as e:
-                raise InvalidCursorError(cursor=query.pagination.cursor, exc_details=str(e)) from e
+                raise InvalidCursorError(cursor=query.pagination.cursor, error_details=str(e)) from e
 
         async with self._tm.begin(commit=False):
             channel = await self._channel_service.try_get_existing_by_id_for_auth(id=query.current_channel_id)

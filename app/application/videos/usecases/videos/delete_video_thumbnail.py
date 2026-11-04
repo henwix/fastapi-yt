@@ -1,10 +1,11 @@
 from dataclasses import dataclass
 
-from app.application.common.interfaces.s3 import IS3Service
 from app.application.common.interfaces.transaction_manager import ITransactionManager
 from app.application.videos.commands import DeleteVideoThumbnailCommand
-from app.core.configs import settings
 from app.domain.channels.services import IChannelService
+from app.domain.files.services import IFileService
+from app.domain.files_cleanup.entities import FileCleanup
+from app.domain.files_cleanup.services import IFileCleanupService
 from app.domain.videos.exceptions import VideoThumbnailNotFoundError
 from app.domain.videos.services import IVideoService
 
@@ -13,7 +14,8 @@ from app.domain.videos.services import IVideoService
 class DeleteVideoThumbnailUseCase:
     _channel_service: IChannelService
     _video_service: IVideoService
-    _s3_service: IS3Service
+    _file_service: IFileService
+    _file_cleanup_service: IFileCleanupService
     _tm: ITransactionManager
 
     async def execute(self, command: DeleteVideoThumbnailCommand) -> None:
@@ -24,12 +26,13 @@ class DeleteVideoThumbnailUseCase:
             if video.thumbnail_file_id is None:
                 raise VideoThumbnailNotFoundError(video_id=video.id)
 
-            video_thumbnail_s3_key = video.thumbnail_file_id
+            thumbnail_file = await self._file_service.get_by_id(id=video.thumbnail_file_id)
+            if thumbnail_file is None:
+                raise VideoThumbnailNotFoundError(video_id=video.id)
 
-            video.set_thumbnail_s3_key(value=None)
-            await self._video_service.try_update(video=video)
+            is_thumbnail_file_deleted = await self._file_service.delete_by_id(id=thumbnail_file.id)
+            if not is_thumbnail_file_deleted:
+                raise VideoThumbnailNotFoundError(video_id=video.id)
 
-        await self._s3_service.schedule_delete_object(
-            bucket=settings.s3_public_bucket_name,
-            key=video_thumbnail_s3_key,
-        )
+            thumbnail_file_cleanup = FileCleanup.create(s3_key=thumbnail_file.key, bucket=thumbnail_file.bucket)
+            await self._file_cleanup_service.upsert(cleanup=thumbnail_file_cleanup)

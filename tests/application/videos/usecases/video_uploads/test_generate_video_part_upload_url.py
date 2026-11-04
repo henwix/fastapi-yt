@@ -1,4 +1,5 @@
 import secrets
+from unittest.mock import patch
 
 import pytest
 from dishka import AsyncContainer
@@ -180,6 +181,43 @@ async def test_generate_video_part_upload_url_raises_error_if_video_upload_not_c
 
         with pytest.raises(VideoUploadNotCreatedError):
             await use_case.execute(command=command)
+
+
+@pytest.mark.asyncio
+async def test_generate_video_part_upload_url_raises_error_if_video_file_not_found_in_db(
+    mock_container: AsyncContainer,
+):
+    async with mock_container() as di:
+        use_case = await di.get(GenerateVideoPartUploadUrlUseCase)
+        session = await di.get(AsyncSession)
+
+        expected_bucket = settings.s3_private_bucket_name
+        video_file = await FileORMFactory.create(
+            session=session,
+            key=f'videos/{secrets.token_hex(4)}_test.mp4',
+            bucket=expected_bucket,
+        )
+        channel = await ChannelORMFactory.create(session=session)
+        video = await VideoORMFactory.create(
+            session=session,
+            channel_id=channel.id,
+            video_upload_status=VideoUploadStatusEnum.UPLOADING.value,
+            video_file_id=video_file.id,
+        )
+        command = GenerateVideoPartUploadUrlCommandFactory.build(current_channel_id=channel.id, video_id=video.id)
+
+        with (  # noqa: PT012
+            pytest.raises(VideoUploadNotCreatedError) as e,
+            patch.object(use_case._file_service, 'get_by_id') as file_service_mock,
+        ):
+            file_service_mock.return_value = None
+            await use_case.execute(command=command)
+
+        await session.refresh(instance=video)
+        await session.refresh(instance=video_file)
+
+        file_service_mock.assert_called_once_with(id=video_file.id)
+        assert e.value.video_id == video.id
 
 
 @pytest.mark.asyncio

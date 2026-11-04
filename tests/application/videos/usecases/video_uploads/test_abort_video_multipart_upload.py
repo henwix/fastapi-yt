@@ -14,6 +14,7 @@ from app.domain.videos.exceptions import (
     VideoAccessForbiddenError,
     VideoNotFoundError,
     VideoUploadAlreadyCompletedError,
+    VideoUploadFailedToAbortError,
     VideoUploadNotCreatedError,
 )
 from app.infrastructure.sqlalchemy.models import FileORM
@@ -238,3 +239,132 @@ async def test_abort_video_multipart_upload_raises_error_if_video_upload_not_cre
 
         with pytest.raises(VideoUploadNotCreatedError):
             await use_case.execute(command=command)
+
+
+@pytest.mark.asyncio
+async def test_abort_video_multipart_upload_raises_error_if_video_file_not_found_in_db(mock_container: AsyncContainer):
+    async with mock_container() as di:
+        use_case = await di.get(AbortVideoMultipartUploadUseCase)
+        session = await di.get(AsyncSession)
+
+        channel = await ChannelORMFactory.create(session=session)
+        video_file = await FileORMFactory.create(session=session)
+        video = await VideoORMFactory.create(
+            session=session,
+            channel_id=channel.id,
+            video_upload_status=VideoUploadStatusEnum.UPLOADING.value,
+            video_file_id=video_file.id,
+        )
+        command = AbortVideoMultipartUploadCommandFactory.build(
+            current_channel_id=channel.id,
+            video_id=video.id,
+        )
+
+        old_video_upload_id = video.video_upload_id
+
+        with (  # noqa: PT012
+            patch.object(use_case._file_service, 'get_by_id') as mock_file_service,
+            pytest.raises(VideoUploadNotCreatedError) as e,
+        ):
+            mock_file_service.return_value = None
+            await use_case.execute(command=command)
+
+        await session.refresh(instance=video)
+        await session.refresh(instance=video_file)
+
+        mock_file_service.assert_called_once_with(id=video_file.id)
+
+        assert e.value.video_id == video.id
+        assert video.video_upload_status == VideoUploadStatusEnum.UPLOADING.value
+        assert video.video_file_id == video_file.id
+        assert video.video_upload_id == old_video_upload_id
+
+
+@pytest.mark.asyncio
+async def test_abort_video_multipart_upload_raises_error_if_video_not_updated(mock_container: AsyncContainer):
+    async with mock_container() as di:
+        use_case = await di.get(AbortVideoMultipartUploadUseCase)
+        session = await di.get(AsyncSession)
+
+        channel = await ChannelORMFactory.create(session=session)
+        video_file = await FileORMFactory.create(session=session)
+        video = await VideoORMFactory.create(
+            session=session,
+            channel_id=channel.id,
+            video_upload_status=VideoUploadStatusEnum.UPLOADING.value,
+            video_file_id=video_file.id,
+        )
+        command = AbortVideoMultipartUploadCommandFactory.build(
+            current_channel_id=channel.id,
+            video_id=video.id,
+        )
+
+        old_video_upload_id = video.video_upload_id
+
+        with (  # noqa: PT012
+            patch.object(use_case._video_service, 'update_upload_canceled') as mock_file_service,
+            pytest.raises(VideoUploadFailedToAbortError) as e,
+        ):
+            mock_file_service.return_value = False
+            await use_case.execute(command=command)
+
+        await session.refresh(instance=video)
+        await session.refresh(instance=video_file)
+
+        mock_file_service.assert_called_once_with(
+            id=video.id,
+            video_upload_id=video.video_upload_id,
+            video_file_id=video_file.id,
+        )
+
+        assert e.value.video_id == video.id
+        assert e.value.key == video_file.key
+        assert e.value.bucket == video_file.bucket
+        assert e.value.error_detail == 'video_not_updated'
+
+        assert video.video_upload_status == VideoUploadStatusEnum.UPLOADING.value
+        assert video.video_file_id == video_file.id
+        assert video.video_upload_id == old_video_upload_id
+
+
+@pytest.mark.asyncio
+async def test_abort_video_multipart_upload_raises_error_if_video_file_not_deleted(mock_container: AsyncContainer):
+    async with mock_container() as di:
+        use_case = await di.get(AbortVideoMultipartUploadUseCase)
+        session = await di.get(AsyncSession)
+
+        channel = await ChannelORMFactory.create(session=session)
+        video_file = await FileORMFactory.create(session=session)
+        video = await VideoORMFactory.create(
+            session=session,
+            channel_id=channel.id,
+            video_upload_status=VideoUploadStatusEnum.UPLOADING.value,
+            video_file_id=video_file.id,
+        )
+        command = AbortVideoMultipartUploadCommandFactory.build(
+            current_channel_id=channel.id,
+            video_id=video.id,
+        )
+
+        old_video_upload_id = video.video_upload_id
+
+        with (  # noqa: PT012
+            patch.object(use_case._file_service, 'delete_by_id') as mock_file_service,
+            pytest.raises(VideoUploadFailedToAbortError) as e,
+        ):
+            mock_file_service.return_value = False
+            await use_case.execute(command=command)
+
+        await session.refresh(instance=video)
+        await session.refresh(instance=video_file)
+
+        mock_file_service.assert_called_once_with(id=video_file.id)
+
+        assert e.value.video_id == video.id
+        assert e.value.key == video_file.key
+        assert e.value.bucket == video_file.bucket
+        assert e.value.error_detail == 'video_file_not_deleted'
+
+        assert video.video_upload_status == VideoUploadStatusEnum.UPLOADING.value
+        assert video.video_file_id == video_file.id
+        assert video.video_upload_id == old_video_upload_id

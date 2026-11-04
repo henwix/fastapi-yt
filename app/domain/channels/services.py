@@ -8,14 +8,14 @@ from slugify import slugify
 from app.domain.channels.entities import Channel
 from app.domain.channels.enums import ChannelDeletionStatusEnum
 from app.domain.channels.exceptions import (
-    ChannelActivationFailedError,
     ChannelDeletedError,
-    ChannelDeletionFailedError,
     ChannelEmailAlreadyExistsError,
+    ChannelFailedToActivateError,
+    ChannelFailedToDeleteError,
+    ChannelFailedToRestoreError,
     ChannelNotActiveError,
     ChannelNotFoundByIdError,
     ChannelNotFoundBySlugError,
-    ChannelRestorationFailedError,
     ChannelSlugAlreadyExistsError,
 )
 from app.domain.channels.repos import IChannelRepo
@@ -105,7 +105,7 @@ class ChannelService(IChannelService):
     async def try_activate(self, id: UUID) -> None:
         is_activated = await self._repo.activate(id=id)
         if not is_activated:
-            raise ChannelActivationFailedError(channel_id=id)
+            raise ChannelFailedToActivateError(channel_id=id)
 
     async def get_by_email(self, email: str) -> Channel | None:
         return await self._repo.get_by_email(email=email)
@@ -139,12 +139,12 @@ class ChannelService(IChannelService):
     async def try_restore(self, id: UUID) -> None:
         is_restored = await self._repo.restore(id=id)
         if not is_restored:
-            raise ChannelRestorationFailedError(channel_id=id)
+            raise ChannelFailedToRestoreError(channel_id=id)
 
     async def try_delete_by_id(self, id: UUID) -> None:
         is_deleted = await self._repo.delete_by_id(id=id)
         if not is_deleted:
-            raise ChannelDeletionFailedError(channel_id=id)
+            raise ChannelFailedToDeleteError(channel_id=id)
 
     async def try_update_password(self, id: UUID, password_hash: str) -> None:
         is_password_set = await self._repo.update_password(id=id, password_hash=password_hash)

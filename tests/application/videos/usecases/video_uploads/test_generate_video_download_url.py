@@ -1,3 +1,4 @@
+from unittest.mock import patch
 from uuid import uuid7
 
 import pytest
@@ -212,6 +213,39 @@ async def test_generate_video_download_url_raises_error_if_video_file_not_found(
         with pytest.raises(VideoFileNotFoundError) as e:
             await use_case.execute(command=command)
 
+        assert e.value.video_id == video.id
+
+
+@pytest.mark.asyncio
+async def test_generate_video_download_url_raises_error_if_video_file_not_found_in_db(
+    mock_container: AsyncContainer,
+):
+    async with mock_container() as di:
+        use_case = await di.get(GenerateVideoDownloadUrlUseCase)
+        session = await di.get(AsyncSession)
+
+        video_file = await FileORMFactory.create(session=session)
+        channel = await ChannelORMFactory.create(session=session)
+        video = await VideoORMFactory.create(
+            session=session,
+            channel_id=channel.id,
+            privacy_status=VideoPrivacyStatusEnum.PUBLIC.value,
+            video_upload_status=VideoUploadStatusEnum.COMPLETED.value,
+            video_upload_id=None,
+            video_file_id=video_file.id,
+        )
+        command = GenerateVideoDownloadUrlCommandFactory.build(current_channel_id=None, video_id=video.id)
+
+        with (  # noqa: PT012
+            pytest.raises(VideoFileNotFoundError) as e,
+            patch.object(use_case._file_service, 'get_by_id') as mock_file_service,
+        ):
+            mock_file_service.return_value = None
+            await use_case.execute(command=command)
+
+        await session.refresh(instance=video_file)
+
+        mock_file_service.assert_called_once_with(id=video_file.id)
         assert e.value.video_id == video.id
 
 

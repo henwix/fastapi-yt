@@ -35,7 +35,7 @@ class VideoUploadFailedToAbortError(AppError):
     video_id: str
     key: str
     bucket: str
-    exc_detail: str
+    error_detail: str
 
 
 @dataclass(kw_only=True)
@@ -44,7 +44,7 @@ class VideoUploadFailedToCompleteError(AppError):
     video_id: str
     key: str
     bucket: str
-    exc_detail: str
+    error_detail: str
 
 
 @dataclass(kw_only=True)
@@ -123,8 +123,8 @@ class VideoThumbnailInvalidContentTypeError(AppError):
 
 
 @dataclass(kw_only=True)
-class VideoThumbnailUploadConfirmationFailedError(AppError):
-    message = 'Video thumbnail confirmation failed'
+class VideoThumbnailUploadFailedToConfirmError(AppError):
+    message = 'Failed to complete video thumbnail upload'
     video_id: str
     key: str
     bucket: str

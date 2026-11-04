@@ -21,7 +21,7 @@ from app.infrastructure.sqlalchemy.converters import (
     convert_row_to_detailed_video_dto,
     convert_row_to_personal_preview_video_dto,
 )
-from app.infrastructure.sqlalchemy.models import ChannelORM, VideoORM
+from app.infrastructure.sqlalchemy.models import ChannelORM, FileORM, VideoORM
 from app.infrastructure.sqlalchemy.readers.base import SQLAlchemyReader
 
 
@@ -36,12 +36,13 @@ class VideoReader(SQLAlchemyReader, IVideoReader):
                 VideoORM.is_reported,
                 VideoORM.created_at,
                 VideoORM.views_count,
-                VideoORM.thumbnail_file_id,
                 VideoORM.channel_id,
                 ChannelORM.name.label('channel_name'),
                 ChannelORM.slug.label('channel_slug'),
+                FileORM.key.label('thumbnail_key'),
             )
             .join(ChannelORM, VideoORM.channel_id == ChannelORM.id)
+            .outerjoin(FileORM, VideoORM.thumbnail_file_id == FileORM.id)
             .where(
                 VideoORM.id == id,
                 VideoORM.video_upload_status == VideoUploadStatusEnum.COMPLETED.value,

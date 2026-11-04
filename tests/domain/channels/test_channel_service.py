@@ -6,7 +6,7 @@ from dishka import AsyncContainer
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.domain.channels.enums import ChannelDeletionStatusEnum
-from app.domain.channels.exceptions import ChannelDeletionFailedError, ChannelRestorationFailedError
+from app.domain.channels.exceptions import ChannelFailedToDeleteError, ChannelFailedToRestoreError
 from app.domain.channels.services import IChannelService
 from app.domain.videos.enums import VideoUploadStatusEnum
 from app.domain.videos.exceptions import VideoNotFoundError
@@ -23,7 +23,7 @@ async def test_get_completed_by_id_returns_correct_entity(container: AsyncContai
 
         channel = await ChannelORMFactory.create(session=session)
         video = await VideoORMFactory.create(
-            session=session, channel_id=channel.id, upload_status=VideoUploadStatusEnum.COMPLETED
+            session=session, channel_id=channel.id, video_upload_status=VideoUploadStatusEnum.COMPLETED
         )
 
         result = await service.try_get_completed_by_id(id=video.id)
@@ -36,24 +36,26 @@ async def test_get_completed_by_id_returns_correct_entity(container: AsyncContai
         assert result.is_reported == video.is_reported
         assert result.created_at == video.created_at
         assert result.views_count == video.views_count
-        assert result.upload_id == video.upload_id
-        assert result.s3_key == video.s3_key
-        assert result.thumbnail_s3_key == video.thumbnail_s3_key
-        assert result.upload_status == video.upload_status
+        assert result.video_upload_id == video.video_upload_id
+        assert result.video_file_id == video.video_file_id
+        assert result.thumbnail_file_id == video.thumbnail_file_id
+        assert result.video_upload_status == video.video_upload_status
 
 
 @pytest.mark.asyncio
-@pytest.mark.parametrize('upload_status', [VideoUploadStatusEnum.PENDING, VideoUploadStatusEnum.UPLOADING])
+@pytest.mark.parametrize('video_upload_status', [VideoUploadStatusEnum.PENDING, VideoUploadStatusEnum.UPLOADING])
 async def test_get_completed_by_id_raises_error_if_not_completed(
     container: AsyncContainer,
-    upload_status: VideoUploadStatusEnum,
+    video_upload_status: VideoUploadStatusEnum,
 ):
     async with container() as di:
         service = await di.get(IVideoService)
         session = await di.get(AsyncSession)
 
         channel = await ChannelORMFactory.create(session=session)
-        video = await VideoORMFactory.create(session=session, channel_id=channel.id, upload_status=upload_status)
+        video = await VideoORMFactory.create(
+            session=session, channel_id=channel.id, video_upload_status=video_upload_status
+        )
 
         with pytest.raises(VideoNotFoundError) as e:
             await service.try_get_completed_by_id(id=video.id)
@@ -69,7 +71,7 @@ async def test_get_completed_by_id_raises_error_if_video_author_deleted(containe
 
         channel = await ChannelORMFactory.create_deleted(session=session)
         video = await VideoORMFactory.create(
-            session=session, channel_id=channel.id, upload_status=VideoUploadStatusEnum.COMPLETED
+            session=session, channel_id=channel.id, video_upload_status=VideoUploadStatusEnum.COMPLETED
         )
 
         with pytest.raises(VideoNotFoundError) as e:
@@ -111,7 +113,7 @@ async def test_restore_channel_raises_error_if_channel_deletion_status_is_active
         session = await di.get(AsyncSession)
         channel = await ChannelORMFactory.create(session=session, deletion_status=deletion_status)
 
-        with pytest.raises(ChannelRestorationFailedError) as e:
+        with pytest.raises(ChannelFailedToRestoreError) as e:
             await service.try_restore(id=channel.id)
 
         assert e.value.channel_id == channel.id
@@ -125,7 +127,7 @@ async def test_restore_channel_raises_error_if_channel_not_found(
         service = await di.get(IChannelService)
 
         channel_id = uuid7()
-        with pytest.raises(ChannelRestorationFailedError) as e:
+        with pytest.raises(ChannelFailedToRestoreError) as e:
             await service.try_restore(id=channel_id)
 
         assert e.value.channel_id == channel_id
@@ -164,7 +166,7 @@ async def test_delete_channel_raises_error_if_channel_deletion_status_is_deleted
         session = await di.get(AsyncSession)
         channel = await ChannelORMFactory.create(session=session, deletion_status=deletion_status)
 
-        with pytest.raises(ChannelDeletionFailedError) as e:
+        with pytest.raises(ChannelFailedToDeleteError) as e:
             await service.try_delete_by_id(id=channel.id)
 
         assert e.value.channel_id == channel.id
@@ -176,7 +178,7 @@ async def test_delete_channel_raises_error_if_channel_not_found(container: Async
         service = await di.get(IChannelService)
         channel_id = uuid7()
 
-        with pytest.raises(ChannelDeletionFailedError) as e:
+        with pytest.raises(ChannelFailedToDeleteError) as e:
             await service.try_delete_by_id(id=channel_id)
 
         assert e.value.channel_id == channel_id

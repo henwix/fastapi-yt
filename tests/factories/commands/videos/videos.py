@@ -7,6 +7,7 @@ from app.application.videos.commands import (
     CreateVideoCommand,
     CreateVideoMultipartUploadCommand,
     DeleteVideoCommand,
+    DeleteVideoThumbnailCommand,
     GenerateVideoDownloadUrlCommand,
     GenerateVideoPartUploadUrlCommand,
 )
@@ -65,3 +66,11 @@ class AbortVideoMultipartUploadCommandFactory(DataclassFactory[AbortVideoMultipa
 
 class GenerateVideoDownloadUrlCommandFactory(DataclassFactory[GenerateVideoDownloadUrlCommand]):
     __model__ = GenerateVideoDownloadUrlCommand
+
+
+class DeleteVideoThumbnailCommandFactory(DataclassFactory[DeleteVideoThumbnailCommand]):
+    __model__ = DeleteVideoThumbnailCommand
+
+    @classmethod
+    def video_id(cls) -> str:
+        return generate_video_id()

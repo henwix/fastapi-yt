@@ -1,5 +1,7 @@
 from datetime import datetime
 
+from pydantic import HttpUrl
+
 from app.application.videos.dto import ChannelPreviewVideo, DetailedVideo, PersonalPreviewVideo
 from app.domain.videos.entities import Video
 from app.domain.videos.enums import VideoPrivacyStatusEnum, VideoUploadStatusEnum
@@ -32,9 +34,9 @@ class DetailedVideoOutSchema(BaseSchema):
     is_reported: bool
     created_at: datetime
     views_count: int
-    thumbnail_s3_key: str | None
     channel_name: str
     channel_slug: str
+    thumbnail_url: HttpUrl | None
 
     @staticmethod
     def from_dto(dto: DetailedVideo) -> DetailedVideoOutSchema:
@@ -46,7 +48,7 @@ class DetailedVideoOutSchema(BaseSchema):
             is_reported=dto.is_reported,
             created_at=dto.created_at,
             views_count=dto.views_count,
-            thumbnail_s3_key=dto.thumbnail_s3_key,
+            thumbnail_url=dto.thumbnail_url,
             channel_name=dto.channel_name,
             channel_slug=dto.channel_slug,
         )

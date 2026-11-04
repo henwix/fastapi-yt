@@ -13,7 +13,7 @@ from app.domain.channels.exceptions import (
     ChannelAvatarInvalidKeyError,
     ChannelAvatarSizeTooBigError,
     ChannelAvatarSizeTooSmallError,
-    ChannelAvatarUploadConfirmationFailedError,
+    ChannelAvatarUploadFailedToConfirmError,
 )
 from app.domain.channels.services import IChannelService
 from app.domain.common.constants import IMAGE_FILE_MIME_TYPES
@@ -139,7 +139,7 @@ class ConfirmChannelAvatarUploadUseCase:
 
         if not is_new_avatar_file_set:
             await self._create_cleanup(key=avatar_key, bucket=bucket_name)
-            raise ChannelAvatarUploadConfirmationFailedError(
+            raise ChannelAvatarUploadFailedToConfirmError(
                 channel_id=channel.id,
                 avatar_key=avatar_key,
                 avatar_bucket=bucket_name,

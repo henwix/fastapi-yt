@@ -38,7 +38,7 @@ async def test_get_video_comments_raises_error_if_video_author_channel_deleted(c
             session=session,
             channel_id=channel.id,
             privacy_status=VideoPrivacyStatusEnum.PUBLIC,
-            upload_status=VideoUploadStatusEnum.COMPLETED,
+            video_upload_status=VideoUploadStatusEnum.COMPLETED,
         )
         query = GetVideoCommentsQueryFactory.build(
             video_id=video.id,
@@ -52,10 +52,10 @@ async def test_get_video_comments_raises_error_if_video_author_channel_deleted(c
 
 
 @pytest.mark.asyncio
-@pytest.mark.parametrize('upload_status', [VideoUploadStatusEnum.PENDING, VideoUploadStatusEnum.UPLOADING])
+@pytest.mark.parametrize('video_upload_status', [VideoUploadStatusEnum.PENDING, VideoUploadStatusEnum.UPLOADING])
 async def test_get_video_comments_raises_error_if_video_not_completed(
     container: AsyncContainer,
-    upload_status: VideoUploadStatusEnum,
+    video_upload_status: VideoUploadStatusEnum,
 ):
     async with container() as di:
         use_case = await di.get(GetVideoCommentsUseCase)
@@ -65,7 +65,7 @@ async def test_get_video_comments_raises_error_if_video_not_completed(
             session=session,
             channel_id=channel.id,
             privacy_status=VideoPrivacyStatusEnum.PUBLIC,
-            upload_status=upload_status,
+            video_upload_status=video_upload_status,
         )
         query = GetVideoCommentsQueryFactory.build(
             video_id=video.id,

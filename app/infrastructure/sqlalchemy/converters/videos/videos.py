@@ -1,6 +1,7 @@
 from sqlalchemy import RowMapping
 
 from app.application.videos.dto import ChannelPreviewVideo, DetailedVideo, PersonalPreviewVideo
+from app.core.configs import settings
 from app.domain.videos.enums import VideoPrivacyStatusEnum, VideoUploadStatusEnum
 
 
@@ -13,7 +14,7 @@ def convert_row_to_detailed_video_dto(row: RowMapping) -> DetailedVideo:
         is_reported=row.is_reported,
         created_at=row.created_at,
         views_count=row.views_count,
-        thumbnail_s3_key=row.thumbnail_s3_key,
+        thumbnail_url=f'{settings.s3_public_bucket_url}/{row.thumbnail_key}' if row.thumbnail_key else None,
         channel_id=row.channel_id,
         channel_name=row.channel_name,
         channel_slug=row.channel_slug,

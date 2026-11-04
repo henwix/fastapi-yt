@@ -44,7 +44,7 @@ from app.domain.videos.exceptions import (
     VideoThumbnailInvalidKeyError,
     VideoThumbnailSizeTooBigError,
     VideoThumbnailSizeTooSmallError,
-    VideoThumbnailUploadConfirmationFailedError,
+    VideoThumbnailUploadFailedToConfirmError,
     VideoThumbnailVideoIdMismatchError,
     VideoUploadAlreadyCompletedError,
     VideoUploadAlreadyCreatedError,
@@ -378,7 +378,7 @@ async def generate_video_thumbnail_upload_url(
             VideoThumbnailSizeTooBigError,
             VideoThumbnailSizeTooSmallError,
             VideoThumbnailInvalidContentTypeError,
-            VideoThumbnailUploadConfirmationFailedError,
+            VideoThumbnailUploadFailedToConfirmError,
         ),
     },
 )

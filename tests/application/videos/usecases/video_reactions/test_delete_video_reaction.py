@@ -33,7 +33,7 @@ async def test_delete_video_reaction_returns_none_if_deleted(
         video = await VideoORMFactory.create(
             session=session,
             channel_id=video_author.id,
-            upload_status=VideoUploadStatusEnum.COMPLETED,
+            video_upload_status=VideoUploadStatusEnum.COMPLETED,
             privacy_status=privacy_status,
         )
         video_reaction = await VideoReactionORMFactory.create(session=session, channel_id=channel.id, video_id=video.id)
@@ -63,7 +63,7 @@ async def test_delete_video_reaction_returns_none_if_deleted_and_video_private(c
         video = await VideoORMFactory.create(
             session=session,
             channel_id=video_author.id,
-            upload_status=VideoUploadStatusEnum.COMPLETED,
+            video_upload_status=VideoUploadStatusEnum.COMPLETED,
             privacy_status=VideoPrivacyStatusEnum.PRIVATE,
         )
         video_reaction = await VideoReactionORMFactory.create(
@@ -98,7 +98,7 @@ async def test_delete_video_reaction_raises_error_if_access_forbidden(container:
         video = await VideoORMFactory.create(
             session=session,
             channel_id=video_author.id,
-            upload_status=VideoUploadStatusEnum.COMPLETED,
+            video_upload_status=VideoUploadStatusEnum.COMPLETED,
             privacy_status=VideoPrivacyStatusEnum.PRIVATE,
         )
 
@@ -124,7 +124,7 @@ async def test_delete_video_reaction_raises_error_if_reaction_not_found(containe
         video = await VideoORMFactory.create(
             session=session,
             channel_id=video_author.id,
-            upload_status=VideoUploadStatusEnum.COMPLETED,
+            video_upload_status=VideoUploadStatusEnum.COMPLETED,
         )
 
         command = DeleteVideoReactionCommandFactory.build(current_channel_id=video_author.id, video_id=video.id)
@@ -134,10 +134,10 @@ async def test_delete_video_reaction_raises_error_if_reaction_not_found(containe
 
 
 @pytest.mark.asyncio
-@pytest.mark.parametrize('upload_status', [VideoUploadStatusEnum.PENDING, VideoUploadStatusEnum.UPLOADING])
+@pytest.mark.parametrize('video_upload_status', [VideoUploadStatusEnum.PENDING, VideoUploadStatusEnum.UPLOADING])
 async def test_delete_video_reaction_raises_error_if_video_not_completed(
     container: AsyncContainer,
-    upload_status: VideoUploadStatusEnum,
+    video_upload_status: VideoUploadStatusEnum,
 ):
     async with container() as di:
         use_case = await di.get(DeleteVideoReactionUseCase)
@@ -147,7 +147,7 @@ async def test_delete_video_reaction_raises_error_if_video_not_completed(
         video = await VideoORMFactory.create(
             session=session,
             channel_id=video_author.id,
-            upload_status=upload_status,
+            video_upload_status=video_upload_status,
         )
 
         command = DeleteVideoReactionCommandFactory.build(current_channel_id=video_author.id, video_id=video.id)
@@ -167,7 +167,7 @@ async def test_delete_video_reaction_raises_error_if_video_author_channel_delete
         video = await VideoORMFactory.create(
             session=session,
             channel_id=video_author.id,
-            upload_status=VideoUploadStatusEnum.COMPLETED,
+            video_upload_status=VideoUploadStatusEnum.COMPLETED,
             privacy_status=VideoPrivacyStatusEnum.PUBLIC,
         )
 

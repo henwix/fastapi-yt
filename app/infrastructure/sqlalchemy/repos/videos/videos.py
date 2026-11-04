@@ -49,7 +49,6 @@ class VideoRepo(SQLAlchemyRepo, IVideoRepo):
                 title=video.title,
                 description=video.description,
                 privacy_status=video.privacy_status,
-                video_upload_id=video.video_upload_id,
             )
             .returning(VideoORM)
         )

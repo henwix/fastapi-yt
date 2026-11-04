@@ -92,7 +92,7 @@ class CompleteVideoMultipartUploadUseCase:
                 video_id=video.id,
                 key=video_file.key,
                 bucket=video_file.bucket,
-                exc_detail='video_not_updated_after_successful_validation',
+                error_detail='video_not_updated_after_successful_validation',
             )
 
     async def _delete_video_file(self, video: Video, video_file: File) -> None:
@@ -107,7 +107,7 @@ class CompleteVideoMultipartUploadUseCase:
                     video_id=video.id,
                     key=video_file.key,
                     bucket=video_file.bucket,
-                    exc_detail='video_not_updated_if_file_invalid',
+                    error_detail='video_not_updated_if_file_invalid',
                 )
 
             is_video_file_deleted = await self._file_service.delete_by_id(id=video_file.id)

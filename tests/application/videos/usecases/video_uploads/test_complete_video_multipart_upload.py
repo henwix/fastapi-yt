@@ -1,4 +1,5 @@
 import secrets
+from unittest.mock import patch
 from uuid import uuid7
 
 import pytest
@@ -7,7 +8,7 @@ from sqlalchemy import exists, select
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.application.videos.usecases import CompleteVideoMultipartUploadUseCase
-from app.core.configs import Settings
+from app.core.configs import Settings, settings
 from app.domain.channels.enums import ChannelDeletionStatusEnum
 from app.domain.channels.exceptions import ChannelDeletedError, ChannelNotActiveError, ChannelNotFoundByIdError
 from app.domain.common.constants import VIDEO_FILE_MIME_TYPES
@@ -18,6 +19,7 @@ from app.domain.videos.exceptions import (
     VideoNotFoundError,
     VideoSizeTooSmallError,
     VideoUploadAlreadyCompletedError,
+    VideoUploadFailedToCompleteError,
     VideoUploadNotCreatedError,
 )
 from app.infrastructure.sqlalchemy.models import FileCleanupORM, FileORM
@@ -431,3 +433,100 @@ async def test_complete_video_multipart_upload_raises_error_if_video_uploading_a
 
         with pytest.raises(VideoUploadNotCreatedError):
             await use_case.execute(command=command)
+
+
+@pytest.mark.asyncio
+async def test_complete_video_multipart_upload_raises_error_if_video_file_not_found_in_db(
+    mock_container: AsyncContainer,
+):
+    async with mock_container() as di:
+        use_case = await di.get(CompleteVideoMultipartUploadUseCase)
+        session = await di.get(AsyncSession)
+
+        channel = await ChannelORMFactory.create(session=session)
+        video_file = await FileORMFactory.create(
+            session=session,
+            key=f'videos/{secrets.token_hex(5)}_test.mp4',
+            bucket=settings.s3_videos_key_prefix,
+        )
+        video = await VideoORMFactory.create(
+            session=session,
+            channel_id=channel.id,
+            video_upload_status=VideoUploadStatusEnum.UPLOADING.value,
+            video_file_id=video_file.id,
+        )
+        command = CompleteVideoMultipartUploadCommandFactory.build(
+            current_channel_id=channel.id,
+            video_id=video.id,
+        )
+
+        old_video_upload_id = video.video_upload_id
+
+        with (  # noqa: PT012
+            pytest.raises(VideoUploadNotCreatedError) as e,
+            patch.object(use_case._file_service, 'get_by_id') as file_service_mock,
+        ):
+            file_service_mock.return_value = False
+            await use_case.execute(command=command)
+
+        await session.refresh(instance=video)
+        await session.refresh(instance=video_file)
+
+        file_service_mock.assert_called_once_with(id=video_file.id)
+        assert e.value.video_id == video.id
+        assert video.video_upload_status == VideoUploadStatusEnum.UPLOADING.value
+        assert video.video_file_id == video_file.id
+        assert video.video_upload_id == old_video_upload_id
+
+
+@pytest.mark.asyncio
+async def test_complete_video_multipart_upload_raises_error_if_video_not_updated(
+    mock_container: AsyncContainer,
+):
+    async with mock_container() as di:
+        use_case = await di.get(CompleteVideoMultipartUploadUseCase)
+        session = await di.get(AsyncSession)
+        use_case._file_type_detector.FILE_TYPE = 'video/mp4'
+        use_case._s3_service.CONTENT_TYPE = 'video/mp4'
+
+        channel = await ChannelORMFactory.create(session=session)
+        video_file = await FileORMFactory.create(
+            session=session,
+            key=f'videos/{secrets.token_hex(5)}_test.mp4',
+            bucket=settings.s3_videos_key_prefix,
+        )
+        video = await VideoORMFactory.create(
+            session=session,
+            channel_id=channel.id,
+            video_upload_status=VideoUploadStatusEnum.UPLOADING.value,
+            video_file_id=video_file.id,
+        )
+        command = CompleteVideoMultipartUploadCommandFactory.build(
+            current_channel_id=channel.id,
+            video_id=video.id,
+        )
+
+        old_video_upload_id = video.video_upload_id
+
+        with (  # noqa: PT012
+            pytest.raises(VideoUploadFailedToCompleteError) as e,
+            patch.object(use_case._video_service, 'update_upload_completed') as video_service_mock,
+        ):
+            video_service_mock.return_value = False
+            await use_case.execute(command=command)
+
+        await session.refresh(instance=video)
+        await session.refresh(instance=video_file)
+
+        video_service_mock.assert_called_once_with(
+            id=video.id,
+            video_upload_id=video.video_upload_id,
+            video_file_id=video_file.id,
+        )
+        assert e.value.video_id == video.id
+        assert e.value.key == video_file.key
+        assert e.value.bucket == video_file.bucket
+        assert e.value.error_detail == 'video_not_updated_after_successful_validation'
+        assert video.video_upload_status == VideoUploadStatusEnum.UPLOADING.value
+        assert video.video_file_id == video_file.id
+        assert video.video_upload_id == old_video_upload_id

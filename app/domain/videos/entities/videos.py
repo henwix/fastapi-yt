@@ -49,7 +49,3 @@ class Video(BaseEntity):
     def set_privacy_status(self, value: VideoPrivacyStatusEnum | Empty) -> None:
         if value is not Empty.UNSET:
             self.privacy_status = value
-
-    def set_thumbnail_s3_key(self, value: str | Empty | None) -> None:
-        if value is not Empty.UNSET:
-            self.thumbnail_file_id = value

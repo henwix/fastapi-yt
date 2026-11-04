@@ -1,11 +1,15 @@
 import secrets
+from unittest.mock import patch
+from uuid import UUID
 
 import pytest
 from dishka import AsyncContainer
+from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.application.videos.usecases import CreateVideoMultipartUploadUseCase
 from app.core.configs import settings
+from app.domain.channels.enums import ChannelDeletionStatusEnum
 from app.domain.channels.exceptions import ChannelDeletedError, ChannelNotActiveError, ChannelNotFoundByIdError
 from app.domain.videos.enums import VideoUploadStatusEnum
 from app.domain.videos.exceptions import (
@@ -14,7 +18,9 @@ from app.domain.videos.exceptions import (
     VideoNotFoundError,
     VideoUploadAlreadyCompletedError,
     VideoUploadAlreadyCreatedError,
+    VideoUploadFailedToCreateError,
 )
+from app.infrastructure.sqlalchemy.models import FileORM
 from tests.factories.commands.videos import CreateVideoMultipartUploadCommandFactory
 from tests.factories.models.channels import ChannelORMFactory
 from tests.factories.models.videos import VideoORMFactory
@@ -24,14 +30,14 @@ from tests.factories.models.videos import VideoORMFactory
 @pytest.mark.parametrize(
     'expected_filename',
     [
-        'videos/test.mp4',
-        'videos/test.mkv',
-        'videos/test.mov',
-        'videos/test.webm',
-        'videos/test.MP4',
-        'videos/test.MKV',
-        'videos/test.MOV',
-        'videos/test.WEBM',
+        'test.mp4',
+        'test.mkv',
+        'test.mov',
+        'test.webm',
+        'test.MP4',
+        'test.MKV',
+        'test.MOV',
+        'test.WEBM',
     ],
 )
 async def test_create_video_multipart_upload_returns_none_if_created(
@@ -46,9 +52,8 @@ async def test_create_video_multipart_upload_returns_none_if_created(
         video = await VideoORMFactory.create(
             session=session,
             channel_id=channel.id,
-            upload_status=VideoUploadStatusEnum.PENDING,
-            s3_key=None,
-            upload_id=None,
+            video_upload_status=VideoUploadStatusEnum.PENDING,
+            video_upload_id=None,
         )
         command = CreateVideoMultipartUploadCommandFactory.build(
             current_channel_id=channel.id,
@@ -63,11 +68,16 @@ async def test_create_video_multipart_upload_returns_none_if_created(
 
         await session.refresh(instance=video)
 
+        video_file_stmt = select(FileORM).where(FileORM.id == video.video_file_id)
+        video_file = (await session.execute(statement=video_file_stmt)).scalar_one()
+
         assert result is None
-        assert video.upload_id == expected_upload_id
-        assert video.upload_status == VideoUploadStatusEnum.UPLOADING.value
-        assert video.s3_key.startswith(settings.s3_videos_key_prefix)
-        assert video.s3_key.endswith(command.filename)
+        assert video.video_upload_id == expected_upload_id
+        assert video.video_upload_status == VideoUploadStatusEnum.UPLOADING.value
+        assert isinstance(video.video_file_id, UUID)
+        assert video_file.key.startswith(settings.s3_videos_key_prefix)
+        assert video_file.key.endswith(command.filename)
+        assert video_file.bucket == settings.s3_private_bucket_name
 
 
 @pytest.mark.asyncio
@@ -82,8 +92,8 @@ async def test_create_video_multipart_upload_raises_error_if_upload_already_comp
         video = await VideoORMFactory.create(
             session=session,
             channel_id=channel.id,
-            upload_status=VideoUploadStatusEnum.COMPLETED,
-            upload_id=None,
+            video_upload_status=VideoUploadStatusEnum.COMPLETED,
+            video_upload_id=None,
         )
         command = CreateVideoMultipartUploadCommandFactory.build(
             current_channel_id=channel.id,
@@ -124,7 +134,7 @@ async def test_create_video_multipart_upload_raises_error_if_video_access_forbid
         video = await VideoORMFactory.create(
             session=session,
             channel_id=channel.id,
-            upload_status=VideoUploadStatusEnum.PENDING,
+            video_upload_status=VideoUploadStatusEnum.PENDING,
         )
         command = CreateVideoMultipartUploadCommandFactory.build(
             current_channel_id=second_channel.id,
@@ -147,7 +157,7 @@ async def test_create_video_multipart_upload_raises_error_if_upload_already_crea
         video = await VideoORMFactory.create(
             session=session,
             channel_id=channel.id,
-            upload_status=VideoUploadStatusEnum.UPLOADING,
+            video_upload_status=VideoUploadStatusEnum.UPLOADING,
         )
         command = CreateVideoMultipartUploadCommandFactory.build(
             current_channel_id=channel.id,
@@ -205,6 +215,24 @@ async def test_create_video_multipart_upload_raises_error_if_channel_deleted(moc
 
 
 @pytest.mark.asyncio
+async def test_create_video_multipart_upload_raises_error_if_channel_deletion_status_purging(
+    mock_container: AsyncContainer,
+):
+    async with mock_container() as di:
+        use_case = await di.get(CreateVideoMultipartUploadUseCase)
+        session = await di.get(AsyncSession)
+
+        channel = await ChannelORMFactory.create(
+            session=session,
+            deletion_status=ChannelDeletionStatusEnum.PURGING.value,
+        )
+        command = CreateVideoMultipartUploadCommandFactory.build(current_channel_id=channel.id)
+
+        with pytest.raises(ChannelNotFoundByIdError):
+            await use_case.execute(command=command)
+
+
+@pytest.mark.asyncio
 async def test_create_video_multipart_upload_raises_error_if_channel_not_found(mock_container: AsyncContainer):
     async with mock_container() as di:
         use_case = await di.get(CreateVideoMultipartUploadUseCase)
@@ -213,3 +241,37 @@ async def test_create_video_multipart_upload_raises_error_if_channel_not_found(m
 
         with pytest.raises(ChannelNotFoundByIdError):
             await use_case.execute(command=command)
+
+
+@pytest.mark.asyncio
+async def test_create_video_multipart_upload_raises_error_if_channel_not_updated(mock_container: AsyncContainer):
+    async with mock_container() as di:
+        use_case = await di.get(CreateVideoMultipartUploadUseCase)
+        session = await di.get(AsyncSession)
+
+        expected_filename = 'video.mp4'
+        channel = await ChannelORMFactory.create(session=session)
+        video = await VideoORMFactory.create(
+            session=session,
+            channel_id=channel.id,
+            video_upload_status=VideoUploadStatusEnum.PENDING,
+            video_upload_id=None,
+        )
+        command = CreateVideoMultipartUploadCommandFactory.build(
+            current_channel_id=channel.id,
+            filename=expected_filename,
+            video_id=video.id,
+        )
+
+        expected_upload_id = secrets.token_hex(16)
+        use_case._s3_service.UPLOAD_ID = expected_upload_id
+
+        with (  # noqa: PT012
+            patch.object(use_case._s3_service, 'schedule_abort_multipart_upload') as s3_service_mock,
+            patch.object(use_case._video_service, 'update_upload_created') as video_service_mock,
+            pytest.raises(VideoUploadFailedToCreateError),
+        ):
+            video_service_mock.return_value = False
+            await use_case.execute(command=command)
+
+        s3_service_mock.assert_called_once()

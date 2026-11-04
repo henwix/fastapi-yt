@@ -40,7 +40,7 @@ class AbortVideoMultipartUploadUseCase:
                     video_id=video.id,
                     key=video_file.key,
                     bucket=video_file.bucket,
-                    exc_detail='video_not_updated',
+                    error_detail='video_not_updated',
                 )
 
             is_video_file_deleted = await self._file_service.delete_by_id(id=video_file.id)
@@ -49,7 +49,7 @@ class AbortVideoMultipartUploadUseCase:
                     video_id=video.id,
                     key=video_file.key,
                     bucket=video_file.bucket,
-                    exc_detail='video_file_not_deleted',
+                    error_detail='video_file_not_deleted',
                 )
 
         await self._s3_service.schedule_abort_multipart_upload(

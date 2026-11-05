@@ -14,7 +14,6 @@ from app.domain.channels.exceptions import (
     ChannelNotFoundByIdError,
 )
 from app.domain.common.repos.kv import IKVRepo
-from app.utils.datetime import get_current_utc_datetime
 from tests.factories.commands.auth import SetChannelEmailCommandFactory
 from tests.factories.models.channels import ChannelORMFactory
 
@@ -72,7 +71,7 @@ async def test_set_channel_email_raises_error_if_channel_deleted(mock_container:
         use_case = await di.get(SetChannelEmailUseCase)
         session = await di.get(AsyncSession)
 
-        db_channel = await ChannelORMFactory.create(session=session, deleted_at=get_current_utc_datetime())
+        db_channel = await ChannelORMFactory.create_deleted(session=session)
         command = SetChannelEmailCommandFactory.build(current_channel_id=db_channel.id)
 
         with pytest.raises(ChannelDeletedError):

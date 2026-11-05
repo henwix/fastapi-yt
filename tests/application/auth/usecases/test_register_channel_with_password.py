@@ -53,7 +53,7 @@ async def test_register_channel_with_password_returns_correct_entity_if_created_
         assert created_channel.slug.to_raw() == command.slug
         assert created_channel.description == command.description
         assert created_channel.country == command.country
-        assert created_channel.avatar_s3_key is None
+        assert created_channel.avatar_file_id is None
         assert not created_channel.is_active
         assert pwd_hasher.verify_password_hash(password=command.password, hash=created_channel.password_hash)
 
@@ -62,7 +62,7 @@ async def test_register_channel_with_password_returns_correct_entity_if_created_
         assert db_channel.slug == command.slug
         assert db_channel.description == command.description
         assert db_channel.country == command.country
-        assert db_channel.avatar_s3_key is None
+        assert db_channel.avatar_file_id is None
         assert not db_channel.is_active
         assert pwd_hasher.verify_password_hash(password=command.password, hash=db_channel.password_hash)
 
@@ -105,7 +105,7 @@ async def test_register_channel_with_password_returns_correct_entity_if_created_
         assert created_channel.slug.to_raw() == command.slug
         assert created_channel.description == command.description
         assert created_channel.country == command.country
-        assert created_channel.avatar_s3_key is None
+        assert created_channel.avatar_file_id is None
         assert created_channel.is_active
         assert pwd_hasher.verify_password_hash(password=command.password, hash=created_channel.password_hash)
 
@@ -114,7 +114,7 @@ async def test_register_channel_with_password_returns_correct_entity_if_created_
         assert db_channel.slug == command.slug
         assert db_channel.description == command.description
         assert db_channel.country == command.country
-        assert db_channel.avatar_s3_key is None
+        assert db_channel.avatar_file_id is None
         assert db_channel.is_active
         assert pwd_hasher.verify_password_hash(password=command.password, hash=db_channel.password_hash)
 

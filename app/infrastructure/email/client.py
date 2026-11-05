@@ -38,4 +38,4 @@ class FastMailClient:
             )
             await self._fm.send_message(message=message, template_name=template_name)
         except Exception as e:
-            raise EmailSendingError(exc_details=str(e)) from e
+            raise EmailSendingError(error_detail=str(e)) from e

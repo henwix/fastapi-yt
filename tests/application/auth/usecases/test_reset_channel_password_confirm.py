@@ -9,6 +9,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from app.application.auth.usecases import ResetChannelPasswordConfirmUseCase
 from app.application.common.interfaces.security import IAuthCodeService
 from app.domain.auth.exceptions import ChannelInvalidEmailCodeError, ChannelInvalidEmailUIDError
+from app.domain.channels.enums import ChannelDeletionStatusEnum
 from app.domain.channels.exceptions import ChannelNotFoundByIdError
 from app.utils.base64url import base64url_encode
 from app.utils.datetime import get_current_utc_datetime
@@ -20,16 +21,17 @@ _password_hasher = PasswordHash.recommended()
 
 @pytest.mark.asyncio
 @pytest.mark.parametrize(
-    ('is_channel_active', 'deleted_at'),
+    ('is_channel_active', 'deleted_at', 'deletion_status'),
     [
-        (False, get_current_utc_datetime()),
-        (True, None),
+        (False, get_current_utc_datetime(), ChannelDeletionStatusEnum.DELETED.value),
+        (True, None, ChannelDeletionStatusEnum.ACTIVE.value),
     ],
 )
 async def test_reset_channel_password_confirm_returns_none_if_password_updated(
     mock_container: AsyncContainer,
     is_channel_active: bool,
     deleted_at: datetime | None,
+    deletion_status: str,
 ):
     async with mock_container() as di:
         use_case = await di.get(ResetChannelPasswordConfirmUseCase)
@@ -40,6 +42,7 @@ async def test_reset_channel_password_confirm_returns_none_if_password_updated(
             session=session,
             is_active=is_channel_active,
             deleted_at=deleted_at,
+            deletion_status=deletion_status,
         )
         code = await auth_code_service.create_reset_password_code(channel_id=channel.id)
         command = ResetChannelPasswordConfirmCommandFactory.build(

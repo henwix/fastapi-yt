@@ -7,7 +7,6 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from app.domain.playlists.entities import Playlist
 from app.domain.playlists.exceptions import PlaylistNotFoundError
 from app.domain.playlists.services import IPlaylistService
-from app.utils.datetime import get_current_utc_datetime
 from tests.factories.models.channels import ChannelORMFactory
 from tests.factories.models.videos import PlaylistORMFactory
 
@@ -36,7 +35,7 @@ async def test_try_get_existing_by_id_raises_error_if_playlist_author_channel_de
     async with container() as di:
         service = await di.get(IPlaylistService)
         session = await di.get(AsyncSession)
-        channel = await ChannelORMFactory.create(session=session, deleted_at=get_current_utc_datetime())
+        channel = await ChannelORMFactory.create_deleted(session=session)
         playlist = await PlaylistORMFactory.create(session=session, channel_id=channel.id)
 
         with pytest.raises(PlaylistNotFoundError) as e:

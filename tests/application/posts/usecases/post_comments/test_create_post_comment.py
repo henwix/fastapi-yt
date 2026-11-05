@@ -11,7 +11,6 @@ from app.domain.common.constants import Empty
 from app.domain.posts.entities import PostComment
 from app.domain.posts.exceptions import PostCommentNotFoundError, PostNotFoundError
 from app.infrastructure.sqlalchemy.models import PostCommentORM
-from app.utils.datetime import get_current_utc_datetime
 from tests.factories.commands.posts import CreatePostCommentCommandFactory
 from tests.factories.models.channels import ChannelORMFactory
 from tests.factories.models.posts import PostCommentORMFactory, PostORMFactory
@@ -168,7 +167,7 @@ async def test_create_post_comment_raises_error_if_channel_deleted(mock_containe
         use_case = await di.get(CreatePostCommentUseCase)
         session = await di.get(AsyncSession)
 
-        channel = await ChannelORMFactory.create(session=session, deleted_at=get_current_utc_datetime())
+        channel = await ChannelORMFactory.create_deleted(session=session)
         post = await PostORMFactory.create(session=session, channel_id=channel.id)
 
         command = CreatePostCommentCommandFactory.build(
@@ -198,7 +197,7 @@ async def test_create_post_comment_raises_error_if_post_channel_author_deleted(m
         session = await di.get(AsyncSession)
 
         channel = await ChannelORMFactory.create(session=session)
-        post_author = await ChannelORMFactory.create(session=session, deleted_at=get_current_utc_datetime())
+        post_author = await ChannelORMFactory.create_deleted(session=session)
         post = await PostORMFactory.create(session=session, channel_id=post_author.id)
 
         command = CreatePostCommentCommandFactory.build(

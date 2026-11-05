@@ -15,7 +15,7 @@ class DetailedVideo(DTO):
     is_reported: bool
     created_at: datetime
     views_count: int
-    thumbnail_s3_key: str | None
+    thumbnail_url: str | None
     channel_id: UUID
     channel_name: str
     channel_slug: str
@@ -26,8 +26,8 @@ class ChannelPreviewVideo(DTO):
     id: str
     title: str
     views_count: int
-    thumbnail_s3_key: str | None
     created_at: datetime
+    thumbnail_url: str | None
 
 
 @dataclass(frozen=True)
@@ -35,7 +35,7 @@ class PersonalPreviewVideo(DTO):
     id: str
     title: str
     privacy_status: VideoPrivacyStatusEnum
-    upload_status: VideoUploadStatusEnum
+    video_upload_status: VideoUploadStatusEnum
     views_count: int
-    thumbnail_s3_key: str | None
+    thumbnail_url: str | None
     created_at: datetime

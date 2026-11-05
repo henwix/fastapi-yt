@@ -17,7 +17,7 @@ class OAuthAccountRepo(SQLAlchemyRepo, IOAuthAccountRepo):
         constraint_name = self._extract_constraint_name(error=error)
 
         match constraint_name:
-            case 'uq_channel_provider' | 'uq_provider_uid':
+            case 'uq_oauth_accounts_channel_provider' | 'uq_oauth_accounts_provider_uid':
                 raise OAuthProviderAlreadyConnectedError(
                     channel_id=oauth_account.channel_id,
                     provider=oauth_account.provider,

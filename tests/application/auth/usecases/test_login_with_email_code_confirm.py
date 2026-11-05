@@ -9,6 +9,7 @@ from app.application.auth.usecases import LoginWithEmailCodeConfirmUseCase
 from app.application.common.dto.jwt import JWTTokens
 from app.application.common.interfaces.security import IAuthCodeService, IJWTService
 from app.domain.auth.exceptions import ChannelInvalidEmailCodeError, ChannelInvalidEmailUIDError
+from app.domain.channels.enums import ChannelDeletionStatusEnum
 from app.domain.channels.exceptions import ChannelNotFoundByIdError
 from app.utils.base64url import base64url_encode
 from app.utils.datetime import get_current_utc_datetime
@@ -18,10 +19,10 @@ from tests.factories.models.channels import ChannelORMFactory
 
 @pytest.mark.asyncio
 @pytest.mark.parametrize(
-    ('has_password', 'is_channel_active', 'deleted_at'),
+    ('has_password', 'is_channel_active', 'deleted_at', 'deletion_status'),
     [
-        (True, False, get_current_utc_datetime()),
-        (False, True, None),
+        (True, False, get_current_utc_datetime(), ChannelDeletionStatusEnum.DELETED.value),
+        (False, True, None, ChannelDeletionStatusEnum.ACTIVE.value),
     ],
 )
 async def test_login_with_email_code_confirm_returns_tokens_if_code_and_uid_correct(
@@ -29,6 +30,7 @@ async def test_login_with_email_code_confirm_returns_tokens_if_code_and_uid_corr
     has_password: bool,
     is_channel_active: bool,
     deleted_at: datetime | None,
+    deletion_status: str,
 ):
     async with container() as di:
         use_case = await di.get(LoginWithEmailCodeConfirmUseCase)
@@ -41,6 +43,7 @@ async def test_login_with_email_code_confirm_returns_tokens_if_code_and_uid_corr
                 session=session,
                 is_active=is_channel_active,
                 deleted_at=deleted_at,
+                deletion_status=deletion_status,
             )
         else:
             channel = await ChannelORMFactory.create(
@@ -48,6 +51,7 @@ async def test_login_with_email_code_confirm_returns_tokens_if_code_and_uid_corr
                 password_hash=None,
                 is_active=is_channel_active,
                 deleted_at=deleted_at,
+                deletion_status=deletion_status,
             )
 
         code = await auth_code_service.create_login_email_code(channel_id=channel.id)
@@ -146,3 +150,26 @@ async def test_login_with_email_code_confirm_raises_error_if_channel_not_found(
             await use_case.execute(command=command)
 
         assert e.value.channel_id == channel_id
+
+
+@pytest.mark.asyncio
+async def test_login_with_email_code_confirm_raises_error_if_channel_not_found_with_deletion_status_purging(
+    container: AsyncContainer,
+):
+    async with container() as di:
+        use_case = await di.get(LoginWithEmailCodeConfirmUseCase)
+        auth_code_service = await di.get(IAuthCodeService)
+        session = await di.get(AsyncSession)
+        channel = await ChannelORMFactory.create(
+            session=session,
+            deletion_status=ChannelDeletionStatusEnum.PURGING.value,
+        )
+
+        code = await auth_code_service.create_login_email_code(channel_id=channel.id)
+        uid = base64url_encode(value=str(channel.id))
+        command = LoginWithEmailCodeConfirmCommandFactory.build(code=code, uid=uid)
+
+        with pytest.raises(ChannelNotFoundByIdError) as e:
+            await use_case.execute(command=command)
+
+        assert e.value.channel_id == channel.id

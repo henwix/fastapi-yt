@@ -35,9 +35,10 @@ async def test_create_video_returns_correct_entity_if_created(container: AsyncCo
         assert not result.is_reported
         assert result.created_at < get_current_utc_datetime()
         assert result.views_count == 0
-        assert result.upload_id is None
-        assert result.s3_key is None
-        assert result.upload_status is VideoUploadStatusEnum.PENDING
+        assert result.video_upload_id is None
+        assert result.video_file_id is None
+        assert result.thumbnail_file_id is None
+        assert result.video_upload_status is VideoUploadStatusEnum.PENDING
 
         assert len(db_video.id) == 11
         assert db_video.channel_id == channel.id
@@ -47,9 +48,10 @@ async def test_create_video_returns_correct_entity_if_created(container: AsyncCo
         assert not db_video.is_reported
         assert db_video.created_at < get_current_utc_datetime()
         assert db_video.views_count == 0
-        assert db_video.upload_id is None
-        assert db_video.s3_key is None
-        assert db_video.upload_status == VideoUploadStatusEnum.PENDING.value
+        assert db_video.video_upload_id is None
+        assert db_video.video_file_id is None
+        assert db_video.thumbnail_file_id is None
+        assert db_video.video_upload_status == VideoUploadStatusEnum.PENDING.value
 
 
 @pytest.mark.asyncio
@@ -71,7 +73,7 @@ async def test_create_video_raises_error_if_channel_deleted(container: AsyncCont
         use_case = await di.get(CreateVideoUseCase)
         session = await di.get(AsyncSession)
 
-        channel = await ChannelORMFactory.create(session=session, deleted_at=get_current_utc_datetime())
+        channel = await ChannelORMFactory.create_deleted(session=session)
         command = CreateVideoCommandFactory.build(current_channel_id=channel.id)
 
         with pytest.raises(ChannelDeletedError):

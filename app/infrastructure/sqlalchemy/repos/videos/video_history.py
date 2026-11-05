@@ -35,7 +35,7 @@ class VideoHistoryRepo(SQLAlchemyRepo, IVideoHistoryRepo):
                 created_at=video_history_item.created_at,
             )
             .on_conflict_do_update(
-                constraint='unique_video_history_item',
+                constraint='uq_video_history_items_item',
                 set_={'created_at': video_history_item.created_at},
             )
             .returning(VideoHistoryItemORM)

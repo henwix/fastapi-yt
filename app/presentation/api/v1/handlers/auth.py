@@ -46,9 +46,9 @@ from app.domain.auth.exceptions import (
     NotAuthenticatedError,
 )
 from app.domain.channels.exceptions import (
-    ChannelActivationFailedError,
     ChannelDeletedError,
     ChannelEmailAlreadyExistsError,
+    ChannelFailedToActivateError,
     ChannelNotActiveError,
     ChannelNotFoundByIdError,
     ChannelSlugAlreadyExistsError,
@@ -238,7 +238,7 @@ async def logout(
         ),
         status.HTTP_409_CONFLICT: error_response(
             ChannelAlreadyActivatedError,
-            ChannelActivationFailedError,
+            ChannelFailedToActivateError,
         ),
     },
 )

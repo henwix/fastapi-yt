@@ -57,19 +57,31 @@ class ChannelNotActiveError(AppError):
 
 @dataclass(kw_only=True)
 class ChannelDeletedError(AppError):
-    message = 'Channel is deleted'
+    message = 'Channel deleted'
     channel_id: UUID
 
 
 @dataclass(kw_only=True)
 class ChannelNotDeletedError(AppError):
-    message = 'Channel is not deleted'
+    message = 'Channel not deleted'
     channel_id: UUID
 
 
 @dataclass(kw_only=True)
-class ChannelActivationFailedError(AppError):
-    message = 'Channel activation failed'
+class ChannelFailedToActivateError(AppError):
+    message = 'Failed to active channel'
+    channel_id: UUID
+
+
+@dataclass(kw_only=True)
+class ChannelFailedToDeleteError(AppError):
+    message = 'Failed to delete channel'
+    channel_id: UUID
+
+
+@dataclass(kw_only=True)
+class ChannelFailedToRestoreError(AppError):
+    message = 'Failed to restore channel'
     channel_id: UUID
 
 

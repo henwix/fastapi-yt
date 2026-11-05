@@ -36,7 +36,7 @@ class VideoCommentReactionRepo(SQLAlchemyRepo, IVideoCommentReactionRepo):
                 created_at=video_comment_reaction.created_at,
             )
             .on_conflict_do_update(
-                constraint='uq_channel_video_comment_reaction',
+                constraint='uq_video_comment_reactions_channel_reaction',
                 set_={'reaction_type': video_comment_reaction.reaction_type.value},
                 where=VideoCommentReactionORM.reaction_type != video_comment_reaction.reaction_type.value,
             )

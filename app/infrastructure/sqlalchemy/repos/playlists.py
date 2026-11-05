@@ -4,6 +4,7 @@ from uuid import UUID
 from sqlalchemy import CursorResult, delete, exists, select, update
 from sqlalchemy.exc import DBAPIError, IntegrityError
 
+from app.domain.channels.enums import ChannelDeletionStatusEnum
 from app.domain.channels.exceptions import ChannelNotFoundByIdError
 from app.domain.playlists.entities import Playlist, PlaylistItem
 from app.domain.playlists.exceptions import PlaylistNotFoundError, VideoAlreadyAddedToPlaylistError
@@ -52,7 +53,10 @@ class PlaylistRepo(SQLAlchemyRepo, IPlaylistRepo):
     async def get_existing_by_id(self, id: UUID) -> Playlist | None:
         stmt = select(PlaylistORM).where(
             PlaylistORM.id == id,
-            exists().where(ChannelORM.id == PlaylistORM.channel_id, ChannelORM.deleted_at.is_(None)),
+            exists().where(
+                ChannelORM.id == PlaylistORM.channel_id,
+                ChannelORM.deletion_status == ChannelDeletionStatusEnum.ACTIVE.value,
+            ),
         )
         async with self._db.get_session(commit=False) as session:
             result = await session.execute(statement=stmt)
@@ -71,7 +75,7 @@ class PlaylistItemRepo(SQLAlchemyRepo, IPlaylistItemRepo):
         constraint_name = self._extract_constraint_name(error=error)
 
         match constraint_name:
-            case 'unique_playlist_item':
+            case 'uq_playlist_items_item':
                 raise VideoAlreadyAddedToPlaylistError(
                     playlist_id=playlist_item.playlist_id,
                     video_id=playlist_item.video_id,

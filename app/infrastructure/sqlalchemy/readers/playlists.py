@@ -13,6 +13,7 @@ from app.application.playlists.queries import (
     PlaylistVideosSorting,
     PlaylistVideosSortingFieldsEnum,
 )
+from app.domain.channels.enums import ChannelDeletionStatusEnum
 from app.domain.playlists.enums import PlaylistPrivacyStatusEnum
 from app.domain.playlists.exceptions import PlaylistNotFoundError
 from app.domain.videos.enums import VideoPrivacyStatusEnum
@@ -21,7 +22,7 @@ from app.infrastructure.sqlalchemy.converters import (
     convert_row_to_playlist_preview_video_dto,
     convert_row_to_preview_playlist_dto,
 )
-from app.infrastructure.sqlalchemy.models import ChannelORM, PlaylistItemORM, PlaylistORM, VideoORM
+from app.infrastructure.sqlalchemy.models import ChannelORM, FileORM, PlaylistItemORM, PlaylistORM, VideoORM
 from app.infrastructure.sqlalchemy.readers.base import SQLAlchemyReader
 
 
@@ -114,7 +115,13 @@ class PlaylistReader(SQLAlchemyReader, IPlaylistReader):
                 ChannelORM.slug.label('author_slug'),
                 videos_count_subquery.label('videos_count'),
             )
-            .join(ChannelORM, and_(PlaylistORM.channel_id == ChannelORM.id, ChannelORM.deleted_at.is_(None)))
+            .join(
+                ChannelORM,
+                and_(
+                    PlaylistORM.channel_id == ChannelORM.id,
+                    ChannelORM.deletion_status == ChannelDeletionStatusEnum.ACTIVE.value,
+                ),
+            )
             .where(
                 PlaylistORM.id == id,
             )
@@ -176,13 +183,14 @@ class PlaylistReader(SQLAlchemyReader, IPlaylistReader):
                 VideoORM.privacy_status,
                 VideoORM.created_at,
                 VideoORM.views_count,
-                VideoORM.thumbnail_s3_key,
                 PlaylistItemORM.created_at.label('added_at'),
                 ChannelORM.name.label('author_name'),
                 ChannelORM.slug.label('author_slug'),
+                FileORM.key.label('thumbnail_key'),
             )
             .join(VideoORM, PlaylistItemORM.video_id == VideoORM.id)
             .join(ChannelORM, VideoORM.channel_id == ChannelORM.id)
+            .outerjoin(FileORM, VideoORM.thumbnail_file_id == FileORM.id)
             .where(
                 PlaylistItemORM.playlist_id == playlist_id,
                 VideoORM.privacy_status.in_(

@@ -22,11 +22,11 @@ class ResetChannelPasswordConfirmUseCase:
             decoded_channel_id = base64url_decode(value=command.uid)
             channel_id = UUID(decoded_channel_id)
         except Exception as e:
-            raise ChannelInvalidEmailUIDError(uid=command.uid, exc_details=str(e)) from e
+            raise ChannelInvalidEmailUIDError(uid=command.uid, error_detail=str(e)) from e
 
         await self._auth_code_service.validate_reset_password_code(channel_id=channel_id, code=command.code)
 
         async with password_hash_semaphore:
             new_password_hash = await asyncio.to_thread(self._password_hasher.get_password_hash, command.new_password)
 
-        await self._channel_service.try_set_password(id=channel_id, password_hash=new_password_hash)
+        await self._channel_service.try_update_password(id=channel_id, password_hash=new_password_hash)

@@ -10,3 +10,6 @@ class IKVRepo(ABC):
 
     @abstractmethod
     async def delete(self, key: str) -> bool: ...
+
+    @abstractmethod
+    async def delete_with_lock(self, key: str) -> bool: ...

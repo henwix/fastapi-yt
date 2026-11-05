@@ -36,7 +36,7 @@ class PostCommentReactionRepo(SQLAlchemyRepo, IPostCommentReactionRepo):
                 created_at=post_comment_reaction.created_at,
             )
             .on_conflict_do_update(
-                constraint='unique_channel_post_comment_reaction',
+                constraint='uq_post_comment_reactions_reaction',
                 set_={'reaction_type': post_comment_reaction.reaction_type.value},
                 where=PostCommentReactionORM.reaction_type != post_comment_reaction.reaction_type.value,
             )

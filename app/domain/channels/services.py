@@ -6,10 +6,13 @@ from uuid import UUID
 from slugify import slugify
 
 from app.domain.channels.entities import Channel
+from app.domain.channels.enums import ChannelDeletionStatusEnum
 from app.domain.channels.exceptions import (
-    ChannelActivationFailedError,
     ChannelDeletedError,
     ChannelEmailAlreadyExistsError,
+    ChannelFailedToActivateError,
+    ChannelFailedToDeleteError,
+    ChannelFailedToRestoreError,
     ChannelNotActiveError,
     ChannelNotFoundByIdError,
     ChannelNotFoundBySlugError,
@@ -56,10 +59,21 @@ class IChannelService(ABC):
     async def try_update(self, channel: Channel) -> Channel: ...
 
     @abstractmethod
-    async def try_set_password(self, id: UUID, password_hash: str) -> None: ...
+    async def try_restore(self, id: UUID) -> None: ...
 
     @abstractmethod
     async def try_delete_by_id(self, id: UUID) -> None: ...
+
+    @abstractmethod
+    async def try_update_password(self, id: UUID, password_hash: str) -> None: ...
+
+    @abstractmethod
+    async def update_avatar_file_id(
+        self,
+        id: UUID,
+        new_avatar_file_id: UUID,
+        prev_avatar_file_id: UUID | None,
+    ) -> bool: ...
 
 
 @dataclass
@@ -91,7 +105,7 @@ class ChannelService(IChannelService):
     async def try_activate(self, id: UUID) -> None:
         is_activated = await self._repo.activate(id=id)
         if not is_activated:
-            raise ChannelActivationFailedError(channel_id=id)
+            raise ChannelFailedToActivateError(channel_id=id)
 
     async def get_by_email(self, email: str) -> Channel | None:
         return await self._repo.get_by_email(email=email)
@@ -110,7 +124,7 @@ class ChannelService(IChannelService):
 
     async def try_get_existing_by_id_for_auth(self, id: UUID) -> Channel:
         channel = await self.try_get_by_id(id=id)
-        if channel.deleted_at.is_deleted:
+        if channel.deletion_status is ChannelDeletionStatusEnum.DELETED:
             raise ChannelDeletedError(channel_id=channel.id)
         if not channel.is_active:
             raise ChannelNotActiveError(channel_id=channel.id)
@@ -122,12 +136,29 @@ class ChannelService(IChannelService):
             raise ChannelNotFoundByIdError(channel_id=channel.id)
         return updated_channel
 
-    async def try_set_password(self, id: UUID, password_hash: str) -> None:
-        is_password_set = await self._repo.set_password(id=id, password_hash=password_hash)
-        if not is_password_set:
-            raise ChannelNotFoundByIdError(channel_id=id)
+    async def try_restore(self, id: UUID) -> None:
+        is_restored = await self._repo.restore(id=id)
+        if not is_restored:
+            raise ChannelFailedToRestoreError(channel_id=id)
 
     async def try_delete_by_id(self, id: UUID) -> None:
         is_deleted = await self._repo.delete_by_id(id=id)
         if not is_deleted:
+            raise ChannelFailedToDeleteError(channel_id=id)
+
+    async def try_update_password(self, id: UUID, password_hash: str) -> None:
+        is_password_set = await self._repo.update_password(id=id, password_hash=password_hash)
+        if not is_password_set:
             raise ChannelNotFoundByIdError(channel_id=id)
+
+    async def update_avatar_file_id(
+        self,
+        id: UUID,
+        new_avatar_file_id: UUID,
+        prev_avatar_file_id: UUID | None,
+    ) -> bool:
+        return await self._repo.update_avatar_file_id(
+            id=id,
+            new_avatar_file_id=new_avatar_file_id,
+            prev_avatar_file_id=prev_avatar_file_id,
+        )

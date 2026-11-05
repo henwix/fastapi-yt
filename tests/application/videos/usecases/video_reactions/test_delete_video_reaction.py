@@ -10,7 +10,6 @@ from app.domain.channels.exceptions import ChannelDeletedError, ChannelNotActive
 from app.domain.videos.enums import VideoPrivacyStatusEnum, VideoUploadStatusEnum
 from app.domain.videos.exceptions import VideoAccessForbiddenError, VideoNotFoundError, VideoReactionNotFoundError
 from app.infrastructure.sqlalchemy.models import VideoReactionORM
-from app.utils.datetime import get_current_utc_datetime
 from tests.factories.commands.videos import DeleteVideoReactionCommandFactory
 from tests.factories.models.channels import ChannelORMFactory
 from tests.factories.models.videos import VideoORMFactory, VideoReactionORMFactory
@@ -34,7 +33,7 @@ async def test_delete_video_reaction_returns_none_if_deleted(
         video = await VideoORMFactory.create(
             session=session,
             channel_id=video_author.id,
-            upload_status=VideoUploadStatusEnum.COMPLETED,
+            video_upload_status=VideoUploadStatusEnum.COMPLETED,
             privacy_status=privacy_status,
         )
         video_reaction = await VideoReactionORMFactory.create(session=session, channel_id=channel.id, video_id=video.id)
@@ -64,7 +63,7 @@ async def test_delete_video_reaction_returns_none_if_deleted_and_video_private(c
         video = await VideoORMFactory.create(
             session=session,
             channel_id=video_author.id,
-            upload_status=VideoUploadStatusEnum.COMPLETED,
+            video_upload_status=VideoUploadStatusEnum.COMPLETED,
             privacy_status=VideoPrivacyStatusEnum.PRIVATE,
         )
         video_reaction = await VideoReactionORMFactory.create(
@@ -99,7 +98,7 @@ async def test_delete_video_reaction_raises_error_if_access_forbidden(container:
         video = await VideoORMFactory.create(
             session=session,
             channel_id=video_author.id,
-            upload_status=VideoUploadStatusEnum.COMPLETED,
+            video_upload_status=VideoUploadStatusEnum.COMPLETED,
             privacy_status=VideoPrivacyStatusEnum.PRIVATE,
         )
 
@@ -125,7 +124,7 @@ async def test_delete_video_reaction_raises_error_if_reaction_not_found(containe
         video = await VideoORMFactory.create(
             session=session,
             channel_id=video_author.id,
-            upload_status=VideoUploadStatusEnum.COMPLETED,
+            video_upload_status=VideoUploadStatusEnum.COMPLETED,
         )
 
         command = DeleteVideoReactionCommandFactory.build(current_channel_id=video_author.id, video_id=video.id)
@@ -135,10 +134,10 @@ async def test_delete_video_reaction_raises_error_if_reaction_not_found(containe
 
 
 @pytest.mark.asyncio
-@pytest.mark.parametrize('upload_status', [VideoUploadStatusEnum.PENDING, VideoUploadStatusEnum.UPLOADING])
+@pytest.mark.parametrize('video_upload_status', [VideoUploadStatusEnum.PENDING, VideoUploadStatusEnum.UPLOADING])
 async def test_delete_video_reaction_raises_error_if_video_not_completed(
     container: AsyncContainer,
-    upload_status: VideoUploadStatusEnum,
+    video_upload_status: VideoUploadStatusEnum,
 ):
     async with container() as di:
         use_case = await di.get(DeleteVideoReactionUseCase)
@@ -148,7 +147,7 @@ async def test_delete_video_reaction_raises_error_if_video_not_completed(
         video = await VideoORMFactory.create(
             session=session,
             channel_id=video_author.id,
-            upload_status=upload_status,
+            video_upload_status=video_upload_status,
         )
 
         command = DeleteVideoReactionCommandFactory.build(current_channel_id=video_author.id, video_id=video.id)
@@ -164,11 +163,11 @@ async def test_delete_video_reaction_raises_error_if_video_author_channel_delete
         session = await di.get(AsyncSession)
 
         channel = await ChannelORMFactory.create(session=session)
-        video_author = await ChannelORMFactory.create(session=session, deleted_at=get_current_utc_datetime())
+        video_author = await ChannelORMFactory.create_deleted(session=session)
         video = await VideoORMFactory.create(
             session=session,
             channel_id=video_author.id,
-            upload_status=VideoUploadStatusEnum.COMPLETED,
+            video_upload_status=VideoUploadStatusEnum.COMPLETED,
             privacy_status=VideoPrivacyStatusEnum.PUBLIC,
         )
 
@@ -188,7 +187,7 @@ async def test_delete_video_reaction_raises_error_if_channel_deleted(container: 
         use_case = await di.get(DeleteVideoReactionUseCase)
         session = await di.get(AsyncSession)
 
-        channel = await ChannelORMFactory.create(session=session, deleted_at=get_current_utc_datetime())
+        channel = await ChannelORMFactory.create_deleted(session=session)
 
         command = DeleteVideoReactionCommandFactory.build(current_channel_id=channel.id)
 

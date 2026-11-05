@@ -79,13 +79,6 @@ class IS3Service(ABC):
     ) -> dict: ...
 
     @abstractmethod
-    async def schedule_delete_object(
-        self,
-        bucket: str,
-        key: str,
-    ) -> None: ...
-
-    @abstractmethod
     async def delete_objects(self, bucket: str, keys: list[str]) -> dict: ...
 
     @abstractmethod

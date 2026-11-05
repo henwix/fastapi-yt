@@ -5,7 +5,6 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from app.application.posts.usecases import GetPostUseCase
 from app.domain.posts.entities import Post
 from app.domain.posts.exceptions import PostNotFoundError
-from app.utils.datetime import get_current_utc_datetime
 from tests.factories.models.channels import ChannelORMFactory
 from tests.factories.models.posts import PostORMFactory
 from tests.factories.queries.posts import GetPostQueryFactory
@@ -52,7 +51,7 @@ async def test_get_post_raises_error_if_post_author_channel_deleted(mock_contain
         use_case = await di.get(GetPostUseCase)
         session = await di.get(AsyncSession)
 
-        post_author = await ChannelORMFactory.create(session=session, deleted_at=get_current_utc_datetime())
+        post_author = await ChannelORMFactory.create_deleted(session=session)
 
         db_post = await PostORMFactory.create(
             session=session,

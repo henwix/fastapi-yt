@@ -40,7 +40,7 @@ async def test_register_channel_with_email_returns_entity_if_created_and_activat
         assert channel.country == command.country
         assert channel.password_hash is None
         assert not channel.is_active
-        assert channel.avatar_s3_key is None
+        assert channel.avatar_file_id is None
 
         assert isinstance(tokens, JWTTokens)
         decoded_access = jwt_service.decode_access_token(token=tokens.access.token)
@@ -82,7 +82,7 @@ async def test_register_channel_with_email_returns_entity_if_created_and_activat
         assert channel.country == command.country
         assert channel.password_hash is None
         assert channel.is_active
-        assert channel.avatar_s3_key is None
+        assert channel.avatar_file_id is None
 
         assert isinstance(tokens, JWTTokens)
         decoded_access = jwt_service.decode_access_token(token=tokens.access.token)

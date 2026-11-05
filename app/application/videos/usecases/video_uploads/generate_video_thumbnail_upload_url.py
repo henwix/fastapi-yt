@@ -8,6 +8,7 @@ from app.application.videos.commands import GenerateVideoThumbnailUploadUrlComma
 from app.core.configs import settings
 from app.domain.channels.services import IChannelService
 from app.domain.common.constants import IMAGE_FILE_MIME_TYPES
+from app.domain.common.repos.kv import IKVRepo
 from app.domain.videos.exceptions import VideoThumbnailInvalidFilenameError
 from app.domain.videos.services import IVideoService
 
@@ -16,6 +17,7 @@ from app.domain.videos.services import IVideoService
 class GenerateVideoThumbnailUploadUrlUseCase:
     _channel_service: IChannelService
     _video_service: IVideoService
+    _kv_repo: IKVRepo
     _s3_service: IS3Service
     _tm: ITransactionManager
 
@@ -33,14 +35,21 @@ class GenerateVideoThumbnailUploadUrlUseCase:
         key = self._s3_service.generate_unique_bucket_key(
             filename=command.filename, key_prefix=settings.s3_tmp_video_thumbnails_key_prefix
         )
+        bucket_name = settings.s3_public_bucket_name
+        thumbnail_upload_url_ttl = 120
         url = await self._s3_service.generate_upload_url(
-            bucket=settings.s3_public_bucket_name,
+            bucket=bucket_name,
             key=key,
             content_type=content_type,
-            expires_in=120,
+            expires_in=thumbnail_upload_url_ttl,
             metadata={
                 'channel_id': str(channel.id),
                 'video_id': video.id,
             },
+        )
+        await self._kv_repo.set(
+            key=f'set_video_thumbnail:{video.id}:{bucket_name}:{key}',
+            value='',
+            ttl_seconds=thumbnail_upload_url_ttl,
         )
         return url, key, channel.id, video.id

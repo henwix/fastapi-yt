@@ -1,9 +1,9 @@
 import secrets
 from dataclasses import dataclass
 
-from app.application.common.commands.s3 import AbortMultipartUploadCommand, DeleteS3ObjectCommand
+from app.application.common.commands.s3 import AbortMultipartUploadCommand
 from app.application.common.interfaces.s3 import IS3Provider, IS3Service
-from app.infrastructure.taskiq.tasks import s3_abort_multipart_upload_task, s3_delete_object_task
+from app.infrastructure.taskiq.tasks import s3_abort_multipart_upload_task
 
 
 @dataclass
@@ -103,14 +103,6 @@ class S3Service(IS3Service):
 
     async def head_object(self, key: str, bucket: str) -> dict:
         return await self._provider.head_object(bucket=bucket, key=key)
-
-    async def schedule_delete_object(
-        self,
-        bucket: str,
-        key: str,
-    ) -> None:
-        command = DeleteS3ObjectCommand(bucket=bucket, key=key)
-        await s3_delete_object_task.kiq(command)
 
     async def delete_objects(self, bucket: str, keys: list[str]) -> dict:
         objects = [{'Key': key} for key in keys]

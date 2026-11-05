@@ -5,14 +5,17 @@ from .channel_uploads import (
     ChannelAvatarInvalidKeyError,
     ChannelAvatarSizeTooBigError,
     ChannelAvatarSizeTooSmallError,
+    ChannelAvatarUploadFailedToConfirmError,
 )
 from .channels import (
-    ChannelActivationFailedError,
     ChannelAvatarNotFoundError,
     ChannelDeletedError,
     ChannelEmailAlreadyExistsError,
     ChannelEmailInvalidFormatError,
     ChannelEmailTooLongError,
+    ChannelFailedToActivateError,
+    ChannelFailedToDeleteError,
+    ChannelFailedToRestoreError,
     ChannelNotActiveError,
     ChannelNotDeletedError,
     ChannelNotFoundByIdError,
@@ -22,7 +25,6 @@ from .channels import (
 )
 
 __all__ = (
-    'ChannelActivationFailedError',
     'ChannelAvatarAlreadySetError',
     'ChannelAvatarInvalidContentTypeError',
     'ChannelAvatarInvalidFilenameError',
@@ -30,10 +32,14 @@ __all__ = (
     'ChannelAvatarNotFoundError',
     'ChannelAvatarSizeTooBigError',
     'ChannelAvatarSizeTooSmallError',
+    'ChannelAvatarUploadFailedToConfirmError',
     'ChannelDeletedError',
     'ChannelEmailAlreadyExistsError',
     'ChannelEmailInvalidFormatError',
     'ChannelEmailTooLongError',
+    'ChannelFailedToActivateError',
+    'ChannelFailedToDeleteError',
+    'ChannelFailedToRestoreError',
     'ChannelNotActiveError',
     'ChannelNotDeletedError',
     'ChannelNotFoundByIdError',

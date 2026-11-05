@@ -12,9 +12,13 @@ from .video_uploads import (
     VideoThumbnailInvalidKeyError,
     VideoThumbnailSizeTooBigError,
     VideoThumbnailSizeTooSmallError,
+    VideoThumbnailUploadFailedToConfirmError,
     VideoThumbnailVideoIdMismatchError,
     VideoUploadAlreadyCompletedError,
     VideoUploadAlreadyCreatedError,
+    VideoUploadFailedToAbortError,
+    VideoUploadFailedToCompleteError,
+    VideoUploadFailedToCreateError,
     VideoUploadNotCreatedError,
 )
 from .video_views import VideoViewsLimitReachedError
@@ -45,9 +49,13 @@ __all__ = (
     'VideoThumbnailNotFoundError',
     'VideoThumbnailSizeTooBigError',
     'VideoThumbnailSizeTooSmallError',
+    'VideoThumbnailUploadFailedToConfirmError',
     'VideoThumbnailVideoIdMismatchError',
     'VideoUploadAlreadyCompletedError',
     'VideoUploadAlreadyCreatedError',
+    'VideoUploadFailedToAbortError',
+    'VideoUploadFailedToCompleteError',
+    'VideoUploadFailedToCreateError',
     'VideoUploadNotCreatedError',
     'VideoViewsLimitReachedError',
 )

@@ -10,7 +10,7 @@ from app.domain.channels.exceptions import (
     ChannelNotActiveError,
     ChannelNotFoundByIdError,
 )
-from app.utils.datetime import get_current_utc_datetime
+from app.domain.common.repos.kv import IKVRepo
 from tests.factories.commands.channels import GenerateChannelAvatarUploadUrlCommandFactory
 from tests.factories.models.channels import ChannelORMFactory
 
@@ -26,6 +26,7 @@ async def test_generate_channel_avatar_upload_url_returns_correct_data(
     async with mock_container() as di:
         use_case = await di.get(GenerateChannelAvatarUploadUrlUseCase)
         session = await di.get(AsyncSession)
+        kv_repo = await di.get(IKVRepo)
 
         channel = await ChannelORMFactory.create(session=session)
         command = GenerateChannelAvatarUploadUrlCommandFactory.build(
@@ -34,6 +35,8 @@ async def test_generate_channel_avatar_upload_url_returns_correct_data(
         )
 
         url, key, channel_id = await use_case.execute(command=command)
+
+        assert (await kv_repo.get(f'set_channel_avatar_url:{channel.id}:{settings.s3_public_bucket_name}:{key}')) == ''
 
         assert url.startswith(f'{settings.s3_endpoint}/{settings.s3_public_bucket_name}/{key}')
         assert 'amz-meta-channel_id' in url
@@ -99,7 +102,7 @@ async def test_generate_channel_avatar_upload_url_raises_error_if_channel_delete
         use_case = await di.get(GenerateChannelAvatarUploadUrlUseCase)
         session = await di.get(AsyncSession)
 
-        channel = await ChannelORMFactory.create(session=session, deleted_at=get_current_utc_datetime())
+        channel = await ChannelORMFactory.create_deleted(session=session)
         command = GenerateChannelAvatarUploadUrlCommandFactory.build(
             current_channel_id=channel.id,
             filename='test.png',

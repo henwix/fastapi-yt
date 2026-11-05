@@ -13,7 +13,6 @@ from app.domain.oauth.exceptions import (
     OAuthNoAccountsConnectedError,
 )
 from app.infrastructure.sqlalchemy.models import OAuthAccountORM
-from app.utils.datetime import get_current_utc_datetime
 from tests.factories.commands.oauth import DisconnectOAuthAccountCommandFactory
 from tests.factories.models.channels import ChannelORMFactory
 from tests.factories.models.oauth import OAuthAcccountORMFactory
@@ -83,7 +82,7 @@ async def test_disconnect_oauth_account_raises_error_if_channel_deleted(mock_con
         use_case = await di.get(DisconnectOAuthAccountUseCase)
         session = await di.get(AsyncSession)
 
-        db_channel = await ChannelORMFactory.create(session=session, deleted_at=get_current_utc_datetime())
+        db_channel = await ChannelORMFactory.create_deleted(session=session)
 
         command = DisconnectOAuthAccountCommandFactory.build(
             current_channel_id=db_channel.id,

@@ -42,17 +42,19 @@ class VideoORM(CreatedAtDatetimeMixin, BaseORM):
         server_default='0',
     )
 
-    upload_id: Mapped[str | None] = mapped_column(default=None, server_default=sa.sql.null(), unique=True)
-    s3_key: Mapped[str | None] = mapped_column(sa.String(length=255), unique=True)
-    thumbnail_s3_key: Mapped[str | None] = mapped_column(sa.String(length=255))
-    upload_status: Mapped[str] = mapped_column(sa.String(length=10))
+    video_upload_id: Mapped[str | None] = mapped_column(default=None, server_default=sa.sql.null(), unique=True)
+    video_upload_status: Mapped[str] = mapped_column(sa.String(length=10))
+    video_file_id: Mapped[UUID | None] = mapped_column(sa.ForeignKey('files.id', ondelete='SET NULL'), unique=True)
+    thumbnail_file_id: Mapped[UUID | None] = mapped_column(sa.ForeignKey('files.id', ondelete='SET NULL'), unique=True)
 
     __table_args__ = (
         sa.Index('ix_videos_composite_channel_id_created_at_id', 'channel_id', 'created_at', 'id'),
         sa.Index('ix_videos_composite_channel_id_views_count_id', 'channel_id', 'views_count', 'id'),
-        sa.CheckConstraint("id ~ '^[A-Za-z0-9_-]{11}$'"),
-        sa.CheckConstraint("privacy_status IN ('public', 'unlisted', 'private')", name='ck_privacy_status'),
-        sa.CheckConstraint("upload_status IN ('pending', 'uploading', 'completed')", name='ck_upload_status'),
+        sa.CheckConstraint("id ~ '^[A-Za-z0-9_-]{11}$'", name='ck_videos_id_pattern'),
+        sa.CheckConstraint("privacy_status IN ('public', 'unlisted', 'private')", name='ck_videos_privacy_status'),
+        sa.CheckConstraint(
+            "video_upload_status IN ('pending', 'uploading', 'completed')", name='ck_videos_video_upload_status'
+        ),
         sa.CheckConstraint('char_length(description) <= 5000', name='ck_videos_description_max_length'),
     )
 
@@ -66,11 +68,11 @@ class VideoORM(CreatedAtDatetimeMixin, BaseORM):
             privacy_status=entity.privacy_status.value,
             is_reported=entity.is_reported,
             views_count=entity.views_count,
-            upload_id=entity.upload_id,
-            s3_key=entity.s3_key,
-            thumbnail_s3_key=entity.thumbnail_s3_key,
-            upload_status=entity.upload_status.value,
             created_at=entity.created_at,
+            video_upload_id=entity.video_upload_id,
+            video_upload_status=entity.video_upload_status.value,
+            video_file_id=entity.video_file_id,
+            thumbnail_file_id=entity.thumbnail_file_id,
         )
 
     def to_entity(self) -> Video:
@@ -82,11 +84,11 @@ class VideoORM(CreatedAtDatetimeMixin, BaseORM):
             privacy_status=VideoPrivacyStatusEnum(self.privacy_status),
             is_reported=self.is_reported,
             views_count=self.views_count,
-            upload_id=self.upload_id,
-            s3_key=self.s3_key,
-            thumbnail_s3_key=self.thumbnail_s3_key,
-            upload_status=VideoUploadStatusEnum(self.upload_status),
             created_at=self.created_at,
+            video_upload_id=self.video_upload_id,
+            video_upload_status=VideoUploadStatusEnum(self.video_upload_status),
+            video_file_id=self.video_file_id,
+            thumbnail_file_id=self.thumbnail_file_id,
         )
 
 
@@ -106,8 +108,8 @@ class VideoReactionORM(
     reaction_type: Mapped[str] = mapped_column(sa.String(length=8))
 
     __table_args__ = (
-        sa.UniqueConstraint('video_id', 'channel_id', name='unique_channel_video_reaction'),
-        sa.CheckConstraint("reaction_type IN ('positive', 'negative')", name='ck_video_reactions_type'),
+        sa.UniqueConstraint('video_id', 'channel_id', name='uq_video_reactions_channel_reaction'),
+        sa.CheckConstraint("reaction_type IN ('positive', 'negative')", name='ck_video_reactions_reaction_type'),
     )
 
     @staticmethod
@@ -143,7 +145,7 @@ class VideoViewORM(UUIDIdMixin, CreatedAtDateMixin, BaseORM):
 
     __table_args__ = (
         sa.Index(
-            'unique_video_views_channel_view',
+            'uq_video_views_channel_view',
             'video_id',
             'channel_id',
             'created_at',
@@ -151,7 +153,7 @@ class VideoViewORM(UUIDIdMixin, CreatedAtDateMixin, BaseORM):
             postgresql_where=sa.text('channel_id IS NOT NULL'),
         ),
         sa.Index(
-            'unique_video_views_anonymous_view',
+            'uq_video_views_anonymous_view',
             'video_id',
             'anonymous_id',
             'created_at',
@@ -225,7 +227,7 @@ class PlaylistItemORM(UUIDIdMixin, CreatedAtDatetimeMixin, BaseORM):
     video_id: Mapped[str] = mapped_column(sa.ForeignKey('videos.id', ondelete='CASCADE'))
 
     __table_args__ = (
-        sa.UniqueConstraint('playlist_id', 'video_id', name='unique_playlist_item'),
+        sa.UniqueConstraint('playlist_id', 'video_id', name='uq_playlist_items_item'),
         sa.Index('ix_playlist_items_composite_added_at_filter', 'playlist_id', 'created_at', 'video_id'),
     )
 
@@ -252,7 +254,7 @@ class VideoHistoryItemORM(CreatedAtDatetimeMixin, UUIDIdMixin, BaseORM):
     video_id: Mapped[str] = mapped_column(sa.ForeignKey('videos.id', ondelete='CASCADE'))
 
     __table_args__ = (
-        sa.UniqueConstraint('channel_id', 'video_id', name='unique_video_history_item'),
+        sa.UniqueConstraint('channel_id', 'video_id', name='uq_video_history_items_item'),
         sa.Index('ix_video_history_items_composite_added_at_filter', 'channel_id', 'created_at', 'video_id'),
     )
 
@@ -360,7 +362,7 @@ class VideoCommentReactionORM(
     reaction_type: Mapped[str] = mapped_column(sa.String(length=8))
 
     __table_args__ = (
-        sa.UniqueConstraint('video_comment_id', 'channel_id', name='uq_channel_video_comment_reaction'),
+        sa.UniqueConstraint('video_comment_id', 'channel_id', name='uq_video_comment_reactions_channel_reaction'),
         sa.CheckConstraint(
             "reaction_type IN ('positive', 'negative')", name='ck_video_comment_reactions_reaction_type'
         ),

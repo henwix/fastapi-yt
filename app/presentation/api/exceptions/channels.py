@@ -1,7 +1,6 @@
 from fastapi import status
 
 from app.domain.channels.exceptions import (
-    ChannelActivationFailedError,
     ChannelAvatarAlreadySetError,
     ChannelAvatarInvalidContentTypeError,
     ChannelAvatarInvalidFilenameError,
@@ -9,10 +8,14 @@ from app.domain.channels.exceptions import (
     ChannelAvatarNotFoundError,
     ChannelAvatarSizeTooBigError,
     ChannelAvatarSizeTooSmallError,
+    ChannelAvatarUploadFailedToConfirmError,
     ChannelDeletedError,
     ChannelEmailAlreadyExistsError,
     ChannelEmailInvalidFormatError,
     ChannelEmailTooLongError,
+    ChannelFailedToActivateError,
+    ChannelFailedToDeleteError,
+    ChannelFailedToRestoreError,
     ChannelNotActiveError,
     ChannelNotDeletedError,
     ChannelNotFoundByIdError,
@@ -31,7 +34,9 @@ def init_channels() -> dict[type[AppError], int]:
         ChannelEmailTooLongError: status.HTTP_400_BAD_REQUEST,
         ChannelSlugAlreadyExistsError: status.HTTP_409_CONFLICT,
         ChannelSlugInvalidFormatError: status.HTTP_400_BAD_REQUEST,
-        ChannelActivationFailedError: status.HTTP_409_CONFLICT,
+        ChannelFailedToActivateError: status.HTTP_409_CONFLICT,
+        ChannelFailedToRestoreError: status.HTTP_409_CONFLICT,
+        ChannelFailedToDeleteError: status.HTTP_409_CONFLICT,
         ChannelNotActiveError: status.HTTP_403_FORBIDDEN,
         ChannelDeletedError: status.HTTP_403_FORBIDDEN,
         ChannelNotDeletedError: status.HTTP_409_CONFLICT,
@@ -45,4 +50,5 @@ def init_channels() -> dict[type[AppError], int]:
         ChannelAvatarSizeTooBigError: status.HTTP_409_CONFLICT,
         ChannelAvatarSizeTooSmallError: status.HTTP_409_CONFLICT,
         ChannelAvatarAlreadySetError: status.HTTP_409_CONFLICT,
+        ChannelAvatarUploadFailedToConfirmError: status.HTTP_409_CONFLICT,
     }

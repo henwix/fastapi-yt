@@ -41,7 +41,7 @@ class CleanupUseCase:
                 extra={'log_meta': {'buckets_count': len(buckets), 'buckets': list(buckets)}},
             )
             for bucket_name, bucket_cleanups in buckets.items():
-                keys = [cleanup.s3_key for cleanup in bucket_cleanups]
+                keys = [cleanup.key for cleanup in bucket_cleanups]
                 try:
                     response = await self._s3_service.delete_objects(bucket=bucket_name, keys=keys)
                 except S3ResponseError as e:
@@ -86,7 +86,7 @@ class CleanupUseCase:
                     to_update: list[dict[str, str | UUID]] = []
 
                     for cleanup in bucket_cleanups:
-                        error = errors_by_key.get(cleanup.s3_key)
+                        error = errors_by_key.get(cleanup.key)
                         if error is None:
                             to_delete.append(cleanup.id)
                         else:
@@ -111,4 +111,8 @@ class CleanupUseCase:
                     total_files_deleted += deleted_count
                     total_files_failed += failed_count
 
+        logger.info(
+            'Cleanup completed',
+            extra={'log_meta': {'total_deleted': total_files_deleted, 'total_failed': total_files_failed}},
+        )
         return CleanupResultDTO(total_deleted=total_files_deleted, total_failed=total_files_failed)

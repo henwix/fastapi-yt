@@ -46,7 +46,7 @@ class ChannelEmailAlreadyAssociatedWithThisAcccountError(AppError):
 class ChannelInvalidEmailUIDError(AppError):
     message = 'Invalid uid'
     uid: str
-    exc_details: str
+    error_detail: str
 
 
 @dataclass(kw_only=True)

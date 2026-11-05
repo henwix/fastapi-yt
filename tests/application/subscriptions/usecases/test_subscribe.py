@@ -16,7 +16,6 @@ from app.domain.subscriptions.exceptions import (
     SubscriptionAlreadyExistsError,
 )
 from app.infrastructure.sqlalchemy.models import SubscriptionORM
-from app.utils.datetime import get_current_utc_datetime
 from tests.factories.commands.subscriptions import SubscribeCommandFactory
 from tests.factories.models.channels import ChannelORMFactory, SubscriptionORMFactory
 
@@ -106,7 +105,7 @@ async def test_subscribe_raises_error_if_current_channel_deleted(mock_container:
         use_case = await di.get(SubscribeUseCase)
         session = await di.get(AsyncSession)
 
-        subscriber = await ChannelORMFactory.create(session=session, deleted_at=get_current_utc_datetime())
+        subscriber = await ChannelORMFactory.create_deleted(session=session)
         subscribed_to = await ChannelORMFactory.create(session=session)
 
         command = SubscribeCommandFactory.build(
@@ -139,7 +138,7 @@ async def test_subscribe_raises_error_if_channel_deleted(mock_container: AsyncCo
         session = await di.get(AsyncSession)
 
         subscriber = await ChannelORMFactory.create(session=session)
-        subscribed_to = await ChannelORMFactory.create(session=session, deleted_at=get_current_utc_datetime())
+        subscribed_to = await ChannelORMFactory.create_deleted(session=session)
 
         command = SubscribeCommandFactory.build(current_channel_id=subscriber.id, channel_slug=subscribed_to.slug)
 

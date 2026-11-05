@@ -35,7 +35,7 @@ class GetVideoCommentRepliesUseCase:
                         )
 
             except Exception as e:
-                raise InvalidCursorError(cursor=query.pagination.cursor, exc_details=str(e)) from e
+                raise InvalidCursorError(cursor=query.pagination.cursor, error_detail=str(e)) from e
 
         async with self._tm.begin(commit=False):
             video_comment = await self._video_comment_service.try_get_by_id(id=query.video_comment_id)

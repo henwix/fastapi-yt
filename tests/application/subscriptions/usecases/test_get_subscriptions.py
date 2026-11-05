@@ -16,7 +16,6 @@ from app.domain.channels.exceptions import ChannelDeletedError, ChannelNotActive
 from app.domain.common.constants import Empty
 from app.domain.common.exceptions.pagination import InvalidCursorError
 from app.utils.base64url import base64url_decode
-from app.utils.datetime import get_current_utc_datetime
 from tests.factories.models.channels import ChannelORMFactory, SubscriptionORMFactory
 from tests.factories.queries.common import CursorPaginationFactory
 from tests.factories.queries.subscriptions import (
@@ -219,7 +218,7 @@ async def test_get_subscriptions_raises_error_if_current_channel_deleted(
         use_case = await di.get(GetSubscriptionsUseCase)
         session = await di.get(AsyncSession)
 
-        channel = await ChannelORMFactory.create(session=session, deleted_at=get_current_utc_datetime())
+        channel = await ChannelORMFactory.create_deleted(session=session)
 
         query = GetSubscriptionsQueryFactory.build(
             current_channel_id=channel.id,

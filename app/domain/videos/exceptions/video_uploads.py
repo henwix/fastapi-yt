@@ -22,6 +22,32 @@ class VideoUploadNotCreatedError(AppError):
 
 
 @dataclass(kw_only=True)
+class VideoUploadFailedToCreateError(AppError):
+    message = 'Failed to create video upload'
+    video_id: str
+    key: str
+    bucket: str
+
+
+@dataclass(kw_only=True)
+class VideoUploadFailedToAbortError(AppError):
+    message = 'Failed to abort video upload'
+    video_id: str
+    key: str
+    bucket: str
+    error_detail: str
+
+
+@dataclass(kw_only=True)
+class VideoUploadFailedToCompleteError(AppError):
+    message = 'Failed to complete video upload'
+    video_id: str
+    key: str
+    bucket: str
+    error_detail: str
+
+
+@dataclass(kw_only=True)
 class VideoInvalidFilenameError(AppError):
     message = 'Video invalid filename'
     filename: str
@@ -47,7 +73,7 @@ class VideoSizeTooSmallError(AppError):
 class VideoThumbnailAlreadySetError(AppError):
     message = 'This video thumbnail is already set'
     video_id: str
-    thumbnail_s3_key: str
+    thumbnail_key: str
 
 
 @dataclass(kw_only=True)
@@ -55,7 +81,7 @@ class VideoThumbnailVideoIdMismatchError(AppError):
     message = 'Thumbnail does not belong to the specified video'
     video_id: str
     metadata_video_id: str
-    thumbnail_s3_key: str
+    thumbnail_key: str
 
 
 @dataclass(kw_only=True)
@@ -79,6 +105,7 @@ class VideoThumbnailSizeTooSmallError(AppError):
 class VideoThumbnailInvalidKeyError(AppError):
     message = 'Video thumbnail invalid key'
     key: str
+    error_detail: str
 
 
 @dataclass(kw_only=True)
@@ -93,3 +120,12 @@ class VideoThumbnailInvalidContentTypeError(AppError):
     key: str
     metadata_content_type: str
     actual_content_type: str
+
+
+@dataclass(kw_only=True)
+class VideoThumbnailUploadFailedToConfirmError(AppError):
+    message = 'Failed to complete video thumbnail upload'
+    video_id: str
+    key: str
+    bucket: str
+    error_detail: str

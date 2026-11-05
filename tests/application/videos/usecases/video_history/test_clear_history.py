@@ -7,7 +7,6 @@ from app.application.videos.usecases import ClearVideoHistoryUseCase
 from app.domain.channels.exceptions import ChannelDeletedError, ChannelNotActiveError, ChannelNotFoundByIdError
 from app.domain.videos.exceptions import VideoHistoryEmptyError
 from app.infrastructure.sqlalchemy.models import VideoHistoryItemORM
-from app.utils.datetime import get_current_utc_datetime
 from tests.factories.commands.videos import ClearVideoHistoryCommandFactory
 from tests.factories.models.channels import ChannelORMFactory
 from tests.factories.models.videos import VideoHistoryItemORMFactory, VideoORMFactory
@@ -70,7 +69,7 @@ async def test_clear_history_raises_error_if_channel_deleted(container: AsyncCon
         use_case = await di.get(ClearVideoHistoryUseCase)
         session = await di.get(AsyncSession)
 
-        channel = await ChannelORMFactory.create(session=session, deleted_at=get_current_utc_datetime())
+        channel = await ChannelORMFactory.create_deleted(session=session)
 
         command = ClearVideoHistoryCommandFactory.build(current_channel_id=channel.id)
 

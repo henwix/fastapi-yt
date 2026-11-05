@@ -5,6 +5,7 @@ from dataclasses import dataclass
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.application.common.interfaces.transaction_manager import ITransactionManager
+from app.domain.common.exceptions.db import TransactionRollbackError
 from app.infrastructure.sqlalchemy.database import Database
 
 
@@ -16,8 +17,10 @@ class SQLAlchemyTransactionManager(ITransactionManager):
     async def commit(self) -> None:
         await self._session.commit()
 
-    async def rollback(self) -> None:
+    async def rollback(self, with_exc: bool = False) -> None:
         await self._session.rollback()
+        if with_exc:
+            raise TransactionRollbackError
 
     async def close(self) -> None:
         await self._session.close()
@@ -29,6 +32,8 @@ class SQLAlchemyTransactionManager(ITransactionManager):
             yield
             if commit:
                 await self.commit()
+        except TransactionRollbackError:
+            ...
         except Exception:
             await self.rollback()
             raise

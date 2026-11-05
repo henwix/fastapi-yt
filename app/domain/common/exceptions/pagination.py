@@ -7,4 +7,4 @@ from app.domain.common.exceptions.base import AppError
 class InvalidCursorError(AppError):
     message = 'Invalid cursor value'
     cursor: str
-    error_details: str
+    error_detail: str

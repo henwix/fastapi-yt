@@ -80,7 +80,7 @@ async def test_delete_video_returns_none_if_deleted_with_video_s3_object(contain
         )
         video_file_cleanup_exists_stmt = select(
             exists().where(
-                FileCleanupORM.s3_key == video_file.key,
+                FileCleanupORM.key == video_file.key,
                 FileCleanupORM.bucket == video_file.bucket,
             )
         )
@@ -117,7 +117,7 @@ async def test_delete_video_returns_none_if_deleted_with_thumbnail_s3_object(con
         )
         thumbnail_file_cleanup_exists_stmt = select(
             exists().where(
-                FileCleanupORM.s3_key == thumbnail_file.key,
+                FileCleanupORM.key == thumbnail_file.key,
                 FileCleanupORM.bucket == thumbnail_file.bucket,
             )
         )
@@ -160,10 +160,10 @@ async def test_delete_video_returns_none_if_deleted_with_thumbnail_and_video_s3_
             exists().where(FileORM.key == video_file.key, FileORM.bucket == video_file.bucket)
         )
         thumbnail_file_cleanup_exists_stmt = select(
-            exists().where(FileCleanupORM.s3_key == thumbnail_file.key, FileCleanupORM.bucket == thumbnail_file.bucket)
+            exists().where(FileCleanupORM.key == thumbnail_file.key, FileCleanupORM.bucket == thumbnail_file.bucket)
         )
         video_file_cleanup_exists_stmt = select(
-            exists().where(FileCleanupORM.s3_key == video_file.key, FileCleanupORM.bucket == video_file.bucket)
+            exists().where(FileCleanupORM.key == video_file.key, FileCleanupORM.bucket == video_file.bucket)
         )
 
         result = await use_case.execute(command=command)

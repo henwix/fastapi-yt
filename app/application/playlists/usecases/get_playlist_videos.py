@@ -43,7 +43,7 @@ class GetPlaylistVideosUseCase:
                         cursor_sort_value = int(decoded_cursor[PlaylistVideosSortingFieldsEnum.POPULAR.value])
 
             except Exception as e:
-                raise InvalidCursorError(cursor=query.pagination.cursor, error_details=str(e)) from e
+                raise InvalidCursorError(cursor=query.pagination.cursor, error_detail=str(e)) from e
 
         async with self._tm.begin(commit=False):
             playlist = await self._playlist_service.try_get_existing_by_id(id=query.playlist_id)

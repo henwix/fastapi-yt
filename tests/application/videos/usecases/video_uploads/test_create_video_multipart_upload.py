@@ -244,7 +244,7 @@ async def test_create_video_multipart_upload_raises_error_if_channel_not_found(m
 
 
 @pytest.mark.asyncio
-async def test_create_video_multipart_upload_raises_error_if_channel_not_updated(mock_container: AsyncContainer):
+async def test_create_video_multipart_upload_raises_error_if_video_not_updated(mock_container: AsyncContainer):
     async with mock_container() as di:
         use_case = await di.get(CreateVideoMultipartUploadUseCase)
         session = await di.get(AsyncSession)

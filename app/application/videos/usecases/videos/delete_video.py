@@ -30,13 +30,13 @@ class DeleteVideoUseCase:
                 if video_file is not None:
                     is_video_file_deleted = await self._file_service.delete_by_id(id=video_file.id)
                     if is_video_file_deleted:
-                        cleanups.append(FileCleanup.create(s3_key=video_file.key, bucket=video_file.bucket))
+                        cleanups.append(FileCleanup.create(key=video_file.key, bucket=video_file.bucket))
             if video.thumbnail_file_id is not None:
                 thumbnail_file = await self._file_service.get_by_id(id=video.thumbnail_file_id)
                 if thumbnail_file is not None:
                     is_thumbnail_file_deleted = await self._file_service.delete_by_id(id=thumbnail_file.id)
                     if is_thumbnail_file_deleted:
-                        cleanups.append(FileCleanup.create(s3_key=thumbnail_file.key, bucket=thumbnail_file.bucket))
+                        cleanups.append(FileCleanup.create(key=thumbnail_file.key, bucket=thumbnail_file.bucket))
 
             await self._video_service.try_delete_by_id(id=command.video_id)
             if cleanups:

@@ -35,7 +35,7 @@ class GetPostCommentRepliesUseCase:
                         )
 
             except Exception as e:
-                raise InvalidCursorError(cursor=query.pagination.cursor, error_details=str(e)) from e
+                raise InvalidCursorError(cursor=query.pagination.cursor, error_detail=str(e)) from e
 
         async with self._tm.begin(commit=False):
             post_comment = await self._post_comment_service.try_get_by_id(id=query.post_comment_id)

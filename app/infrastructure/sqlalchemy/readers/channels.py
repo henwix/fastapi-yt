@@ -76,11 +76,11 @@ class ChannelReader(SQLAlchemyReader, IChannelReader):
                 ChannelORM.deleted_at,
                 FileORM.key.label('avatar_key'),
             )
+            .outerjoin(FileORM, ChannelORM.avatar_file_id == FileORM.id)
             .where(
                 ChannelORM.id == id,
                 ChannelORM.deletion_status != ChannelDeletionStatusEnum.PURGING.value,
             )
-            .outerjoin(FileORM, ChannelORM.avatar_file_id == FileORM.id)
         )
         async with self._db.get_session(commit=False) as session:
             result = await session.execute(statement=stmt)

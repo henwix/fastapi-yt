@@ -147,5 +147,5 @@ class ConfirmChannelAvatarUploadUseCase:
             )
 
     async def _create_cleanup(self, key: str, bucket: str) -> None:
-        file_cleanup = FileCleanup.create(s3_key=key, bucket=bucket)
+        file_cleanup = FileCleanup.create(key=key, bucket=bucket)
         await self._file_cleanup_service.upsert(cleanup=file_cleanup)

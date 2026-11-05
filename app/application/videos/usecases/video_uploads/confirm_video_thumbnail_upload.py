@@ -61,7 +61,7 @@ class ConfirmVideoThumbnailUploadUseCase:
             and current_video_thumbnail_file.key == thumbnail_key
             and current_video_thumbnail_file.bucket == bucket_name
         ):
-            raise VideoThumbnailAlreadySetError(video_id=video.id, thumbnail_s3_key=thumbnail_key)
+            raise VideoThumbnailAlreadySetError(video_id=video.id, thumbnail_key=thumbnail_key)
 
         is_video_thumbnail_key_deleted = await self._kv_repo.delete_with_lock(
             key=f'set_video_thumbnail:{video.id}:{bucket_name}:{command.key}'
@@ -83,7 +83,7 @@ class ConfirmVideoThumbnailUploadUseCase:
             raise VideoThumbnailVideoIdMismatchError(
                 video_id=video.id,
                 metadata_video_id=thumbnail_metadata_video_id,
-                thumbnail_s3_key=command.key,
+                thumbnail_key=command.key,
             )
 
         thumbnail_metadata_content_length = thumbnail_head_object['ContentLength']
@@ -160,5 +160,5 @@ class ConfirmVideoThumbnailUploadUseCase:
             )
 
     async def _create_cleanup(self, key: str, bucket: str) -> None:
-        file_cleanup = FileCleanup.create(s3_key=key, bucket=bucket)
+        file_cleanup = FileCleanup.create(key=key, bucket=bucket)
         await self._file_cleanup_service.upsert(cleanup=file_cleanup)

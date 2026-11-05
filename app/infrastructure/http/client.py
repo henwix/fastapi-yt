@@ -30,13 +30,13 @@ class HttpxClient(IHttpClient):
             response.raise_for_status()
             return response.json()
         except httpx.RequestError as e:
-            raise HttpRequestError(url=url, method=method, error_details=str(e)) from e
+            raise HttpRequestError(url=url, method=method, error_detail=str(e)) from e
         except httpx.HTTPStatusError as e:
             response = e.response
             raise HttpResponseError(
                 url=url,
                 method=method,
-                error_details=str(e),
+                error_detail=str(e),
                 status_code=response.status_code,
             ) from e
 

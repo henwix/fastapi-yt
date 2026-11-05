@@ -52,7 +52,7 @@ class ChannelAvatarAlreadySetError(AppError):
 
 @dataclass(kw_only=True)
 class ChannelAvatarUploadFailedToConfirmError(AppError):
-    message = 'Channel avatar failed to confirm'
+    message = 'Failed to confirm channel avatar upload'
     channel_id: UUID
     avatar_key: str
     avatar_bucket: str

@@ -31,7 +31,7 @@ class BotoS3Provider(IS3Provider):
                 error_status=status,
             ) from e
         except BotoCoreError as e:
-            raise S3RequestError(error_details=repr(e)) from e
+            raise S3RequestError(error_detail=repr(e)) from e
 
     async def create_multipart_upload(
         self, bucket: str, key: str, content_type: str, metadata: dict[str, str] | None = None

@@ -35,7 +35,7 @@ class GetPostCommentsUseCase:
                         )
 
             except Exception as e:
-                raise InvalidCursorError(cursor=query.pagination.cursor, error_details=str(e)) from e
+                raise InvalidCursorError(cursor=query.pagination.cursor, error_detail=str(e)) from e
 
         async with self._tm.begin(commit=False):
             post = await self._post_service.try_get_existing_by_id(id=query.post_id)

@@ -112,5 +112,5 @@ class CompleteVideoMultipartUploadUseCase:
 
             is_video_file_deleted = await self._file_service.delete_by_id(id=video_file.id)
             if is_video_file_deleted:
-                video_file_cleanup = FileCleanup.create(s3_key=video_file.key, bucket=video_file.bucket)
+                video_file_cleanup = FileCleanup.create(key=video_file.key, bucket=video_file.bucket)
                 await self._file_cleanup_service.upsert(cleanup=video_file_cleanup)

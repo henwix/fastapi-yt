@@ -37,7 +37,7 @@ async def test_delete_video_thumbnail_returns_none_if_deleted(container: AsyncCo
             exists().where(FileORM.key == thumbnail_file.key, FileORM.bucket == thumbnail_file.bucket)
         )
         thumbnail_file_cleanup_stmt = select(FileCleanupORM).where(
-            FileCleanupORM.s3_key == thumbnail_file.key, FileCleanupORM.bucket == thumbnail_file.bucket
+            FileCleanupORM.key == thumbnail_file.key, FileCleanupORM.bucket == thumbnail_file.bucket
         )
 
         result = await use_case.execute(command=command)

@@ -66,16 +66,20 @@ class VideoReader(SQLAlchemyReader, IVideoReader):
         sorting: PreviewVideosSorting,
         pagination: CursorPagination,
     ) -> list[ChannelPreviewVideo]:
-        stmt = select(
-            VideoORM.id,
-            VideoORM.title,
-            VideoORM.views_count,
-            VideoORM.thumbnail_file_id,
-            VideoORM.created_at,
-        ).where(
-            VideoORM.channel_id == channel_id,
-            VideoORM.video_upload_status == VideoUploadStatusEnum.COMPLETED.value,
-            VideoORM.privacy_status == VideoPrivacyStatusEnum.PUBLIC.value,
+        stmt = (
+            select(
+                VideoORM.id,
+                VideoORM.title,
+                VideoORM.views_count,
+                VideoORM.created_at,
+                FileORM.key.label('thumbnail_key'),
+            )
+            .outerjoin(FileORM, VideoORM.thumbnail_file_id == FileORM.id)
+            .where(
+                VideoORM.channel_id == channel_id,
+                VideoORM.video_upload_status == VideoUploadStatusEnum.COMPLETED.value,
+                VideoORM.privacy_status == VideoPrivacyStatusEnum.PUBLIC.value,
+            )
         )
 
         match sorting.sort_by:
@@ -112,15 +116,19 @@ class VideoReader(SQLAlchemyReader, IVideoReader):
         sorting: PreviewVideosSorting,
         pagination: CursorPagination,
     ) -> list[PersonalPreviewVideo]:
-        stmt = select(
-            VideoORM.id,
-            VideoORM.title,
-            VideoORM.privacy_status,
-            VideoORM.video_upload_status,
-            VideoORM.views_count,
-            VideoORM.thumbnail_file_id,
-            VideoORM.created_at,
-        ).where(VideoORM.channel_id == channel_id)
+        stmt = (
+            select(
+                VideoORM.id,
+                VideoORM.title,
+                VideoORM.privacy_status,
+                VideoORM.video_upload_status,
+                VideoORM.views_count,
+                VideoORM.created_at,
+                FileORM.key.label('thumbnail_key'),
+            )
+            .outerjoin(FileORM, VideoORM.thumbnail_file_id == FileORM.id)
+            .where(VideoORM.channel_id == channel_id)
+        )
 
         match sorting.sort_by:
             case PreviewVideosSortingFieldEnum.CREATED_AT:

@@ -137,7 +137,7 @@ async def test_complete_video_multipart_upload_raises_error_if_video_file_metada
 
         video_file_exists_stmt = select(exists().where(FileORM.id == video_file.id))
         video_file_cleanup_exists_stmt = select(
-            exists().where(FileCleanupORM.s3_key == video_file.key, FileCleanupORM.bucket == video_file.bucket)
+            exists().where(FileCleanupORM.key == video_file.key, FileCleanupORM.bucket == video_file.bucket)
         )
         assert not (await session.execute(statement=video_file_exists_stmt)).scalar_one()
         assert (await session.execute(statement=video_file_cleanup_exists_stmt)).scalar_one()
@@ -201,7 +201,7 @@ async def test_complete_video_multipart_upload_raises_error_if_video_file_actual
 
         video_file_exists_stmt = select(exists().where(FileORM.id == video_file.id))
         video_file_cleanup_exists_stmt = select(
-            exists().where(FileCleanupORM.s3_key == video_file.key, FileCleanupORM.bucket == video_file.bucket)
+            exists().where(FileCleanupORM.key == video_file.key, FileCleanupORM.bucket == video_file.bucket)
         )
         assert not (await session.execute(statement=video_file_exists_stmt)).scalar_one()
         assert (await session.execute(statement=video_file_cleanup_exists_stmt)).scalar_one()
@@ -248,7 +248,7 @@ async def test_complete_video_multipart_upload_raises_error_if_video_file_size_t
 
         video_file_exists_stmt = select(exists().where(FileORM.id == video_file.id))
         video_file_cleanup_exists_stmt = select(
-            exists().where(FileCleanupORM.s3_key == video_file.key, FileCleanupORM.bucket == video_file.bucket)
+            exists().where(FileCleanupORM.key == video_file.key, FileCleanupORM.bucket == video_file.bucket)
         )
         assert not (await session.execute(statement=video_file_exists_stmt)).scalar_one()
         assert (await session.execute(statement=video_file_cleanup_exists_stmt)).scalar_one()
@@ -413,7 +413,7 @@ async def test_complete_video_multipart_upload_raises_error_if_video_uploading_a
 
 
 @pytest.mark.asyncio
-async def test_complete_video_multipart_upload_raises_error_if_video_uploading_and_s3_key_is_none(
+async def test_complete_video_multipart_upload_raises_error_if_video_uploading_status_and_file_id_is_none(
     mock_container: AsyncContainer,
 ):
     async with mock_container() as di:

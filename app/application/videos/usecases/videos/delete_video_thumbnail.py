@@ -34,5 +34,5 @@ class DeleteVideoThumbnailUseCase:
             if not is_thumbnail_file_deleted:
                 raise VideoThumbnailNotFoundError(video_id=video.id)
 
-            thumbnail_file_cleanup = FileCleanup.create(s3_key=thumbnail_file.key, bucket=thumbnail_file.bucket)
+            thumbnail_file_cleanup = FileCleanup.create(key=thumbnail_file.key, bucket=thumbnail_file.bucket)
             await self._file_cleanup_service.upsert(cleanup=thumbnail_file_cleanup)

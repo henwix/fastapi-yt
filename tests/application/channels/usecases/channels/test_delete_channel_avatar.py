@@ -27,11 +27,11 @@ async def test_delete_channel_avatar_returns_none_if_deleted(mock_container: Asy
         use_case = await di.get(DeleteChannelAvatarUseCase)
         session = await di.get(AsyncSession)
 
-        expected_avatar_s3_key = f'{settings.s3_channel_avatars_key_prefix}/{secrets.token_hex(4)}_new_avatar.png'
+        expected_avatar_key = f'{settings.s3_channel_avatars_key_prefix}/{secrets.token_hex(4)}_new_avatar.png'
         bucket_name = settings.s3_public_bucket_name
         avatar_file = await FileORMFactory.create(
             session=session,
-            key=expected_avatar_s3_key,
+            key=expected_avatar_key,
             bucket=bucket_name,
         )
         channel = await ChannelORMFactory.create(session=session, avatar_file_id=avatar_file.id)
@@ -39,12 +39,12 @@ async def test_delete_channel_avatar_returns_none_if_deleted(mock_container: Asy
 
         avatar_file_exists_stmt = select(
             exists().where(
-                FileORM.key == expected_avatar_s3_key,
+                FileORM.key == expected_avatar_key,
                 FileORM.bucket == bucket_name,
             )
         )
         avatar_cleanup_stmt = select(FileCleanupORM).where(
-            FileCleanupORM.s3_key == expected_avatar_s3_key,
+            FileCleanupORM.key == expected_avatar_key,
             FileCleanupORM.bucket == bucket_name,
         )
 
@@ -64,7 +64,7 @@ async def test_delete_channel_avatar_returns_none_if_deleted(mock_container: Asy
         assert channel.avatar_file_id is None
 
         assert avatar_cleanup.bucket == bucket_name
-        assert avatar_cleanup.s3_key == expected_avatar_s3_key
+        assert avatar_cleanup.key == expected_avatar_key
         assert avatar_cleanup.error_code is None
         assert avatar_cleanup.error_message is None
         assert avatar_cleanup.status == FileCleanupStatusEnum.PENDING.value
@@ -127,11 +127,11 @@ async def test_delete_channel_avatar_reises_error_if_avatar_file_not_found_in_db
         use_case = await di.get(DeleteChannelAvatarUseCase)
         session = await di.get(AsyncSession)
 
-        expected_avatar_s3_key = f'{settings.s3_channel_avatars_key_prefix}/{secrets.token_hex(4)}_new_avatar.png'
+        expected_avatar_key = f'{settings.s3_channel_avatars_key_prefix}/{secrets.token_hex(4)}_new_avatar.png'
         bucket_name = settings.s3_public_bucket_name
         avatar_file = await FileORMFactory.create(
             session=session,
-            key=expected_avatar_s3_key,
+            key=expected_avatar_key,
             bucket=bucket_name,
         )
         channel = await ChannelORMFactory.create(session=session, avatar_file_id=avatar_file.id)
@@ -158,11 +158,11 @@ async def test_delete_channel_avatar_reises_error_if_avatar_file_not_deleted(moc
         use_case = await di.get(DeleteChannelAvatarUseCase)
         session = await di.get(AsyncSession)
 
-        expected_avatar_s3_key = f'{settings.s3_channel_avatars_key_prefix}/{secrets.token_hex(4)}_new_avatar.png'
+        expected_avatar_key = f'{settings.s3_channel_avatars_key_prefix}/{secrets.token_hex(4)}_new_avatar.png'
         bucket_name = settings.s3_public_bucket_name
         avatar_file = await FileORMFactory.create(
             session=session,
-            key=expected_avatar_s3_key,
+            key=expected_avatar_key,
             bucket=bucket_name,
         )
         channel = await ChannelORMFactory.create(session=session, avatar_file_id=avatar_file.id)
@@ -170,12 +170,12 @@ async def test_delete_channel_avatar_reises_error_if_avatar_file_not_deleted(moc
 
         avatar_file_exists_stmt = select(
             exists().where(
-                FileORM.key == expected_avatar_s3_key,
+                FileORM.key == expected_avatar_key,
                 FileORM.bucket == bucket_name,
             )
         )
         avatar_cleanup_stmt = select(FileCleanupORM).where(
-            FileCleanupORM.s3_key == expected_avatar_s3_key,
+            FileCleanupORM.key == expected_avatar_key,
             FileCleanupORM.bucket == bucket_name,
         )
 

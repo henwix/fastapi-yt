@@ -58,8 +58,8 @@ class ChannelPreviewVideoOutSchema(BaseSchema):
     id: str
     title: str
     views_count: int
-    thumbnail_s3_key: str | None
     created_at: datetime
+    thumbnail_url: HttpUrl | None
 
     @staticmethod
     def from_dto(dto: ChannelPreviewVideo) -> ChannelPreviewVideoOutSchema:
@@ -67,8 +67,8 @@ class ChannelPreviewVideoOutSchema(BaseSchema):
             id=dto.id,
             title=dto.title,
             views_count=dto.views_count,
-            thumbnail_s3_key=dto.thumbnail_s3_key,
             created_at=dto.created_at,
+            thumbnail_url=dto.thumbnail_url,
         )
 
 
@@ -78,8 +78,8 @@ class PersonalPreviewVideoOutSchema(BaseSchema):
     privacy_status: VideoPrivacyStatusEnum
     upload_status: VideoUploadStatusEnum
     views_count: int
-    thumbnail_s3_key: str | None
     created_at: datetime
+    thumbnail_url: HttpUrl | None
 
     @staticmethod
     def from_dto(dto: PersonalPreviewVideo) -> PersonalPreviewVideoOutSchema:
@@ -87,8 +87,8 @@ class PersonalPreviewVideoOutSchema(BaseSchema):
             id=dto.id,
             title=dto.title,
             privacy_status=dto.privacy_status,
-            upload_status=dto.upload_status,
+            upload_status=dto.video_upload_status,
             views_count=dto.views_count,
-            thumbnail_s3_key=dto.thumbnail_s3_key,
             created_at=dto.created_at,
+            thumbnail_url=dto.thumbnail_url,
         )

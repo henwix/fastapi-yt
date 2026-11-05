@@ -73,7 +73,7 @@ class VideoSizeTooSmallError(AppError):
 class VideoThumbnailAlreadySetError(AppError):
     message = 'This video thumbnail is already set'
     video_id: str
-    thumbnail_s3_key: str
+    thumbnail_key: str
 
 
 @dataclass(kw_only=True)
@@ -81,7 +81,7 @@ class VideoThumbnailVideoIdMismatchError(AppError):
     message = 'Thumbnail does not belong to the specified video'
     video_id: str
     metadata_video_id: str
-    thumbnail_s3_key: str
+    thumbnail_key: str
 
 
 @dataclass(kw_only=True)

@@ -242,7 +242,7 @@ async def test_generate_video_part_upload_url_raises_error_if_video_uploading_an
 
 
 @pytest.mark.asyncio
-async def test_generate_video_part_upload_url_raises_error_if_video_uploading_and_s3_key_is_none(
+async def test_generate_video_part_upload_url_raises_error_if_video_uploading_status_and_file_id_is_none(
     mock_container: AsyncContainer,
 ):
     async with mock_container() as di:

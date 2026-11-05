@@ -38,7 +38,7 @@ class S3ObjectAccessForbiddenError(AppError):
 @dataclass(kw_only=True)
 class S3RequestError(AppError):
     message = 'Error occured during S3 request'
-    error_details: str
+    error_detail: str
 
 
 @dataclass(kw_only=True)

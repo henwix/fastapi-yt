@@ -32,7 +32,7 @@ class AbortMultipartUploadUseCase:
                     'log_meta': {'bucket': command.bucket, 'key': command.key, 'upload_id': command.upload_id},
                 },
             )
-            file_cleanup = FileCleanup.create(s3_key=command.key, bucket=command.bucket)
+            file_cleanup = FileCleanup.create(key=command.key, bucket=command.bucket)
             await self._file_cleanup_service.upsert(cleanup=file_cleanup)
             logger.info(
                 'FileCleanup successfully created',

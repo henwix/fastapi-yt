@@ -19,7 +19,7 @@ class FileCleanupRepo(SQLAlchemyRepo, IFileCleanupRepo):
             insert(FileCleanupORM)
             .values(
                 id=cleanup.id,
-                s3_key=cleanup.s3_key,
+                key=cleanup.key,
                 bucket=cleanup.bucket,
                 status=cleanup.status,
                 locked_until=cleanup.locked_until,
@@ -38,7 +38,7 @@ class FileCleanupRepo(SQLAlchemyRepo, IFileCleanupRepo):
                 params=[
                     {
                         'id': cleanup.id,
-                        's3_key': cleanup.s3_key,
+                        'key': cleanup.key,
                         'bucket': cleanup.bucket,
                         'status': cleanup.status.value,
                         'locked_until': cleanup.locked_until,

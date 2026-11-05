@@ -8,4 +8,4 @@ __pycache__/
 .ruff_cache
 scripts
 static
-test.*
+test_files

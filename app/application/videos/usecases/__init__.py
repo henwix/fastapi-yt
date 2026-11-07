@@ -24,8 +24,8 @@ from .video_uploads import (
 )
 from .video_views import CreateVideoViewUseCase
 from .videos import (
+    CreateVideoCleanupsUseCase,
     CreateVideoUseCase,
-    DeleteNotCompletedVideosUseCase,
     DeleteVideoThumbnailUseCase,
     DeleteVideoUseCase,
     GetChannelVideosUseCase,
@@ -40,13 +40,13 @@ __all__ = (
     'ClearVideoHistoryUseCase',
     'CompleteVideoMultipartUploadUseCase',
     'ConfirmVideoThumbnailUploadUseCase',
+    'CreateVideoCleanupsUseCase',
     'CreateVideoCommentReactionUseCase',
     'CreateVideoCommentUseCase',
     'CreateVideoMultipartUploadUseCase',
     'CreateVideoReactionUseCase',
     'CreateVideoUseCase',
     'CreateVideoViewUseCase',
-    'DeleteNotCompletedVideosUseCase',
     'DeleteVideoCommentReactionUseCase',
     'DeleteVideoCommentUseCase',
     'DeleteVideoFromHistoryUseCase',

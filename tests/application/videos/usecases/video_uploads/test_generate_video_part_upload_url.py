@@ -39,7 +39,7 @@ async def test_generate_video_part_upload_url_returns_correct_url(mock_container
         video = await VideoORMFactory.create(
             session=session,
             channel_id=channel.id,
-            video_upload_status=VideoUploadStatusEnum.UPLOADING.value,
+            upload_status=VideoUploadStatusEnum.UPLOADING.value,
             video_file_id=video_file.id,
         )
         command = GenerateVideoPartUploadUrlCommandFactory.build(current_channel_id=channel.id, video_id=video.id)
@@ -47,7 +47,7 @@ async def test_generate_video_part_upload_url_returns_correct_url(mock_container
         url = await use_case.execute(command=command)
 
         assert url.startswith(f'{settings.s3_endpoint}/{expected_bucket}/{video_file.key}')
-        assert f'uploadId={video.video_upload_id}' in url
+        assert f'uploadId={video.upload_id}' in url
         assert f'partNumber={command.part_number}' in url
         assert f'X-Amz-Credential={settings.s3_access_key}' in url
         assert 'X-Amz-Expires=120' in url
@@ -135,7 +135,7 @@ async def test_generate_video_part_upload_url_raises_error_if_access_forbidden(m
         video = await VideoORMFactory.create(
             session=session,
             channel_id=author_channel.id,
-            video_upload_status=VideoUploadStatusEnum.UPLOADING.value,
+            upload_status=VideoUploadStatusEnum.UPLOADING.value,
         )
         command = GenerateVideoPartUploadUrlCommandFactory.build(
             current_channel_id=second_channel.id, video_id=video.id
@@ -155,7 +155,7 @@ async def test_generate_video_part_upload_url_raises_error_if_video_already_uplo
         video = await VideoORMFactory.create(
             session=session,
             channel_id=channel.id,
-            video_upload_status=VideoUploadStatusEnum.COMPLETED.value,
+            upload_status=VideoUploadStatusEnum.COMPLETED.value,
         )
         command = GenerateVideoPartUploadUrlCommandFactory.build(current_channel_id=channel.id, video_id=video.id)
 
@@ -175,7 +175,7 @@ async def test_generate_video_part_upload_url_raises_error_if_video_upload_not_c
         video = await VideoORMFactory.create(
             session=session,
             channel_id=channel.id,
-            video_upload_status=VideoUploadStatusEnum.PENDING,
+            upload_status=VideoUploadStatusEnum.PENDING,
         )
         command = GenerateVideoPartUploadUrlCommandFactory.build(current_channel_id=channel.id, video_id=video.id)
 
@@ -201,7 +201,7 @@ async def test_generate_video_part_upload_url_raises_error_if_video_file_not_fou
         video = await VideoORMFactory.create(
             session=session,
             channel_id=channel.id,
-            video_upload_status=VideoUploadStatusEnum.UPLOADING.value,
+            upload_status=VideoUploadStatusEnum.UPLOADING.value,
             video_file_id=video_file.id,
         )
         command = GenerateVideoPartUploadUrlCommandFactory.build(current_channel_id=channel.id, video_id=video.id)
@@ -232,8 +232,8 @@ async def test_generate_video_part_upload_url_raises_error_if_video_uploading_an
         video = await VideoORMFactory.create(
             session=session,
             channel_id=channel.id,
-            video_upload_status=VideoUploadStatusEnum.UPLOADING.value,
-            video_upload_id=None,
+            upload_status=VideoUploadStatusEnum.UPLOADING.value,
+            upload_id=None,
         )
         command = GenerateVideoPartUploadUrlCommandFactory.build(current_channel_id=channel.id, video_id=video.id)
 
@@ -253,7 +253,7 @@ async def test_generate_video_part_upload_url_raises_error_if_video_uploading_st
         video = await VideoORMFactory.create(
             session=session,
             channel_id=channel.id,
-            video_upload_status=VideoUploadStatusEnum.UPLOADING.value,
+            upload_status=VideoUploadStatusEnum.UPLOADING.value,
             video_file_id=None,
         )
         command = GenerateVideoPartUploadUrlCommandFactory.build(current_channel_id=channel.id, video_id=video.id)

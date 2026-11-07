@@ -29,7 +29,7 @@ class ChannelReader(SQLAlchemyReader, IChannelReader):
             )
             .where(
                 VideoORM.channel_id == ChannelORM.id,
-                VideoORM.video_upload_status == VideoUploadStatusEnum.COMPLETED.value,
+                VideoORM.upload_status == VideoUploadStatusEnum.COMPLETED.value,
                 VideoORM.privacy_status == VideoPrivacyStatusEnum.PUBLIC.value,
             )
             .lateral()

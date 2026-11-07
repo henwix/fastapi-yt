@@ -21,7 +21,7 @@ class CleanupUseCase:
         total_files_deleted = 0
         total_files_failed = 0
 
-        logger.info('Starting cleanup')
+        logger.info('Start files cleanup')
         while True:
             cleanups = await self._file_cleanup_service.get_many_for_cleanup(limit=500)
             if not cleanups:

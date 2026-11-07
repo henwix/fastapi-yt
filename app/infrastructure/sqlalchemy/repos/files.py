@@ -24,6 +24,19 @@ class FileRepo(SQLAlchemyRepo, IFileRepo):
         file = result.scalar_one_or_none()
         return file.to_entity() if file is not None else None
 
+    async def get_many_by_ids(self, ids: list[UUID]) -> list[File]:
+        stmt = select(FileORM).where(FileORM.id.in_(ids))
+        async with self._db.get_session(commit=False) as session:
+            result = await session.execute(statement=stmt)
+        files = result.scalars()
+        return [file.to_entity() for file in files]
+
+    async def delete_many_by_ids(self, ids: list[UUID]) -> int:
+        stmt = delete(FileORM).where(FileORM.id.in_(ids))
+        async with self._db.get_session(commit=True) as session:
+            result = await session.execute(statement=stmt)
+        return cast(CursorResult, result).rowcount
+
     async def delete_by_id(self, id: UUID) -> bool:
         stmt = delete(FileORM).where(FileORM.id == id)
         async with self._db.get_session(commit=True) as session:

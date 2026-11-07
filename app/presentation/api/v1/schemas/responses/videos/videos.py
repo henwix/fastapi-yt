@@ -87,7 +87,7 @@ class PersonalPreviewVideoOutSchema(BaseSchema):
             id=dto.id,
             title=dto.title,
             privacy_status=dto.privacy_status,
-            upload_status=dto.video_upload_status,
+            upload_status=dto.upload_status,
             views_count=dto.views_count,
             created_at=dto.created_at,
             thumbnail_url=dto.thumbnail_url,

@@ -106,7 +106,7 @@ class ChannelRepo(SQLAlchemyRepo, IChannelRepo):
             result = await session.execute(statement=stmt)
         return cast(CursorResult, result).rowcount > 0
 
-    async def delete_by_id(self, id: UUID) -> bool:
+    async def soft_delete_by_id(self, id: UUID) -> bool:
         stmt = (
             update(ChannelORM)
             .values(

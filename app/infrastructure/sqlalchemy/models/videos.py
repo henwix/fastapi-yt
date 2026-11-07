@@ -1,3 +1,4 @@
+from datetime import datetime
 from uuid import UUID
 
 import sqlalchemy as sa
@@ -29,21 +30,22 @@ class VideoORM(CreatedAtDatetimeMixin, BaseORM):
         default=generate_video_id,
         unique=True,
     )
-    channel_id: Mapped[UUID] = mapped_column(
-        sa.ForeignKey('channels.id', ondelete='CASCADE'),
-        index=True,
-    )
+    channel_id: Mapped[UUID] = mapped_column(sa.ForeignKey('channels.id', ondelete='CASCADE'), index=True)
     title: Mapped[str] = mapped_column(sa.String(length=100))
     description: Mapped[str] = mapped_column(sa.Text)
     privacy_status: Mapped[str] = mapped_column(sa.String(length=10))
     is_reported: Mapped[bool] = mapped_column(default=False, server_default=sa.sql.false())
-    views_count: Mapped[int] = mapped_column(
-        default=0,
-        server_default='0',
+    views_count: Mapped[int] = mapped_column(default=0, server_default='0')
+    deletion_status: Mapped[str] = mapped_column(
+        sa.String(length=10), default='active', server_default=sa.sql.text("'active'")
     )
-
-    video_upload_id: Mapped[str | None] = mapped_column(default=None, server_default=sa.sql.null(), unique=True)
-    video_upload_status: Mapped[str] = mapped_column(sa.String(length=10))
+    locked_until: Mapped[datetime | None] = mapped_column(
+        sa.DateTime(timezone=True), default=None, server_default=sa.sql.null()
+    )
+    upload_id: Mapped[str | None] = mapped_column(default=None, server_default=sa.sql.null(), unique=True)
+    upload_status: Mapped[str] = mapped_column(
+        sa.String(length=10), default='pending', server_default=sa.sql.text("'pending'")
+    )
     video_file_id: Mapped[UUID | None] = mapped_column(sa.ForeignKey('files.id', ondelete='SET NULL'), unique=True)
     thumbnail_file_id: Mapped[UUID | None] = mapped_column(sa.ForeignKey('files.id', ondelete='SET NULL'), unique=True)
 
@@ -52,10 +54,9 @@ class VideoORM(CreatedAtDatetimeMixin, BaseORM):
         sa.Index('ix_videos_composite_channel_id_views_count_id', 'channel_id', 'views_count', 'id'),
         sa.CheckConstraint("id ~ '^[A-Za-z0-9_-]{11}$'", name='ck_videos_id_pattern'),
         sa.CheckConstraint("privacy_status IN ('public', 'unlisted', 'private')", name='ck_videos_privacy_status'),
-        sa.CheckConstraint(
-            "video_upload_status IN ('pending', 'uploading', 'completed')", name='ck_videos_video_upload_status'
-        ),
+        sa.CheckConstraint("upload_status IN ('pending', 'uploading', 'completed')", name='ck_videos_upload_status'),
         sa.CheckConstraint('char_length(description) <= 5000', name='ck_videos_description_max_length'),
+        sa.CheckConstraint("deletion_status IN ('active', 'deleted')", name='ck_videos_deletion_status'),
     )
 
     @staticmethod
@@ -69,8 +70,8 @@ class VideoORM(CreatedAtDatetimeMixin, BaseORM):
             is_reported=entity.is_reported,
             views_count=entity.views_count,
             created_at=entity.created_at,
-            video_upload_id=entity.video_upload_id,
-            video_upload_status=entity.video_upload_status.value,
+            upload_id=entity.upload_id,
+            upload_status=entity.upload_status.value,
             video_file_id=entity.video_file_id,
             thumbnail_file_id=entity.thumbnail_file_id,
         )
@@ -85,8 +86,8 @@ class VideoORM(CreatedAtDatetimeMixin, BaseORM):
             is_reported=self.is_reported,
             views_count=self.views_count,
             created_at=self.created_at,
-            video_upload_id=self.video_upload_id,
-            video_upload_status=VideoUploadStatusEnum(self.video_upload_status),
+            upload_id=self.upload_id,
+            upload_status=VideoUploadStatusEnum(self.upload_status),
             video_file_id=self.video_file_id,
             thumbnail_file_id=self.thumbnail_file_id,
         )

@@ -31,8 +31,8 @@ async def test_generate_video_download_url_returns_correct_url_if_video_public_a
             session=session,
             channel_id=channel.id,
             privacy_status=VideoPrivacyStatusEnum.PUBLIC.value,
-            video_upload_status=VideoUploadStatusEnum.COMPLETED.value,
-            video_upload_id=None,
+            upload_status=VideoUploadStatusEnum.COMPLETED.value,
+            upload_id=None,
             video_file_id=video_file.id,
         )
         command = GenerateVideoDownloadUrlCommandFactory.build(current_channel_id=None, video_id=video.id)
@@ -57,8 +57,8 @@ async def test_generate_video_download_url_returns_correct_url_if_video_unlisted
             session=session,
             channel_id=channel.id,
             privacy_status=VideoPrivacyStatusEnum.UNLISTED.value,
-            video_upload_status=VideoUploadStatusEnum.COMPLETED.value,
-            video_upload_id=None,
+            upload_status=VideoUploadStatusEnum.COMPLETED.value,
+            upload_id=None,
             video_file_id=video_file.id,
         )
         command = GenerateVideoDownloadUrlCommandFactory.build(current_channel_id=None, video_id=video.id)
@@ -83,8 +83,8 @@ async def test_generate_video_download_url_returns_correct_url_if_video_private_
             session=session,
             channel_id=channel.id,
             privacy_status=VideoPrivacyStatusEnum.PRIVATE.value,
-            video_upload_status=VideoUploadStatusEnum.COMPLETED.value,
-            video_upload_id=None,
+            upload_status=VideoUploadStatusEnum.COMPLETED.value,
+            upload_id=None,
             video_file_id=video_file.id,
         )
         command = GenerateVideoDownloadUrlCommandFactory.build(current_channel_id=channel.id, video_id=video.id)
@@ -109,8 +109,8 @@ async def test_generate_video_download_url_raises_error_if_video_private_and_cha
             session=session,
             channel_id=channel.id,
             privacy_status=VideoPrivacyStatusEnum.PRIVATE.value,
-            video_upload_status=VideoUploadStatusEnum.COMPLETED.value,
-            video_upload_id=None,
+            upload_status=VideoUploadStatusEnum.COMPLETED.value,
+            upload_id=None,
             video_file_id=video_file.id,
         )
         command = GenerateVideoDownloadUrlCommandFactory.build(current_channel_id=None, video_id=video.id)
@@ -134,8 +134,8 @@ async def test_generate_video_download_url_raises_error_if_video_private_and_cha
             session=session,
             channel_id=author_channel.id,
             privacy_status=VideoPrivacyStatusEnum.PRIVATE.value,
-            video_upload_status=VideoUploadStatusEnum.COMPLETED.value,
-            video_upload_id=None,
+            upload_status=VideoUploadStatusEnum.COMPLETED.value,
+            upload_id=None,
             video_file_id=video_file.id,
         )
         command = GenerateVideoDownloadUrlCommandFactory.build(current_channel_id=second_channel.id, video_id=video.id)
@@ -158,8 +158,8 @@ async def test_generate_video_download_url_raises_error_if_video_private_and_cha
             session=session,
             channel_id=channel.id,
             privacy_status=VideoPrivacyStatusEnum.PRIVATE.value,
-            video_upload_status=VideoUploadStatusEnum.COMPLETED.value,
-            video_upload_id=None,
+            upload_status=VideoUploadStatusEnum.COMPLETED.value,
+            upload_id=None,
             video_file_id=video_file.id,
         )
         command = GenerateVideoDownloadUrlCommandFactory.build(current_channel_id=channel.id, video_id=video.id)
@@ -182,8 +182,8 @@ async def test_generate_video_download_url_raises_error_if_video_private_and_cha
             session=session,
             channel_id=channel.id,
             privacy_status=VideoPrivacyStatusEnum.PRIVATE.value,
-            video_upload_status=VideoUploadStatusEnum.COMPLETED.value,
-            video_upload_id=None,
+            upload_status=VideoUploadStatusEnum.COMPLETED.value,
+            upload_id=None,
             video_file_id=video_file.id,
         )
         command = GenerateVideoDownloadUrlCommandFactory.build(current_channel_id=uuid7(), video_id=video.id)
@@ -205,8 +205,8 @@ async def test_generate_video_download_url_raises_error_if_video_file_not_found(
             session=session,
             channel_id=channel.id,
             privacy_status=VideoPrivacyStatusEnum.PUBLIC.value,
-            video_upload_status=VideoUploadStatusEnum.COMPLETED.value,
-            video_upload_id=None,
+            upload_status=VideoUploadStatusEnum.COMPLETED.value,
+            upload_id=None,
         )
         command = GenerateVideoDownloadUrlCommandFactory.build(current_channel_id=None, video_id=video.id)
 
@@ -230,8 +230,8 @@ async def test_generate_video_download_url_raises_error_if_video_file_not_found_
             session=session,
             channel_id=channel.id,
             privacy_status=VideoPrivacyStatusEnum.PUBLIC.value,
-            video_upload_status=VideoUploadStatusEnum.COMPLETED.value,
-            video_upload_id=None,
+            upload_status=VideoUploadStatusEnum.COMPLETED.value,
+            upload_id=None,
             video_file_id=video_file.id,
         )
         command = GenerateVideoDownloadUrlCommandFactory.build(current_channel_id=None, video_id=video.id)
@@ -276,8 +276,8 @@ async def test_generate_video_download_url_raises_error_if_video_not_uploaded(
             session=session,
             channel_id=channel.id,
             privacy_status=VideoPrivacyStatusEnum.PRIVATE.value,
-            video_upload_status=VideoUploadStatusEnum.UPLOADING.value,
-            video_upload_id=None,
+            upload_status=VideoUploadStatusEnum.UPLOADING.value,
+            upload_id=None,
             video_file_id=video_file.id,
         )
         command = GenerateVideoDownloadUrlCommandFactory.build(current_channel_id=uuid7(), video_id=video.id)
@@ -299,8 +299,8 @@ async def test_generate_video_download_url_raises_error_if_video_channel_author_
         video = await VideoORMFactory.create(
             session=session,
             channel_id=channel.id,
-            video_upload_status=VideoUploadStatusEnum.COMPLETED.value,
-            video_upload_id=None,
+            upload_status=VideoUploadStatusEnum.COMPLETED.value,
+            upload_id=None,
             video_file_id=video_file.id,
         )
         command = GenerateVideoDownloadUrlCommandFactory.build(current_channel_id=uuid7(), video_id=video.id)
@@ -325,8 +325,8 @@ async def test_generate_video_download_url_raises_error_if_video_channel_author_
         video = await VideoORMFactory.create(
             session=session,
             channel_id=channel.id,
-            video_upload_status=VideoUploadStatusEnum.COMPLETED.value,
-            video_upload_id=None,
+            upload_status=VideoUploadStatusEnum.COMPLETED.value,
+            upload_id=None,
             video_file_id=video_file.id,
         )
         command = GenerateVideoDownloadUrlCommandFactory.build(current_channel_id=uuid7(), video_id=video.id)

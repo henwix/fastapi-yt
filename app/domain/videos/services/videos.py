@@ -22,13 +22,13 @@ class IVideoService(ABC):
     async def try_update(self, video: Video) -> Video: ...
 
     @abstractmethod
-    async def update_upload_created(self, id: str, video_upload_id: str, video_file_id: UUID) -> bool: ...
+    async def update_upload_created(self, id: str, upload_id: str, video_file_id: UUID) -> bool: ...
 
     @abstractmethod
-    async def update_upload_canceled(self, id: str, video_upload_id: str, video_file_id: UUID) -> bool: ...
+    async def update_upload_canceled(self, id: str, upload_id: str, video_file_id: UUID) -> bool: ...
 
     @abstractmethod
-    async def update_upload_completed(self, id: str, video_upload_id: str, video_file_id: UUID) -> bool: ...
+    async def update_upload_completed(self, id: str, upload_id: str, video_file_id: UUID) -> bool: ...
 
     @abstractmethod
     async def update_thumbnail_file_id(
@@ -48,7 +48,13 @@ class IVideoService(ABC):
     async def try_get_completed_by_id(self, id: str) -> Video: ...
 
     @abstractmethod
+    async def get_many_for_cleanup(self, limit: int, video_exp_days: int) -> list[Video]: ...
+
+    @abstractmethod
     async def try_delete_by_id(self, id: str) -> None: ...
+
+    @abstractmethod
+    async def delete_many_by_ids(self, ids: list[str]) -> int: ...
 
     @abstractmethod
     def ensure_video_access(self, video: Video, channel: Channel) -> None: ...
@@ -73,20 +79,14 @@ class VideoService(IVideoService):
             raise VideoNotFoundError(video_id=video.id)
         return updated_video
 
-    async def update_upload_created(self, id: str, video_upload_id: str, video_file_id: UUID) -> bool:
-        return await self._repo.update_upload_created(
-            id=id, video_upload_id=video_upload_id, video_file_id=video_file_id
-        )
+    async def update_upload_created(self, id: str, upload_id: str, video_file_id: UUID) -> bool:
+        return await self._repo.update_upload_created(id=id, upload_id=upload_id, video_file_id=video_file_id)
 
-    async def update_upload_canceled(self, id: str, video_upload_id: str, video_file_id: UUID) -> bool:
-        return await self._repo.update_upload_canceled(
-            id=id, video_upload_id=video_upload_id, video_file_id=video_file_id
-        )
+    async def update_upload_canceled(self, id: str, upload_id: str, video_file_id: UUID) -> bool:
+        return await self._repo.update_upload_canceled(id=id, upload_id=upload_id, video_file_id=video_file_id)
 
-    async def update_upload_completed(self, id: str, video_upload_id: str, video_file_id: UUID) -> bool:
-        return await self._repo.update_upload_completed(
-            id=id, video_upload_id=video_upload_id, video_file_id=video_file_id
-        )
+    async def update_upload_completed(self, id: str, upload_id: str, video_file_id: UUID) -> bool:
+        return await self._repo.update_upload_completed(id=id, upload_id=upload_id, video_file_id=video_file_id)
 
     async def update_thumbnail_file_id(
         self,
@@ -122,18 +122,24 @@ class VideoService(IVideoService):
         if not is_deleted:
             raise VideoNotFoundError(video_id=id)
 
+    async def get_many_for_cleanup(self, limit: int, video_exp_days: int) -> list[Video]:
+        return await self._repo.get_many_for_cleanup(limit=limit, video_exp_days=video_exp_days)
+
+    async def delete_many_by_ids(self, ids: list[str]) -> int:
+        return await self._repo.delete_many_by_ids(ids=ids)
+
     def ensure_video_access(self, video: Video, channel: Channel) -> None:
         if video.channel_id != channel.id:
             raise VideoAccessForbiddenError(video_id=video.id, channel_id=channel.id)
 
     def ensure_video_upload_not_completed(self, video: Video) -> None:
-        if video.video_upload_status is VideoUploadStatusEnum.COMPLETED:
+        if video.upload_status is VideoUploadStatusEnum.COMPLETED:
             raise VideoUploadAlreadyCompletedError(video_id=video.id)
 
     def ensure_video_upload_created(self, video: Video) -> None:
         if (
-            video.video_upload_status is VideoUploadStatusEnum.PENDING
-            or video.video_upload_id is None
+            video.upload_status is VideoUploadStatusEnum.PENDING
+            or video.upload_id is None
             or video.video_file_id is None
         ):
             raise VideoUploadNotCreatedError(video_id=video.id)

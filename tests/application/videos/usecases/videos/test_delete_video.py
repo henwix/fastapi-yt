@@ -18,7 +18,7 @@ from tests.factories.models.videos import VideoORMFactory
 
 @pytest.mark.asyncio
 @pytest.mark.parametrize(
-    ('privacy_status', 'video_upload_status'),
+    ('privacy_status', 'upload_status'),
     [
         (VideoPrivacyStatusEnum.PUBLIC, VideoUploadStatusEnum.COMPLETED),
         (VideoPrivacyStatusEnum.PUBLIC, VideoUploadStatusEnum.PENDING),
@@ -34,7 +34,7 @@ from tests.factories.models.videos import VideoORMFactory
 async def test_delete_video_returns_none_if_deleted_without_s3_objects(
     container: AsyncContainer,
     privacy_status: VideoPrivacyStatusEnum,
-    video_upload_status: VideoUploadStatusEnum,
+    upload_status: VideoUploadStatusEnum,
 ):
     async with container() as di:
         use_case = await di.get(DeleteVideoUseCase)
@@ -44,7 +44,7 @@ async def test_delete_video_returns_none_if_deleted_without_s3_objects(
             session=session,
             channel_id=video_author.id,
             privacy_status=privacy_status,
-            video_upload_status=video_upload_status,
+            upload_status=upload_status,
         )
 
         command = DeleteVideoCommandFactory.build(current_channel_id=video_author.id, video_id=video.id)

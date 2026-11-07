@@ -52,8 +52,8 @@ async def test_create_video_multipart_upload_returns_none_if_created(
         video = await VideoORMFactory.create(
             session=session,
             channel_id=channel.id,
-            video_upload_status=VideoUploadStatusEnum.PENDING,
-            video_upload_id=None,
+            upload_status=VideoUploadStatusEnum.PENDING,
+            upload_id=None,
         )
         command = CreateVideoMultipartUploadCommandFactory.build(
             current_channel_id=channel.id,
@@ -72,8 +72,8 @@ async def test_create_video_multipart_upload_returns_none_if_created(
         video_file = (await session.execute(statement=video_file_stmt)).scalar_one()
 
         assert result is None
-        assert video.video_upload_id == expected_upload_id
-        assert video.video_upload_status == VideoUploadStatusEnum.UPLOADING.value
+        assert video.upload_id == expected_upload_id
+        assert video.upload_status == VideoUploadStatusEnum.UPLOADING.value
         assert isinstance(video.video_file_id, UUID)
         assert video_file.key.startswith(settings.s3_videos_key_prefix)
         assert video_file.key.endswith(command.filename)
@@ -92,8 +92,8 @@ async def test_create_video_multipart_upload_raises_error_if_upload_already_comp
         video = await VideoORMFactory.create(
             session=session,
             channel_id=channel.id,
-            video_upload_status=VideoUploadStatusEnum.COMPLETED,
-            video_upload_id=None,
+            upload_status=VideoUploadStatusEnum.COMPLETED,
+            upload_id=None,
         )
         command = CreateVideoMultipartUploadCommandFactory.build(
             current_channel_id=channel.id,
@@ -134,7 +134,7 @@ async def test_create_video_multipart_upload_raises_error_if_video_access_forbid
         video = await VideoORMFactory.create(
             session=session,
             channel_id=channel.id,
-            video_upload_status=VideoUploadStatusEnum.PENDING,
+            upload_status=VideoUploadStatusEnum.PENDING,
         )
         command = CreateVideoMultipartUploadCommandFactory.build(
             current_channel_id=second_channel.id,
@@ -157,7 +157,7 @@ async def test_create_video_multipart_upload_raises_error_if_upload_already_crea
         video = await VideoORMFactory.create(
             session=session,
             channel_id=channel.id,
-            video_upload_status=VideoUploadStatusEnum.UPLOADING,
+            upload_status=VideoUploadStatusEnum.UPLOADING,
         )
         command = CreateVideoMultipartUploadCommandFactory.build(
             current_channel_id=channel.id,
@@ -254,8 +254,8 @@ async def test_create_video_multipart_upload_raises_error_if_video_not_updated(m
         video = await VideoORMFactory.create(
             session=session,
             channel_id=channel.id,
-            video_upload_status=VideoUploadStatusEnum.PENDING,
-            video_upload_id=None,
+            upload_status=VideoUploadStatusEnum.PENDING,
+            upload_id=None,
         )
         command = CreateVideoMultipartUploadCommandFactory.build(
             current_channel_id=channel.id,

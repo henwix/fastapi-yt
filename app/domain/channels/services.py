@@ -62,7 +62,7 @@ class IChannelService(ABC):
     async def try_restore(self, id: UUID) -> None: ...
 
     @abstractmethod
-    async def try_delete_by_id(self, id: UUID) -> None: ...
+    async def try_soft_delete_by_id(self, id: UUID) -> None: ...
 
     @abstractmethod
     async def try_update_password(self, id: UUID, password_hash: str) -> None: ...
@@ -141,8 +141,8 @@ class ChannelService(IChannelService):
         if not is_restored:
             raise ChannelFailedToRestoreError(channel_id=id)
 
-    async def try_delete_by_id(self, id: UUID) -> None:
-        is_deleted = await self._repo.delete_by_id(id=id)
+    async def try_soft_delete_by_id(self, id: UUID) -> None:
+        is_deleted = await self._repo.soft_delete_by_id(id=id)
         if not is_deleted:
             raise ChannelFailedToDeleteError(channel_id=id)
 

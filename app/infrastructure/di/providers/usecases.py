@@ -79,13 +79,13 @@ from app.application.videos.usecases import (
     ClearVideoHistoryUseCase,
     CompleteVideoMultipartUploadUseCase,
     ConfirmVideoThumbnailUploadUseCase,
+    CreateVideoCleanupsUseCase,
     CreateVideoCommentReactionUseCase,
     CreateVideoCommentUseCase,
     CreateVideoMultipartUploadUseCase,
     CreateVideoReactionUseCase,
     CreateVideoUseCase,
     CreateVideoViewUseCase,
-    DeleteNotCompletedVideosUseCase,
     DeleteVideoCommentReactionUseCase,
     DeleteVideoCommentUseCase,
     DeleteVideoFromHistoryUseCase,
@@ -159,7 +159,7 @@ class UseCasesProvider(Provider):
     complete_video_multipart_upload = provide(CompleteVideoMultipartUploadUseCase)
     generate_video_download_url = provide(GenerateVideoDownloadUrlUseCase)
 
-    delete_not_completed_videos = provide(DeleteNotCompletedVideosUseCase)
+    create_video_cleanups = provide(CreateVideoCleanupsUseCase)
 
     # Video views
     create_video_view = provide(CreateVideoViewUseCase)

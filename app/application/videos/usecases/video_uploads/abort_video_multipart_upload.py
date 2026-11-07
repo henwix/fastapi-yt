@@ -32,7 +32,7 @@ class AbortVideoMultipartUploadUseCase:
 
             is_video_updated = await self._video_service.update_upload_canceled(
                 id=video.id,
-                video_upload_id=video.video_upload_id,
+                upload_id=video.upload_id,
                 video_file_id=video_file.id,
             )
             if not is_video_updated:
@@ -55,5 +55,5 @@ class AbortVideoMultipartUploadUseCase:
         await self._s3_service.schedule_abort_multipart_upload(
             bucket=video_file.bucket,
             key=video_file.key,
-            upload_id=video.video_upload_id,
+            upload_id=video.upload_id,
         )

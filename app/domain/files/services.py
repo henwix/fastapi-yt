@@ -14,6 +14,12 @@ class IFileService(ABC):
     async def get_by_id(self, id: UUID) -> File | None: ...
 
     @abstractmethod
+    async def get_many_by_ids(self, ids: list[UUID]) -> list[File]: ...
+
+    @abstractmethod
+    async def delete_many_by_ids(self, ids: list[UUID]) -> int: ...
+
+    @abstractmethod
     async def delete_by_id(self, id: UUID) -> bool: ...
 
 
@@ -26,6 +32,12 @@ class FileService(IFileService):
 
     async def get_by_id(self, id: UUID) -> File | None:
         return await self._repo.get_by_id(id=id)
+
+    async def get_many_by_ids(self, ids: list[UUID]) -> list[File]:
+        return await self._repo.get_many_by_ids(ids=ids)
+
+    async def delete_many_by_ids(self, ids: list[UUID]) -> int:
+        return await self._repo.delete_many_by_ids(ids=ids)
 
     async def delete_by_id(self, id: UUID) -> bool:
         return await self._repo.delete_by_id(id=id)

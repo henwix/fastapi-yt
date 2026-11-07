@@ -38,7 +38,7 @@ class CreateVideoMultipartUploadUseCase:
         self._video_service.ensure_video_access(video=video, channel=channel)
         self._video_service.ensure_video_upload_not_completed(video=video)
 
-        if video.video_upload_status is VideoUploadStatusEnum.UPLOADING:
+        if video.upload_status is VideoUploadStatusEnum.UPLOADING:
             raise VideoUploadAlreadyCreatedError(video_id=video.id)
 
         key = self._s3_service.generate_unique_bucket_key(
@@ -59,7 +59,7 @@ class CreateVideoMultipartUploadUseCase:
             video_file = await self._file_service.create(file=File.create(key=key, bucket=bucket_name))
             is_video_updated = await self._video_service.update_upload_created(
                 id=video.id,
-                video_upload_id=upload_id,
+                upload_id=upload_id,
                 video_file_id=video_file.id,
             )
             if not is_video_updated:

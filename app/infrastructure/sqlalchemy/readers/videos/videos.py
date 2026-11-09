@@ -14,7 +14,7 @@ from app.application.videos.queries import (
 )
 from app.domain.channels.enums import ChannelDeletionStatusEnum
 from app.domain.common.constants import Empty
-from app.domain.videos.enums import VideoPrivacyStatusEnum, VideoUploadStatusEnum
+from app.domain.videos.enums import VideoDeletionStatusEnum, VideoPrivacyStatusEnum, VideoUploadStatusEnum
 from app.domain.videos.exceptions import VideoNotFoundError
 from app.infrastructure.sqlalchemy.converters import (
     convert_row_to_channel_preview_video_dto,
@@ -46,6 +46,7 @@ class VideoReader(SQLAlchemyReader, IVideoReader):
             .where(
                 VideoORM.id == id,
                 VideoORM.upload_status == VideoUploadStatusEnum.COMPLETED.value,
+                VideoORM.deletion_status == VideoDeletionStatusEnum.ACTIVE.value,
                 ChannelORM.deletion_status == ChannelDeletionStatusEnum.ACTIVE.value,
             )
         )
@@ -79,6 +80,7 @@ class VideoReader(SQLAlchemyReader, IVideoReader):
                 VideoORM.channel_id == channel_id,
                 VideoORM.upload_status == VideoUploadStatusEnum.COMPLETED.value,
                 VideoORM.privacy_status == VideoPrivacyStatusEnum.PUBLIC.value,
+                VideoORM.deletion_status == VideoDeletionStatusEnum.ACTIVE.value,
             )
         )
 
@@ -127,7 +129,10 @@ class VideoReader(SQLAlchemyReader, IVideoReader):
                 FileORM.key.label('thumbnail_key'),
             )
             .outerjoin(FileORM, VideoORM.thumbnail_file_id == FileORM.id)
-            .where(VideoORM.channel_id == channel_id)
+            .where(
+                VideoORM.channel_id == channel_id,
+                VideoORM.deletion_status == VideoDeletionStatusEnum.ACTIVE.value,
+            )
         )
 
         match sorting.sort_by:

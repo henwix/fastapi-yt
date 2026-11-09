@@ -39,7 +39,7 @@ class IVideoService(ABC):
     ) -> bool: ...
 
     @abstractmethod
-    async def try_increase_views_count(self, video_id: str) -> None: ...
+    async def try_increase_views_count(self, id: str) -> None: ...
 
     @abstractmethod
     async def try_get_by_id(self, id: str) -> Video: ...
@@ -51,7 +51,7 @@ class IVideoService(ABC):
     async def get_many_for_cleanup(self, limit: int, video_exp_days: int) -> list[Video]: ...
 
     @abstractmethod
-    async def try_delete_by_id(self, id: str) -> None: ...
+    async def try_soft_delete_by_id(self, id: str) -> None: ...
 
     @abstractmethod
     async def delete_many_by_ids(self, ids: list[str]) -> int: ...
@@ -100,10 +100,10 @@ class VideoService(IVideoService):
             prev_thumbnail_file_id=prev_thumbnail_file_id,
         )
 
-    async def try_increase_views_count(self, video_id: str) -> None:
-        is_views_count_increased = await self._repo.increase_views_count(video_id=video_id)
+    async def try_increase_views_count(self, id: str) -> None:
+        is_views_count_increased = await self._repo.increase_views_count(id=id)
         if not is_views_count_increased:
-            raise VideoNotFoundError(video_id=video_id)
+            raise VideoNotFoundError(video_id=id)
 
     async def try_get_by_id(self, id: str) -> Video:
         video = await self._repo.get_by_id(id=id)
@@ -117,8 +117,8 @@ class VideoService(IVideoService):
             raise VideoNotFoundError(video_id=id)
         return video
 
-    async def try_delete_by_id(self, id: str) -> None:
-        is_deleted = await self._repo.delete_by_id(id=id)
+    async def try_soft_delete_by_id(self, id: str) -> None:
+        is_deleted = await self._repo.soft_delete_by_id(id=id)
         if not is_deleted:
             raise VideoNotFoundError(video_id=id)
 

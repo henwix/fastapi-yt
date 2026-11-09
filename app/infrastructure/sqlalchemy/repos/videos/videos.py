@@ -44,11 +44,14 @@ class VideoRepo(SQLAlchemyRepo, IVideoRepo):
     async def update(self, video: Video) -> Video | None:
         stmt = (
             update(VideoORM)
-            .where(VideoORM.id == video.id)
             .values(
                 title=video.title,
                 description=video.description,
                 privacy_status=video.privacy_status,
+            )
+            .where(
+                VideoORM.id == video.id,
+                VideoORM.deletion_status == VideoDeletionStatusEnum.ACTIVE.value,
             )
             .returning(VideoORM)
         )
@@ -67,9 +70,10 @@ class VideoRepo(SQLAlchemyRepo, IVideoRepo):
             )
             .where(
                 VideoORM.id == id,
-                VideoORM.upload_status == VideoUploadStatusEnum.PENDING.value,
                 VideoORM.upload_id.is_(None),
                 VideoORM.video_file_id.is_(None),
+                VideoORM.upload_status == VideoUploadStatusEnum.PENDING.value,
+                VideoORM.deletion_status == VideoDeletionStatusEnum.ACTIVE.value,
             )
         )
         async with self._db.get_session(commit=True) as session:
@@ -89,6 +93,7 @@ class VideoRepo(SQLAlchemyRepo, IVideoRepo):
                 VideoORM.upload_id == upload_id,
                 VideoORM.video_file_id == video_file_id,
                 VideoORM.upload_status == VideoUploadStatusEnum.UPLOADING.value,
+                VideoORM.deletion_status == VideoDeletionStatusEnum.ACTIVE.value,
             )
         )
         async with self._db.get_session(commit=True) as session:
@@ -107,6 +112,7 @@ class VideoRepo(SQLAlchemyRepo, IVideoRepo):
                 VideoORM.upload_id == upload_id,
                 VideoORM.video_file_id == video_file_id,
                 VideoORM.upload_status == VideoUploadStatusEnum.UPLOADING.value,
+                VideoORM.deletion_status == VideoDeletionStatusEnum.ACTIVE.value,
             )
         )
         async with self._db.get_session(commit=True) as session:
@@ -127,26 +133,38 @@ class VideoRepo(SQLAlchemyRepo, IVideoRepo):
             .where(
                 VideoORM.id == id,
                 VideoORM.thumbnail_file_id == prev_thumbnail_file_id,
+                VideoORM.deletion_status == VideoDeletionStatusEnum.ACTIVE.value,
             )
         )
         async with self._db.get_session(commit=True) as session:
             result = await session.execute(statement=stmt)
         return cast(CursorResult, result).rowcount > 0
 
-    async def increase_views_count(self, video_id: str) -> bool:
-        stmt = update(VideoORM).where(VideoORM.id == video_id).values(views_count=VideoORM.views_count + 1)
+    async def increase_views_count(self, id: str) -> bool:
+        stmt = (
+            update(VideoORM)
+            .values(views_count=VideoORM.views_count + 1)
+            .where(
+                VideoORM.id == id,
+                VideoORM.deletion_status == VideoDeletionStatusEnum.ACTIVE.value,
+            )
+        )
         async with self._db.get_session(commit=True) as session:
             result = await session.execute(statement=stmt)
         return cast(CursorResult, result).rowcount > 0
 
     async def get_by_id(self, id: str) -> Video | None:
-        stmt = select(VideoORM).where(VideoORM.id == id)
+        stmt = select(VideoORM).where(
+            VideoORM.id == id,
+            VideoORM.deletion_status == VideoDeletionStatusEnum.ACTIVE.value,
+        )
         return await self._get_one_by_query(query=stmt)
 
     async def get_completed_by_id(self, id: str) -> Video | None:
         stmt = select(VideoORM).where(
             VideoORM.id == id,
             VideoORM.upload_status == VideoUploadStatusEnum.COMPLETED.value,
+            VideoORM.deletion_status == VideoDeletionStatusEnum.ACTIVE.value,
             exists().where(
                 ChannelORM.id == VideoORM.channel_id,
                 ChannelORM.deletion_status == ChannelDeletionStatusEnum.ACTIVE.value,
@@ -188,8 +206,18 @@ class VideoRepo(SQLAlchemyRepo, IVideoRepo):
         rows = result.scalars()
         return [video.to_entity() for video in rows]
 
-    async def delete_by_id(self, id: str) -> bool:
-        stmt = delete(VideoORM).where(VideoORM.id == id)
+    async def soft_delete_by_id(self, id: str) -> bool:
+        stmt = (
+            update(VideoORM)
+            .values(
+                deletion_status=VideoDeletionStatusEnum.DELETED.value,
+                locked_until=get_current_utc_datetime() + timedelta(minutes=5),
+            )
+            .where(
+                VideoORM.id == id,
+                VideoORM.deletion_status == VideoDeletionStatusEnum.ACTIVE.value,
+            )
+        )
         async with self._db.get_session(commit=True) as session:
             result = await session.execute(statement=stmt)
         return cast(CursorResult, result).rowcount > 0

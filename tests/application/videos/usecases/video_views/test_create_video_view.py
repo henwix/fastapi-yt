@@ -293,8 +293,6 @@ async def test_create_video_view_does_not_create_view_if_increase_views_count_fa
         use_case = await di.get(CreateVideoViewUseCase)
         session = await di.get(AsyncSession)
 
-        use_case._video_service.TRY_INCREASE_VIEWS_COUNT_RAISE_ERROR = True  # pyright: ignore[reportAttributeAccessIssue]
-
         channel = await ChannelORMFactory.create(session=session)
         channel_video_author = await ChannelORMFactory.create(session=session)
         video = await VideoORMFactory.create(
@@ -306,7 +304,11 @@ async def test_create_video_view_does_not_create_view_if_increase_views_count_fa
 
         command = CreateVideoViewCommandFactory.build(current_channel_id=channel.id, video_id=video.id)
 
-        with pytest.raises(VideoNotFoundError):
+        with (  # noqa: PT012
+            pytest.raises(VideoNotFoundError),
+            patch.object(use_case._video_service._repo, 'increase_views_count') as video_repo_mock,
+        ):
+            video_repo_mock.return_value = False
             await use_case.execute(command=command)
 
         stmt = select(

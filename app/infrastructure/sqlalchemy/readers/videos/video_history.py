@@ -8,6 +8,7 @@ from app.application.common.sorting import SortingOrderEnum
 from app.application.videos.dto import PreviewVideoHistory
 from app.application.videos.interfaces import IVideoHistoryReader
 from app.application.videos.queries import VideoHistorySorting, VideoHistorySortingFieldsEnum
+from app.domain.videos.enums import VideoDeletionStatusEnum
 from app.infrastructure.sqlalchemy.converters import convert_row_to_preview_video_history_dto
 from app.infrastructure.sqlalchemy.models import ChannelORM, VideoHistoryItemORM, VideoORM
 from app.infrastructure.sqlalchemy.readers.base import SQLAlchemyReader
@@ -35,7 +36,10 @@ class VideoHistoryReader(SQLAlchemyReader, IVideoHistoryReader):
             )
             .join(VideoORM, VideoHistoryItemORM.video_id == VideoORM.id)
             .join(ChannelORM, VideoORM.channel_id == ChannelORM.id)
-            .where(VideoHistoryItemORM.channel_id == channel_id)
+            .where(
+                VideoHistoryItemORM.channel_id == channel_id,
+                VideoORM.deletion_status == VideoDeletionStatusEnum.ACTIVE.value,
+            )
         )
 
         match sorting.sort_by:

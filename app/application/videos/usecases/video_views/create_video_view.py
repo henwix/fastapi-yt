@@ -36,4 +36,4 @@ class CreateVideoViewUseCase:
             )
 
             await self._video_view_service.try_upsert(video_view=video_view_entity)
-            await self._video_service.try_increase_views_count(video_id=video.id)
+            await self._video_service.try_increase_views_count(id=video.id)

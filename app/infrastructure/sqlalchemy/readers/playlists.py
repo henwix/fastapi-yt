@@ -16,7 +16,7 @@ from app.application.playlists.queries import (
 from app.domain.channels.enums import ChannelDeletionStatusEnum
 from app.domain.playlists.enums import PlaylistPrivacyStatusEnum
 from app.domain.playlists.exceptions import PlaylistNotFoundError
-from app.domain.videos.enums import VideoPrivacyStatusEnum
+from app.domain.videos.enums import VideoDeletionStatusEnum, VideoPrivacyStatusEnum
 from app.infrastructure.sqlalchemy.converters import (
     convert_row_to_detailed_playlist_dto,
     convert_row_to_playlist_preview_video_dto,
@@ -50,6 +50,7 @@ class PlaylistReader(SQLAlchemyReader, IPlaylistReader):
                         VideoPrivacyStatusEnum.UNLISTED.value,
                     ]
                 ),
+                VideoORM.deletion_status == VideoDeletionStatusEnum.ACTIVE.value,
             )
             .group_by(PlaylistItemORM.playlist_id)
             .subquery()
@@ -100,6 +101,7 @@ class PlaylistReader(SQLAlchemyReader, IPlaylistReader):
                         VideoPrivacyStatusEnum.UNLISTED.value,
                     ]
                 ),
+                VideoORM.deletion_status == VideoDeletionStatusEnum.ACTIVE.value,
             )
             .scalar_subquery()
         )
@@ -199,6 +201,7 @@ class PlaylistReader(SQLAlchemyReader, IPlaylistReader):
                         VideoPrivacyStatusEnum.UNLISTED.value,
                     ]
                 ),
+                VideoORM.deletion_status == VideoDeletionStatusEnum.ACTIVE.value,
             )
         )
 

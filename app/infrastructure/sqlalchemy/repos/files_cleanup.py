@@ -14,7 +14,7 @@ from app.utils.datetime import get_current_utc_datetime
 
 
 class FileCleanupRepo(SQLAlchemyRepo, IFileCleanupRepo):
-    async def upsert(self, cleanup: FileCleanup) -> None:
+    async def upsert(self, cleanup: FileCleanup) -> bool:
         stmt = (
             insert(FileCleanupORM)
             .values(
@@ -26,27 +26,34 @@ class FileCleanupRepo(SQLAlchemyRepo, IFileCleanupRepo):
                 created_at=cleanup.created_at,
             )
             .on_conflict_do_nothing(constraint='uq_files_cleanup_cleanup')
+            .returning(FileCleanupORM.id)
         )
         async with self._db.get_session(commit=True) as session:
-            await session.execute(statement=stmt)
+            result = await session.execute(statement=stmt)
+        return result.one_or_none() is not None
 
-    async def upsert_many(self, cleanups: list[FileCleanup]) -> None:
-        stmt = insert(FileCleanupORM).on_conflict_do_nothing(constraint='uq_files_cleanup_cleanup')
+    async def upsert_many(self, cleanups: list[FileCleanup]) -> int:
+        stmt = (
+            insert(FileCleanupORM)
+            .on_conflict_do_nothing(constraint='uq_files_cleanup_cleanup')
+            .returning(FileCleanupORM.id)
+        )
         async with self._db.get_session(commit=True) as session:
-            await session.execute(
+            result = await session.execute(
                 statement=stmt,
                 params=[
                     {
                         'id': cleanup.id,
                         'key': cleanup.key,
-                        'bucket': cleanup.bucket,
                         'status': cleanup.status.value,
+                        'bucket': cleanup.bucket,
                         'locked_until': cleanup.locked_until,
                         'created_at': cleanup.created_at,
                     }
                     for cleanup in cleanups
                 ],
             )
+        return len(result.all())
 
     async def get_many_for_cleanup(self, limit: int) -> list[FileCleanup]:
         select_for_update_cleanups = (

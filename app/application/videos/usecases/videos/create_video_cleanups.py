@@ -4,6 +4,7 @@ from uuid import UUID
 
 from app.application.common.interfaces.transaction_manager import ITransactionManager
 from app.application.videos.dto import CreateVideoCleanupsResult
+from app.core.configs import settings
 from app.domain.files.services import IFileService
 from app.domain.files_cleanup.entities import FileCleanup
 from app.domain.files_cleanup.services import IFileCleanupService
@@ -26,7 +27,10 @@ class CreateVideoCleanupsUseCase:
 
         logger.info('Start video cleanups creation')
         while True:
-            videos = await self._video_service.get_many_for_cleanup(limit=250, video_exp_days=7)
+            videos = await self._video_service.get_many_for_cleanup(
+                limit=settings.videos_per_cleanup_batch,
+                video_exp_days=settings.incomplete_video_upload_expiration_days,
+            )
             if not videos:
                 logger.info('No videos found, stop cycle')
                 break
@@ -61,9 +65,9 @@ class CreateVideoCleanupsUseCase:
 
             async with self._tm.begin(commit=True):
                 if cleanups:
-                    await self._file_cleanup_service.upsert_many(cleanups=cleanups)
-                    total_cleanups_created += len(cleanups)
-                    logger.info('FileCleanups created', extra={'log_meta': {'cleanups_count': len(cleanups)}})
+                    cleanups_created = await self._file_cleanup_service.upsert_many(cleanups=cleanups)
+                    total_cleanups_created += cleanups_created
+                    logger.info('FileCleanups created', extra={'log_meta': {'cleanups_count': cleanups_created}})
 
                 if file_ids:
                     files_deleted = await self._file_service.delete_many_by_ids(ids=file_ids)

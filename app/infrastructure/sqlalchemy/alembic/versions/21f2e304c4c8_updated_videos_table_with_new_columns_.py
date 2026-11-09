@@ -78,7 +78,7 @@ def downgrade() -> None:
     op.create_check_constraint(
         constraint_name='ck_videos_video_upload_status',
         table_name='videos',
-        condition="upload_status IN ('pending', 'uploading', 'completed')",
+        condition="video_upload_status IN ('pending', 'uploading', 'completed')",
     )
     op.drop_column('videos', 'upload_status')
     op.drop_column('videos', 'upload_id')

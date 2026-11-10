@@ -18,6 +18,9 @@ class IChannelRepo(ABC):
     async def get_by_id(self, id: UUID) -> Channel | None: ...
 
     @abstractmethod
+    async def get_many_for_purging(self, lock_exp_minutes: int, limit: int) -> list[Channel]: ...
+
+    @abstractmethod
     async def update(self, channel: Channel) -> Channel | None: ...
 
     @abstractmethod
@@ -25,6 +28,9 @@ class IChannelRepo(ABC):
 
     @abstractmethod
     async def soft_delete_by_id(self, id: UUID) -> bool: ...
+
+    @abstractmethod
+    async def delete_many_by_ids(self, ids: list[UUID]) -> int: ...
 
     @abstractmethod
     async def activate(self, id: UUID) -> bool: ...

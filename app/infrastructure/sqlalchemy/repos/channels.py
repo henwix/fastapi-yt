@@ -1,9 +1,11 @@
+from datetime import timedelta
 from typing import Any, NoReturn, cast
 from uuid import UUID
 
-from sqlalchemy import CursorResult, exists, select, update
+from sqlalchemy import CursorResult, and_, delete, exists, or_, select, update
 from sqlalchemy.exc import DBAPIError, IntegrityError
 
+from app.core.configs import settings
 from app.domain.channels.entities import Channel
 from app.domain.channels.enums import ChannelDeletionStatusEnum
 from app.domain.channels.exceptions import ChannelEmailAlreadyExistsError, ChannelSlugAlreadyExistsError
@@ -68,6 +70,38 @@ class ChannelRepo(SQLAlchemyRepo, IChannelRepo):
         )
         return await self._get_one_by_query(query=stmt)
 
+    async def get_many_for_purging(self, lock_exp_minutes: int, limit: int) -> list[Channel]:
+        now = get_current_utc_datetime()
+        select_for_update_stmt = (
+            select(ChannelORM.id)
+            .with_for_update(skip_locked=True)
+            .where(
+                or_(
+                    and_(
+                        ChannelORM.deletion_status == ChannelDeletionStatusEnum.DELETED.value,
+                        ChannelORM.deleted_at < now - timedelta(days=settings.channel_deletion_retention_days),
+                    ),
+                    and_(
+                        ChannelORM.deletion_status == ChannelDeletionStatusEnum.PURGING.value,
+                        ChannelORM.locked_until < now,
+                    ),
+                )
+            )
+            .limit(limit=limit)
+        )
+        stmt = (
+            update(ChannelORM)
+            .values(
+                deletion_status=ChannelDeletionStatusEnum.PURGING.value,
+                locked_until=now + timedelta(minutes=lock_exp_minutes),
+            )
+            .where(ChannelORM.id.in_(select_for_update_stmt))
+            .returning(ChannelORM)
+        )
+        async with self._db.get_session(commit=True) as session:
+            result = await session.execute(statement=stmt)
+        return [channel.to_entity() for channel in result.scalars()]
+
     async def update(self, channel: Channel) -> Channel | None:
         stmt = (
             update(ChannelORM)
@@ -121,6 +155,12 @@ class ChannelRepo(SQLAlchemyRepo, IChannelRepo):
         async with self._db.get_session(commit=True) as session:
             result = await session.execute(statement=stmt)
         return cast(CursorResult, result).rowcount > 0
+
+    async def delete_many_by_ids(self, ids: list[UUID]) -> int:
+        stmt = delete(ChannelORM).where(ChannelORM.id.in_(ids))
+        async with self._db.get_session(commit=True) as session:
+            result = await session.execute(statement=stmt)
+        return cast(CursorResult, result).rowcount
 
     async def activate(self, id: UUID) -> bool:
         stmt = (

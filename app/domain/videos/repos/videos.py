@@ -41,6 +41,11 @@ class IVideoRepo(ABC):
     async def get_many_for_cleanup(self, limit: int, video_exp_days: int) -> list[Video]: ...
 
     @abstractmethod
+    async def get_many_by_channel_ids(
+        self, channel_ids: list[UUID], limit: int, last_id: str | None
+    ) -> list[Video]: ...
+
+    @abstractmethod
     async def soft_delete_by_id(self, id: str) -> bool: ...
 
     @abstractmethod

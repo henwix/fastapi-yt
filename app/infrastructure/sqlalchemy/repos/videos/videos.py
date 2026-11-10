@@ -206,6 +206,21 @@ class VideoRepo(SQLAlchemyRepo, IVideoRepo):
         rows = result.scalars()
         return [video.to_entity() for video in rows]
 
+    async def get_many_by_channel_ids(self, channel_ids: list[UUID], limit: int, last_id: str | None) -> list[Video]:
+        stmt = (
+            select(VideoORM)
+            .where(
+                VideoORM.channel_id.in_(channel_ids),
+            )
+            .limit(limit=limit)
+        )
+        if last_id is not None:
+            stmt = stmt.where(VideoORM.id > last_id)
+
+        async with self._db.get_session(commit=False) as session:
+            result = await session.execute(statement=stmt)
+        return [video.to_entity() for video in result.scalars()]
+
     async def soft_delete_by_id(self, id: str) -> bool:
         stmt = (
             update(VideoORM)

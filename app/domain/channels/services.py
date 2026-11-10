@@ -56,6 +56,9 @@ class IChannelService(ABC):
     async def try_get_existing_by_id_for_auth(self, id: UUID) -> Channel: ...
 
     @abstractmethod
+    async def get_many_for_purging(self, lock_exp_minutes: int, limit: int) -> list[Channel]: ...
+
+    @abstractmethod
     async def try_update(self, channel: Channel) -> Channel: ...
 
     @abstractmethod
@@ -63,6 +66,9 @@ class IChannelService(ABC):
 
     @abstractmethod
     async def try_soft_delete_by_id(self, id: UUID) -> None: ...
+
+    @abstractmethod
+    async def delete_many_by_ids(self, ids: list[UUID]) -> int: ...
 
     @abstractmethod
     async def try_update_password(self, id: UUID, password_hash: str) -> None: ...
@@ -130,6 +136,9 @@ class ChannelService(IChannelService):
             raise ChannelNotActiveError(channel_id=channel.id)
         return channel
 
+    async def get_many_for_purging(self, lock_exp_minutes: int, limit: int) -> list[Channel]:
+        return await self._repo.get_many_for_purging(lock_exp_minutes=lock_exp_minutes, limit=limit)
+
     async def try_update(self, channel: Channel) -> Channel:
         updated_channel = await self._repo.update(channel=channel)
         if not updated_channel:
@@ -145,6 +154,9 @@ class ChannelService(IChannelService):
         is_deleted = await self._repo.soft_delete_by_id(id=id)
         if not is_deleted:
             raise ChannelFailedToDeleteError(channel_id=id)
+
+    async def delete_many_by_ids(self, ids: list[UUID]) -> int:
+        return await self._repo.delete_many_by_ids(ids=ids)
 
     async def try_update_password(self, id: UUID, password_hash: str) -> None:
         is_password_set = await self._repo.update_password(id=id, password_hash=password_hash)

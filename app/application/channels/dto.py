@@ -33,3 +33,10 @@ class DetailedChannel(DTO):
     deletion_status: ChannelDeletionStatusEnum
     deleted_at: datetime | None
     avatar_url: str | None
+
+
+@dataclass(kw_only=True)
+class PurgeDeletedChannelsResult(DTO):
+    total_files_deleted: int
+    total_cleanups_created: int
+    total_channels_deleted: int

@@ -5,7 +5,6 @@ from uuid import UUID
 from sqlalchemy import CursorResult, and_, delete, exists, or_, select, update
 from sqlalchemy.exc import DBAPIError, IntegrityError
 
-from app.core.configs import settings
 from app.domain.channels.entities import Channel
 from app.domain.channels.enums import ChannelDeletionStatusEnum
 from app.domain.channels.exceptions import ChannelEmailAlreadyExistsError, ChannelSlugAlreadyExistsError
@@ -70,7 +69,12 @@ class ChannelRepo(SQLAlchemyRepo, IChannelRepo):
         )
         return await self._get_one_by_query(query=stmt)
 
-    async def get_many_for_purging(self, lock_exp_minutes: int, limit: int) -> list[Channel]:
+    async def get_many_for_purging(
+        self,
+        lock_exp_minutes: int,
+        deletion_retention_days: int,
+        limit: int,
+    ) -> list[Channel]:
         now = get_current_utc_datetime()
         select_for_update_stmt = (
             select(ChannelORM.id)
@@ -79,7 +83,7 @@ class ChannelRepo(SQLAlchemyRepo, IChannelRepo):
                 or_(
                     and_(
                         ChannelORM.deletion_status == ChannelDeletionStatusEnum.DELETED.value,
-                        ChannelORM.deleted_at < now - timedelta(days=settings.channel_deletion_retention_days),
+                        ChannelORM.deleted_at < now - timedelta(days=deletion_retention_days),
                     ),
                     and_(
                         ChannelORM.deletion_status == ChannelDeletionStatusEnum.PURGING.value,

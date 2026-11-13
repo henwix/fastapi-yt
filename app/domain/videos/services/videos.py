@@ -51,9 +51,7 @@ class IVideoService(ABC):
     async def get_many_for_cleanup(self, limit: int, video_exp_days: int) -> list[Video]: ...
 
     @abstractmethod
-    async def get_many_by_channel_ids(
-        self, channel_ids: list[UUID], limit: int, last_id: str | None
-    ) -> list[Video]: ...
+    async def get_many_for_purging(self, channel_ids: list[UUID], limit: int, last_id: str | None) -> list[Video]: ...
 
     @abstractmethod
     async def try_soft_delete_by_id(self, id: str) -> None: ...
@@ -130,8 +128,8 @@ class VideoService(IVideoService):
     async def get_many_for_cleanup(self, limit: int, video_exp_days: int) -> list[Video]:
         return await self._repo.get_many_for_cleanup(limit=limit, video_exp_days=video_exp_days)
 
-    async def get_many_by_channel_ids(self, channel_ids: list[UUID], limit: int, last_id: str | None) -> list[Video]:
-        return await self._repo.get_many_by_channel_ids(channel_ids=channel_ids, limit=limit, last_id=last_id)
+    async def get_many_for_purging(self, channel_ids: list[UUID], limit: int, last_id: str | None) -> list[Video]:
+        return await self._repo.get_many_for_purging(channel_ids=channel_ids, limit=limit, last_id=last_id)
 
     async def delete_many_by_ids(self, ids: list[str]) -> int:
         return await self._repo.delete_many_by_ids(ids=ids)

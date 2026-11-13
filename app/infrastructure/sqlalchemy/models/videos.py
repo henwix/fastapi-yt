@@ -56,7 +56,7 @@ class VideoORM(CreatedAtDatetimeMixin, BaseORM):
         sa.CheckConstraint("privacy_status IN ('public', 'unlisted', 'private')", name='ck_videos_privacy_status'),
         sa.CheckConstraint("upload_status IN ('pending', 'uploading', 'completed')", name='ck_videos_upload_status'),
         sa.CheckConstraint('char_length(description) <= 5000', name='ck_videos_description_max_length'),
-        sa.CheckConstraint("deletion_status IN ('active', 'deleted')", name='ck_videos_deletion_status'),
+        sa.CheckConstraint("deletion_status IN ('active', 'deleted', 'purging')", name='ck_videos_deletion_status'),
     )
 
     @staticmethod

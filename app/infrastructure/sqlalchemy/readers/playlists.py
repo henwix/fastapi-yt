@@ -195,6 +195,7 @@ class PlaylistReader(SQLAlchemyReader, IPlaylistReader):
             .outerjoin(FileORM, VideoORM.thumbnail_file_id == FileORM.id)
             .where(
                 PlaylistItemORM.playlist_id == playlist_id,
+                ChannelORM.deletion_status == ChannelDeletionStatusEnum.ACTIVE.value,
                 VideoORM.privacy_status.in_(
                     [
                         VideoPrivacyStatusEnum.PUBLIC.value,

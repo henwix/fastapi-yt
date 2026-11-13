@@ -24,7 +24,7 @@ class CleanupUseCase:
 
         logger.info('Start files cleanup')
         while True:
-            cleanups = await self._file_cleanup_service.get_many_for_cleanup(limit=settings.files_per_cleanup_batch)
+            cleanups = await self._file_cleanup_service.get_many_for_cleanup(limit=settings.files_cleanups_batch_limit)
             if not cleanups:
                 logger.info('No files found, stop cycle')
                 break

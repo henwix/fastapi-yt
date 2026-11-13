@@ -18,7 +18,12 @@ class IChannelRepo(ABC):
     async def get_by_id(self, id: UUID) -> Channel | None: ...
 
     @abstractmethod
-    async def get_many_for_purging(self, lock_exp_minutes: int, limit: int) -> list[Channel]: ...
+    async def get_many_for_purging(
+        self,
+        lock_exp_minutes: int,
+        deletion_retention_days: int,
+        limit: int,
+    ) -> list[Channel]: ...
 
     @abstractmethod
     async def update(self, channel: Channel) -> Channel | None: ...

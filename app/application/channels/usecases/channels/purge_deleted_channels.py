@@ -5,6 +5,7 @@ from uuid import UUID
 
 from app.application.channels.dto import PurgeDeletedChannelsResult
 from app.application.common.interfaces.transaction_manager import ITransactionManager
+from app.core.configs import settings
 from app.domain.channels.services import IChannelService
 from app.domain.files.services import IFileService
 from app.domain.files_cleanup.entities import FileCleanup
@@ -23,11 +24,6 @@ class PurgeDeletedChannelsUseCase:
     _tm: ITransactionManager
 
     async def execute(self) -> PurgeDeletedChannelsResult:
-        channels_batch_limit = 250
-        videos_batch_limit = 500
-        files_batch_limit = 1000
-        channels_lock_exp_minutes = 10
-
         total_files_deleted = 0
         total_cleanups_created = 0
         total_channels_deleted = 0
@@ -36,8 +32,9 @@ class PurgeDeletedChannelsUseCase:
 
         while True:
             channels = await self._channel_service.get_many_for_purging(
-                lock_exp_minutes=channels_lock_exp_minutes,
-                limit=channels_batch_limit,
+                lock_exp_minutes=settings.channels_purging_lock_exp_minutes,
+                deletion_retention_days=settings.channel_deletion_retention_days,
+                limit=settings.channels_purging_batch_limit,
             )
             if not channels:
                 logger.info('No channels for purging found, stop cycle')
@@ -55,9 +52,9 @@ class PurgeDeletedChannelsUseCase:
 
             last_video_id: str | None = None
             while True:
-                videos = await self._video_service.get_many_by_channel_ids(
+                videos = await self._video_service.get_many_for_purging(
                     channel_ids=channel_ids,
-                    limit=videos_batch_limit,
+                    limit=settings.videos_purging_batch_limit,
                     last_id=last_video_id,
                 )
                 if not videos:
@@ -73,7 +70,7 @@ class PurgeDeletedChannelsUseCase:
 
             logger.info('Found files for purging', extra={'log_meta': {'files_count': len(files_ids)}})
 
-            for files_ids_batch in batched(files_ids, files_batch_limit, strict=False):
+            for files_ids_batch in batched(files_ids, settings.files_purging_batch_limit, strict=False):
                 files = await self._file_service.get_many_by_ids(ids=list(files_ids_batch))
                 cleanups = [FileCleanup.create(key=file.key, bucket=file.bucket) for file in files]
                 files_ids_batch = [file.id for file in files]

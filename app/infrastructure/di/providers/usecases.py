@@ -26,6 +26,7 @@ from app.application.channels.usecases import (
     RestoreChannelUseCase,
     UpdateChannelUseCase,
 )
+from app.application.channels.usecases.channels import PurgeDeletedChannelsUseCase
 from app.application.common.usecases.email import (
     SendChannelActivationCodeUseCase,
     SendChannelResetPasswordCodeUseCase,
@@ -118,6 +119,7 @@ class UseCasesProvider(Provider):
     confirm_channel_avatar_upload = provide(ConfirmChannelAvatarUploadUseCase)
     restore_channel = provide(RestoreChannelUseCase)
     delete_channel_avatar = provide(DeleteChannelAvatarUseCase)
+    channel_purging = provide(PurgeDeletedChannelsUseCase)
 
     # Auth
     register_channel_with_password = provide(RegisterChannelWithPasswordUseCase)

@@ -1,3 +1,4 @@
+from .channels import purge_deleted_channels_task
 from .email import (
     send_channel_activation_code_task,
     send_channel_reset_password_code_task,
@@ -11,6 +12,7 @@ from .videos import create_video_cleanups_task
 __all__ = (
     'create_video_cleanups_task',
     'files_cleanup_task',
+    'purge_deleted_channels_task',
     's3_abort_multipart_upload_task',
     'send_channel_activation_code_task',
     'send_channel_reset_password_code_task',

@@ -28,8 +28,8 @@ class CreateVideoCleanupsUseCase:
         logger.info('Start video cleanups creation')
         while True:
             videos = await self._video_service.get_many_for_cleanup(
-                limit=settings.videos_per_cleanup_batch,
-                video_exp_days=settings.incomplete_video_upload_expiration_days,
+                limit=settings.videos_cleanup_batch_limit,
+                video_exp_days=settings.video_incomplete_upload_expiration_days,
             )
             if not videos:
                 logger.info('No videos found, stop cycle')

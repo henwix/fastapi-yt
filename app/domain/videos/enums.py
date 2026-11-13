@@ -16,3 +16,4 @@ class VideoUploadStatusEnum(StrEnum):
 class VideoDeletionStatusEnum(StrEnum):
     ACTIVE = 'active'
     DELETED = 'deleted'
+    PURGING = 'purging'

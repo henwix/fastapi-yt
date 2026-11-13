@@ -206,18 +206,22 @@ class VideoRepo(SQLAlchemyRepo, IVideoRepo):
         rows = result.scalars()
         return [video.to_entity() for video in rows]
 
-    async def get_many_by_channel_ids(self, channel_ids: list[UUID], limit: int, last_id: str | None) -> list[Video]:
-        stmt = (
-            select(VideoORM)
-            .where(
-                VideoORM.channel_id.in_(channel_ids),
-            )
+    async def get_many_for_purging(self, channel_ids: list[UUID], limit: int, last_id: str | None) -> list[Video]:
+        select_for_update_stmt = (
+            select(VideoORM.id)
+            .where(VideoORM.channel_id.in_(channel_ids))
+            .order_by(VideoORM.id.asc())
             .limit(limit=limit)
         )
         if last_id is not None:
-            stmt = stmt.where(VideoORM.id > last_id)
-
-        async with self._db.get_session(commit=False) as session:
+            select_for_update_stmt = select_for_update_stmt.where(VideoORM.id > last_id)
+        stmt = (
+            update(VideoORM)
+            .values(deletion_status=VideoDeletionStatusEnum.PURGING.value)
+            .where(VideoORM.id.in_(select_for_update_stmt))
+            .returning(VideoORM)
+        )
+        async with self._db.get_session(commit=True) as session:
             result = await session.execute(statement=stmt)
         return [video.to_entity() for video in result.scalars()]
 

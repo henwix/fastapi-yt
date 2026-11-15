@@ -308,14 +308,13 @@ class VideoCommentORM(
         sa.Index(
             'ix_video_comments_composite_comments',
             'video_id',
-            'reply_level',
             'created_at',
             'id',
+            postgresql_where=sa.sql.text('reply_level = 0'),
         ),
         sa.Index(
             'ix_video_comments_composite_replies',
             'reply_comment_id',
-            'reply_level',
             'created_at',
             'id',
         ),

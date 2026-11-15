@@ -9,7 +9,7 @@ from app.application.posts.dto import DetailedPostComment
 from app.application.posts.interfaces import IPostCommentReader
 from app.application.posts.queries import PostCommentsSorting
 from app.infrastructure.sqlalchemy.converters import convert_row_to_detailed_post_comment_dto
-from app.infrastructure.sqlalchemy.models import ChannelORM, PostCommentORM
+from app.infrastructure.sqlalchemy.models import ChannelORM, FileORM, PostCommentORM
 from app.infrastructure.sqlalchemy.readers.base import SQLAlchemyReader
 
 
@@ -31,9 +31,11 @@ class PostCommentReader(SQLAlchemyReader, IPostCommentReader):
                 PostCommentORM.reply_comment_id,
                 PostCommentORM.created_at,
                 ChannelORM.slug.label('author_slug'),
+                FileORM.key.label('author_avatar_key'),
             )
             .where(*filters)
             .join(ChannelORM, PostCommentORM.channel_id == ChannelORM.id)
+            .outerjoin(FileORM, ChannelORM.avatar_file_id == FileORM.id)
         )
 
         sort_field = getattr(PostCommentORM, sorting.sort_by.value)

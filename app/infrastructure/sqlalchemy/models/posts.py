@@ -116,14 +116,13 @@ class PostCommentORM(
         sa.Index(
             'ix_post_comments_composite_comments',
             'post_id',
-            'reply_level',
             'created_at',
             'id',
+            postgresql_where=sa.sql.text('reply_level = 0'),
         ),
         sa.Index(
             'ix_post_comments_composite_replies',
             'reply_comment_id',
-            'reply_level',
             'created_at',
             'id',
         ),

@@ -1,6 +1,8 @@
 from datetime import datetime
 from uuid import UUID
 
+from pydantic import HttpUrl
+
 from app.application.posts.dto import DetailedPostComment
 from app.domain.posts.entities import PostComment
 from app.presentation.api.v1.schemas.base import BaseSchema
@@ -34,6 +36,7 @@ class DetailedPostCommentOutSchema(BaseSchema):
     reply_comment_id: UUID | None
     created_at: datetime
     author_slug: str
+    author_avatar: HttpUrl | None
 
     @staticmethod
     def from_dto(dto: DetailedPostComment) -> DetailedPostCommentOutSchema:
@@ -45,4 +48,5 @@ class DetailedPostCommentOutSchema(BaseSchema):
             reply_comment_id=dto.reply_comment_id,
             created_at=dto.created_at,
             author_slug=dto.author_slug,
+            author_avatar=dto.author_avatar,
         )

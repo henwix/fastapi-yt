@@ -1,6 +1,8 @@
 from datetime import datetime
 from uuid import UUID
 
+from pydantic import HttpUrl
+
 from app.application.videos.dto import DetailedVideoComment
 from app.domain.videos.entities import VideoComment
 from app.presentation.api.v1.schemas.base import BaseSchema
@@ -34,6 +36,7 @@ class DetailedVideoCommentOutSchema(BaseSchema):
     reply_comment_id: UUID | None
     created_at: datetime
     author_slug: str
+    author_avatar: HttpUrl | None
 
     @staticmethod
     def from_dto(dto: DetailedVideoComment) -> DetailedVideoCommentOutSchema:
@@ -45,4 +48,5 @@ class DetailedVideoCommentOutSchema(BaseSchema):
             reply_comment_id=dto.reply_comment_id,
             created_at=dto.created_at,
             author_slug=dto.author_slug,
+            author_avatar=dto.author_avatar,
         )

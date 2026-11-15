@@ -9,7 +9,7 @@ from app.application.videos.dto import DetailedVideoComment
 from app.application.videos.interfaces import IVideoCommentReader
 from app.application.videos.queries import VideoCommentsSorting
 from app.infrastructure.sqlalchemy.converters import convert_row_to_detailed_video_comment_dto
-from app.infrastructure.sqlalchemy.models import ChannelORM, VideoCommentORM
+from app.infrastructure.sqlalchemy.models import ChannelORM, FileORM, VideoCommentORM
 from app.infrastructure.sqlalchemy.readers.base import SQLAlchemyReader
 
 
@@ -31,9 +31,11 @@ class VideoCommentReader(SQLAlchemyReader, IVideoCommentReader):
                 VideoCommentORM.reply_comment_id,
                 VideoCommentORM.created_at,
                 ChannelORM.slug.label('author_slug'),
+                FileORM.key.label('author_avatar_key'),
             )
             .where(*filters)
             .join(ChannelORM, VideoCommentORM.channel_id == ChannelORM.id)
+            .outerjoin(FileORM, ChannelORM.avatar_file_id == FileORM.id)
         )
 
         sort_field = getattr(VideoCommentORM, sorting.sort_by.value)

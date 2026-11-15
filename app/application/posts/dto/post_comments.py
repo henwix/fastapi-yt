@@ -14,3 +14,4 @@ class DetailedPostComment(DTO):
     reply_comment_id: UUID | None
     created_at: datetime
     author_slug: str
+    author_avatar: str | None

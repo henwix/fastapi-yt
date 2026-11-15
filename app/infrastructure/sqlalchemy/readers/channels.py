@@ -7,7 +7,7 @@ from app.application.channels.dto import ChannelAboutInfo, DetailedChannel
 from app.application.channels.interfaces import IChannelReader
 from app.domain.channels.enums import ChannelDeletionStatusEnum
 from app.domain.channels.exceptions import ChannelNotFoundByIdError, ChannelNotFoundBySlugError
-from app.domain.videos.enums import VideoPrivacyStatusEnum, VideoUploadStatusEnum
+from app.domain.videos.enums import VideoDeletionStatusEnum, VideoPrivacyStatusEnum, VideoUploadStatusEnum
 from app.infrastructure.sqlalchemy.converters import convert_row_to_channel_about_info_dto
 from app.infrastructure.sqlalchemy.converters.channels import convert_row_to_channel_detailed_dto
 from app.infrastructure.sqlalchemy.models import ChannelORM, FileORM, SubscriptionORM, VideoORM
@@ -29,8 +29,9 @@ class ChannelReader(SQLAlchemyReader, IChannelReader):
             )
             .where(
                 VideoORM.channel_id == ChannelORM.id,
-                VideoORM.video_upload_status == VideoUploadStatusEnum.COMPLETED.value,
+                VideoORM.upload_status == VideoUploadStatusEnum.COMPLETED.value,
                 VideoORM.privacy_status == VideoPrivacyStatusEnum.PUBLIC.value,
+                VideoORM.deletion_status == VideoDeletionStatusEnum.ACTIVE.value,
             )
             .lateral()
         )

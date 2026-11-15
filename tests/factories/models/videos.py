@@ -6,7 +6,7 @@ from polyfactory.factories.sqlalchemy_factory import SQLAlchemyFactory
 from app.domain.common.enums import ReactionTypeEnum
 from app.domain.playlists.enums import PlaylistPrivacyStatusEnum
 from app.domain.videos.constants import VIDEO_VIEWS_LIMIT_PER_DAY
-from app.domain.videos.enums import VideoPrivacyStatusEnum, VideoUploadStatusEnum
+from app.domain.videos.enums import VideoDeletionStatusEnum, VideoPrivacyStatusEnum, VideoUploadStatusEnum
 from app.infrastructure.sqlalchemy.models import (
     PlaylistORM,
     VideoCommentORM,
@@ -38,8 +38,16 @@ class VideoORMFactory(BaseORMFactory[VideoORM], SQLAlchemyFactory[VideoORM]):
         return cls.__random__.choice([status.value for status in VideoPrivacyStatusEnum])
 
     @classmethod
-    def video_upload_status(cls) -> str:
+    def upload_status(cls) -> str:
         return cls.__random__.choice([status.value for status in VideoUploadStatusEnum])
+
+    @classmethod
+    def deletion_status(cls) -> str:
+        return VideoDeletionStatusEnum.ACTIVE.value
+
+    @classmethod
+    def locked_until(cls) -> None:
+        return None
 
     @classmethod
     def video_file_id(cls) -> None:
@@ -50,7 +58,7 @@ class VideoORMFactory(BaseORMFactory[VideoORM], SQLAlchemyFactory[VideoORM]):
         return None
 
     @classmethod
-    def video_upload_id(cls) -> str:
+    def upload_id(cls) -> str:
         return secrets.token_hex(16)
 
 

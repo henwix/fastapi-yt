@@ -34,7 +34,7 @@ class GenerateVideoPartUploadUrlUseCase:
         return await self._s3_service.generate_part_upload_url(
             bucket=video_file.bucket,
             key=video_file.key,
-            upload_id=video.video_upload_id,
+            upload_id=video.upload_id,
             part_number=command.part_number,
             expires_in=120,
         )

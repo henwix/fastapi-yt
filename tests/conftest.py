@@ -13,7 +13,6 @@ from app.application.common.interfaces.file_type_detector import IFileTypeDetect
 from app.application.common.interfaces.s3 import IS3Service
 from app.application.oauth.interfaces import IOAuthServiceFactory
 from app.core.configs import Settings, settings
-from app.domain.videos.services import IVideoService
 from app.infrastructure.di.providers import (
     AppProvider,
     DatabaseProvider,
@@ -30,7 +29,6 @@ from app.infrastructure.sqlalchemy.models import BaseORM
 from tests.mocks.file_type_detector import MockFileTypeDetector
 from tests.mocks.oauth import MockOAuthServiceFactory
 from tests.mocks.s3_service import MockS3Service
-from tests.mocks.video_service import MockVideoService
 
 
 @pytest.fixture(scope='session')
@@ -130,16 +128,13 @@ async def mock_container(mock_database_dishka_provider: DatabaseProvider) -> Asy
     class MockOAuthProvider(OAuthProvider):
         mock_oauth_service_factory = provide(MockOAuthServiceFactory, provides=IOAuthServiceFactory, override=True)
 
-    class MockServicesProvider(ServicesProvider):
-        mock_video_service = provide(MockVideoService, provides=IVideoService, override=True)
-
     container = make_async_container(
         MockAppProvider(),
         MockOAuthProvider(),
         mock_database_dishka_provider,
         ReposProvider(),
         ReadersProvider(),
-        MockServicesProvider(),
+        ServicesProvider(),
         UseCasesProvider(),
     )
 

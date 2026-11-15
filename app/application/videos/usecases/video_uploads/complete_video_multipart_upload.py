@@ -46,7 +46,7 @@ class CompleteVideoMultipartUploadUseCase:
         await self._s3_service.complete_multipart_upload(
             bucket=video_file.bucket,
             key=video_file.key,
-            upload_id=video.video_upload_id,
+            upload_id=video.upload_id,
             parts=command.parts,
         )
 
@@ -84,7 +84,7 @@ class CompleteVideoMultipartUploadUseCase:
 
         is_video_updated = await self._video_service.update_upload_completed(
             id=video.id,
-            video_upload_id=video.video_upload_id,
+            upload_id=video.upload_id,
             video_file_id=video_file.id,
         )
         if not is_video_updated:
@@ -99,7 +99,7 @@ class CompleteVideoMultipartUploadUseCase:
         async with self._tm.begin(commit=True):
             is_video_updated = await self._video_service.update_upload_canceled(
                 id=video.id,
-                video_upload_id=video.video_upload_id,
+                upload_id=video.upload_id,
                 video_file_id=video_file.id,
             )
             if not is_video_updated:

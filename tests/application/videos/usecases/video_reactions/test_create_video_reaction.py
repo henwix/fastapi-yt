@@ -33,7 +33,7 @@ async def test_create_video_reaction_returns_reaction_entity_if_new_one_created(
         video = await VideoORMFactory.create(
             session=session,
             channel_id=video_author.id,
-            video_upload_status=VideoUploadStatusEnum.COMPLETED,
+            upload_status=VideoUploadStatusEnum.COMPLETED,
             privacy_status=privacy_status,
         )
         command = CreateVideoReactionCommandFactory.build(current_channel_id=current_channel.id, video_id=video.id)
@@ -70,7 +70,7 @@ async def test_create_video_reaction_returns_reaction_entity_if_reaction_type_up
         video = await VideoORMFactory.create(
             session=session,
             channel_id=video_author.id,
-            video_upload_status=VideoUploadStatusEnum.COMPLETED,
+            upload_status=VideoUploadStatusEnum.COMPLETED,
             privacy_status=VideoPrivacyStatusEnum.PUBLIC,
         )
         existing_reaction = await VideoReactionORMFactory.create(
@@ -118,7 +118,7 @@ async def test_create_video_reaction_returns_none_if_reaction_type_not_changed(c
         video = await VideoORMFactory.create(
             session=session,
             channel_id=video_author.id,
-            video_upload_status=VideoUploadStatusEnum.COMPLETED,
+            upload_status=VideoUploadStatusEnum.COMPLETED,
             privacy_status=VideoPrivacyStatusEnum.PUBLIC,
         )
         existing_reaction = await VideoReactionORMFactory.create(
@@ -155,7 +155,7 @@ async def test_create_video_reaction_returns_reaction_entity_if_new_one_created_
         video = await VideoORMFactory.create(
             session=session,
             channel_id=video_author.id,
-            video_upload_status=VideoUploadStatusEnum.COMPLETED.value,
+            upload_status=VideoUploadStatusEnum.COMPLETED.value,
             privacy_status=VideoPrivacyStatusEnum.PRIVATE.value,
         )
         command = CreateVideoReactionCommandFactory.build(current_channel_id=video_author.id, video_id=video.id)
@@ -191,7 +191,7 @@ async def test_create_video_reaction_returns_reaction_entity_if_reaction_type_up
         video = await VideoORMFactory.create(
             session=session,
             channel_id=video_author.id,
-            video_upload_status=VideoUploadStatusEnum.COMPLETED.value,
+            upload_status=VideoUploadStatusEnum.COMPLETED.value,
             privacy_status=VideoPrivacyStatusEnum.PRIVATE.value,
         )
         existing_reaction = await VideoReactionORMFactory.create(
@@ -240,7 +240,7 @@ async def test_create_video_reaction_returns_none_if_reaction_type_not_changed_a
         video = await VideoORMFactory.create(
             session=session,
             channel_id=video_author.id,
-            video_upload_status=VideoUploadStatusEnum.COMPLETED,
+            upload_status=VideoUploadStatusEnum.COMPLETED,
             privacy_status=VideoPrivacyStatusEnum.PUBLIC,
         )
         existing_reaction = await VideoReactionORMFactory.create(
@@ -278,7 +278,7 @@ async def test_create_video_reaction_raises_error_if_video_private_and_access_fo
         video = await VideoORMFactory.create(
             session=session,
             channel_id=video_author.id,
-            video_upload_status=VideoUploadStatusEnum.COMPLETED.value,
+            upload_status=VideoUploadStatusEnum.COMPLETED.value,
             privacy_status=VideoPrivacyStatusEnum.PRIVATE.value,
         )
         command = CreateVideoReactionCommandFactory.build(
@@ -326,7 +326,7 @@ async def test_create_video_reaction_raises_error_if_video_author_channel_delete
         video = await VideoORMFactory.create(
             session=session,
             channel_id=video_author.id,
-            video_upload_status=VideoUploadStatusEnum.COMPLETED.value,
+            upload_status=VideoUploadStatusEnum.COMPLETED.value,
             privacy_status=VideoPrivacyStatusEnum.PUBLIC.value,
         )
         command = CreateVideoReactionCommandFactory.build(
@@ -353,7 +353,7 @@ async def test_create_video_reaction_raises_error_if_channel_deleted(
         video = await VideoORMFactory.create(
             session=session,
             channel_id=video_author.id,
-            video_upload_status=VideoUploadStatusEnum.COMPLETED.value,
+            upload_status=VideoUploadStatusEnum.COMPLETED.value,
             privacy_status=VideoPrivacyStatusEnum.PUBLIC.value,
         )
         command = CreateVideoReactionCommandFactory.build(
@@ -379,7 +379,7 @@ async def test_create_video_reaction_raises_error_if_channel_not_found(
         video = await VideoORMFactory.create(
             session=session,
             channel_id=video_author.id,
-            video_upload_status=VideoUploadStatusEnum.COMPLETED.value,
+            upload_status=VideoUploadStatusEnum.COMPLETED.value,
             privacy_status=VideoPrivacyStatusEnum.PUBLIC.value,
         )
         command = CreateVideoReactionCommandFactory.build(
@@ -405,7 +405,7 @@ async def test_create_video_reaction_raises_error_if_channel_not_active(
         video = await VideoORMFactory.create(
             session=session,
             channel_id=video_author.id,
-            video_upload_status=VideoUploadStatusEnum.COMPLETED.value,
+            upload_status=VideoUploadStatusEnum.COMPLETED.value,
             privacy_status=VideoPrivacyStatusEnum.PUBLIC.value,
         )
         command = CreateVideoReactionCommandFactory.build(

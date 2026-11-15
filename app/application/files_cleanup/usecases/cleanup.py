@@ -4,6 +4,7 @@ from uuid import UUID
 
 from app.application.common.interfaces.s3 import IS3Service
 from app.application.files_cleanup.dto import CleanupResultDTO
+from app.core.configs import settings
 from app.domain.common.exceptions.s3 import S3ResponseError
 from app.domain.files_cleanup.entities import FileCleanup
 from app.domain.files_cleanup.enums import FileCleanupStatusEnum
@@ -21,9 +22,9 @@ class CleanupUseCase:
         total_files_deleted = 0
         total_files_failed = 0
 
-        logger.info('Starting cleanup')
+        logger.info('Start files cleanup')
         while True:
-            cleanups = await self._file_cleanup_service.get_many_for_cleanup(limit=500)
+            cleanups = await self._file_cleanup_service.get_many_for_cleanup(limit=settings.files_cleanups_batch_limit)
             if not cleanups:
                 logger.info('No files found, stop cycle')
                 break

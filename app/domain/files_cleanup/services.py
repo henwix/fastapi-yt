@@ -9,10 +9,10 @@ from app.domain.files_cleanup.repos import IFileCleanupRepo
 
 class IFileCleanupService(ABC):
     @abstractmethod
-    async def upsert(self, cleanup: FileCleanup) -> None: ...
+    async def upsert(self, cleanup: FileCleanup) -> bool: ...
 
     @abstractmethod
-    async def upsert_many(self, cleanups: list[FileCleanup]) -> None: ...
+    async def upsert_many(self, cleanups: list[FileCleanup]) -> int: ...
 
     @abstractmethod
     async def get_many_for_cleanup(self, limit: int) -> list[FileCleanup]: ...
@@ -37,10 +37,10 @@ class IFileCleanupService(ABC):
 class FileCleanupService(IFileCleanupService):
     _repo: IFileCleanupRepo
 
-    async def upsert(self, cleanup: FileCleanup) -> None:
+    async def upsert(self, cleanup: FileCleanup) -> bool:
         return await self._repo.upsert(cleanup=cleanup)
 
-    async def upsert_many(self, cleanups: list[FileCleanup]) -> None:
+    async def upsert_many(self, cleanups: list[FileCleanup]) -> int:
         return await self._repo.upsert_many(cleanups=cleanups)
 
     async def get_many_for_cleanup(self, limit: int) -> list[FileCleanup]:

@@ -33,7 +33,7 @@ async def test_get_video_returns_correct_dto_without_auth_if_video_completed_and
             session=session,
             channel_id=channel.id,
             privacy_status=privacy_status,
-            video_upload_status=VideoUploadStatusEnum.COMPLETED,
+            upload_status=VideoUploadStatusEnum.COMPLETED,
         )
         query = GetVideoQueryFactory.build(current_channel_id=None, video_id=video.id)
 
@@ -71,7 +71,7 @@ async def test_get_video_returns_correct_dto_with_auth_if_video_completed_and_pr
             session=session,
             channel_id=channel.id,
             privacy_status=VideoPrivacyStatusEnum.PRIVATE,
-            video_upload_status=VideoUploadStatusEnum.COMPLETED,
+            upload_status=VideoUploadStatusEnum.COMPLETED,
         )
         query = GetVideoQueryFactory.build(current_channel_id=channel.id, video_id=video.id)
 
@@ -111,7 +111,7 @@ async def test_get_video_returns_correct_dto_with_thumbnail_url(
             session=session,
             channel_id=channel.id,
             privacy_status=VideoPrivacyStatusEnum.PUBLIC.value,
-            video_upload_status=VideoUploadStatusEnum.COMPLETED,
+            upload_status=VideoUploadStatusEnum.COMPLETED,
             thumbnail_file_id=thumbnail_file.id,
         )
         query = GetVideoQueryFactory.build(current_channel_id=None, video_id=video.id)
@@ -151,7 +151,7 @@ async def test_get_video_raises_error_if_video_private_and_access_forbidden(
             session=session,
             channel_id=author_channel.id,
             privacy_status=VideoPrivacyStatusEnum.PRIVATE,
-            video_upload_status=VideoUploadStatusEnum.COMPLETED,
+            upload_status=VideoUploadStatusEnum.COMPLETED,
         )
         query = GetVideoQueryFactory.build(
             current_channel_id=second_channel.id if is_authenticated else None, video_id=video.id
@@ -177,7 +177,7 @@ async def test_get_video_raises_error_if_video_private_and_current_channel_not_a
             session=session,
             channel_id=author_channel.id,
             privacy_status=VideoPrivacyStatusEnum.PRIVATE,
-            video_upload_status=VideoUploadStatusEnum.COMPLETED,
+            upload_status=VideoUploadStatusEnum.COMPLETED,
         )
         query = GetVideoQueryFactory.build(current_channel_id=second_channel.id, video_id=video.id)
 
@@ -199,7 +199,7 @@ async def test_get_video_raises_error_if_video_private_and_current_channel_not_f
             session=session,
             channel_id=author_channel.id,
             privacy_status=VideoPrivacyStatusEnum.PRIVATE,
-            video_upload_status=VideoUploadStatusEnum.COMPLETED,
+            upload_status=VideoUploadStatusEnum.COMPLETED,
         )
         channel_id = uuid7()
         query = GetVideoQueryFactory.build(current_channel_id=channel_id, video_id=video.id)
@@ -236,7 +236,7 @@ async def test_get_video_raises_error_if_video_author_channel_deleted(
             session=session,
             channel_id=author_channel.id,
             privacy_status=VideoPrivacyStatusEnum.PUBLIC,
-            video_upload_status=VideoUploadStatusEnum.COMPLETED,
+            upload_status=VideoUploadStatusEnum.COMPLETED,
         )
         query = GetVideoQueryFactory.build(current_channel_id=None, video_id=video.id)
 
@@ -247,10 +247,10 @@ async def test_get_video_raises_error_if_video_author_channel_deleted(
 
 
 @pytest.mark.asyncio
-@pytest.mark.parametrize('video_upload_status', [VideoUploadStatusEnum.PENDING, VideoUploadStatusEnum.UPLOADING])
+@pytest.mark.parametrize('upload_status', [VideoUploadStatusEnum.PENDING, VideoUploadStatusEnum.UPLOADING])
 async def test_get_video_raises_error_if_video_not_completed(
     container: AsyncContainer,
-    video_upload_status: VideoUploadStatusEnum,
+    upload_status: VideoUploadStatusEnum,
 ):
     async with container() as di:
         use_case = await di.get(GetVideoUseCase)
@@ -260,7 +260,7 @@ async def test_get_video_raises_error_if_video_not_completed(
             session=session,
             channel_id=author_channel.id,
             privacy_status=VideoPrivacyStatusEnum.PUBLIC,
-            video_upload_status=video_upload_status,
+            upload_status=upload_status,
         )
         query = GetVideoQueryFactory.build(current_channel_id=None, video_id=video.id)
 

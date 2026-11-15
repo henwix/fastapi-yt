@@ -36,7 +36,7 @@ def convert_row_to_personal_preview_video_dto(row: RowMapping) -> PersonalPrevie
         id=row.id,
         title=row.title,
         privacy_status=VideoPrivacyStatusEnum(row.privacy_status),
-        video_upload_status=VideoUploadStatusEnum(row.video_upload_status),
+        upload_status=VideoUploadStatusEnum(row.upload_status),
         views_count=row.views_count,
         thumbnail_url=f'{settings.s3_public_bucket_url}/{row.thumbnail_key}' if row.thumbnail_key else None,
         created_at=row.created_at,

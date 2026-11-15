@@ -35,7 +35,14 @@ class PersonalPreviewVideo(DTO):
     id: str
     title: str
     privacy_status: VideoPrivacyStatusEnum
-    video_upload_status: VideoUploadStatusEnum
+    upload_status: VideoUploadStatusEnum
     views_count: int
     thumbnail_url: str | None
     created_at: datetime
+
+
+@dataclass(frozen=True)
+class CreateVideoCleanupsResult(DTO):
+    total_cleanups_created: int
+    total_files_deleted: int
+    total_videos_deleted: int

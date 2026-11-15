@@ -34,7 +34,7 @@ async def test_create_video_view_returns_none_if_created_if_video_public_or_unli
         video = await VideoORMFactory.create(
             session=session,
             channel_id=channel_video_author.id,
-            video_upload_status=VideoUploadStatusEnum.COMPLETED.value,
+            upload_status=VideoUploadStatusEnum.COMPLETED.value,
             privacy_status=privacy_status,
         )
         old_views_count = video.views_count
@@ -72,7 +72,7 @@ async def test_create_video_view_returns_none_if_created_if_video_public_or_unli
         video = await VideoORMFactory.create(
             session=session,
             channel_id=channel_video_author.id,
-            video_upload_status=VideoUploadStatusEnum.COMPLETED.value,
+            upload_status=VideoUploadStatusEnum.COMPLETED.value,
             privacy_status=privacy_status,
         )
         old_views_count = video.views_count
@@ -108,7 +108,7 @@ async def test_create_video_view_returns_none_if_created_if_video_private_and_ch
         video = await VideoORMFactory.create(
             session=session,
             channel_id=channel_video_author.id,
-            video_upload_status=VideoUploadStatusEnum.COMPLETED.value,
+            upload_status=VideoUploadStatusEnum.COMPLETED.value,
             privacy_status=VideoPrivacyStatusEnum.PRIVATE.value,
         )
         old_views_count = video.views_count
@@ -145,7 +145,7 @@ async def test_create_video_view_raises_error_if_video_private_and_channel_not_a
         video = await VideoORMFactory.create(
             session=session,
             channel_id=channel_video_author.id,
-            video_upload_status=VideoUploadStatusEnum.COMPLETED.value,
+            upload_status=VideoUploadStatusEnum.COMPLETED.value,
             privacy_status=VideoPrivacyStatusEnum.PRIVATE.value,
         )
         old_views_count = video.views_count
@@ -185,7 +185,7 @@ async def test_create_video_view_raises_error_if_video_private_and_channel_not_a
         video = await VideoORMFactory.create(
             session=session,
             channel_id=channel_video_author.id,
-            video_upload_status=VideoUploadStatusEnum.COMPLETED.value,
+            upload_status=VideoUploadStatusEnum.COMPLETED.value,
             privacy_status=VideoPrivacyStatusEnum.PRIVATE.value,
         )
         old_views_count = video.views_count
@@ -226,7 +226,7 @@ async def test_create_video_view_raises_error_if_video_views_limit_reached_and_c
         video = await VideoORMFactory.create(
             session=session,
             channel_id=channel_video_author.id,
-            video_upload_status=VideoUploadStatusEnum.COMPLETED.value,
+            upload_status=VideoUploadStatusEnum.COMPLETED.value,
             privacy_status=VideoPrivacyStatusEnum.PUBLIC.value,
         )
 
@@ -262,7 +262,7 @@ async def test_create_video_view_raises_error_if_video_views_limit_reached_and_c
         video = await VideoORMFactory.create(
             session=session,
             channel_id=channel_video_author.id,
-            video_upload_status=VideoUploadStatusEnum.COMPLETED.value,
+            upload_status=VideoUploadStatusEnum.COMPLETED.value,
             privacy_status=VideoPrivacyStatusEnum.PUBLIC.value,
         )
 
@@ -293,20 +293,22 @@ async def test_create_video_view_does_not_create_view_if_increase_views_count_fa
         use_case = await di.get(CreateVideoViewUseCase)
         session = await di.get(AsyncSession)
 
-        use_case._video_service.TRY_INCREASE_VIEWS_COUNT_RAISE_ERROR = True  # pyright: ignore[reportAttributeAccessIssue]
-
         channel = await ChannelORMFactory.create(session=session)
         channel_video_author = await ChannelORMFactory.create(session=session)
         video = await VideoORMFactory.create(
             session=session,
             channel_id=channel_video_author.id,
-            video_upload_status=VideoUploadStatusEnum.COMPLETED.value,
+            upload_status=VideoUploadStatusEnum.COMPLETED.value,
             privacy_status=VideoPrivacyStatusEnum.PUBLIC.value,
         )
 
         command = CreateVideoViewCommandFactory.build(current_channel_id=channel.id, video_id=video.id)
 
-        with pytest.raises(VideoNotFoundError):
+        with (  # noqa: PT012
+            pytest.raises(VideoNotFoundError),
+            patch.object(use_case._video_service._repo, 'increase_views_count') as video_repo_mock,
+        ):
+            video_repo_mock.return_value = False
             await use_case.execute(command=command)
 
         stmt = select(
@@ -334,7 +336,7 @@ async def test_create_video_view_raises_error_if_channel_not_found(
         video = await VideoORMFactory.create(
             session=session,
             channel_id=channel_video_author.id,
-            video_upload_status=VideoUploadStatusEnum.COMPLETED.value,
+            upload_status=VideoUploadStatusEnum.COMPLETED.value,
             privacy_status=VideoPrivacyStatusEnum.PUBLIC.value,
         )
 
@@ -360,7 +362,7 @@ async def test_create_video_view_raises_error_if_channel_not_active(
         video = await VideoORMFactory.create(
             session=session,
             channel_id=channel_video_author.id,
-            video_upload_status=VideoUploadStatusEnum.COMPLETED.value,
+            upload_status=VideoUploadStatusEnum.COMPLETED.value,
             privacy_status=VideoPrivacyStatusEnum.PUBLIC.value,
         )
 
@@ -386,7 +388,7 @@ async def test_create_video_view_raises_error_if_channel_deleted(
         video = await VideoORMFactory.create(
             session=session,
             channel_id=channel_video_author.id,
-            video_upload_status=VideoUploadStatusEnum.COMPLETED.value,
+            upload_status=VideoUploadStatusEnum.COMPLETED.value,
             privacy_status=VideoPrivacyStatusEnum.PUBLIC.value,
         )
 
@@ -412,7 +414,7 @@ async def test_create_video_view_raises_error_if_video_not_completed(
         video = await VideoORMFactory.create(
             session=session,
             channel_id=channel_video_author.id,
-            video_upload_status=VideoUploadStatusEnum.UPLOADING.value,
+            upload_status=VideoUploadStatusEnum.UPLOADING.value,
             privacy_status=VideoPrivacyStatusEnum.PUBLIC.value,
         )
 
@@ -457,7 +459,7 @@ async def test_create_video_view_raises_error_if_video_author_channel_deleted(
         video = await VideoORMFactory.create(
             session=session,
             channel_id=channel_video_author.id,
-            video_upload_status=VideoUploadStatusEnum.COMPLETED.value,
+            upload_status=VideoUploadStatusEnum.COMPLETED.value,
             privacy_status=VideoPrivacyStatusEnum.PUBLIC.value,
         )
 

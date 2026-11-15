@@ -61,7 +61,7 @@ async def test_complete_video_multipart_upload_returns_none_if_completed(
         video = await VideoORMFactory.create(
             session=session,
             channel_id=channel.id,
-            video_upload_status=VideoUploadStatusEnum.UPLOADING.value,
+            upload_status=VideoUploadStatusEnum.UPLOADING.value,
             video_file_id=video_file.id,
         )
         command = CompleteVideoMultipartUploadCommandFactory.build(
@@ -74,8 +74,8 @@ async def test_complete_video_multipart_upload_returns_none_if_completed(
         await session.refresh(instance=video)
 
         assert result is None
-        assert video.video_upload_status == VideoUploadStatusEnum.COMPLETED.value
-        assert video.video_upload_id is None
+        assert video.upload_status == VideoUploadStatusEnum.COMPLETED.value
+        assert video.upload_id is None
         assert video.video_file_id == video_file.id
 
 
@@ -116,7 +116,7 @@ async def test_complete_video_multipart_upload_raises_error_if_video_file_metada
         video = await VideoORMFactory.create(
             session=session,
             channel_id=channel.id,
-            video_upload_status=VideoUploadStatusEnum.UPLOADING.value,
+            upload_status=VideoUploadStatusEnum.UPLOADING.value,
             video_file_id=video_file.id,
         )
         command = CompleteVideoMultipartUploadCommandFactory.build(
@@ -131,8 +131,8 @@ async def test_complete_video_multipart_upload_raises_error_if_video_file_metada
 
         assert e.value.actual_content_type == VIDEO_FILE_MIME_TYPES[expected_file_extension][0]
         assert e.value.metadata_content_type == expected_file_mime_type
-        assert video.video_upload_status == VideoUploadStatusEnum.PENDING.value
-        assert video.video_upload_id is None
+        assert video.upload_status == VideoUploadStatusEnum.PENDING.value
+        assert video.upload_id is None
         assert video.video_file_id is None
 
         video_file_exists_stmt = select(exists().where(FileORM.id == video_file.id))
@@ -180,7 +180,7 @@ async def test_complete_video_multipart_upload_raises_error_if_video_file_actual
         video = await VideoORMFactory.create(
             session=session,
             channel_id=channel.id,
-            video_upload_status=VideoUploadStatusEnum.UPLOADING.value,
+            upload_status=VideoUploadStatusEnum.UPLOADING.value,
             video_file_id=video_file.id,
         )
         command = CompleteVideoMultipartUploadCommandFactory.build(
@@ -195,8 +195,8 @@ async def test_complete_video_multipart_upload_raises_error_if_video_file_actual
 
         assert e.value.metadata_content_type == VIDEO_FILE_MIME_TYPES[expected_file_extension][0]
         assert e.value.actual_content_type == expected_file_mime_type
-        assert video.video_upload_status == VideoUploadStatusEnum.PENDING.value
-        assert video.video_upload_id is None
+        assert video.upload_status == VideoUploadStatusEnum.PENDING.value
+        assert video.upload_id is None
         assert video.video_file_id is None
 
         video_file_exists_stmt = select(exists().where(FileORM.id == video_file.id))
@@ -225,7 +225,7 @@ async def test_complete_video_multipart_upload_raises_error_if_video_file_size_t
         video = await VideoORMFactory.create(
             session=session,
             channel_id=channel.id,
-            video_upload_status=VideoUploadStatusEnum.UPLOADING.value,
+            upload_status=VideoUploadStatusEnum.UPLOADING.value,
             video_file_id=video_file.id,
         )
         command = CompleteVideoMultipartUploadCommandFactory.build(
@@ -242,8 +242,8 @@ async def test_complete_video_multipart_upload_raises_error_if_video_file_size_t
         assert e.value.bucket == test_settings.s3_private_bucket_name
         assert e.value.key == old_video_key
         assert e.value.file_size == 0
-        assert video.video_upload_status == VideoUploadStatusEnum.PENDING.value
-        assert video.video_upload_id is None
+        assert video.upload_status == VideoUploadStatusEnum.PENDING.value
+        assert video.upload_id is None
         assert video.video_file_id is None
 
         video_file_exists_stmt = select(exists().where(FileORM.id == video_file.id))
@@ -333,7 +333,7 @@ async def test_complete_video_multipart_upload_raises_error_if_access_forbidden(
         video = await VideoORMFactory.create(
             session=session,
             channel_id=author_channel.id,
-            video_upload_status=VideoUploadStatusEnum.UPLOADING.value,
+            upload_status=VideoUploadStatusEnum.UPLOADING.value,
         )
         command = CompleteVideoMultipartUploadCommandFactory.build(
             current_channel_id=second_channel.id,
@@ -354,7 +354,7 @@ async def test_complete_video_multipart_upload_raises_error_if_video_already_upl
         video = await VideoORMFactory.create(
             session=session,
             channel_id=channel.id,
-            video_upload_status=VideoUploadStatusEnum.COMPLETED.value,
+            upload_status=VideoUploadStatusEnum.COMPLETED.value,
         )
         command = CompleteVideoMultipartUploadCommandFactory.build(
             current_channel_id=channel.id,
@@ -377,7 +377,7 @@ async def test_complete_video_multipart_upload_raises_error_if_video_upload_not_
         video = await VideoORMFactory.create(
             session=session,
             channel_id=channel.id,
-            video_upload_status=VideoUploadStatusEnum.PENDING.value,
+            upload_status=VideoUploadStatusEnum.PENDING.value,
         )
         command = CompleteVideoMultipartUploadCommandFactory.build(
             current_channel_id=channel.id,
@@ -400,8 +400,8 @@ async def test_complete_video_multipart_upload_raises_error_if_video_uploading_a
         video = await VideoORMFactory.create(
             session=session,
             channel_id=channel.id,
-            video_upload_status=VideoUploadStatusEnum.UPLOADING.value,
-            video_upload_id=None,
+            upload_status=VideoUploadStatusEnum.UPLOADING.value,
+            upload_id=None,
         )
         command = CompleteVideoMultipartUploadCommandFactory.build(
             current_channel_id=channel.id,
@@ -424,7 +424,7 @@ async def test_complete_video_multipart_upload_raises_error_if_video_uploading_s
         video = await VideoORMFactory.create(
             session=session,
             channel_id=channel.id,
-            video_upload_status=VideoUploadStatusEnum.UPLOADING.value,
+            upload_status=VideoUploadStatusEnum.UPLOADING.value,
         )
         command = CompleteVideoMultipartUploadCommandFactory.build(
             current_channel_id=channel.id,
@@ -452,7 +452,7 @@ async def test_complete_video_multipart_upload_raises_error_if_video_file_not_fo
         video = await VideoORMFactory.create(
             session=session,
             channel_id=channel.id,
-            video_upload_status=VideoUploadStatusEnum.UPLOADING.value,
+            upload_status=VideoUploadStatusEnum.UPLOADING.value,
             video_file_id=video_file.id,
         )
         command = CompleteVideoMultipartUploadCommandFactory.build(
@@ -460,7 +460,7 @@ async def test_complete_video_multipart_upload_raises_error_if_video_file_not_fo
             video_id=video.id,
         )
 
-        old_video_upload_id = video.video_upload_id
+        old_upload_id = video.upload_id
 
         with (  # noqa: PT012
             pytest.raises(VideoUploadNotCreatedError) as e,
@@ -474,9 +474,9 @@ async def test_complete_video_multipart_upload_raises_error_if_video_file_not_fo
 
         file_service_mock.assert_called_once_with(id=video_file.id)
         assert e.value.video_id == video.id
-        assert video.video_upload_status == VideoUploadStatusEnum.UPLOADING.value
+        assert video.upload_status == VideoUploadStatusEnum.UPLOADING.value
         assert video.video_file_id == video_file.id
-        assert video.video_upload_id == old_video_upload_id
+        assert video.upload_id == old_upload_id
 
 
 @pytest.mark.asyncio
@@ -498,7 +498,7 @@ async def test_complete_video_multipart_upload_raises_error_if_video_not_updated
         video = await VideoORMFactory.create(
             session=session,
             channel_id=channel.id,
-            video_upload_status=VideoUploadStatusEnum.UPLOADING.value,
+            upload_status=VideoUploadStatusEnum.UPLOADING.value,
             video_file_id=video_file.id,
         )
         command = CompleteVideoMultipartUploadCommandFactory.build(
@@ -506,7 +506,7 @@ async def test_complete_video_multipart_upload_raises_error_if_video_not_updated
             video_id=video.id,
         )
 
-        old_video_upload_id = video.video_upload_id
+        old_upload_id = video.upload_id
 
         with (  # noqa: PT012
             pytest.raises(VideoUploadFailedToCompleteError) as e,
@@ -520,13 +520,13 @@ async def test_complete_video_multipart_upload_raises_error_if_video_not_updated
 
         video_service_mock.assert_called_once_with(
             id=video.id,
-            video_upload_id=video.video_upload_id,
+            upload_id=video.upload_id,
             video_file_id=video_file.id,
         )
         assert e.value.video_id == video.id
         assert e.value.key == video_file.key
         assert e.value.bucket == video_file.bucket
         assert e.value.error_detail == 'video_not_updated_after_successful_validation'
-        assert video.video_upload_status == VideoUploadStatusEnum.UPLOADING.value
+        assert video.upload_status == VideoUploadStatusEnum.UPLOADING.value
         assert video.video_file_id == video_file.id
-        assert video.video_upload_id == old_video_upload_id
+        assert video.upload_id == old_upload_id

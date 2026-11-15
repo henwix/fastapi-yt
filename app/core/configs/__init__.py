@@ -3,6 +3,7 @@ from pathlib import Path
 from pydantic_settings import SettingsConfigDict
 
 from app.core.configs.auth import AuthSettings
+from app.core.configs.cleanups import CleanupsSettings
 from app.core.configs.database import DatabaseSettings
 from app.core.configs.email import EmailSettings
 from app.core.configs.general import GeneralSettings
@@ -21,6 +22,7 @@ class Settings(
     OAuthSettings,
     S3Settings,
     EmailSettings,
+    CleanupsSettings,
 ):
     model_config = SettingsConfigDict(
         extra='ignore',

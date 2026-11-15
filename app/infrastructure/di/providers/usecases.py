@@ -26,6 +26,7 @@ from app.application.channels.usecases import (
     RestoreChannelUseCase,
     UpdateChannelUseCase,
 )
+from app.application.channels.usecases.channels import PurgeDeletedChannelsUseCase
 from app.application.common.usecases.email import (
     SendChannelActivationCodeUseCase,
     SendChannelResetPasswordCodeUseCase,
@@ -79,13 +80,13 @@ from app.application.videos.usecases import (
     ClearVideoHistoryUseCase,
     CompleteVideoMultipartUploadUseCase,
     ConfirmVideoThumbnailUploadUseCase,
+    CreateVideoCleanupsUseCase,
     CreateVideoCommentReactionUseCase,
     CreateVideoCommentUseCase,
     CreateVideoMultipartUploadUseCase,
     CreateVideoReactionUseCase,
     CreateVideoUseCase,
     CreateVideoViewUseCase,
-    DeleteNotCompletedVideosUseCase,
     DeleteVideoCommentReactionUseCase,
     DeleteVideoCommentUseCase,
     DeleteVideoFromHistoryUseCase,
@@ -118,6 +119,7 @@ class UseCasesProvider(Provider):
     confirm_channel_avatar_upload = provide(ConfirmChannelAvatarUploadUseCase)
     restore_channel = provide(RestoreChannelUseCase)
     delete_channel_avatar = provide(DeleteChannelAvatarUseCase)
+    channel_purging = provide(PurgeDeletedChannelsUseCase)
 
     # Auth
     register_channel_with_password = provide(RegisterChannelWithPasswordUseCase)
@@ -159,7 +161,7 @@ class UseCasesProvider(Provider):
     complete_video_multipart_upload = provide(CompleteVideoMultipartUploadUseCase)
     generate_video_download_url = provide(GenerateVideoDownloadUrlUseCase)
 
-    delete_not_completed_videos = provide(DeleteNotCompletedVideosUseCase)
+    create_video_cleanups = provide(CreateVideoCleanupsUseCase)
 
     # Video views
     create_video_view = provide(CreateVideoViewUseCase)

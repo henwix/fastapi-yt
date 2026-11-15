@@ -4,7 +4,7 @@ from uuid import UUID
 
 from app.domain.common.constants import Empty
 from app.domain.common.entities import BaseEntity
-from app.domain.videos.enums import VideoPrivacyStatusEnum, VideoUploadStatusEnum
+from app.domain.videos.enums import VideoDeletionStatusEnum, VideoPrivacyStatusEnum, VideoUploadStatusEnum
 from app.utils.datetime import get_current_utc_datetime
 from app.utils.videos import generate_video_id
 
@@ -19,8 +19,10 @@ class Video(BaseEntity):
     is_reported: bool = False
     created_at: datetime = field(default_factory=get_current_utc_datetime)
     views_count: int = 0
-    video_upload_id: str | None = None
-    video_upload_status: VideoUploadStatusEnum = VideoUploadStatusEnum.PENDING
+    upload_id: str | None = None
+    upload_status: VideoUploadStatusEnum = VideoUploadStatusEnum.PENDING
+    deletion_status: VideoDeletionStatusEnum = VideoDeletionStatusEnum.ACTIVE
+    locked_until: datetime | None = None
     video_file_id: UUID | None = None
     thumbnail_file_id: UUID | None = None
 

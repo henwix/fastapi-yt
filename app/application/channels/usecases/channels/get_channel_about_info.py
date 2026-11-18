@@ -10,4 +10,4 @@ class GetChannelAboutInfoUseCase:
     _reader: IChannelReader
 
     async def execute(self, query: GetChannelAboutInfoQuery) -> ChannelAboutInfo:
-        return await self._reader.try_get_about_info(slug=query.channel_slug)
+        return await self._reader.try_get_about_info_by_slug(slug=query.channel_slug)

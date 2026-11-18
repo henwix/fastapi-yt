@@ -15,7 +15,6 @@ def convert_row_to_detailed_playlist_dto(row: RowMapping) -> DetailedPlaylist:
         created_at=row.created_at,
         author_name=row.author_name,
         author_slug=row.author_slug,
-        videos_count=row.videos_count,
     )
 
 
@@ -25,7 +24,6 @@ def convert_row_to_preview_playlist_dto(row: RowMapping) -> PreviewPlaylist:
         title=row.title,
         privacy_status=PlaylistPrivacyStatusEnum(row.privacy_status),
         created_at=row.created_at,
-        videos_count=row.videos_count,
     )
 
 

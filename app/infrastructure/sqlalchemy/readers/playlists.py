@@ -1,7 +1,6 @@
 from datetime import datetime
 from uuid import UUID
 
-import sqlalchemy as sa
 from sqlalchemy import and_, select, tuple_
 
 from app.application.common.pagination import CursorPagination
@@ -34,38 +33,13 @@ class PlaylistReader(SQLAlchemyReader, IPlaylistReader):
         cursor_id_value: UUID | None,
         sorting: PlaylistsPreviewSorting,
         pagination: CursorPagination,
-    ):
-        # TODO: query refactor
-        videos_count_subquery = (
-            select(
-                PlaylistItemORM.playlist_id,
-                sa.func.count().label('videos_count'),
-            )
-            .join(VideoORM, PlaylistItemORM.video_id == VideoORM.id)
-            .where(
-                PlaylistItemORM.playlist_id == PlaylistORM.id,
-                VideoORM.privacy_status.in_(
-                    [
-                        VideoPrivacyStatusEnum.PUBLIC.value,
-                        VideoPrivacyStatusEnum.UNLISTED.value,
-                    ]
-                ),
-                VideoORM.deletion_status == VideoDeletionStatusEnum.ACTIVE.value,
-            )
-            .group_by(PlaylistItemORM.playlist_id)
-            .subquery()
-        )
-        stmt = (
-            select(
-                PlaylistORM.id,
-                PlaylistORM.title,
-                PlaylistORM.privacy_status,
-                PlaylistORM.created_at,
-                sa.func.coalesce(videos_count_subquery.c.videos_count, 0).label('videos_count'),
-            )
-            .outerjoin(videos_count_subquery, PlaylistORM.id == videos_count_subquery.c.playlist_id)
-            .where(*filters)
-        )
+    ) -> list[PreviewPlaylist]:
+        stmt = select(
+            PlaylistORM.id,
+            PlaylistORM.title,
+            PlaylistORM.privacy_status,
+            PlaylistORM.created_at,
+        ).where(*filters)
 
         sort_field = getattr(PlaylistORM, sorting.sort_by.value)
 
@@ -90,22 +64,6 @@ class PlaylistReader(SQLAlchemyReader, IPlaylistReader):
         return [convert_row_to_preview_playlist_dto(row=row) for row in playlist_rows]
 
     async def try_get_detailed_playlist_by_id(self, id: UUID) -> DetailedPlaylist:
-        videos_count_subquery = (
-            select(sa.func.count(PlaylistItemORM.playlist_id))
-            .join(VideoORM, PlaylistItemORM.video_id == VideoORM.id)
-            .where(
-                PlaylistItemORM.playlist_id == id,
-                VideoORM.privacy_status.in_(
-                    [
-                        VideoPrivacyStatusEnum.PUBLIC.value,
-                        VideoPrivacyStatusEnum.UNLISTED.value,
-                    ]
-                ),
-                VideoORM.deletion_status == VideoDeletionStatusEnum.ACTIVE.value,
-            )
-            .scalar_subquery()
-        )
-
         stmt = (
             select(
                 PlaylistORM.id,
@@ -115,7 +73,6 @@ class PlaylistReader(SQLAlchemyReader, IPlaylistReader):
                 PlaylistORM.created_at,
                 ChannelORM.name.label('author_name'),
                 ChannelORM.slug.label('author_slug'),
-                videos_count_subquery.label('videos_count'),
             )
             .join(
                 ChannelORM,
@@ -124,9 +81,7 @@ class PlaylistReader(SQLAlchemyReader, IPlaylistReader):
                     ChannelORM.deletion_status == ChannelDeletionStatusEnum.ACTIVE.value,
                 ),
             )
-            .where(
-                PlaylistORM.id == id,
-            )
+            .where(PlaylistORM.id == id)
         )
         async with self._db.get_session(commit=False) as session:
             result = await session.execute(statement=stmt)

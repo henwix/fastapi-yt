@@ -8,7 +8,8 @@ from app.application.common.sorting import SortingOrderEnum
 from app.application.subscriptions.dto import DetailedSubscription
 from app.application.subscriptions.interfaces import ISubscriptionReader
 from app.application.subscriptions.queries import SubscriptionsSorting
-from app.infrastructure.sqlalchemy.models import ChannelORM, SubscriptionORM
+from app.infrastructure.sqlalchemy.converters.subscriptions import convert_row_to_detailed_subscription_dto
+from app.infrastructure.sqlalchemy.models import ChannelORM, FileORM, SubscriptionORM
 from app.infrastructure.sqlalchemy.readers.base import SQLAlchemyReader
 
 
@@ -22,9 +23,15 @@ class SubscriptionReader(SQLAlchemyReader, ISubscriptionReader):
         pagination: CursorPagination,
     ) -> list[DetailedSubscription]:
         stmt = (
-            select(SubscriptionORM.id, SubscriptionORM.created_at, ChannelORM.slug)
+            select(
+                SubscriptionORM.id,
+                SubscriptionORM.created_at,
+                ChannelORM.slug,
+                FileORM.key.label('avatar_key'),
+            )
             .where(SubscriptionORM.subscribed_to_id == subscribed_to_id)
             .join(ChannelORM, SubscriptionORM.subscriber_id == ChannelORM.id)
+            .outerjoin(FileORM, ChannelORM.avatar_file_id == FileORM.id)
         )
         sort_field = getattr(SubscriptionORM, sorting.sort_by.value)
 
@@ -43,10 +50,8 @@ class SubscriptionReader(SQLAlchemyReader, ISubscriptionReader):
 
         async with self._db.get_session(commit=False) as session:
             result = await session.execute(statement=stmt)
-        return [
-            DetailedSubscription(subscription_id=id, created_at=created_at, channel_slug=slug)
-            for id, created_at, slug in result.all()
-        ]
+        rows = result.mappings().all()
+        return [convert_row_to_detailed_subscription_dto(row) for row in rows]
 
     async def get_subscriptions_by_id(
         self,
@@ -57,9 +62,15 @@ class SubscriptionReader(SQLAlchemyReader, ISubscriptionReader):
         pagination: CursorPagination,
     ) -> list[DetailedSubscription]:
         stmt = (
-            select(SubscriptionORM.id, SubscriptionORM.created_at, ChannelORM.slug)
+            select(
+                SubscriptionORM.id,
+                SubscriptionORM.created_at,
+                ChannelORM.slug,
+                FileORM.key.label('avatar_key'),
+            )
             .where(SubscriptionORM.subscriber_id == subscriber_id)
             .join(ChannelORM, SubscriptionORM.subscribed_to_id == ChannelORM.id)
+            .outerjoin(FileORM, ChannelORM.avatar_file_id == FileORM.id)
         )
 
         sort_field = getattr(SubscriptionORM, sorting.sort_by.value)
@@ -79,7 +90,5 @@ class SubscriptionReader(SQLAlchemyReader, ISubscriptionReader):
 
         async with self._db.get_session(commit=False) as session:
             result = await session.execute(statement=stmt)
-        return [
-            DetailedSubscription(subscription_id=id, channel_slug=slug, created_at=created_at)
-            for id, created_at, slug in result.all()
-        ]
+        rows = result.mappings().all()
+        return [convert_row_to_detailed_subscription_dto(row) for row in rows]

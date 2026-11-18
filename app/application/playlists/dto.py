@@ -16,7 +16,6 @@ class DetailedPlaylist(DTO):
     created_at: datetime
     author_name: str
     author_slug: str
-    videos_count: int
 
 
 @dataclass
@@ -25,7 +24,6 @@ class PreviewPlaylist(DTO):
     title: str
     privacy_status: PlaylistPrivacyStatusEnum
     created_at: datetime
-    videos_count: int
 
 
 @dataclass

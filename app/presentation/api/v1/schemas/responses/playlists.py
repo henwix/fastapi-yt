@@ -1,7 +1,7 @@
 from datetime import datetime
 from uuid import UUID
 
-from pydantic import Field, HttpUrl
+from pydantic import HttpUrl
 
 from app.application.playlists.dto import DetailedPlaylist, PlaylistPreviewVideo, PreviewPlaylist
 from app.domain.playlists.entities import Playlist
@@ -36,7 +36,6 @@ class DetailedPlaylistOutSchema(BaseSchema):
     created_at: datetime
     author_name: str
     author_slug: str
-    videos_count: int = Field(ge=0)
 
     @staticmethod
     def from_dto(dto: DetailedPlaylist) -> DetailedPlaylistOutSchema:
@@ -48,7 +47,6 @@ class DetailedPlaylistOutSchema(BaseSchema):
             created_at=dto.created_at,
             author_name=dto.author_name,
             author_slug=dto.author_slug,
-            videos_count=dto.videos_count,
         )
 
 
@@ -57,7 +55,6 @@ class PreviewPlaylistOutSchema(BaseSchema):
     title: str
     privacy_status: PlaylistPrivacyStatusEnum
     created_at: datetime
-    videos_count: int = Field(ge=0)
 
     @staticmethod
     def from_dto(dto: PreviewPlaylist) -> PreviewPlaylistOutSchema:
@@ -66,7 +63,6 @@ class PreviewPlaylistOutSchema(BaseSchema):
             title=dto.title,
             privacy_status=dto.privacy_status,
             created_at=dto.created_at,
-            videos_count=dto.videos_count,
         )
 
 

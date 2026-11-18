@@ -15,7 +15,7 @@ from app.infrastructure.sqlalchemy.readers.base import SQLAlchemyReader
 
 
 class ChannelReader(SQLAlchemyReader, IChannelReader):
-    async def try_get_about_info(self, slug: str) -> ChannelAboutInfo:
+    async def try_get_about_info_by_slug(self, slug: str) -> ChannelAboutInfo:
         subscribers_count_subquery = (
             select(sa.func.count(SubscriptionORM.subscribed_to_id))
             .where(SubscriptionORM.subscribed_to_id == ChannelORM.id)

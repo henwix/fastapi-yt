@@ -86,10 +86,10 @@ async def create_post(
 async def get_post(
     post_id: UUID,
     use_case: FromDishka[GetPostUseCase],
-) -> PostOutSchema:
+) -> DetailedPostOutSchema:
     query = GetPostQuery(post_id=post_id)
     post = await use_case.execute(query=query)
-    return PostOutSchema.from_entity(entity=post)
+    return DetailedPostOutSchema.from_dto(dto=post)
 
 
 @router.get(

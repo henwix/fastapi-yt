@@ -12,6 +12,8 @@ def convert_row_to_detailed_post_comment_dto(row: RowMapping) -> DetailedPostCom
         is_edited=row.is_edited,
         reply_comment_id=row.reply_comment_id,
         created_at=row.created_at,
-        author_slug=row.author_slug,
-        author_avatar=f'{settings.s3_public_bucket_url}/{row.author_avatar_key}' if row.author_avatar_key else None,
+        channel_slug=row.channel_slug,
+        channel_avatar_url=f'{settings.s3_public_bucket_url}/{row.channel_avatar_key}'
+        if row.channel_avatar_key
+        else None,
     )

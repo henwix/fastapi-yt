@@ -9,5 +9,7 @@ def convert_row_to_detailed_subscription_dto(row: RowMapping) -> DetailedSubscri
         subscription_id=row.id,
         channel_slug=row.slug,
         created_at=row.created_at,
-        channel_avatar=f'{settings.s3_public_bucket_url}/{row.avatar_key}' if row.avatar_key else None,
+        channel_avatar_url=f'{settings.s3_public_bucket_url}/{row.channel_avatar_key}'
+        if row.channel_avatar_key
+        else None,
     )

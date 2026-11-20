@@ -2,6 +2,7 @@ from datetime import datetime
 from uuid import UUID
 
 from sqlalchemy import select, tuple_
+from sqlalchemy.orm import aliased
 
 from app.application.common.pagination import CursorPagination
 from app.application.common.sorting import SortingOrderEnum
@@ -27,6 +28,8 @@ from app.infrastructure.sqlalchemy.readers.base import SQLAlchemyReader
 
 class VideoReader(SQLAlchemyReader, IVideoReader):
     async def try_get_detailed_video_by_id(self, id: str) -> DetailedVideo:
+        thumbnail_file_orm = aliased(FileORM)
+        avatar_file_orm = aliased(FileORM)
         stmt = (
             select(
                 VideoORM.id,
@@ -39,10 +42,12 @@ class VideoReader(SQLAlchemyReader, IVideoReader):
                 VideoORM.channel_id,
                 ChannelORM.name.label('channel_name'),
                 ChannelORM.slug.label('channel_slug'),
-                FileORM.key.label('thumbnail_key'),
+                avatar_file_orm.key.label('channel_avatar_key'),
+                thumbnail_file_orm.key.label('video_thumbnail_key'),
             )
             .join(ChannelORM, VideoORM.channel_id == ChannelORM.id)
-            .outerjoin(FileORM, VideoORM.thumbnail_file_id == FileORM.id)
+            .outerjoin(thumbnail_file_orm, VideoORM.thumbnail_file_id == thumbnail_file_orm.id)
+            .outerjoin(avatar_file_orm, ChannelORM.avatar_file_id == avatar_file_orm.id)
             .where(
                 VideoORM.id == id,
                 VideoORM.upload_status == VideoUploadStatusEnum.COMPLETED.value,
@@ -56,7 +61,6 @@ class VideoReader(SQLAlchemyReader, IVideoReader):
 
         if video_row is None:
             raise VideoNotFoundError(video_id=id)
-
         return convert_row_to_detailed_video_dto(row=video_row)
 
     async def get_channel_videos(
@@ -73,7 +77,7 @@ class VideoReader(SQLAlchemyReader, IVideoReader):
                 VideoORM.title,
                 VideoORM.views_count,
                 VideoORM.created_at,
-                FileORM.key.label('thumbnail_key'),
+                FileORM.key.label('video_thumbnail_key'),
             )
             .outerjoin(FileORM, VideoORM.thumbnail_file_id == FileORM.id)
             .where(
@@ -126,7 +130,7 @@ class VideoReader(SQLAlchemyReader, IVideoReader):
                 VideoORM.upload_status,
                 VideoORM.views_count,
                 VideoORM.created_at,
-                FileORM.key.label('thumbnail_key'),
+                FileORM.key.label('video_thumbnail_key'),
             )
             .outerjoin(FileORM, VideoORM.thumbnail_file_id == FileORM.id)
             .where(

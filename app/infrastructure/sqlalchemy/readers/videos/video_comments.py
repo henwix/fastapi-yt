@@ -30,8 +30,8 @@ class VideoCommentReader(SQLAlchemyReader, IVideoCommentReader):
                 VideoCommentORM.is_edited,
                 VideoCommentORM.reply_comment_id,
                 VideoCommentORM.created_at,
-                ChannelORM.slug.label('author_slug'),
-                FileORM.key.label('author_avatar_key'),
+                ChannelORM.slug.label('channel_slug'),
+                FileORM.key.label('channel_avatar_key'),
             )
             .where(*filters)
             .join(ChannelORM, VideoCommentORM.channel_id == ChannelORM.id)

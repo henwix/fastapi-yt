@@ -9,7 +9,7 @@ from app.application.posts.queries import PostsSorting
 
 class IPostReader(ABC):
     @abstractmethod
-    async def get_many(
+    async def get_many_by_channel_id(
         self,
         channel_id: UUID,
         cursor_sort_value: datetime | None,
@@ -17,3 +17,6 @@ class IPostReader(ABC):
         sorting: PostsSorting,
         pagination: CursorPagination,
     ) -> list[DetailedPost]: ...
+
+    @abstractmethod
+    async def try_get_detailed_by_id(self, id: UUID) -> DetailedPost: ...

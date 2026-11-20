@@ -28,7 +28,7 @@ class DetailedSubscriptionOutSchema(BaseSchema):
     subscription_id: UUID
     channel_slug: str
     created_at: datetime
-    channel_avatar: HttpUrl | None
+    channel_avatar_url: HttpUrl | None
 
     @staticmethod
     def from_dto(dto: DetailedSubscription) -> DetailedSubscriptionOutSchema:
@@ -36,5 +36,5 @@ class DetailedSubscriptionOutSchema(BaseSchema):
             subscription_id=dto.subscription_id,
             channel_slug=dto.channel_slug,
             created_at=dto.created_at,
-            channel_avatar=dto.channel_avatar,
+            channel_avatar_url=dto.channel_avatar_url,
         )

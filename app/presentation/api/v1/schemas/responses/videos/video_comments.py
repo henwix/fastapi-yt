@@ -35,8 +35,8 @@ class DetailedVideoCommentOutSchema(BaseSchema):
     is_edited: bool
     reply_comment_id: UUID | None
     created_at: datetime
-    author_slug: str
-    author_avatar: HttpUrl | None
+    channel_slug: str
+    channel_avatar_url: HttpUrl | None
 
     @staticmethod
     def from_dto(dto: DetailedVideoComment) -> DetailedVideoCommentOutSchema:
@@ -47,6 +47,6 @@ class DetailedVideoCommentOutSchema(BaseSchema):
             is_edited=dto.is_edited,
             reply_comment_id=dto.reply_comment_id,
             created_at=dto.created_at,
-            author_slug=dto.author_slug,
-            author_avatar=dto.author_avatar,
+            channel_slug=dto.channel_slug,
+            channel_avatar_url=dto.channel_avatar_url,
         )

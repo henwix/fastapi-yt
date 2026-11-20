@@ -13,8 +13,11 @@ def convert_row_to_detailed_playlist_dto(row: RowMapping) -> DetailedPlaylist:
         description=row.description,
         privacy_status=PlaylistPrivacyStatusEnum(row.privacy_status),
         created_at=row.created_at,
-        author_name=row.author_name,
-        author_slug=row.author_slug,
+        channel_name=row.channel_name,
+        channel_slug=row.channel_slug,
+        channel_avatar_url=f'{settings.s3_public_bucket_url}/{row.channel_avatar_key}'
+        if row.channel_avatar_key
+        else None,
     )
 
 
@@ -35,7 +38,9 @@ def convert_row_to_playlist_preview_video_dto(row: RowMapping) -> PlaylistPrevie
         created_at=row.created_at,
         views_count=row.views_count,
         added_at=row.added_at,
-        author_name=row.author_name,
-        author_slug=row.author_slug,
-        thumbnail_url=f'{settings.s3_public_bucket_url}/{row.thumbnail_key}' if row.thumbnail_key else None,
+        channel_name=row.channel_name,
+        channel_slug=row.channel_slug,
+        video_thumbnail_url=f'{settings.s3_public_bucket_url}/{row.video_thumbnail_key}'
+        if row.video_thumbnail_key
+        else None,
     )

@@ -13,5 +13,5 @@ class DetailedVideoComment(DTO):
     is_edited: bool
     reply_comment_id: UUID | None
     created_at: datetime
-    author_slug: str
-    author_avatar: str | None
+    channel_slug: str
+    channel_avatar_url: str | None

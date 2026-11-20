@@ -34,9 +34,10 @@ class DetailedVideoOutSchema(BaseSchema):
     is_reported: bool
     created_at: datetime
     views_count: int
+    video_thumbnail_url: HttpUrl | None
     channel_name: str
     channel_slug: str
-    thumbnail_url: HttpUrl | None
+    channel_avatar_url: HttpUrl | None
 
     @staticmethod
     def from_dto(dto: DetailedVideo) -> DetailedVideoOutSchema:
@@ -48,9 +49,10 @@ class DetailedVideoOutSchema(BaseSchema):
             is_reported=dto.is_reported,
             created_at=dto.created_at,
             views_count=dto.views_count,
-            thumbnail_url=dto.thumbnail_url,
+            video_thumbnail_url=dto.video_thumbnail_url,
             channel_name=dto.channel_name,
             channel_slug=dto.channel_slug,
+            channel_avatar_url=dto.channel_avatar_url,
         )
 
 
@@ -59,7 +61,7 @@ class ChannelPreviewVideoOutSchema(BaseSchema):
     title: str
     views_count: int
     created_at: datetime
-    thumbnail_url: HttpUrl | None
+    video_thumbnail_url: HttpUrl | None
 
     @staticmethod
     def from_dto(dto: ChannelPreviewVideo) -> ChannelPreviewVideoOutSchema:
@@ -68,7 +70,7 @@ class ChannelPreviewVideoOutSchema(BaseSchema):
             title=dto.title,
             views_count=dto.views_count,
             created_at=dto.created_at,
-            thumbnail_url=dto.thumbnail_url,
+            video_thumbnail_url=dto.video_thumbnail_url,
         )
 
 
@@ -79,7 +81,7 @@ class PersonalPreviewVideoOutSchema(BaseSchema):
     upload_status: VideoUploadStatusEnum
     views_count: int
     created_at: datetime
-    thumbnail_url: HttpUrl | None
+    video_thumbnail_url: HttpUrl | None
 
     @staticmethod
     def from_dto(dto: PersonalPreviewVideo) -> PersonalPreviewVideoOutSchema:
@@ -90,5 +92,5 @@ class PersonalPreviewVideoOutSchema(BaseSchema):
             upload_status=dto.upload_status,
             views_count=dto.views_count,
             created_at=dto.created_at,
-            thumbnail_url=dto.thumbnail_url,
+            video_thumbnail_url=dto.video_thumbnail_url,
         )

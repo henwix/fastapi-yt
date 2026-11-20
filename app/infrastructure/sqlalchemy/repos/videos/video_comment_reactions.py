@@ -1,7 +1,7 @@
 from typing import NoReturn, cast
 from uuid import UUID
 
-from sqlalchemy import CursorResult, delete, select, update
+from sqlalchemy import CursorResult, delete
 from sqlalchemy.dialects.postgresql import insert
 from sqlalchemy.exc import DBAPIError, IntegrityError
 
@@ -49,32 +49,6 @@ class VideoCommentReactionRepo(SQLAlchemyRepo, IVideoCommentReactionRepo):
                 self._parse_db_error(error=e, video_comment_reaction=video_comment_reaction)
         model = result.scalar_one_or_none()
         return model.to_entity() if model is not None else None
-
-    async def get_by_video_comment_id_and_channel_id(
-        self,
-        video_comment_id: UUID,
-        channel_id: UUID,
-    ) -> VideoCommentReaction | None:
-        stmt = select(VideoCommentReactionORM).where(
-            VideoCommentReactionORM.video_comment_id == video_comment_id,
-            VideoCommentReactionORM.channel_id == channel_id,
-        )
-        async with self._db.get_session(commit=False) as session:
-            result = await session.execute(statement=stmt)
-        video_comment_reaction = result.scalar_one_or_none()
-        return video_comment_reaction.to_entity() if video_comment_reaction else None
-
-    async def update(self, video_comment_reaction: VideoCommentReaction) -> VideoCommentReaction | None:
-        stmt = (
-            update(VideoCommentReactionORM)
-            .where(VideoCommentReactionORM.id == video_comment_reaction.id)
-            .values(reaction_type=video_comment_reaction.reaction_type.value)
-            .returning(VideoCommentReactionORM)
-        )
-        async with self._db.get_session(commit=True) as session:
-            result = await session.execute(statement=stmt)
-        updated_video_comment_reaction = result.scalar_one_or_none()
-        return updated_video_comment_reaction.to_entity() if updated_video_comment_reaction else None
 
     async def delete_by_video_comment_id_and_channel_id(self, video_comment_id: UUID, channel_id: UUID) -> bool:
         stmt = delete(VideoCommentReactionORM).where(

@@ -60,7 +60,10 @@ class PostCommentRepo(SQLAlchemyRepo, IPostCommentRepo):
         stmt = (
             update(PostCommentORM)
             .where(PostCommentORM.id == post_comment.id)
-            .values(text=post_comment.text, is_edited=post_comment.is_edited)
+            .values(
+                text=post_comment.text,
+                is_edited=post_comment.is_edited,
+            )
             .returning(PostCommentORM)
         )
         async with self._db.get_session(commit=True) as session:

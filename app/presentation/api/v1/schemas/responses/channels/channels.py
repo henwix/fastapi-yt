@@ -51,7 +51,7 @@ class DetailedChannelOutSchema(BaseSchema):
     is_active: bool
     deletion_status: ChannelDeletionStatusEnum
     deleted_at: datetime | None
-    avatar_url: HttpUrl | None
+    channel_avatar_url: HttpUrl | None
 
     @staticmethod
     def from_dto(dto: DetailedChannel) -> DetailedChannelOutSchema:
@@ -67,7 +67,7 @@ class DetailedChannelOutSchema(BaseSchema):
             is_active=dto.is_active,
             deletion_status=dto.deletion_status,
             deleted_at=dto.deleted_at,
-            avatar_url=dto.avatar_url,
+            channel_avatar_url=dto.channel_avatar_url,
         )
 
 

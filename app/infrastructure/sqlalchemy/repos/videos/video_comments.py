@@ -60,7 +60,10 @@ class VideoCommentRepo(SQLAlchemyRepo, IVideoCommentRepo):
         stmt = (
             update(VideoCommentORM)
             .where(VideoCommentORM.id == video_comment.id)
-            .values(text=video_comment.text, is_edited=video_comment.is_edited)
+            .values(
+                text=video_comment.text,
+                is_edited=video_comment.is_edited,
+            )
             .returning(VideoCommentORM)
         )
         async with self._db.get_session(commit=True) as session:

@@ -25,7 +25,7 @@ class GetPlaylistUseCase:
 
                 channel = await self._channel_service.try_get_existing_by_id_for_auth(id=query.current_channel_id)
 
-                if channel.slug.to_raw() != playlist.author_slug:
+                if channel.slug.to_raw() != playlist.channel_slug:
                     raise PlaylistAccessForbiddenError(playlist_id=playlist.id, channel_id=channel.id)
 
         return playlist

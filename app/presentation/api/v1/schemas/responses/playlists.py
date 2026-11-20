@@ -34,8 +34,9 @@ class DetailedPlaylistOutSchema(BaseSchema):
     description: str
     privacy_status: PlaylistPrivacyStatusEnum
     created_at: datetime
-    author_name: str
-    author_slug: str
+    channel_name: str
+    channel_slug: str
+    channel_avatar_url: HttpUrl | None
 
     @staticmethod
     def from_dto(dto: DetailedPlaylist) -> DetailedPlaylistOutSchema:
@@ -45,8 +46,9 @@ class DetailedPlaylistOutSchema(BaseSchema):
             description=dto.description,
             privacy_status=dto.privacy_status,
             created_at=dto.created_at,
-            author_name=dto.author_name,
-            author_slug=dto.author_slug,
+            channel_name=dto.channel_name,
+            channel_slug=dto.channel_slug,
+            channel_avatar_url=dto.channel_avatar_url,
         )
 
 
@@ -73,9 +75,9 @@ class PlaylistPreviewVideoOutSchema(BaseSchema):
     created_at: datetime
     views_count: int
     added_at: datetime
-    author_name: str
-    author_slug: str
-    thumbnail_url: HttpUrl | None
+    channel_name: str
+    channel_slug: str
+    video_thumbnail_url: HttpUrl | None
 
     @staticmethod
     def from_dto(dto: PlaylistPreviewVideo) -> PlaylistPreviewVideoOutSchema:
@@ -86,7 +88,7 @@ class PlaylistPreviewVideoOutSchema(BaseSchema):
             created_at=dto.created_at,
             views_count=dto.views_count,
             added_at=dto.added_at,
-            author_name=dto.author_name,
-            author_slug=dto.author_slug,
-            thumbnail_url=dto.thumbnail_url,
+            channel_name=dto.channel_name,
+            channel_slug=dto.channel_slug,
+            video_thumbnail_url=dto.video_thumbnail_url,
         )

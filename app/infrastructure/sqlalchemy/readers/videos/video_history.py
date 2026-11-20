@@ -11,7 +11,7 @@ from app.application.videos.queries import VideoHistorySorting, VideoHistorySort
 from app.domain.channels.enums import ChannelDeletionStatusEnum
 from app.domain.videos.enums import VideoDeletionStatusEnum
 from app.infrastructure.sqlalchemy.converters import convert_row_to_preview_video_history_dto
-from app.infrastructure.sqlalchemy.models import ChannelORM, VideoHistoryItemORM, VideoORM
+from app.infrastructure.sqlalchemy.models import ChannelORM, FileORM, VideoHistoryItemORM, VideoORM
 from app.infrastructure.sqlalchemy.readers.base import SQLAlchemyReader
 
 
@@ -32,11 +32,13 @@ class VideoHistoryReader(SQLAlchemyReader, IVideoHistoryReader):
                 VideoORM.created_at,
                 VideoORM.views_count,
                 VideoHistoryItemORM.created_at.label('watched_at'),
-                ChannelORM.name.label('author_name'),
-                ChannelORM.slug.label('author_slug'),
+                ChannelORM.name.label('channel_name'),
+                ChannelORM.slug.label('channel_slug'),
+                FileORM.key.label('video_thumbnail_key'),
             )
             .join(VideoORM, VideoHistoryItemORM.video_id == VideoORM.id)
             .join(ChannelORM, VideoORM.channel_id == ChannelORM.id)
+            .outerjoin(FileORM, VideoORM.thumbnail_file_id == FileORM.id)
             .where(
                 VideoHistoryItemORM.channel_id == channel_id,
                 ChannelORM.deletion_status == ChannelDeletionStatusEnum.ACTIVE.value,

@@ -13,5 +13,6 @@ class PreviewVideoHistory(DTO):
     created_at: datetime
     views_count: int
     watched_at: datetime
-    author_name: str
-    author_slug: str
+    channel_name: str
+    channel_slug: str
+    video_thumbnail_url: str | None

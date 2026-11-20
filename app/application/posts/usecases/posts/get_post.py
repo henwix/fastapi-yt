@@ -1,13 +1,13 @@
 from dataclasses import dataclass
 
+from app.application.posts.dto import DetailedPost
+from app.application.posts.interfaces import IPostReader
 from app.application.posts.queries import GetPostQuery
-from app.domain.posts.entities import Post
-from app.domain.posts.services import IPostService
 
 
 @dataclass
 class GetPostUseCase:
-    _post_service: IPostService
+    _post_reader: IPostReader
 
-    async def execute(self, query: GetPostQuery) -> Post:
-        return await self._post_service.try_get_existing_by_id(id=query.post_id)
+    async def execute(self, query: GetPostQuery) -> DetailedPost:
+        return await self._post_reader.try_get_detailed_by_id(id=query.post_id)

@@ -14,8 +14,9 @@ class DetailedPlaylist(DTO):
     description: str
     privacy_status: PlaylistPrivacyStatusEnum
     created_at: datetime
-    author_name: str
-    author_slug: str
+    channel_name: str
+    channel_slug: str
+    channel_avatar_url: str | None
 
 
 @dataclass
@@ -33,7 +34,7 @@ class PlaylistPreviewVideo(DTO):
     privacy_status: VideoPrivacyStatusEnum
     created_at: datetime
     views_count: int
-    thumbnail_url: str | None
+    video_thumbnail_url: str | None
     added_at: datetime
-    author_name: str
-    author_slug: str
+    channel_name: str
+    channel_slug: str

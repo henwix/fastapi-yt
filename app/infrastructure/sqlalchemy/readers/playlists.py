@@ -1,7 +1,7 @@
 from datetime import datetime
 from uuid import UUID
 
-from sqlalchemy import and_, select, tuple_
+from sqlalchemy import select, tuple_
 
 from app.application.common.pagination import CursorPagination
 from app.application.common.sorting import SortingOrderEnum
@@ -71,25 +71,22 @@ class PlaylistReader(SQLAlchemyReader, IPlaylistReader):
                 PlaylistORM.description,
                 PlaylistORM.privacy_status,
                 PlaylistORM.created_at,
-                ChannelORM.name.label('author_name'),
-                ChannelORM.slug.label('author_slug'),
+                ChannelORM.name.label('channel_name'),
+                ChannelORM.slug.label('channel_slug'),
+                FileORM.key.label('channel_avatar_key'),
             )
-            .join(
-                ChannelORM,
-                and_(
-                    PlaylistORM.channel_id == ChannelORM.id,
-                    ChannelORM.deletion_status == ChannelDeletionStatusEnum.ACTIVE.value,
-                ),
+            .join(ChannelORM, PlaylistORM.channel_id == ChannelORM.id)
+            .outerjoin(FileORM, ChannelORM.avatar_file_id == FileORM.id)
+            .where(
+                PlaylistORM.id == id,
+                ChannelORM.deletion_status == ChannelDeletionStatusEnum.ACTIVE.value,
             )
-            .where(PlaylistORM.id == id)
         )
         async with self._db.get_session(commit=False) as session:
             result = await session.execute(statement=stmt)
         playlist_row = result.mappings().one_or_none()
-
         if playlist_row is None:
             raise PlaylistNotFoundError(playlist_id=id)
-
         return convert_row_to_detailed_playlist_dto(row=playlist_row)
 
     async def get_playlists_by_channel_id(
@@ -141,9 +138,9 @@ class PlaylistReader(SQLAlchemyReader, IPlaylistReader):
                 VideoORM.created_at,
                 VideoORM.views_count,
                 PlaylistItemORM.created_at.label('added_at'),
-                ChannelORM.name.label('author_name'),
-                ChannelORM.slug.label('author_slug'),
-                FileORM.key.label('thumbnail_key'),
+                ChannelORM.name.label('channel_name'),
+                ChannelORM.slug.label('channel_slug'),
+                FileORM.key.label('video_thumbnail_key'),
             )
             .join(VideoORM, PlaylistItemORM.video_id == VideoORM.id)
             .join(ChannelORM, VideoORM.channel_id == ChannelORM.id)

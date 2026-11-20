@@ -32,5 +32,7 @@ def convert_row_to_channel_detailed_dto(row: RowMapping) -> DetailedChannel:
         is_active=row.is_active,
         deletion_status=ChannelDeletionStatusEnum(row.deletion_status),
         deleted_at=row.deleted_at,
-        avatar_url=f'{settings.s3_public_bucket_url}/{row.avatar_key}' if row.avatar_key is not None else None,
+        channel_avatar_url=f'{settings.s3_public_bucket_url}/{row.channel_avatar_key}'
+        if row.channel_avatar_key is not None
+        else None,
     )

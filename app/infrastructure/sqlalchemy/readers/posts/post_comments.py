@@ -30,8 +30,8 @@ class PostCommentReader(SQLAlchemyReader, IPostCommentReader):
                 PostCommentORM.is_edited,
                 PostCommentORM.reply_comment_id,
                 PostCommentORM.created_at,
-                ChannelORM.slug.label('author_slug'),
-                FileORM.key.label('author_avatar_key'),
+                ChannelORM.slug.label('channel_slug'),
+                FileORM.key.label('channel_avatar_key'),
             )
             .where(*filters)
             .join(ChannelORM, PostCommentORM.channel_id == ChannelORM.id)

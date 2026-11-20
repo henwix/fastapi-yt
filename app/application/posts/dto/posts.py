@@ -12,3 +12,4 @@ class DetailedPost(DTO):
     created_at: datetime
     channel_name: str
     channel_slug: str
+    channel_avatar_url: str | None

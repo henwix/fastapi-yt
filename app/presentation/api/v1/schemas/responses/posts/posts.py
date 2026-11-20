@@ -1,6 +1,8 @@
 from datetime import datetime
 from uuid import UUID
 
+from pydantic import HttpUrl
+
 from app.application.posts.dto import DetailedPost
 from app.domain.posts.entities import Post
 from app.presentation.api.v1.schemas.base import BaseSchema
@@ -26,6 +28,7 @@ class DetailedPostOutSchema(BaseSchema):
     created_at: datetime
     channel_name: str
     channel_slug: str
+    channel_avatar_url: HttpUrl | None
 
     @staticmethod
     def from_dto(dto: DetailedPost) -> DetailedPostOutSchema:
@@ -35,4 +38,5 @@ class DetailedPostOutSchema(BaseSchema):
             created_at=dto.created_at,
             channel_name=dto.channel_name,
             channel_slug=dto.channel_slug,
+            channel_avatar_url=dto.channel_avatar_url,
         )

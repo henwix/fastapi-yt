@@ -2,8 +2,8 @@ import pytest
 from dishka import AsyncContainer
 from sqlalchemy.ext.asyncio import AsyncSession
 
+from app.application.posts.dto import DetailedPost
 from app.application.posts.usecases import GetPostUseCase
-from app.domain.posts.entities import Post
 from app.domain.posts.exceptions import PostNotFoundError
 from tests.factories.models.channels import ChannelORMFactory
 from tests.factories.models.posts import PostORMFactory
@@ -27,11 +27,13 @@ async def test_get_post_returns_correct_entity(mock_container: AsyncContainer):
 
         result = await use_case.execute(query=query)
 
-        assert isinstance(result, Post)
+        assert isinstance(result, DetailedPost)
         assert result.id == db_post.id
-        assert result.channel_id == db_post.channel_id
         assert result.text == db_post.text
         assert result.created_at == db_post.created_at
+        assert result.channel_name == channel.name
+        assert result.channel_slug == channel.slug
+        assert result.channel_avatar_url is None
 
 
 @pytest.mark.asyncio

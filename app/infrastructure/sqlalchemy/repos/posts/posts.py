@@ -33,7 +33,14 @@ class PostRepo(SQLAlchemyRepo, IPostRepo):
         return model.to_entity()
 
     async def update(self, post: Post) -> Post | None:
-        stmt = update(PostORM).where(PostORM.id == post.id).values(text=post.text).returning(PostORM)
+        stmt = (
+            update(PostORM)
+            .where(PostORM.id == post.id)
+            .values(
+                text=post.text,
+            )
+            .returning(PostORM)
+        )
         async with self._db.get_session(commit=True) as session:
             result = await session.execute(statement=stmt)
         updated_post = result.scalar_one_or_none()

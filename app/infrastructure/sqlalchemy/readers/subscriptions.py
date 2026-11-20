@@ -27,7 +27,7 @@ class SubscriptionReader(SQLAlchemyReader, ISubscriptionReader):
                 SubscriptionORM.id,
                 SubscriptionORM.created_at,
                 ChannelORM.slug,
-                FileORM.key.label('avatar_key'),
+                FileORM.key.label('channel_avatar_key'),
             )
             .where(SubscriptionORM.subscribed_to_id == subscribed_to_id)
             .join(ChannelORM, SubscriptionORM.subscriber_id == ChannelORM.id)
@@ -66,7 +66,7 @@ class SubscriptionReader(SQLAlchemyReader, ISubscriptionReader):
                 SubscriptionORM.id,
                 SubscriptionORM.created_at,
                 ChannelORM.slug,
-                FileORM.key.label('avatar_key'),
+                FileORM.key.label('channel_avatar_key'),
             )
             .where(SubscriptionORM.subscriber_id == subscriber_id)
             .join(ChannelORM, SubscriptionORM.subscribed_to_id == ChannelORM.id)

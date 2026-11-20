@@ -39,7 +39,7 @@ class GetChannelPostsUseCase:
 
         async with self._tm.begin(commit=False):
             channel = await self._channel_service.try_get_existing_by_slug(slug=query.channel_slug)
-            posts = await self._post_reader.get_many(
+            posts = await self._post_reader.get_many_by_channel_id(
                 channel_id=channel.id,
                 cursor_sort_value=cursor_sort_value,
                 cursor_id_value=cursor_id_value,

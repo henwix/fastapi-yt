@@ -59,9 +59,9 @@ async def test_get_channel_returns_correct_channel_dto(
         assert retrieved_channel.created_at == db_channel.created_at
         assert retrieved_channel.updated_at == db_channel.updated_at
         if has_avatar:
-            assert retrieved_channel.avatar_url == f'{settings.s3_public_bucket_url}/{avatar_file.key}'
+            assert retrieved_channel.channel_avatar_url == f'{settings.s3_public_bucket_url}/{avatar_file.key}'
         else:
-            assert retrieved_channel.avatar_url is None
+            assert retrieved_channel.channel_avatar_url is None
         if is_deleted:
             assert retrieved_channel.deletion_status == ChannelDeletionStatusEnum.DELETED
             assert isinstance(retrieved_channel.deleted_at, datetime)
@@ -90,7 +90,7 @@ async def test_get_channel_returns_correct_channel_dto_if_not_active(mock_contai
         assert retrieved_channel.is_active == db_channel.is_active
         assert retrieved_channel.created_at == db_channel.created_at
         assert retrieved_channel.updated_at == db_channel.updated_at
-        assert retrieved_channel.avatar_url is None
+        assert retrieved_channel.channel_avatar_url is None
 
 
 @pytest.mark.asyncio

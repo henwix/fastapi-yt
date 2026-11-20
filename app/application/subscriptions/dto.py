@@ -10,4 +10,4 @@ class DetailedSubscription(DTO):
     subscription_id: UUID
     channel_slug: str
     created_at: datetime
-    channel_avatar: str | None
+    channel_avatar_url: str | None

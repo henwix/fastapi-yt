@@ -75,7 +75,7 @@ class ChannelReader(SQLAlchemyReader, IChannelReader):
                 ChannelORM.updated_at,
                 ChannelORM.deletion_status,
                 ChannelORM.deleted_at,
-                FileORM.key.label('avatar_key'),
+                FileORM.key.label('channel_avatar_key'),
             )
             .outerjoin(FileORM, ChannelORM.avatar_file_id == FileORM.id)
             .where(

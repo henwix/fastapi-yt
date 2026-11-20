@@ -53,7 +53,7 @@ async def test_get_video_returns_correct_dto_without_auth_if_video_completed_and
         assert result.is_reported == video.is_reported
         assert result.created_at == video.created_at
         assert result.views_count == video.views_count
-        assert result.thumbnail_url is None
+        assert result.video_thumbnail_url is None
         assert result.channel_id == channel.id
         assert result.channel_name == channel.name
         assert result.channel_slug == channel.slug
@@ -86,7 +86,7 @@ async def test_get_video_returns_correct_dto_with_auth_if_video_completed_and_pr
         assert result.is_reported == video.is_reported
         assert result.created_at == video.created_at
         assert result.views_count == video.views_count
-        assert result.thumbnail_url is None
+        assert result.video_thumbnail_url is None
         assert result.channel_id == channel.id
         assert result.channel_name == channel.name
         assert result.channel_slug == channel.slug
@@ -94,7 +94,7 @@ async def test_get_video_returns_correct_dto_with_auth_if_video_completed_and_pr
 
 @pytest.mark.asyncio
 @pytest.mark.parametrize('thumbnail_file_type', ['png', 'webp', 'jpg', 'jpeg'])
-async def test_get_video_returns_correct_dto_with_thumbnail_url(
+async def test_get_video_returns_correct_dto_with_video_thumbnail_url(
     container: AsyncContainer,
     thumbnail_file_type: str,
 ):
@@ -130,7 +130,7 @@ async def test_get_video_returns_correct_dto_with_thumbnail_url(
         assert result.is_reported == video.is_reported
         assert result.created_at == video.created_at
         assert result.views_count == video.views_count
-        assert result.thumbnail_url == f'{settings.s3_public_bucket_url}/{thumbnail_file.key}'
+        assert result.video_thumbnail_url == f'{settings.s3_public_bucket_url}/{thumbnail_file.key}'
         assert result.channel_id == channel.id
         assert result.channel_name == channel.name
         assert result.channel_slug == channel.slug

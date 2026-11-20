@@ -32,7 +32,7 @@ class DetailedChannel(DTO):
     is_active: bool
     deletion_status: ChannelDeletionStatusEnum
     deleted_at: datetime | None
-    avatar_url: str | None
+    channel_avatar_url: str | None
 
 
 @dataclass(kw_only=True)

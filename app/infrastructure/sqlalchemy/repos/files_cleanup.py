@@ -81,7 +81,6 @@ class FileCleanupRepo(SQLAlchemyRepo, IFileCleanupRepo):
         )
         async with self._db.get_session(commit=True) as session:
             result = await session.execute(statement=stmt)
-
         return [cleanup.to_entity() for cleanup in result.scalars()]
 
     async def delete_many(self, ids: list[UUID]) -> int:
